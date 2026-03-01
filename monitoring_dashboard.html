@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>05 — Threat Monitoring Dashboard | Ark v3 (Standalone)</title>
+<style>
+/* ═══ FOUNDATION ═══ */
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;
+  --glass:rgba(255,255,255,0.05);--glass2:rgba(255,255,255,0.09);
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --primary:#00ff88;--danger:#ff4444;--warn:#ffaa00;--info:#00aaff;--purple:#aa44ff;
+  --text:#e8e8f0;--muted:#888;
+  --r:12px;--r2:8px;
+  --shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+.gl{background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;box-shadow:var(--shadow)}
+h1{font-size:1.9rem;font-weight:700}
+h2{font-size:1.3rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
+.accent{color:var(--primary)}
+.muted{color:var(--muted);font-size:.85rem}
+.container{max-width:1100px;margin:0 auto;padding:1.5rem 1rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
+@media(max-width:768px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+/* tabs */
+.stab{display:flex;gap:.25rem;background:var(--bg3);border-radius:var(--r2);padding:.25rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.stab button{flex:1;min-width:80px;padding:.45rem .8rem;background:transparent;border:none;border-radius:6px;color:var(--muted);cursor:pointer;font-size:.82rem;font-weight:600;transition:all .2s;white-space:nowrap}
+.stab button.active{background:var(--glass2);color:var(--text);border:1px solid var(--border2)}
+.spanel{display:none}
+.spanel.active{display:block}
+/* threat level badge */
+.threat-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .8rem;border-radius:20px;font-size:.8rem;font-weight:700;letter-spacing:.05em}
+.t-critical{background:rgba(255,68,68,.15);color:var(--danger);border:1px solid rgba(255,68,68,.4)}
+.t-high{background:rgba(255,170,0,.15);color:var(--warn);border:1px solid rgba(255,170,0,.4)}
+.t-elevated{background:rgba(255,200,0,.12);color:#ffd700;border:1px solid rgba(255,200,0,.3)}
+.t-moderate{background:rgba(0,170,255,.12);color:var(--info);border:1px solid rgba(0,170,255,.3)}
+.t-low{background:rgba(0,255,136,.12);color:var(--primary);border:1px solid rgba(0,255,136,.3)}
+/* pulse dot */
+.pulse{display:inline-block;width:8px;height:8px;border-radius:50%;animation:pulse 1.5s infinite}
+.pulse-r{background:var(--danger);box-shadow:0 0 0 0 rgba(255,68,68,.6)}
+.pulse-y{background:var(--warn);box-shadow:0 0 0 0 rgba(255,170,0,.6);animation-delay:.3s}
+.pulse-g{background:var(--primary);box-shadow:0 0 0 0 rgba(0,255,136,.6);animation-delay:.6s}
+@keyframes pulse{0%{transform:scale(1);opacity:1}50%{transform:scale(1.3);opacity:.7}100%{transform:scale(1);opacity:1}}
+/* index card */
+.idx-card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r2);padding:1rem;text-align:center;transition:all .2s}
+.idx-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.idx-val{font-size:1.6rem;font-weight:700;margin:.3rem 0}
+.idx-delta{font-size:.75rem;padding:.15rem .4rem;border-radius:3px;display:inline-block}
+.delta-up{background:rgba(255,68,68,.15);color:var(--danger)}
+.delta-dn{background:rgba(0,255,136,.15);color:var(--primary)}
+/* sparkline placeholder */
+.sparkline{height:30px;display:flex;align-items:flex-end;gap:1px;margin-top:.4rem}
+.spark-bar{flex:1;border-radius:1px 1px 0 0;transition:height .3s}
+/* news feed */
+.news-item{border-left:3px solid var(--border2);padding:.6rem .8rem;margin-bottom:.6rem;font-size:.85rem;background:var(--glass);border-radius:0 var(--r2) var(--r2) 0;cursor:pointer;transition:all .2s}
+.news-item:hover{border-left-color:var(--primary);background:var(--glass2)}
+.news-time{font-size:.7rem;color:var(--muted)}
+/* scenario matrix */
+.matrix-row{display:grid;grid-template-columns:1fr auto auto auto;gap:.5rem;align-items:center;padding:.6rem .5rem;border-bottom:1px solid var(--border);font-size:.82rem}
+.matrix-row:last-child{border-bottom:none}
+.matrix-row:hover{background:var(--glass)}
+.prob-bar{height:6px;border-radius:3px;background:var(--primary);transition:width .8s}
+/* alert ticker */
+.ticker{overflow:hidden;background:rgba(255,68,68,.08);border:1px solid rgba(255,68,68,.2);border-radius:var(--r2);padding:.5rem 1rem;margin-bottom:1.25rem}
+.ticker-inner{display:inline-block;white-space:nowrap;animation:scroll 40s linear infinite;font-size:.82rem;color:var(--warn)}
+@keyframes scroll{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
+/* gauge arc */
+.gauge-wrap{position:relative;width:140px;height:80px;margin:0 auto}
+/* btn */
+.btn{display:inline-flex;align-items:center;gap:.35rem;padding:.5rem 1.1rem;border:none;border-radius:var(--r2);font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--glass2)}
+.btn-primary{background:var(--primary);color:#000}
+.btn-sm{padding:.3rem .7rem;font-size:.78rem}
+/* checklist */
+.check-item{display:flex;gap:.6rem;align-items:flex-start;padding:.45rem 0;border-bottom:1px solid var(--border);font-size:.85rem}
+.check-item:last-child{border-bottom:none}
+.check-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
+/* tag */
+.tag{display:inline-block;padding:.15rem .5rem;border-radius:4px;font-size:.72rem;font-weight:600;margin:.1rem}
+.tag-r{background:rgba(255,68,68,.15);color:var(--danger)}
+.tag-y{background:rgba(255,170,0,.15);color:var(--warn)}
+.tag-g{background:rgba(0,255,136,.15);color:var(--primary)}
+.tag-b{background:rgba(0,170,255,.15);color:var(--info)}
+.tag-p{background:rgba(170,68,255,.15);color:var(--purple)}
+/* source row */
+.src-row{display:flex;align-items:center;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.82rem}
+.src-row:last-child{border-bottom:none}
+.src-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
+  <div>
+    <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.25rem">
+      <span style="font-size:1.8rem">📡</span>
+      <h1>Threat <span class="accent">Monitoring</span> Dashboard</h1>
+    </div>
+    <p class="muted">05 — Ark Collective v3 | Real-time collapse risk intelligence across 8 domains</p>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.4rem">
+    <div style="display:flex;align-items:center;gap:.5rem;font-size:.82rem">
+      <span class="pulse pulse-r"></span>
+      <span class="muted">LIVE SIMULATION</span>
+      <span id="lastUpdate" style="color:var(--muted)"></span>
+    </div>
+    <div id="globalAlert" class="threat-badge t-high">⚠ GLOBAL: HIGH</div>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <span class="ticker-inner" id="ticker">Loading threat feed...</span>
+</div>
+
+<!-- GLOBAL INDEX CARDS -->
+<div class="grid4" style="margin-bottom:1.25rem" id="indexCards"></div>
+
+<!-- MAIN TABS -->
+<div class="gl" style="margin-bottom:1rem">
+  <div class="stab" id="mainTabs">
+    <button class="active" onclick="switchTab('mainTabs','mainPanels','overview')">🌐 Overview</button>
+    <button onclick="switchTab('mainTabs','mainPanels','nuclear')">☢️ Nuclear/EMP</button>
+    <button onclick="switchTab('mainTabs','mainPanels','economic')">💸 Economic</button>
+    <button onclick="switchTab('mainTabs','mainPanels','civil')">🔥 Civil/Political</button>
+    <button onclick="switchTab('mainTabs','mainPanels','climate')">🌊 Climate</button>
+    <button onclick="switchTab('mainTabs','mainPanels','bio')">🦠 Bio/Pandemic</button>
+    <button onclick="switchTab('mainTabs','mainPanels','tech')">🤖 Tech/AI</button>
+    <button onclick="switchTab('mainTabs','mainPanels','sources')">📚 Sources</button>
+  </div>
+
+  <!-- OVERVIEW PANEL -->
+  <div class="spanel active" id="panel-overview">
+    <div class="grid2" style="margin-bottom:1rem">
+      <!-- Collapse Probability Matrix -->
+      <div>
+        <h3 style="margin-bottom:.75rem">📊 Collapse Scenario Probability Matrix</h3>
+        <div style="display:grid;grid-template-columns:1fr auto auto;gap:.4rem;padding:.4rem 0;font-size:.72rem;color:var(--muted);border-bottom:1px solid var(--border)">
+          <span>Scenario Class</span><span style="text-align:right">Prob. 5yr</span><span style="text-align:right">Severity</span>
+        </div>
+        <div id="probMatrix"></div>
+      </div>
+      <!-- Alert Feed -->
+      <div>
+        <h3 style="margin-bottom:.75rem">🚨 Priority Alerts</h3>
+        <div id="alertFeed"></div>
+      </div>
+    </div>
+    <!-- Threat Radar Summary -->
+    <h3 style="margin-bottom:.75rem">🔍 Domain Threat Summary</h3>
+    <div id="domainSummary" class="grid3"></div>
+  </div>
+
+  <!-- NUCLEAR PANEL -->
+  <div class="spanel" id="panel-nuclear">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+      <h3>☢️ Nuclear & EMP Threat Intelligence</h3>
+      <span class="threat-badge t-critical">● CRITICAL</span>
+    </div>
+    <div class="grid2" style="margin-bottom:1rem">
+      <div class="gl" style="padding:1rem">
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:.4rem">DOOMSDAY CLOCK</div>
+        <div style="font-size:2.2rem;font-weight:700;color:var(--danger)">90 sec</div>
+        <div style="font-size:.8rem;color:var(--muted)">to midnight — closest in history</div>
+        <div style="margin-top:.75rem;font-size:.82rem;line-height:1.6;color:var(--muted)">Maintained by the Bulletin of Atomic Scientists since 1947. Moved forward 10 seconds in 2023 due to Russia–Ukraine war, nuclear rhetoric, and accelerated AI arms race.</div>
+      </div>
+      <div class="gl" style="padding:1rem">
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:.6rem">NUCLEAR ARSENALS ACTIVE (est.)</div>
+        <div id="nuclearArsenals"></div>
+      </div>
+    </div>
+    <div id="nuclearIndicators"></div>
+    <div style="margin-top:1rem;padding:1rem;background:rgba(255,68,68,.06);border-radius:var(--r2);border-left:3px solid var(--danger)">
+      <div style="font-size:.8rem;font-weight:700;color:var(--danger);margin-bottom:.4rem">⚠ ARK PROTOCOL: NUCLEAR/EMP TRIGGER CONDITIONS</div>
+      <div style="font-size:.82rem;color:var(--muted);line-height:1.7">
+        Escalate to Tier 4 if: (1) Any nuclear test by non-NPT state, (2) Tactical nuke deployment anywhere, (3) Grid attack on NATO nation >24hrs,
+        (4) DEFCON raised to 2 or below, (5) NATO Article 5 invoked. Monitor: <strong style="color:var(--text)">nuclearrisk.org, sipri.org, defenseone.com</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ECONOMIC PANEL -->
+  <div class="spanel" id="panel-economic">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+      <h3>💸 Economic Collapse Indicators</h3>
+      <span class="threat-badge t-high">● HIGH</span>
+    </div>
+    <div id="econIndicators"></div>
+    <div style="margin-top:1rem;padding:1rem;background:rgba(255,170,0,.06);border-radius:var(--r2);border-left:3px solid var(--warn)">
+      <div style="font-size:.8rem;font-weight:700;color:var(--warn);margin-bottom:.4rem">📈 WATCH LIST — Economic Trigger Events</div>
+      <div id="econWatchlist" style="font-size:.82rem;color:var(--muted);line-height:1.8"></div>
+    </div>
+  </div>
+
+  <!-- CIVIL PANEL -->
+  <div class="spanel" id="panel-civil">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+      <h3>🔥 Civil Unrest & Political Instability</h3>
+      <span class="threat-badge t-high">● HIGH</span>
+    </div>
+    <div id="civilIndicators"></div>
+  </div>
+
+  <!-- CLIMATE PANEL -->
+  <div class="spanel" id="panel-climate">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+      <h3>🌊 Climate & Environmental Threats</h3>
+      <span class="threat-badge t-elevated">● ELEVATED</span>
+    </div>
+    <div id="climateIndicators"></div>
+  </div>
+
+  <!-- BIO PANEL -->
+  <div class="spanel" id="panel-bio">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+      <h3>🦠 Biological & Pandemic Threats</h3>
+      <span class="threat-badge t-high">● HIGH</span>
+    </div>
+    <div id="bioIndicators"></div>
+  </div>
+
+  <!-- TECH PANEL -->
+  <div class="spanel" id="panel-tech">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+      <h3>🤖 Technology & AI Risk</h3>
+      <span class="threat-badge t-elevated">● ELEVATED</span>
+    </div>
+    <div id="techIndicators"></div>
+  </div>
+
+  <!-- SOURCES PANEL -->
+  <div class="spanel" id="panel-sources">
+    <h3 style="margin-bottom:1rem">📚 Ark Intelligence Source Stack</h3>
+    <p class="muted" style="margin-bottom:1rem">Curated by the Ark Collective. Weight sources by reliability tier, not by popularity. Primary sources over aggregators.</p>
+    <div class="stab" id="srcTabs">
+      <button class="active" onclick="switchTab('srcTabs','srcPanels','free')">Free Sources</button>
+      <button onclick="switchTab('srcTabs','srcPanels','paid')">Paid/Premium</button>
+      <button onclick="switchTab('srcTabs','srcPanels','osint')">OSINT Tools</button>
+      <button onclick="switchTab('srcTabs','srcPanels','routine')">Daily Routine</button>
+    </div>
+    <div id="srcPanels">
+      <div class="spanel active" id="panel-free" style="display:block"><div id="freeSources"></div></div>
+      <div class="spanel" id="panel-paid"><div id="paidSources"></div></div>
+      <div class="spanel" id="panel-osint"><div id="osintSources"></div></div>
+      <div class="spanel" id="panel-routine"><div id="routineSources"></div></div>
+    </div>
+  </div>
+
+</div><!-- /main gl card -->
+
+<!-- COLLAPSE BIBLE QUICK REFERENCE -->
+<div class="gl" style="margin-bottom:1rem">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem">
+    <h3>📖 Collapse Bible Quick Reference — 150 Scenarios by Class</h3>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap" id="classFilter">
+      <button class="btn btn-sm btn-ghost active-filter" onclick="filterScenarios('ALL',this)" style="border-color:var(--primary);color:var(--primary)">ALL</button>
+      <button class="btn btn-sm btn-ghost" onclick="filterScenarios('A',this)">Class A: Financial</button>
+      <button class="btn btn-sm btn-ghost" onclick="filterScenarios('B',this)">Class B: Infrastructure</button>
+      <button class="btn btn-sm btn-ghost" onclick="filterScenarios('C',this)">Class C: Societal</button>
+      <button class="btn btn-sm btn-ghost" onclick="filterScenarios('D',this)">Class D: Medical</button>
+      <button class="btn btn-sm btn-ghost" onclick="filterScenarios('E',this)">Class E: Environmental</button>
+      <button class="btn btn-sm btn-ghost" onclick="filterScenarios('F',this)">Class F: Existential</button>
+    </div>
+  </div>
+  <div id="scenarioGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem;max-height:320px;overflow-y:auto"></div>
+</div>
+
+<!-- PERSONAL ALERT THRESHOLDS -->
+<div class="gl">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+    <h3>🔔 Personal Alert Threshold Configurator</h3>
+    <button class="btn btn-primary btn-sm" onclick="saveThresholds()">Save Thresholds</button>
+  </div>
+  <p class="muted" style="margin-bottom:1rem;font-size:.82rem">Set your action triggers. When a domain exceeds your threshold level, escalate your preparedness protocol.</p>
+  <div id="thresholdGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.75rem"></div>
+  <div id="thresholdSaved" style="display:none;margin-top:.75rem;padding:.6rem 1rem;background:rgba(0,255,136,.1);border-radius:var(--r2);border:1px solid rgba(0,255,136,.3);font-size:.85rem;color:var(--primary)">
+    ✓ Thresholds saved to session memory. You will be alerted when levels change.
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+/* ═══════════════════════════════
+   DATA BLOCK
+═══════════════════════════════ */
+const INDEX_DATA = [
+  {id:'fear', label:'VIX (Fear Index)', val:'31.2', delta:'+4.1', up:true, color:'var(--warn)', sparkData:[18,22,19,25,28,24,31], unit:''},
+  {id:'dxy', label:'US Dollar (DXY)', val:'107.4', delta:'+0.8', up:true, color:'var(--info)', sparkData:[102,104,105,103,106,105,107], unit:''},
+  {id:'gold', label:'Gold (USD/oz)', val:'3,210', delta:'+$48', up:true, color:'var(--primary)', sparkData:[2800,2900,2950,3050,3100,3150,3210], unit:''},
+  {id:'food', label:'FAO Food Price', val:'128.1', delta:'+3.2', up:true, color:'var(--warn)', sparkData:[115,118,120,122,125,126,128], unit:''},
+  {id:'debt', label:'Global Debt/GDP', val:'336%', delta:'+12%', up:true, color:'var(--danger)', sparkData:[280,295,300,310,318,328,336], unit:''},
+  {id:'pop', label:'Unrest Index', val:'7.4/10', delta:'+0.6', up:true, color:'var(--danger)', sparkData:[5.2,5.8,6.1,6.4,6.8,7.1,7.4], unit:''},
+  {id:'temp', label:'Temp Anomaly (°C)', val:'+1.56°', delta:'+0.04', up:true, color:'var(--warn)', sparkData:[1.2,1.3,1.35,1.42,1.48,1.52,1.56], unit:''},
+  {id:'cyber', label:'Cyberattack Index', val:'9.1/10', delta:'+0.3', up:true, color:'var(--danger)', sparkData:[6.5,7.0,7.5,8.0,8.4,8.8,9.1], unit:''},
+];
+
+const SCENARIOS = [
+  // Class A: Financial
+  {id:'A1',class:'A',label:'Hyperinflation spiral',prob:65,severity:'HIGH'},
+  {id:'A2',class:'A',label:'Bank bail-in cascade',prob:45,severity:'HIGH'},
+  {id:'A3',class:'A',label:'CBDC rollout + asset freeze',prob:70,severity:'CRITICAL'},
+  {id:'A4',class:'A',label:'Sovereign debt default (G7)',prob:35,severity:'CRITICAL'},
+  {id:'A5',class:'A',label:'Derivative market collapse',prob:40,severity:'CRITICAL'},
+  {id:'A6',class:'A',label:'Real estate market implosion',prob:55,severity:'HIGH'},
+  {id:'A7',class:'A',label:'Supply chain mega-disruption',prob:60,severity:'HIGH'},
+  {id:'A8',class:'A',label:'Dollar depegging / USD crash',prob:30,severity:'CRITICAL'},
+  // Class B: Infrastructure
+  {id:'B1',class:'B',label:'Grid-down EMP attack',prob:25,severity:'CRITICAL'},
+  {id:'B2',class:'B',label:'Critical infrastructure cyber attack',prob:55,severity:'HIGH'},
+  {id:'B3',class:'B',label:'Internet fragmentation (splinternet)',prob:50,severity:'HIGH'},
+  {id:'B4',class:'B',label:'Water system failure (major city)',prob:40,severity:'HIGH'},
+  {id:'B5',class:'B',label:'Food distribution collapse',prob:35,severity:'CRITICAL'},
+  {id:'B6',class:'B',label:'Fuel scarcity cascade',prob:45,severity:'HIGH'},
+  {id:'B7',class:'B',label:'GPS / navigation disruption',prob:30,severity:'MED'},
+  {id:'B8',class:'B',label:'Hospital system overload',prob:50,severity:'HIGH'},
+  // Class C: Societal
+  {id:'C1',class:'C',label:'Civil war / insurrection (West)',prob:30,severity:'CRITICAL'},
+  {id:'C2',class:'C',label:'Mass migration (100M+)',prob:65,severity:'HIGH'},
+  {id:'C3',class:'C',label:'State surveillance totalitarianism',prob:55,severity:'HIGH'},
+  {id:'C4',class:'C',label:'Social media collapse / mass psychosis',prob:60,severity:'MED'},
+  {id:'C5',class:'C',label:'Gun confiscation (US)',prob:20,severity:'HIGH'},
+  {id:'C6',class:'C',label:'Elite exodus (talent drain)',prob:70,severity:'MED'},
+  {id:'C7',class:'C',label:'Organized crime / cartel expansion',prob:65,severity:'HIGH'},
+  {id:'C8',class:'C',label:'Religious/ethnic conflict escalation',prob:50,severity:'HIGH'},
+  // Class D: Medical
+  {id:'D1',class:'D',label:'Novel pandemic (CFR >5%)',prob:45,severity:'CRITICAL'},
+  {id:'D2',class:'D',label:'Antibiotic resistance cascade',prob:55,severity:'HIGH'},
+  {id:'D3',class:'D',label:'Bioweapon deployment',prob:20,severity:'CRITICAL'},
+  {id:'D4',class:'D',label:'Mental health collapse epidemic',prob:75,severity:'HIGH'},
+  {id:'D5',class:'D',label:'Medication supply chain failure',prob:50,severity:'HIGH'},
+  {id:'D6',class:'D',label:'Hospital care access collapse',prob:55,severity:'HIGH'},
+  // Class E: Environmental
+  {id:'E1',class:'E',label:'Mega-drought (breadbasket)',prob:55,severity:'CRITICAL'},
+  {id:'E2',class:'E',label:'Extreme weather normalization',prob:80,severity:'HIGH'},
+  {id:'E3',class:'E',label:'Ocean fishery collapse',prob:60,severity:'HIGH'},
+  {id:'E4',class:'E',label:'Mass crop failure (>30% yield)',prob:40,severity:'CRITICAL'},
+  {id:'E5',class:'E',label:'Soil degradation tipping point',prob:65,severity:'HIGH'},
+  {id:'E6',class:'E',label:'Permafrost methane release',prob:45,severity:'CRITICAL'},
+  // Class F: Existential
+  {id:'F1',class:'F',label:'Nuclear exchange (limited tactical)',prob:20,severity:'EXISTENTIAL'},
+  {id:'F2',class:'F',label:'AGI misalignment event',prob:15,severity:'EXISTENTIAL'},
+  {id:'F3',class:'F',label:'Engineered pandemic (CFR >40%)',prob:10,severity:'EXISTENTIAL'},
+  {id:'F4',class:'F',label:'Solar superstorm (Carrington+)',prob:12,severity:'CRITICAL'},
+  {id:'F5',class:'F',label:'Full nuclear exchange',prob:5,severity:'EXISTENTIAL'},
+  {id:'F6',class:'F',label:'AI-enabled totalitarian lockdown',prob:25,severity:'EXISTENTIAL'},
+];
+
+const TICKER_MSGS = [
+  '🔴 NUCLEAR: Russia conducts largest military exercise since Cold War — SIPRI threat index elevated',
+  '🟡 ECONOMIC: Global debt reaches 336% of GDP — IMF warns of "correction risk"',
+  '🔴 CYBER: State-sponsored attacks on critical infrastructure up 340% YoY',
+  '🟡 CLIMATE: 2024 confirmed hottest year on record — 1.56°C anomaly (WMO)',
+  '🔴 BIO: H5N1 avian influenza detected in 3 new mammal species — WHO monitoring',
+  '🟡 POLITICAL: Global unrest index at 7.4/10 — highest since 2011 Arab Spring',
+  '🔴 ECONOMIC: CBDC rollout in 130+ countries — financial privacy window closing',
+  '🟡 SUPPLY CHAIN: Red Sea shipping disruption extends — 30% of global trade rerouted',
+  '🔴 AI: Autonomous weapons systems deployed in 4+ active conflict zones',
+  '🟡 WATER: 2.4 billion people facing water scarcity by 2030 — UN Water Report',
+  '🔴 DEBT: US national debt exceeds $36 trillion — debt-to-GDP at historic high',
+  '🟡 FOOD: FAO food price index up 12% YoY — cereal reserves at 20-year low',
+];
+
+const NUCLEAR_ARSENALS = [
+  {country:'Russia', warheads:5580, status:'ACTIVE ALERT', col:'var(--danger)'},
+  {country:'USA',    warheads:5044, status:'ACTIVE',       col:'var(--warn)'},
+  {country:'China',  warheads:500,  status:'EXPANDING',    col:'var(--warn)'},
+  {country:'France', warheads:290,  status:'OPERATIONAL',  col:'var(--info)'},
+  {country:'UK',     warheads:225,  status:'OPERATIONAL',  col:'var(--info)'},
+  {country:'Other',  warheads:600,  status:'VARIABLE',     col:'var(--muted)'},
+];
+
+const ECON_INDICATORS = [
+  {label:'US Yield Curve Inversion',status:'INVERTED',detail:'3m/10y spread negative for 18+ months — recession signal with 95% historical accuracy',level:'danger'},
+  {label:'Global Debt Spiral',status:'CRITICAL',detail:'$315 trillion global debt; 2.5× GDP. Refinancing risk accelerates with high rates.',level:'danger'},
+  {label:'Real Estate Bubble (3 markets)',status:'HIGH',detail:'Canada, Australia, Sweden: price-to-income ratios at 12–15× (historic avg: 5×)',level:'warn'},
+  {label:'Currency War Escalation',status:'ELEVATED',detail:'BRICS+ de-dollarization push; 26% of oil trades now in non-USD currency',level:'warn'},
+  {label:'Supply Chain Fragility',status:'HIGH',detail:'Just-in-time manufacturing; single-source dependencies on 140+ critical materials',level:'warn'},
+  {label:'Pension Fund Solvency',status:'STRESSED',detail:'US public pension gap: $4.9 trillion. Rising rates accelerating insolvency.',level:'warn'},
+  {label:'Commercial Real Estate (CRE)',status:'CRITICAL',detail:'$1.5T in US CRE loans maturing 2024–2026; vacancy rates at 25%+ in major cities',level:'danger'},
+];
+
+const CIVIL_INDICATORS = [
+  {label:'US Political Polarization',status:'EXTREME',detail:'Pew Research: 75% of Americans view opposing party as "threat to nation"',level:'danger'},
+  {label:'European Far-Right Surge',status:'HIGH',detail:'Far-right parties polling 1st or 2nd in France, Germany, Italy, Hungary, Austria',level:'warn'},
+  {label:'Latin America Cartel Expansion',status:'CRITICAL',detail:'MS-13, Sinaloa, CJNG now operate in 37+ countries; GDP >$50B annually',level:'danger'},
+  {label:'Middle East Escalation',status:'CRITICAL',detail:'Multi-front conflict involving 7+ state actors; Strait of Hormuz risk elevated',level:'danger'},
+  {label:'Global Migration Crisis',status:'HIGH',detail:'110M+ displaced persons globally; record 60% increase from 2020–2025',level:'warn'},
+  {label:'Press Freedom Index',status:'DECLINING',detail:'RSF: press freedom at 20-year low; 50+ journalists imprisoned in 2024',level:'warn'},
+];
+
+const CLIMATE_INDICATORS = [
+  {label:'Temperature Anomaly',status:'+1.56°C',detail:'WMO: 2024 hottest year on record. 1.5°C threshold breached on 12-month basis.',level:'warn'},
+  {label:'Arctic Sea Ice Extent',status:'RECORD LOW',detail:'September 2024 minimum: 28% below 1981–2010 average; methane feedback loop risk',level:'danger'},
+  {label:'Amazon Tipping Point',status:'APPROACHING',detail:'17–20% deforestation threshold (~18.7% reached). Dieback would release 140Gt CO₂',level:'danger'},
+  {label:'Breadbasket Drought Risk',status:'HIGH',detail:'US Great Plains, Sahel, South Asia: PDSI drought indices at severe to extreme',level:'warn'},
+  {label:'Coral Bleaching Event',status:'4TH GLOBAL',detail:'4th global mass bleaching event confirmed; 60% of reef systems affected',level:'warn'},
+  {label:'Permafrost Stability',status:'THAWING',detail:'2M km² of permafrost thawing ahead of schedule; methane release accelerating',level:'danger'},
+];
+
+const BIO_INDICATORS = [
+  {label:'H5N1 Avian Influenza',status:'WATCH',detail:'CFR in humans ~60%; detected in dairy cattle, seals, cats. Human-to-human transmission not confirmed.',level:'danger'},
+  {label:'Antibiotic Resistance',status:'CRISIS',detail:'AMR responsible for 1.27M deaths/year; projected 10M/year by 2050 without intervention',level:'danger'},
+  {label:'Lab Biosafety Incidents',status:'ELEVATED',detail:'CDC: 300+ lab breaches 2015–2024. Dual-use research moratorium lifted 2022.',level:'warn'},
+  {label:'Global Health Preparedness',status:'POOR',detail:'GHS Index 2023: 0 countries "fully prepared" for pandemic; median score 39.4/100',level:'danger'},
+  {label:'Synthetic Biology Accessibility',status:'GROWING',detail:'DNA synthesis cost: $10/base in 2000 → $0.002/base in 2024. Desktop bio labs proliferating.',level:'warn'},
+];
+
+const TECH_INDICATORS = [
+  {label:'AI Capability Acceleration',status:'EXPONENTIAL',detail:'GPT-2 to AGI-approaching systems in 5 years. Compute doublings every 6–9 months.',level:'danger'},
+  {label:'Critical Infrastructure Cyber Risk',status:'CRITICAL',detail:'CISA: 16 critical sectors face "persistent, sophisticated" nation-state threats',level:'danger'},
+  {label:'Autonomous Weapons Deployment',status:'ACTIVE',detail:'Lethal autonomous weapons systems (LAWS) deployed in Ukraine, Middle East, Azerbaijan conflicts',level:'warn'},
+  {label:'Deepfake/Disinfo Escalation',status:'HIGH',detail:'Deepfake content up 3,000% YoY; election interference documented in 12+ countries',level:'warn'},
+  {label:'Space Asset Vulnerability',status:'ELEVATED',detail:'GPS, communications, early warning systems: 2,800+ satellites; 4 nations with ASAT capability',level:'warn'},
+  {label:'AI Alignment Progress',status:'LAGGING',detail:'ARC Evals: frontier models failing 30–40% of dangerous capability benchmarks. Alignment R&D underfunded.',level:'danger'},
+];
+
+const SOURCE_STACKS = {
+  free:[
+    {icon:'🌐',name:'SIPRI',url:'sipri.org',cat:'Nuclear/Arms',tier:'T1',detail:'Stockholm International Peace Research Institute — gold standard for weapons/conflict data'},
+    {icon:'📊',name:'IMF World Economic Outlook',url:'imf.org/weo',cat:'Economic',tier:'T1',detail:'Quarterly global economic risk assessment from the IMF'},
+    {icon:'🦠',name:'WHO Disease Outbreak News',url:'who.int/csr/don',cat:'Biological',tier:'T1',detail:'Official WHO outbreak notifications — typically 2–6 weeks ahead of media'},
+    {icon:'🌊',name:'NOAA Climate Data',url:'ncei.noaa.gov',cat:'Climate',tier:'T1',detail:'Primary source for temperature anomaly, sea ice, extreme weather data'},
+    {icon:'🔥',name:'ACLED (Conflict Data)',url:'acleddata.com',cat:'Civil/Political',tier:'T1',detail:'Armed Conflict Location & Event Data — real-time conflict mapping'},
+    {icon:'🌍',name:'ReliefWeb',url:'reliefweb.int',cat:'Humanitarian',tier:'T1',detail:'UN OCHA humanitarian situation reports — early warning on crises'},
+    {icon:'📰',name:'Bellingcat',url:'bellingcat.com',cat:'OSINT',tier:'T2',detail:'Open-source investigations — conflict, disinformation, state actors'},
+    {icon:'⚠️',name:'Global Disaster Alert',url:'gdacs.org',cat:'Environmental',tier:'T1',detail:'Real-time natural disaster monitoring — earthquakes, floods, volcanic'},
+  ],
+  paid:[
+    {icon:'💼',name:'Stratfor (RANE)',url:'stratfor.com',cat:'Geopolitical',tier:'P1',detail:'Premier geopolitical intelligence subscription — elite-level briefings'},
+    {icon:'🏦',name:'Bloomberg Terminal',url:'bloomberg.com/terminal',cat:'Economic',tier:'P1',detail:'Real-time financial and macroeconomic data — expensive but comprehensive'},
+    {icon:'🔐',name:'Recorded Future',url:'recordedfuture.com',cat:'Cyber',tier:'P1',detail:'Threat intelligence platform — nation-state cyber activity, dark web monitoring'},
+    {icon:'🌐',name:'Oxford Analytica',url:'oxan.com',cat:'Political Risk',tier:'P1',detail:'Country political risk scores — used by institutional investors'},
+    {icon:'⚡',name:'Geopolitical Futures',url:'geopoliticalfutures.com',cat:'Forecasting',tier:'P2',detail:'George Friedman\'s geopolitical forecasting service — long-range scenarios'},
+    {icon:'📡',name:'Jane\'s Intelligence',url:'janes.com',cat:'Military',tier:'P1',detail:'Military capability and defense intelligence — industry gold standard'},
+  ],
+  osint:[
+    {icon:'🛰️',name:'Sentinel Hub (EO Browser)',url:'sentinel-hub.com',cat:'Satellite Imagery',tier:'Free',detail:'ESA Sentinel satellite imagery — monitor military buildups, environmental changes'},
+    {icon:'🔍',name:'Shodan',url:'shodan.io',cat:'Cyber Infrastructure',tier:'Freemium',detail:'Internet-of-things search engine — find exposed critical infrastructure'},
+    {icon:'📻',name:'WebSDR',url:'websdr.org',cat:'Radio Intel',tier:'Free',detail:'Browser-based software-defined radio — monitor military/emergency frequencies'},
+    {icon:'✈️',name:'FlightRadar24',url:'flightradar24.com',cat:'Air Traffic',tier:'Freemium',detail:'Real-time global flight tracking — monitor unusual military movements'},
+    {icon:'🚢',name:'MarineTraffic',url:'marinetraffic.com',cat:'Maritime',tier:'Freemium',detail:'Real-time vessel tracking — supply chain monitoring, military positioning'},
+    {icon:'💬',name:'Telegram (curated)',url:'t.me',cat:'HUMINT',tier:'Free',detail:'Follow: Intel Slava Z, Military Summary, Arabic OSINT for raw conflict reporting'},
+  ],
+  routine:[
+    {time:'06:00',action:'Check GDACS for overnight disaster events',priority:'daily',sources:['GDACS','USGS','ReliefWeb']},
+    {time:'06:15',action:'Scan WHO Disease Outbreak News',priority:'daily',sources:['WHO DON']},
+    {time:'06:30',action:'VIX, Gold, DXY open — check for >5% moves',priority:'daily',sources:['Bloomberg','TradingView']},
+    {time:'08:00',action:'OSINT scan: Bellingcat, conflict zones of interest',priority:'daily',sources:['Bellingcat','ACLED']},
+    {time:'12:00',action:'Midday geopolitical scan: Stratfor daily brief or equivalent',priority:'daily',sources:['Stratfor','GF']},
+    {time:'18:00',action:'Evening macro review: yield curves, commodity moves',priority:'daily',sources:['FRED','IMF','BIS']},
+    {time:'Weekly',action:'Full Collapse Bible scenario review — update probability estimates',priority:'weekly',sources:['Internal']},
+    {time:'Monthly',action:'Safe Zone Doctrine review — update tier allocation vs current threat',priority:'monthly',sources:['Ark v3']},
+  ]
+};
+
+const DOMAINS = [
+  {id:'nuclear', label:'Nuclear/EMP', level:'CRITICAL', pct:88, col:'var(--danger)', icon:'☢️', trend:'↑'},
+  {id:'economic', label:'Economic', level:'HIGH', pct:74, col:'var(--warn)', icon:'💸', trend:'↑'},
+  {id:'civil', label:'Civil/Political', level:'HIGH', pct:71, col:'var(--warn)', icon:'🔥', trend:'↑'},
+  {id:'climate', label:'Climate', level:'ELEVATED', pct:63, col:'#ffd700', icon:'🌊', trend:'↑'},
+  {id:'bio', label:'Biological', level:'HIGH', pct:68, col:'var(--warn)', icon:'🦠', trend:'→'},
+  {id:'cyber', label:'Cyber/Tech', level:'ELEVATED', pct:78, col:'#ffd700', icon:'🤖', trend:'↑'},
+];
+
+const PROB_MATRIX_DATA = [
+  {label:'Class A: Financial Collapse', prob5yr:72, severity:'HIGH', scenarios:8},
+  {label:'Class B: Infrastructure Failure', prob5yr:58, severity:'HIGH', scenarios:8},
+  {label:'Class C: Societal Breakdown', prob5yr:61, severity:'HIGH', scenarios:8},
+  {label:'Class D: Medical/Pandemic', prob5yr:55, severity:'CRITICAL', scenarios:6},
+  {label:'Class E: Environmental', prob5yr:64, severity:'HIGH', scenarios:6},
+  {label:'Class F: Existential', prob5yr:22, severity:'EXISTENTIAL', scenarios:6},
+];
+
+const THRESHOLDS = [
+  {id:'nuclear',label:'Nuclear/EMP',current:'CRITICAL',options:['LOW','MODERATE','ELEVATED','HIGH','CRITICAL']},
+  {id:'economic',label:'Economic',current:'HIGH',options:['LOW','MODERATE','ELEVATED','HIGH','CRITICAL']},
+  {id:'civil',label:'Civil/Political',current:'HIGH',options:['LOW','MODERATE','ELEVATED','HIGH','CRITICAL']},
+  {id:'climate',label:'Climate',current:'ELEVATED',options:['LOW','MODERATE','ELEVATED','HIGH','CRITICAL']},
+  {id:'bio',label:'Biological',current:'HIGH',options:['LOW','MODERATE','ELEVATED','HIGH','CRITICAL']},
+  {id:'cyber',label:'Cyber/Tech',current:'ELEVATED',options:['LOW','MODERATE','ELEVATED','HIGH','CRITICAL']},
+];
+
+/* ═══════════════════════════════
+   RENDER BLOCK
+═══════════════════════════════ */
+function renderIndexCards(){
+  const c=document.getElementById('indexCards');
+  c.innerHTML=INDEX_DATA.map(idx=>{
+    const bars=idx.sparkData.map((v,i,a)=>{
+      const mn=Math.min(...a),mx=Math.max(...a);
+      const pct=mx>mn?Math.round(((v-mn)/(mx-mn))*100):50;
+      return `<div class="spark-bar" style="height:${pct}%;background:${idx.color};opacity:${.4+i*.08}"></div>`;
+    }).join('');
+    return `<div class="idx-card">
+      <div style="font-size:.72rem;color:var(--muted)">${idx.label}</div>
+      <div class="idx-val" style="color:${idx.color}">${idx.val}</div>
+      <span class="idx-delta ${idx.up?'delta-up':'delta-dn'}">${idx.delta}</span>
+      <div class="sparkline">${bars}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderTicker(){
+  document.getElementById('ticker').textContent = TICKER_MSGS.join('   ·   ');
+}
+
+function renderProbMatrix(){
+  const c=document.getElementById('probMatrix');
+  const sevColor={HIGH:'var(--warn)',CRITICAL:'var(--danger)',EXISTENTIAL:'var(--purple)'};
+  c.innerHTML=PROB_MATRIX_DATA.map(r=>`
+    <div class="matrix-row">
+      <span>${r.label}</span>
+      <div style="width:80px">
+        <div style="display:flex;align-items:center;gap:.4rem">
+          <div style="height:5px;flex:1;background:var(--bg3);border-radius:2px">
+            <div style="height:100%;width:${r.prob5yr}%;background:${r.prob5yr>65?'var(--danger)':r.prob5yr>45?'var(--warn)':'var(--primary)'};border-radius:2px"></div>
+          </div>
+          <span style="font-size:.72rem;font-weight:700;color:var(--text);white-space:nowrap">${r.prob5yr}%</span>
+        </div>
+      </div>
+      <span style="font-size:.72rem;color:${sevColor[r.severity]||'var(--info)'};font-weight:700;white-space:nowrap">${r.severity}</span>
+    </div>`).join('');
+}
+
+function renderAlertFeed(){
+  const alerts=[
+    {level:'danger', msg:'H5N1: New mammal species transmission detected', time:'2h ago'},
+    {level:'danger', msg:'Russia-NATO: Baltic Sea incident — naval standoff', time:'6h ago'},
+    {level:'warn',   msg:'VIX spike: Markets pricing in recession probability rise to 68%', time:'8h ago'},
+    {level:'warn',   msg:'CBDC pilot: 6 G20 nations announce 2025 rollout timelines', time:'1d ago'},
+    {level:'warn',   msg:'Yield curve: Inversion deepens to -52bps (10yr/3m)', time:'1d ago'},
+    {level:'danger', msg:'Cyber: US power grid probing attacks attributed to 2 state actors', time:'2d ago'},
+  ];
+  document.getElementById('alertFeed').innerHTML=alerts.map(a=>`
+    <div class="news-item" style="border-left-color:${a.level==='danger'?'var(--danger)':'var(--warn)'}">
+      <div>${a.msg}</div>
+      <div class="news-time">${a.time}</div>
+    </div>`).join('');
+}
+
+function renderDomainSummary(){
+  const c=document.getElementById('domainSummary');
+  c.innerHTML=DOMAINS.map(d=>`
+    <div class="idx-card" style="text-align:left;border-left:3px solid ${d.col}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem">
+        <span>${d.icon} ${d.label}</span>
+        <span style="font-size:.7rem;color:${d.col};font-weight:700">${d.trend}</span>
+      </div>
+      <div style="font-size:.8rem;font-weight:700;color:${d.col};margin-bottom:.3rem">${d.level}</div>
+      <div style="height:5px;background:var(--bg3);border-radius:2px">
+        <div style="height:100%;width:${d.pct}%;background:${d.col};border-radius:2px"></div>
+      </div>
+      <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem">${d.pct}/100</div>
+    </div>`).join('');
+}
+
+function renderNuclearArsenals(){
+  const c=document.getElementById('nuclearArsenals');
+  c.innerHTML=NUCLEAR_ARSENALS.map(n=>`
+    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;font-size:.82rem">
+      <span style="min-width:50px;font-weight:600">${n.country}</span>
+      <div style="flex:1;height:5px;background:var(--bg3);border-radius:2px">
+        <div style="height:100%;width:${Math.min(100,n.warheads/60)}%;background:${n.col};border-radius:2px"></div>
+      </div>
+      <span style="color:${n.col};min-width:40px;text-align:right">${n.warheads.toLocaleString()}</span>
+      <span style="font-size:.68rem;color:var(--muted);min-width:80px">${n.status}</span>
+    </div>`).join('');
+}
+
+function renderIndicatorList(containerId, data){
+  const levelMap={danger:'var(--danger)',warn:'var(--warn)',moderate:'var(--info)',low:'var(--primary)'};
+  document.getElementById(containerId).innerHTML=data.map(item=>`
+    <div style="display:flex;gap:.75rem;align-items:flex-start;padding:.7rem 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1">
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+          <span style="font-weight:600;font-size:.88rem">${item.label}</span>
+          <span class="tag" style="background:rgba(255,255,255,.05);color:${levelMap[item.level]||'var(--muted)'};border:1px solid ${levelMap[item.level]||'var(--muted)'}">${item.status}</span>
+        </div>
+        <div class="muted" style="margin-top:.3rem;font-size:.8rem;line-height:1.5">${item.detail}</div>
+      </div>
+      <div class="pulse ${item.level==='danger'?'pulse-r':item.level==='warn'?'pulse-y':'pulse-g'}" style="margin-top:4px"></div>
+    </div>`).join('');
+}
+
+function renderEconWatchlist(){
+  const items=[
+    'US 10yr yield > 5.5%  →  Pension fund solvency crisis',
+    'DXY < 90 or > 115  →  Currency war escalation',
+    'Gold > $3,500  →  Institutional confidence collapse',
+    'VIX > 45  →  Systemic risk / market freeze',
+    'Any G20 bank run (>5% deposit outflow 48hrs)  →  Contagion protocol',
+    'Global repo market stress (overnight rate spike >200bps)  →  Lehman II signal',
+  ];
+  document.getElementById('econWatchlist').innerHTML=items.map(i=>
+    `<div style="padding:.2rem 0">• ${i}</div>`).join('');
+}
+
+function renderNuclearIndicators(){
+  renderIndicatorList('nuclearIndicators',[
+    {label:'Russia–Ukraine Escalation Risk',status:'CRITICAL',detail:'Active use of tactical nuclear threats; Zaporizhzhia plant under contested control. NATO involvement risk elevated.',level:'danger'},
+    {label:'China–Taiwan Invasion Probability',status:'HIGH',detail:'Pentagon estimates 2027 window; US carrier groups on elevated readiness. Could trigger nuclear signaling.',level:'warn'},
+    {label:'DPRK ICBM Development',status:'ADVANCING',detail:'North Korea tested 3 ICBMs in 2024. Miniaturization likely achieved. Treaty framework collapsed.',level:'warn'},
+    {label:'EMP Attack Risk (Grid-Down)',status:'ELEVATED',detail:'Both Russia and China have demonstrated high-altitude EMP capability. Single weapon could disable Eastern US grid.',level:'warn'},
+    {label:'Nuclear Arms Control Framework',status:'COLLAPSED',detail:'INF treaty dead. New START suspended. Open Skies cancelled. No binding bilateral limits remain.',level:'danger'},
+  ]);
+}
+
+function renderScenarios(filterClass='ALL'){
+  const filtered = filterClass==='ALL'?SCENARIOS:SCENARIOS.filter(s=>s.class===filterClass);
+  const sevCol={CRITICAL:'var(--danger)',HIGH:'var(--warn)',EXISTENTIAL:'var(--purple)',MED:'var(--info)'};
+  document.getElementById('scenarioGrid').innerHTML=filtered.map(s=>`
+    <div style="padding:.6rem;background:var(--glass);border:1px solid var(--border);border-radius:var(--r2);transition:all .2s;cursor:default" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.3rem">
+        <span style="font-size:.72rem;color:${sevCol[s.severity]||'var(--muted)'};font-weight:700">${s.id}</span>
+        <span style="font-size:.68rem;color:var(--muted)">${s.prob}%</span>
+      </div>
+      <div style="font-size:.78rem;margin:.25rem 0;line-height:1.3">${s.label}</div>
+      <div style="height:3px;background:var(--bg3);border-radius:2px">
+        <div style="height:100%;width:${s.prob}%;background:${sevCol[s.severity]||'var(--primary)'};border-radius:2px"></div>
+      </div>
+    </div>`).join('');
+}
+
+function renderSources(){
+  // Free
+  document.getElementById('freeSources').innerHTML=SOURCE_STACKS.free.map(s=>`
+    <div class="src-row">
+      <div class="src-icon" style="background:var(--bg3)">${s.icon}</div>
+      <div style="flex:1">
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+          <span style="font-weight:600;font-size:.88rem">${s.name}</span>
+          <span class="tag tag-b">${s.cat}</span>
+          <span class="tag tag-g">Tier ${s.tier}</span>
+        </div>
+        <div class="muted" style="font-size:.78rem;margin-top:.2rem">${s.detail}</div>
+        <div style="font-size:.72rem;color:var(--info);margin-top:.15rem">${s.url}</div>
+      </div>
+    </div>`).join('');
+  // Paid
+  document.getElementById('paidSources').innerHTML=SOURCE_STACKS.paid.map(s=>`
+    <div class="src-row">
+      <div class="src-icon" style="background:var(--bg3)">${s.icon}</div>
+      <div style="flex:1">
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+          <span style="font-weight:600;font-size:.88rem">${s.name}</span>
+          <span class="tag tag-b">${s.cat}</span>
+          <span class="tag tag-r">${s.tier}</span>
+        </div>
+        <div class="muted" style="font-size:.78rem;margin-top:.2rem">${s.detail}</div>
+      </div>
+    </div>`).join('');
+  // OSINT
+  document.getElementById('osintSources').innerHTML=SOURCE_STACKS.osint.map(s=>`
+    <div class="src-row">
+      <div class="src-icon" style="background:var(--bg3)">${s.icon}</div>
+      <div style="flex:1">
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+          <span style="font-weight:600;font-size:.88rem">${s.name}</span>
+          <span class="tag tag-p">${s.cat}</span>
+          <span class="tag tag-g">${s.tier}</span>
+        </div>
+        <div class="muted" style="font-size:.78rem;margin-top:.2rem">${s.detail}</div>
+      </div>
+    </div>`).join('');
+  // Routine
+  document.getElementById('routineSources').innerHTML=`
+    <p class="muted" style="margin-bottom:.75rem;font-size:.82rem">Minimum daily intelligence routine for Tier 1–2 Ark operators. Estimated time: 45–60 minutes/day.</p>
+    ${SOURCE_STACKS.routine.map(r=>`
+    <div class="src-row">
+      <div class="src-icon" style="background:var(--bg3);color:var(--primary);font-size:.8rem;font-weight:700">${r.time}</div>
+      <div style="flex:1">
+        <div style="font-size:.85rem;font-weight:600">${r.action}</div>
+        <div style="margin-top:.3rem;display:flex;gap:.3rem;flex-wrap:wrap">
+          ${r.sources.map(src=>`<span class="tag tag-b">${src}</span>`).join('')}
+          <span class="tag ${r.priority==='daily'?'tag-g':'tag-y'}">${r.priority}</span>
+        </div>
+      </div>
+    </div>`).join('')}`;
+}
+
+function renderThresholds(){
+  const c=document.getElementById('thresholdGrid');
+  c.innerHTML=THRESHOLDS.map(t=>`
+    <div class="gl" style="padding:.85rem">
+      <div style="font-size:.82rem;font-weight:600;margin-bottom:.5rem">${t.label}</div>
+      <div style="font-size:.72rem;color:var(--muted);margin-bottom:.4rem">Alert me when ≥:</div>
+      <select id="thresh-${t.id}" style="width:100%;background:var(--bg3);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:.35rem .6rem;font-size:.82rem">
+        ${t.options.map(o=>`<option value="${o}" ${o===t.current?'selected':''}>${o}</option>`).join('')}
+      </select>
+      <div style="margin-top:.4rem;font-size:.7rem;color:var(--muted)">Current: <span class="tag tag-r">${t.current}</span></div>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════
+   INTERACTION BLOCK
+═══════════════════════════════ */
+function switchTab(tabGroupId, panelGroupId, panelId){
+  const tabGroup = document.getElementById(tabGroupId);
+  const panelContainer = document.getElementById(panelGroupId) || document.body;
+  if(!tabGroup) return;
+  tabGroup.querySelectorAll('button').forEach((b,i)=>{
+    const tids=tabGroup.querySelectorAll('button');
+    b.classList.remove('active');
+  });
+  // activate clicked button
+  Array.from(tabGroup.querySelectorAll('button')).forEach(b=>{
+    if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes(`'${panelId}'`)) b.classList.add('active');
+  });
+  // activate panel
+  document.querySelectorAll(`[id^="panel-"]`).forEach(p=>{
+    if(p.closest(`#${panelGroupId||'app'}`)===p.parentElement||true){
+      // just hide all panels matching this tab group's scope
+    }
+  });
+  // simpler: map known panels
+  const panelSets={
+    mainTabs:['panel-overview','panel-nuclear','panel-economic','panel-civil','panel-climate','panel-bio','panel-tech','panel-sources'],
+    srcTabs:['panel-free','panel-paid','panel-osint','panel-routine']
+  };
+  if(panelSets[tabGroupId]){
+    panelSets[tabGroupId].forEach(pid=>{
+      const el=document.getElementById(pid);
+      if(el){el.classList.remove('active');el.style.display='none';}
+    });
+    const active=document.getElementById('panel-'+panelId);
+    if(active){active.classList.add('active');active.style.display='block';}
+  }
+}
+
+function filterScenarios(cls, btn){
+  document.getElementById('classFilter').querySelectorAll('button').forEach(b=>{
+    b.style.borderColor='var(--border2)';b.style.color='var(--text)';
+  });
+  btn.style.borderColor='var(--primary)';btn.style.color='var(--primary)';
+  renderScenarios(cls);
+}
+
+function saveThresholds(){
+  const saved={};
+  THRESHOLDS.forEach(t=>{
+    const el=document.getElementById('thresh-'+t.id);
+    if(el) saved[t.id]=el.value;
+  });
+  document.getElementById('thresholdSaved').style.display='block';
+  setTimeout(()=>document.getElementById('thresholdSaved').style.display='none',3000);
+}
+
+/* live clock */
+function updateClock(){
+  const now=new Date();
+  document.getElementById('lastUpdate').textContent=now.toLocaleTimeString();
+}
+
+/* ═══ INIT ═══ */
+renderIndexCards();
+renderTicker();
+renderProbMatrix();
+renderAlertFeed();
+renderDomainSummary();
+renderNuclearArsenals();
+renderNuclearIndicators();
+renderIndicatorList('econIndicators',ECON_INDICATORS);
+renderEconWatchlist();
+renderIndicatorList('civilIndicators',CIVIL_INDICATORS);
+renderIndicatorList('climateIndicators',CLIMATE_INDICATORS);
+renderIndicatorList('bioIndicators',BIO_INDICATORS);
+renderIndicatorList('techIndicators',TECH_INDICATORS);
+renderScenarios();
+renderSources();
+renderThresholds();
+updateClock();
+setInterval(updateClock,1000);
+
+// init all panels hidden except first
+['panel-nuclear','panel-economic','panel-civil','panel-climate','panel-bio','panel-tech','panel-sources'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el){el.style.display='none';el.classList.remove('active');}
+});
+['panel-paid','panel-osint','panel-routine'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el){el.style.display='none';el.classList.remove('active');}
+});
+</script>
+</body>
+</html>

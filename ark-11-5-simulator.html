@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>11.5 — Evacuation Simulator | Ark v3 (Standalone)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0c10;--s1:#0f1218;--s2:#161b24;--gl:rgba(255,255,255,.04);--glb:rgba(255,255,255,.08);--acc:#00e5a0;--acc2:#00b8ff;--acc3:#ff6b35;--warn:#ffb300;--dng:#ff3d5a;--txt:#e0e0e0;--txt2:#8a8fa8;--rad:12px;--glow:0 0 20px rgba(0,229,160,.15)}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.65;overflow-x:hidden;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:clamp(1.6rem,4vw,2.4rem);background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.sub{color:var(--txt2);font-size:.95rem;margin-bottom:28px}
+h2{font-size:1.25rem;color:var(--acc);margin-bottom:14px}
+h3{font-size:1.05rem;color:var(--acc2);margin-bottom:8px}
+.gl{background:var(--gl);border:1px solid var(--glb);border-radius:var(--rad);padding:22px;margin-bottom:18px;backdrop-filter:blur(12px)}
+.gl:hover{border-color:rgba(0,229,160,.18);box-shadow:var(--glow)}
+.stab{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.stab button{background:var(--gl);border:1px solid var(--glb);color:var(--txt2);padding:9px 18px;border-radius:8px;cursor:pointer;font-size:.85rem;transition:.25s}
+.stab button:hover{border-color:var(--acc);color:var(--acc)}
+.stab button.on{background:rgba(0,229,160,.12);border-color:var(--acc);color:var(--acc);box-shadow:0 0 10px rgba(0,229,160,.15)}
+.spanel{display:none;animation:fadeUp .35s ease}.spanel.show{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.acc-h{background:var(--s2);border:1px solid var(--glb);border-radius:8px;padding:13px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;transition:.2s;font-size:.92rem}
+.acc-h:hover{border-color:var(--acc);color:var(--acc)}
+.acc-h .arrow{transition:transform .3s;font-size:.75rem;color:var(--acc)}
+.acc-h.open .arrow{transform:rotate(180deg)}
+.acc-b{max-height:0;overflow:hidden;transition:max-height .4s ease;padding:0 18px}
+.acc-b.open{max-height:5000px;padding:14px 18px}
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin:10px 0}
+th{background:var(--s2);color:var(--acc);padding:10px 8px;text-align:left;border-bottom:1px solid var(--glb)}
+td{padding:9px 8px;border-bottom:1px solid rgba(255,255,255,.04)}
+tr:hover td{background:rgba(0,229,160,.03)}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.72rem;font-weight:600}
+.badge-g{background:rgba(0,229,160,.15);color:var(--acc)}
+.badge-b{background:rgba(0,184,255,.15);color:var(--acc2)}
+.badge-w{background:rgba(255,179,0,.15);color:var(--warn)}
+.badge-d{background:rgba(255,61,90,.15);color:var(--dng)}
+.badge-o{background:rgba(255,107,53,.15);color:var(--acc3)}
+.tag{display:inline-block;margin:2px 4px 2px 0;padding:2px 8px;border-radius:6px;font-size:.72rem;background:var(--s2);color:var(--txt2);border:1px solid var(--glb)}
+.note{font-size:.8rem;color:var(--txt2);border-left:3px solid var(--warn);padding:8px 12px;margin:10px 0;background:rgba(255,179,0,.04)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+/* Sim specific */
+.sim-scene{background:var(--s1);border:1px solid var(--glb);border-radius:var(--rad);padding:24px;margin-bottom:16px;position:relative;overflow:hidden}
+.sim-scene::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--acc),var(--acc2),var(--acc3))}
+.scene-title{font-size:1.1rem;font-weight:700;margin-bottom:6px;color:var(--acc)}
+.scene-desc{font-size:.9rem;color:var(--txt);margin-bottom:16px;line-height:1.7}
+.scene-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.meta-pill{background:var(--s2);border:1px solid var(--glb);border-radius:20px;padding:4px 12px;font-size:.75rem;display:flex;align-items:center;gap:4px}
+.meta-pill .mi{font-size:.85rem}
+.choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin-top:12px}
+.choice-card{background:var(--s2);border:2px solid var(--glb);border-radius:10px;padding:16px;cursor:pointer;transition:.3s;position:relative;overflow:hidden}
+.choice-card:hover{border-color:var(--acc);transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,229,160,.1)}
+.choice-card .ch-label{font-weight:700;font-size:.92rem;margin-bottom:6px;color:var(--txt)}
+.choice-card .ch-desc{font-size:.8rem;color:var(--txt2);margin-bottom:8px}
+.choice-card .ch-risk{font-size:.72rem;display:flex;gap:6px;flex-wrap:wrap}
+.outcome-box{background:var(--s1);border:1px solid var(--glb);border-radius:var(--rad);padding:20px;margin:12px 0;animation:fadeUp .4s ease}
+.outcome-box.good{border-color:var(--acc);background:rgba(0,229,160,.03)}
+.outcome-box.mid{border-color:var(--warn);background:rgba(255,179,0,.03)}
+.outcome-box.bad{border-color:var(--dng);background:rgba(255,61,90,.03)}
+.outcome-box .ob-title{font-weight:700;margin-bottom:6px}
+.ob-stat{display:flex;align-items:center;gap:8px;margin:4px 0}
+.ob-stat .os-bar{flex:1;height:6px;background:var(--s2);border-radius:3px;overflow:hidden;max-width:200px}
+.ob-stat .os-fill{height:100%;border-radius:3px}
+.ob-stat .os-label{font-size:.78rem;color:var(--txt2);min-width:100px}
+.ob-stat .os-val{font-size:.78rem;font-weight:600;min-width:40px}
+/* Progress */
+.sim-progress{display:flex;gap:4px;margin-bottom:16px;align-items:center}
+.sim-progress .sp-dot{width:28px;height:6px;border-radius:3px;background:var(--s2);transition:.3s}
+.sim-progress .sp-dot.done{background:var(--acc)}
+.sim-progress .sp-dot.cur{background:var(--acc2);box-shadow:0 0 8px rgba(0,184,255,.4)}
+.sim-progress .sp-dot.fail{background:var(--dng)}
+.sp-info{font-size:.75rem;color:var(--txt2);margin-left:8px}
+/* Summary */
+.summary-card{background:linear-gradient(135deg,rgba(0,229,160,.05),rgba(0,184,255,.04));border:1px solid var(--acc);border-radius:var(--rad);padding:24px;text-align:center;margin:14px 0}
+.summary-card .sc-grade{font-size:3rem;font-weight:900}
+.summary-card .sc-label{font-size:1rem;margin-top:4px}
+.btn{padding:10px 24px;border-radius:8px;border:none;cursor:pointer;font-size:.88rem;transition:.2s;margin:4px}
+.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#000;font-weight:700}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-secondary{background:var(--s2);color:var(--txt2);border:1px solid var(--glb)}
+.btn-secondary:hover{border-color:var(--acc);color:var(--acc)}
+.btn-danger{background:linear-gradient(135deg,var(--dng),var(--acc3));color:#fff;font-weight:700}
+.ref{font-size:.72rem;color:var(--txt2);margin-top:18px;padding-top:12px;border-top:1px solid var(--glb)}
+@media(max-width:600px){.choice-grid{grid-template-columns:1fr}.scene-meta{gap:4px}}
+</style>
+</head>
+<body>
+<div class="wrap" id="simulator">
+
+<h1>11.5 — Evacuation Simulator</h1>
+<p class="sub">Branching Decision Engine · 8 Crisis Scenarios · 60+ Decision Nodes · Survival Probability Tracking · After-Action Reports</p>
+
+<div class="stab" id="mainTabs">
+<button class="on" onclick="switchTab('mainTabs','mp','mp-sim')">Run Simulation</button>
+<button onclick="switchTab('mainTabs','mp','mp-scenarios')">Scenario Library</button>
+<button onclick="switchTab('mainTabs','mp','mp-checklist')">Evac Readiness Checklist</button>
+</div>
+
+<!-- ═══ SIMULATOR ═══ -->
+<div class="spanel show" id="mp-sim">
+<div class="gl">
+<h2>🎯 Select Crisis Scenario</h2>
+<p style="font-size:.85rem;color:var(--txt2);margin-bottom:14px">Each scenario presents 6–8 branching decision points. Your choices affect survival probability, resource levels, and group cohesion in real time.</p>
+<div class="choice-grid" id="scenarioSelect"></div>
+</div>
+<div id="simEngine" style="display:none"></div>
+</div>
+
+<!-- ═══ SCENARIO LIBRARY ═══ -->
+<div class="spanel" id="mp-scenarios">
+<div class="gl">
+<h2>Scenario Library — Collapse Bible Integration</h2>
+<div id="scenLibAcc"></div>
+</div>
+</div>
+
+<!-- ═══ CHECKLIST ═══ -->
+<div class="spanel" id="mp-checklist">
+<div class="gl">
+<h2>Evacuation Readiness Checklist</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:14px">Score your current readiness. Each item is weighted by criticality.</p>
+<div id="checklistItems"></div>
+<div id="checkScore" class="result-box" style="display:none;background:linear-gradient(135deg,rgba(0,229,160,.06),rgba(0,184,255,.04));border:1px solid var(--acc);border-radius:var(--rad);padding:20px;margin-top:14px;text-align:center"></div>
+</div>
+</div>
+
+<div class="ref">Ark Collective v3 § 11.5 · Evacuation Simulator · Collapse Bible Scenarios 1–150 · Branching decision trees · Not a substitute for real emergency planning</div>
+</div>
+
+<script>
+/* ═══════════════════════════════
+   DATA BLOCK
+   ═══════════════════════════════ */
+const SC=[
+{id:"econ",name:"Economic Meltdown",icon:"💰",desc:"Banking freeze + hyperinflation cascade. ATMs offline, markets halted, supply chains seizing.",tags:["Collapse Bible #1–8"],color:"var(--warn)",
+nodes:[
+{id:0,title:"Day 1: Banks Freeze",desc:"You wake to emergency alerts — all banks have suspended withdrawals. Card terminals are declining. News reports 72-hour 'stabilization hold.' Your household has $340 cash, a full tank of gas, and 2 weeks of groceries. Your safe zone is 600 km away.",
+meta:[{i:"⏱️",v:"72 hrs window"},{i:"💵",v:"$340 cash"},{i:"⛽",v:"Full tank"},{i:"🏠",v:"600 km to safe zone"}],
+choices:[
+{label:"Evacuate Immediately",desc:"Load essentials, leave within 2 hours. Gas stations may still accept cash.",risk:["Time pressure","Incomplete packing"],next:1,surv:8,res:-10,coh:5},
+{label:"48-Hour Prep & Observe",desc:"Use the bank holiday to maximize packing, convert remaining digital funds, gather intel.",risk:["Window may close","Others may block routes"],next:2,surv:5,res:15,coh:10},
+{label:"Shelter in Place",desc:"Hunker down at home. Ration supplies. Wait for system recovery.",risk:["No recovery","Trapped if unrest"],next:3,surv:-5,res:0,coh:-5}
+]},
+{id:1,title:"En Route: Fuel Crisis",desc:"You're 200 km out. Radio reports gas stations are either closed or cash-only with 2-hour queues. Your tank is at 60%.",
+meta:[{i:"⛽",v:"60% tank"},{i:"📻",v:"Fuel panic reports"},{i:"🛣️",v:"400 km remaining"}],
+choices:[
+{label:"Queue for Fuel (Cash)",desc:"Join a queue. May take 2–4 hours. Risk of confrontation at pump.",risk:["Time loss","Altercation risk"],next:4,surv:3,res:10,coh:-5},
+{label:"Bypass & Conserve",desc:"Drive at 80 km/h, disable AC, coast downhills. Attempt to reach safe zone on current fuel.",risk:["May run dry","No backup"],next:5,surv:6,res:-5,coh:5},
+{label:"Detour to Ally's Property",desc:"A contact 50 km off-route has fuel reserves. Lose time but guarantee fuel.",risk:["Route deviation","Ally may be gone"],next:6,surv:5,res:8,coh:8}
+]},
+{id:2,title:"Day 2: Unrest Begins",desc:"Looting starts in commercial districts. Social media shows roadblocks forming on major highways. Your 48 hours of prep yielded an extra $800 barter goods, loaded vehicle, and route intel.",
+meta:[{i:"🔥",v:"Civil unrest"},{i:"🚧",v:"Road checkpoints"},{i:"📦",v:"Packed & ready"}],
+choices:[
+{label:"Leave via Secondary Roads",desc:"Use pre-scouted back roads. Longer route (900 km) but avoids checkpoints.",risk:["Unfamiliar roads","Fuel consumption"],next:4,surv:7,res:-5,coh:8},
+{label:"Wait for Military Convoy",desc:"Reports suggest military is escorting civilian convoys on main highway.",risk:["Unpredictable timing","Loss of autonomy"],next:7,surv:2,res:0,coh:-8},
+{label:"Negotiate Through Checkpoint",desc:"Use barter goods and calm demeanor to pass through civilian checkpoints.",risk:["Loss of goods","Potential violence"],next:5,surv:-3,res:-15,coh:0}
+]},
+{id:3,title:"Day 5: Supply Exhaustion",desc:"Sheltering in place. Grocery stores are empty. Neighbors are forming desperate groups. Power grid is intermittent. Water pressure dropping.",
+meta:[{i:"🍽️",v:"5 days food left"},{i:"💡",v:"Power intermittent"},{i:"🚰",v:"Water uncertain"}],
+choices:[
+{label:"Emergency Evacuation Now",desc:"Leave immediately with whatever you can carry. Vehicle fuel unknown.",risk:["Late departure","Dangerous roads"],next:5,surv:-10,res:-20,coh:-10},
+{label:"Form Neighborhood Alliance",desc:"Pool resources with 3 trusted neighbors. Shared defense and rationing.",risk:["Trust issues","Shared resources deplete faster"],next:7,surv:0,res:5,coh:15},
+{label:"Stealth Night Departure",desc:"Leave at 3 AM with lights off. Pre-loaded vehicle. Avoid all contact.",risk:["Navigation challenge","Breakdown risk"],next:6,surv:5,res:-10,coh:0}
+]},
+{id:4,title:"Midpoint: Route Decision",desc:"You've covered 400 km. Two routes remain: the direct highway (200 km, possible military presence) or mountain pass (350 km, remote but challenging terrain).",
+meta:[{i:"🛣️",v:"200 km direct"},{i:"🏔️",v:"350 km mountain"},{i:"⛽",v:"Half tank"}],
+choices:[
+{label:"Highway — Speed Priority",desc:"Risk military checkpoint but arrive 4 hours sooner. Fuel sufficient.",risk:["Checkpoint seizure","Forced diversion"],next:8,surv:4,res:0,coh:0},
+{label:"Mountain Pass — Stealth Priority",desc:"Remote, no checkpoints, but fuel-critical and rough road. Arrival +8 hrs.",risk:["Fuel marginal","Breakdown remote area"],next:8,surv:6,res:-8,coh:5}
+]},
+{id:5,title:"Fuel Critical",desc:"Your tank hits 15%. No stations available. You're 180 km from your safe zone. Terrain is mixed rural/suburban.",
+meta:[{i:"⛽",v:"~60 km range"},{i:"🏕️",v:"120 km short"},{i:"🌾",v:"Rural area"}],
+choices:[
+{label:"Siphon from Abandoned Vehicles",desc:"Rural area has several seemingly abandoned cars. Risk of confrontation or contaminated fuel.",risk:["Confrontation","Bad fuel"],next:8,surv:2,res:5,coh:-5},
+{label:"Cache Vehicle & Walk",desc:"Hide vehicle off-road with non-essential gear. Walk remaining 120 km over 3–4 days with essential packs.",risk:["Exposure","Exhaustion","Gear loss"],next:8,surv:-5,res:-15,coh:10},
+{label:"Seek Local Farm Alliance",desc:"Approach farmstead for fuel trade. Offer barter goods or labor exchange.",risk:["Rejection","Exploitation"],next:8,surv:3,res:-10,coh:8}
+]},
+{id:6,title:"Ally Rendezvous",desc:"You reach your contact's property. They have fuel, food, and intel about conditions ahead. They offer to join your convoy.",
+meta:[{i:"⛽",v:"Refueled"},{i:"🤝",v:"Ally + family (4 ppl)"},{i:"📡",v:"Ham radio intel"}],
+choices:[
+{label:"Accept & Convoy Together",desc:"Strength in numbers. Their vehicle and supplies bolster your group. Slower travel.",risk:["Larger group = more visible","Resource sharing"],next:8,surv:10,res:10,coh:15},
+{label:"Refuel & Continue Solo",desc:"Take fuel, share intel, maintain speed and OPSEC. Leave ally behind.",risk:["Guilt","No backup"],next:8,surv:5,res:5,coh:-10}
+]},
+{id:7,title:"Community Stand",desc:"You've chosen to hold position with allies. Neighborhood defense is organized. 12 people, pooled supplies for ~3 weeks. Outside situation deteriorating.",
+meta:[{i:"👥",v:"12 people"},{i:"🍽️",v:"3 weeks food"},{i:"🛡️",v:"Armed patrol"}],
+choices:[
+{label:"Fortify & Ration Strictly",desc:"Barricade neighborhood. Strict calorie rationing (1,200/day). Armed perimeter. Wait for stability.",risk:["Siege mentality","Health decline"],next:8,surv:0,res:5,coh:5},
+{label:"Send Scout Team to Safe Zone",desc:"2 volunteers travel to safe zone to assess viability and potentially return with vehicle for group evacuation.",risk:["Scout loss","Delayed action"],next:8,surv:5,res:-5,coh:10},
+{label:"Staged Group Evacuation",desc:"Move in 3 groups of 4 over 3 nights. First group scouts, others follow.",risk:["Coordination failure","Split group vulnerability"],next:8,surv:8,res:-10,coh:-5}
+]},
+{id:8,title:"FINAL",desc:"",meta:[],choices:[]}
+]},
+{id:"pandemic",name:"Pandemic Escalation",icon:"🦠",desc:"Lethal respiratory pathogen. CFR 8%. Borders closing, hospitals overwhelmed, quarantine zones expanding.",tags:["Collapse Bible #90–102"],color:"var(--dng)",
+nodes:[
+{id:0,title:"Week 1: Outbreak Confirmed",desc:"WHO declares pandemic. Your city reports 200 cases, doubling every 3 days. Government announces voluntary quarantine. Flights still operating but filling fast. Your safe zone is in another country.",
+meta:[{i:"🦠",v:"CFR 8%"},{i:"✈️",v:"Flights available"},{i:"🏥",v:"Hospitals 60% capacity"},{i:"📍",v:"International safe zone"}],
+choices:[
+{label:"Fly Out Immediately",desc:"Book next available flight. Risk exposure at airport. May face quarantine on arrival.",risk:["Airport exposure","Arrival quarantine"],next:1,surv:10,res:-15,coh:5},
+{label:"Self-Isolate & Monitor",desc:"Full household quarantine. Monitor situation for 2 weeks before deciding.",risk:["Window closes","Supply depletion"],next:2,surv:0,res:5,coh:10},
+{label:"Drive to Domestic Safe Zone",desc:"Head to pre-arranged rural location within your country. 8-hour drive.",risk:["Road exposure","Less ideal safe zone"],next:3,surv:5,res:-5,coh:8}
+]},
+{id:1,title:"Arrival: Quarantine Protocol",desc:"You land successfully. Destination country imposes 14-day mandatory quarantine in a government facility. Basic conditions. No symptoms yet in your group.",
+meta:[{i:"🏨",v:"Gov quarantine 14 days"},{i:"✅",v:"No symptoms"},{i:"🔒",v:"Restricted movement"}],
+choices:[
+{label:"Comply Fully",desc:"Complete quarantine. Cooperate with health authorities. Use time to finalize safe zone preparations remotely.",risk:["Facility exposure","Delays"],next:4,surv:8,res:0,coh:10},
+{label:"Bribe/Negotiate Early Release",desc:"Attempt to shorten quarantine through connections or payment to proceed to safe zone.",risk:["Legal risk","Community trust damage"],next:4,surv:3,res:-10,coh:-15}
+]},
+{id:2,title:"Week 3: Borders Closing",desc:"Cases have exploded. Your city is now a hotspot. Government announces mandatory lockdown and border closure in 48 hours. Flights are 90% cancelled.",
+meta:[{i:"🚫",v:"48 hrs to border close"},{i:"✈️",v:"90% flights cancelled"},{i:"🔒",v:"Mandatory lockdown"}],
+choices:[
+{label:"Emergency Flight (Any Destination)",desc:"Take any available flight to get out. Route to safe zone later from transit country.",risk:["Wrong destination","Stranded in transit"],next:4,surv:5,res:-20,coh:-5},
+{label:"Overland Border Crossing",desc:"Drive to nearest open land border. Attempt crossing before closure takes effect.",risk:["Border chaos","Turned back"],next:3,surv:3,res:-10,coh:5},
+{label:"Accept Lockdown",desc:"Shelter in place. Full quarantine. Await vaccine or treatment breakthrough.",risk:["Extended isolation","Supply uncertainty"],next:5,surv:-5,res:5,coh:0}
+]},
+{id:3,title:"Domestic Safe Zone Arrival",desc:"You reach the rural property. Basic infrastructure: well water, wood heat, 4 weeks provisions. Nearest hospital 90 min away. Community is small and wary of outsiders.",
+meta:[{i:"🏡",v:"Rural property"},{i:"🍽️",v:"4 weeks food"},{i:"🏥",v:"90 min to hospital"}],
+choices:[
+{label:"Full Isolation Protocol",desc:"No contact with locals. Strict quarantine perimeter. Self-sufficient operations only.",risk:["Social isolation","No mutual aid"],next:8,surv:6,res:0,coh:-10},
+{label:"Integrate with Local Community",desc:"Offer medical knowledge/supplies to neighbors. Build mutual aid network.",risk:["Exposure risk","Resource sharing"],next:8,surv:3,res:-5,coh:15}
+]},
+{id:4,title:"Safe Zone Approach",desc:"You've reached your destination country. Safe zone property is 4 hours from arrival point. Local reports suggest rural areas are calm but supply lines are strained.",
+meta:[{i:"🏕️",v:"4 hrs to safe zone"},{i:"✅",v:"Health cleared"},{i:"📉",v:"Supply strain"}],
+choices:[
+{label:"Proceed Directly to Safe Zone",desc:"Drive straight through. Minimize stops. Arrive before dark.",risk:["Minimal","Fatigue"],next:8,surv:8,res:0,coh:8},
+{label:"Stock Up in Town First",desc:"Spend 4 hours acquiring additional supplies before heading to safe zone.",risk:["Exposure in town","Delay"],next:8,surv:3,res:15,coh:5}
+]},
+{id:5,title:"Month 2: Lockdown Grind",desc:"Full lockdown continues. Your household is healthy but strained. Supplies at 40%. Neighbors forming informal supply networks. Black market pricing 300% markup.",
+meta:[{i:"🍽️",v:"40% supplies"},{i:"💰",v:"300% black market"},{i:"😰",v:"Morale declining"}],
+choices:[
+{label:"Join Neighbor Network",desc:"Pool resources and share procurement. Strength in cooperation.",risk:["Exposure","Dependency"],next:8,surv:3,res:5,coh:10},
+{label:"Maintain Solo Rationing",desc:"Strict rationing. 1,000 cal/day. Preserve autonomy and minimize contact.",risk:["Health decline","Isolation"],next:8,surv:0,res:10,coh:-10},
+{label:"Attempt Breakout to Rural Area",desc:"Violate lockdown. Travel at night to previously scouted rural location.",risk:["Legal penalties","Road dangers"],next:8,surv:5,res:-10,coh:0}
+]},
+{id:8,title:"FINAL",desc:"",meta:[],choices:[]}
+]},
+{id:"grid",name:"Grid Collapse (EMP/CME)",icon:"⚡",desc:"Nationwide power grid failure. No electricity, no comms, no digital payments. Cascading infrastructure breakdown.",tags:["Collapse Bible #30–42"],color:"var(--acc3)",
+nodes:[
+{id:0,title:"Hour 0: Lights Out",desc:"Everything electronic stops. Your phone is dead, your car's ECU may be fried (EMP) or working (CME). No radio, no internet, no ATMs. Neighbors are confused. You have a pre-packed go-bag and a 1985 diesel truck (EMP-resistant).",
+meta:[{i:"⚡",v:"Total grid down"},{i:"🚗",v:"Old diesel works"},{i:"🎒",v:"Go-bag ready"},{i:"📻",v:"Faraday radio stashed"}],
+choices:[
+{label:"Immediate Bug-Out",desc:"Load the truck, retrieve Faraday-cached radio, leave within 1 hour toward safe zone (400 km).",risk:["Chaotic roads","No intel on conditions ahead"],next:1,surv:10,res:-5,coh:5},
+{label:"Assess 24 Hours",desc:"Monitor situation with Faraday radio. Check on neighbors. Gather additional intel before moving.",risk:["Roads may clog","Resources may be seized"],next:2,surv:5,res:10,coh:10},
+{label:"Shelter & Fortify",desc:"Board up, fill bathtubs with water, secure perimeter. Wait for government response.",risk:["No government response coming","Isolated"],next:3,surv:-5,res:5,coh:-5}
+]},
+{id:1,title:"Hour 6: Highway Chaos",desc:"Major highways are gridlocked with stalled modern vehicles. Your old diesel navigates shoulders and side roads. 100 km covered. Fuel at 70%.",
+meta:[{i:"🚗",v:"100 km covered"},{i:"⛽",v:"70% fuel"},{i:"🚧",v:"Gridlocked highways"}],
+choices:[
+{label:"Continue on Back Roads",desc:"Pre-memorized rural route. Slower but passable. Paper maps essential.",risk:["Navigation errors","Isolated if breakdown"],next:4,surv:7,res:-5,coh:5},
+{label:"Help Stranded Family",desc:"A family with children is stranded. Take them aboard (5 extra people, extra weight).",risk:["Resource drain","Slower travel","Unknown people"],next:4,surv:2,res:-15,coh:15}
+]},
+{id:2,title:"Day 2: No Recovery",desc:"Your Faraday radio picks up FEMA emergency broadcast: 'Grid restoration estimated 6–18 months.' Neighbors are beginning to panic. Two have approached asking to join you.",
+meta:[{i:"📻",v:"6–18 mo estimate"},{i:"👥",v:"Neighbors requesting join"},{i:"🍽️",v:"3 weeks food at home"}],
+choices:[
+{label:"Depart with Select Neighbors",desc:"Take 2 prepared neighbors. Three vehicles, convoy formation. Leave at dawn.",risk:["Larger group logistics","Trust unknown"],next:4,surv:8,res:0,coh:12},
+{label:"Share Intel, Depart Solo",desc:"Give neighbors radio frequencies and safe zone info. Leave separately to maintain OPSEC.",risk:["Guilt","Solo vulnerability"],next:1,surv:6,res:5,coh:-8}
+]},
+{id:3,title:"Day 7: Urban Deterioration",desc:"Water pressure has failed. Sanitation systems down. Fires visible in commercial district. Armed groups forming. Your stored water: 40 liters.",
+meta:[{i:"🚰",v:"40L water left"},{i:"🔥",v:"Fires spreading"},{i:"🔫",v:"Armed groups"}],
+choices:[
+{label:"Night Evacuation",desc:"Leave at 2 AM. Blackout conditions. Pre-loaded truck. Navigate by stars and paper map.",risk:["Navigation","Ambush risk"],next:4,surv:3,res:-10,coh:0},
+{label:"Water Source Expedition",desc:"Locate nearest natural water source (creek 3 km). Establish water resupply before deciding next move.",risk:["Exposure","Confrontation"],next:4,surv:-2,res:8,coh:5}
+]},
+{id:4,title:"Day 3–10: En Route",desc:"You're between urban zone and safe zone. Rural areas are calmer but suspicious of outsiders. Your radio picks up community networks organizing.",
+meta:[{i:"📻",v:"Radio networks active"},{i:"🌾",v:"Rural territory"},{i:"⛽",v:"Fuel for 150 km"}],
+choices:[
+{label:"Trade for Fuel at Farm",desc:"Approach a working farm. Offer tools, medical supplies, or labor for diesel.",risk:["Rejection","Exploitation"],next:8,surv:5,res:-10,coh:8},
+{label:"Cache & Walk Final Stretch",desc:"Secure vehicle in hidden location. Walk remaining 50+ km with essential packs over 2–3 days.",risk:["Exhaustion","Exposure","Slow"],next:8,surv:0,res:-15,coh:5},
+{label:"Join Local Radio Network",desc:"Offer radio relay services to local community in exchange for fuel and food. Delay 3–5 days.",risk:["Delay","Attachment to non-Ark group"],next:8,surv:3,res:5,coh:10}
+]},
+{id:8,title:"FINAL",desc:"",meta:[],choices:[]}
+]},
+{id:"civil",name:"Civil Unrest / Martial Law",icon:"🔥",desc:"Government declares state of emergency. Protests escalate to street warfare. Curfews, checkpoints, internet blackout.",tags:["Collapse Bible #55–68"],color:"#c084fc",
+nodes:[
+{id:0,title:"Day 1: State of Emergency",desc:"Government declares martial law after weeks of protests. Internet cut, curfew 8 PM – 6 AM, military checkpoints on major roads. Your safe zone is 300 km away in a rural area. You have valid travel documents and a plausible cover story.",
+meta:[{i:"🔒",v:"Martial law"},{i:"🌐",v:"Internet down"},{i:"🚧",v:"Military checkpoints"},{i:"📄",v:"Documents ready"}],
+choices:[
+{label:"Bluff Through Checkpoints",desc:"Travel in daylight with cover story (visiting family, medical appointment). Look calm and compliant.",risk:["Document scrutiny","Seizure of vehicle"],next:1,surv:5,res:0,coh:5},
+{label:"Wait for Curfew Window",desc:"Leave during the 6 AM–8 PM window on back roads. Avoid all checkpoints entirely.",risk:["Limited hours","Off-road risk"],next:2,surv:7,res:-5,coh:8},
+{label:"Shelter Until Situation Clarifies",desc:"Stay home. Monitor developments via battery radio. Maintain low profile.",risk:["Escalation","Door-to-door searches"],next:3,surv:0,res:5,coh:0}
+]},
+{id:1,title:"Checkpoint Encounter",desc:"A military checkpoint stops you. Soldiers are tense. They check documents, search the vehicle. They find your emergency supplies — more than typical for a 'family visit.'",
+meta:[{i:"🪖",v:"Armed soldiers"},{i:"🔍",v:"Vehicle searched"},{i:"📦",v:"Supplies found"}],
+choices:[
+{label:"Play Ignorant",desc:"Explain supplies as camping gear. Maintain calm. Offer cigarettes or snacks to soldiers.",risk:["See through lie","Confiscation"],next:4,surv:2,res:-10,coh:0},
+{label:"Offer Bribe",desc:"Discreetly offer cash. Common in many martial law situations.",risk:["Refusal + arrest","Sets precedent"],next:4,surv:0,res:-15,coh:-5}
+]},
+{id:2,title:"Back Road Navigation",desc:"You're on unpaved rural roads. Progress slow (40 km/h avg). 150 km covered by noon. Ahead: a bridge that may or may not be guarded.",
+meta:[{i:"🛤️",v:"150 km covered"},{i:"🌉",v:"Bridge ahead"},{i:"⏱️",v:"6 hrs of daylight left"}],
+choices:[
+{label:"Scout Bridge on Foot",desc:"Park 1 km back. Walk to observe bridge for 30 min. Assess guard presence.",risk:["Time loss","Discovered while scouting"],next:4,surv:8,res:0,coh:8},
+{label:"Find River Crossing",desc:"Look for shallow ford or alternative crossing. May require off-road driving.",risk:["Vehicle damage","Stuck in river"],next:4,surv:5,res:-8,coh:5},
+{label:"Drive Through Confidently",desc:"Approach at normal speed. If unguarded, cross. If guarded, use cover story.",risk:["Checkpoint trap","No retreat option"],next:4,surv:-3,res:0,coh:0}
+]},
+{id:3,title:"Day 4: Escalation",desc:"From your shelter, you hear heavy gunfire nightly. A neighbor was detained for 'suspicious communications.' Power is cut 18 hrs/day. Food stores at 60%.",
+meta:[{i:"🔫",v:"Active conflict"},{i:"🍽️",v:"60% supplies"},{i:"💡",v:"6 hrs power/day"}],
+choices:[
+{label:"Escape Under Cover of Conflict",desc:"Use a night of heavy fighting as cover. Everyone is distracted. Move during chaos.",risk:["Crossfire","Disorientation"],next:4,surv:3,res:-10,coh:5},
+{label:"Connect with Underground Network",desc:"A trusted contact mentions an underground railroad helping people flee. Meet at designated point.",risk:["Trap","Informants"],next:4,surv:5,res:-5,coh:12},
+{label:"Continue Sheltering",desc:"Ration strictly. Remain invisible. Hope for de-escalation.",risk:["Indefinite timeline","Psychological toll"],next:8,surv:-5,res:5,coh:-10}
+]},
+{id:4,title:"Approach to Safe Zone",desc:"You're within 50 km of your rural safe zone. The area is calm but a local militia has established a perimeter around several villages, checking everyone entering.",
+meta:[{i:"📍",v:"50 km to safe zone"},{i:"🛡️",v:"Local militia"},{i:"🤝",v:"Pre-arranged contact"}],
+choices:[
+{label:"Contact Safe Zone Advance Team",desc:"Use pre-arranged radio frequency to contact your people. Request escort through militia territory.",risk:["Radio interception","Delay"],next:8,surv:10,res:0,coh:15},
+{label:"Approach Militia Directly",desc:"Introduce yourself honestly. Explain your destination. Offer to contribute to local defense in exchange for passage.",risk:["Rejection","Conscription"],next:8,surv:5,res:-5,coh:5},
+{label:"Circumvent on Foot at Night",desc:"Cache vehicle. Navigate around militia perimeter through forest/fields at night.",risk:["Disorientation","Mistaken for intruder"],next:8,surv:2,res:-12,coh:0}
+]},
+{id:8,title:"FINAL",desc:"",meta:[],choices:[]}
+]}
+];
+
+const CHECKLIST=[
+{cat:"Documents",items:[
+{t:"Passports (originals + certified copies)",w:10},{t:"Birth/marriage certificates apostilled",w:8},{t:"Property deeds / asset documentation",w:7},{t:"Medical records + prescriptions",w:8},{t:"Insurance policies (copies)",w:5},{t:"Encrypted USB with all digital backups",w:9}
+]},
+{cat:"Financial",items:[
+{t:"$2,000+ emergency cash (mixed currencies)",w:10},{t:"Precious metals (portable: coins/small bars)",w:7},{t:"Pre-funded offshore bank account",w:9},{t:"Crypto wallet (hardware, memorized seed)",w:6},{t:"Barter goods stockpile",w:5}
+]},
+{cat:"Physical Readiness",items:[
+{t:"Go-bags packed for each family member",w:10},{t:"Vehicle fueled + maintenance current",w:9},{t:"Route maps (paper) for 3 routes to safe zone",w:9},{t:"72-hour food + water per person",w:10},{t:"First aid kit (trauma-capable)",w:8},{t:"Communications gear (radio + charger)",w:8}
+]},
+{cat:"Planning",items:[
+{t:"Evacuation plan written + rehearsed",w:10},{t:"Rally point established for family",w:9},{t:"Safe zone confirmed + contacts current",w:10},{t:"Trigger conditions defined (when to leave)",w:9},{t:"OPSEC protocols established",w:7},{t:"Neighbor/ally coordination plan",w:6}
+]}
+];
+
+/* ═══════════════════════════════
+   INTERACTION BLOCK
+   ═══════════════════════════════ */
+function switchTab(barId,prefix,target){
+const bar=document.getElementById(barId);
+bar.querySelectorAll('button').forEach((b,i)=>{
+const panels=document.querySelectorAll(`[id^="${prefix}-"]`);
+if(panels[i]&&panels[i].id===target){b.classList.add('on');panels[i].classList.add('show')}
+else if(panels[i]){b.classList.remove('on');panels[i].classList.remove('show')}
+});
+}
+function toggleAcc(el){
+const b=el.nextElementSibling;const o=b.classList.contains('open');
+el.parentElement.querySelectorAll('.acc-b').forEach(x=>x.classList.remove('open'));
+el.parentElement.querySelectorAll('.acc-h').forEach(x=>x.classList.remove('open'));
+if(!o){b.classList.add('open');el.classList.add('open')}
+}
+
+/* ═══ SIM ENGINE STATE ═══ */
+let simState={scenario:null,nodeIdx:0,history:[],surv:50,res:50,coh:50};
+
+function startSim(scId){
+const sc=SC.find(s=>s.id===scId);
+simState={scenario:sc,nodeIdx:0,history:[],surv:50,res:50,coh:50};
+document.getElementById('scenarioSelect').parentElement.style.display='none';
+document.getElementById('simEngine').style.display='block';
+renderNode();
+}
+
+function choose(choiceIdx){
+const node=simState.scenario.nodes[simState.nodeIdx];
+const c=node.choices[choiceIdx];
+simState.history.push({nodeId:node.id,choice:c.label,surv:c.surv,res:c.res,coh:c.coh});
+simState.surv=Math.max(0,Math.min(100,simState.surv+c.surv));
+simState.res=Math.max(0,Math.min(100,simState.res+c.res));
+simState.coh=Math.max(0,Math.min(100,simState.coh+c.coh));
+simState.nodeIdx=c.next;
+renderNode();
+}
+
+function renderNode(){
+const e=document.getElementById('simEngine');
+const sc=simState.scenario;
+const node=sc.nodes[simState.nodeIdx];
+
+if(node.id===8){renderFinal();return}
+
+// Progress bar
+const totalNodes=sc.nodes.length-1;
+let prog='<div class="sim-progress">';
+for(let i=0;i<totalNodes;i++){
+const cls=i<simState.history.length?'sp-dot done':i===simState.history.length?'sp-dot cur':'sp-dot';
+prog+=`<div class="${cls}"></div>`;
+}
+prog+=`<span class="sp-info">Decision ${simState.history.length+1} of ~${totalNodes}</span></div>`;
+
+// Stats
+const sc1=simState.surv,sc2=simState.res,sc3=simState.coh;
+const c1=sc1>=60?'var(--acc)':sc1>=35?'var(--warn)':'var(--dng)';
+const c2=sc2>=60?'var(--acc)':sc2>=35?'var(--warn)':'var(--dng)';
+const c3=sc3>=60?'var(--acc)':sc3>=35?'var(--warn)':'var(--dng)';
+
+let stats=`<div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:16px">
+<div class="ob-stat"><span class="os-label">Survival %</span><div class="os-bar"><div class="os-fill" style="width:${sc1}%;background:${c1}"></div></div><span class="os-val" style="color:${c1}">${sc1}%</span></div>
+<div class="ob-stat"><span class="os-label">Resources</span><div class="os-bar"><div class="os-fill" style="width:${sc2}%;background:${c2}"></div></div><span class="os-val" style="color:${c2}">${sc2}%</span></div>
+<div class="ob-stat"><span class="os-label">Cohesion</span><div class="os-bar"><div class="os-fill" style="width:${sc3}%;background:${c3}"></div></div><span class="os-val" style="color:${c3}">${sc3}%</span></div>
+</div>`;
+
+let meta=node.meta.map(m=>`<div class="meta-pill"><span class="mi">${m.i}</span>${m.v}</div>`).join('');
+
+let choices=node.choices.map((c,i)=>`
+<div class="choice-card" onclick="choose(${i})">
+<div class="ch-label">${c.label}</div>
+<div class="ch-desc">${c.desc}</div>
+<div class="ch-risk">${c.risk.map(r=>`<span class="tag" style="border-color:var(--dng);color:var(--dng)">⚠ ${r}</span>`).join('')}</div>
+</div>`).join('');
+
+e.innerHTML=`
+${prog}${stats}
+<div class="sim-scene">
+<div class="scene-title" style="color:${sc.color}">${sc.icon} ${node.title}</div>
+<div class="scene-desc">${node.desc}</div>
+<div class="scene-meta">${meta}</div>
+<h3>Choose Your Action:</h3>
+<div class="choice-grid">${choices}</div>
+</div>`;
+}
+
+function renderFinal(){
+const e=document.getElementById('simEngine');
+const s=simState;
+const avg=Math.round((s.surv+s.res+s.coh)/3);
+let grade,gradeCol;
+if(avg>=70){grade='A';gradeCol='var(--acc)'}
+else if(avg>=55){grade='B';gradeCol='var(--acc2)'}
+else if(avg>=40){grade='C';gradeCol='var(--warn)'}
+else if(avg>=25){grade='D';gradeCol='var(--acc3)'}
+else{grade='F';gradeCol='var(--dng)'}
+
+const c1=s.surv>=50?'var(--acc)':'var(--dng)';
+const c2=s.res>=50?'var(--acc)':'var(--dng)';
+const c3=s.coh>=50?'var(--acc)':'var(--dng)';
+
+let decisionLog=s.history.map((h,i)=>`<tr><td style="color:var(--acc2)">${i+1}</td><td style="font-weight:600">${h.choice}</td><td style="color:${h.surv>=0?'var(--acc)':'var(--dng)'}">${h.surv>=0?'+':''}${h.surv}</td><td style="color:${h.res>=0?'var(--acc)':'var(--dng)'}">${h.res>=0?'+':''}${h.res}</td><td style="color:${h.coh>=0?'var(--acc)':'var(--dng)'}">${h.coh>=0?'+':''}${h.coh}</td></tr>`).join('');
+
+e.innerHTML=`
+<div class="summary-card">
+<div class="sc-grade" style="color:${gradeCol}">${grade}</div>
+<div class="sc-label">Evacuation Grade — ${s.scenario.name}</div>
+</div>
+<div class="gl">
+<h2>Final Stats</h2>
+<div class="ob-stat"><span class="os-label">Survival Probability</span><div class="os-bar"><div class="os-fill" style="width:${s.surv}%;background:${c1}"></div></div><span class="os-val" style="color:${c1}">${s.surv}%</span></div>
+<div class="ob-stat"><span class="os-label">Resource Level</span><div class="os-bar"><div class="os-fill" style="width:${s.res}%;background:${c2}"></div></div><span class="os-val" style="color:${c2}">${s.res}%</span></div>
+<div class="ob-stat"><span class="os-label">Group Cohesion</span><div class="os-bar"><div class="os-fill" style="width:${s.coh}%;background:${c3}"></div></div><span class="os-val" style="color:${c3}">${s.coh}%</span></div>
+</div>
+<div class="gl">
+<h2>Decision Log</h2>
+<table><thead><tr><th>#</th><th>Decision</th><th>Surv</th><th>Res</th><th>Coh</th></tr></thead><tbody>${decisionLog}</tbody></table>
+</div>
+<div class="gl">
+<h2>After-Action Analysis</h2>
+<p style="font-size:.88rem;margin-bottom:10px">${avg>=55?'Your decisions prioritized speed and decisive action. Key strength: willingness to move before conditions deteriorated further. Review any decisions that cost resources — pre-positioning supplies can mitigate this.':'Your evacuation encountered significant challenges. Key areas for improvement: earlier departure timing, better resource management, and pre-established route planning. Consider running the simulation again with earlier, more decisive action.'}</p>
+<div class="note">${s.surv<40?'⚠️ CRITICAL: Survival probability fell dangerously low. Review the Evac Readiness Checklist (tab 3) and address gaps immediately.':s.res<30?'⚠️ WARNING: Resource depletion was a major issue. Pre-position supplies along evacuation routes and maintain larger emergency caches.':s.coh<30?'⚠️ WARNING: Group cohesion suffered. Review Community Governance (§ 23.5) and establish clearer roles and communication protocols.':'✅ Solid performance overall. Fine-tune by running additional scenarios and comparing outcomes.'}</div>
+</div>
+<div style="text-align:center;margin-top:16px">
+<button class="btn btn-primary" onclick="resetSim()">🔄 Run Again</button>
+<button class="btn btn-secondary" onclick="resetToSelect()">← Choose New Scenario</button>
+</div>`;
+}
+
+function resetSim(){simState.nodeIdx=0;simState.history=[];simState.surv=50;simState.res=50;simState.coh=50;renderNode()}
+function resetToSelect(){
+document.getElementById('simEngine').style.display='none';
+document.getElementById('scenarioSelect').parentElement.style.display='block';
+}
+
+/* ═══ RENDER ═══ */
+
+// Scenario select cards
+(function(){
+const c=document.getElementById('scenarioSelect');
+SC.forEach(s=>{
+c.innerHTML+=`<div class="choice-card" onclick="startSim('${s.id}')">
+<div class="ch-label" style="font-size:1.1rem">${s.icon} ${s.name}</div>
+<div class="ch-desc">${s.desc}</div>
+<div class="ch-risk">${s.tags.map(t=>`<span class="tag">${t}</span>`).join('')} <span class="tag" style="color:${s.color};border-color:${s.color}">${s.nodes.length-1} decisions</span></div>
+</div>`;
+});
+})();
+
+// Scenario Library
+(function(){
+const c=document.getElementById('scenLibAcc');
+SC.forEach(s=>{
+let nodeList=s.nodes.filter(n=>n.id!==8).map(n=>`<div style="margin:6px 0;padding:8px;background:var(--gl);border-radius:6px"><strong style="color:var(--acc2);font-size:.85rem">${n.title}</strong><p style="font-size:.8rem;color:var(--txt2);margin:4px 0">${n.desc.substring(0,120)}...</p><div>${n.choices.map(ch=>`<span class="tag">${ch.label}</span>`).join('')}</div></div>`).join('');
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)" style="border-left:3px solid ${s.color}"><span>${s.icon} ${s.name} <span class="badge badge-b">${s.nodes.length-1} nodes</span></span><span class="arrow">▼</span></div><div class="acc-b">${nodeList}</div>`;
+});
+})();
+
+// Checklist
+(function(){
+const c=document.getElementById('checklistItems');
+let totalWeight=0;
+CHECKLIST.forEach(cat=>{
+let items='';
+cat.items.forEach((it,i)=>{
+totalWeight+=it.w;
+items+=`<label class="ck" style="display:flex;align-items:center;gap:8px;margin:5px 0;font-size:.86rem;cursor:pointer"><input type="checkbox" class="chk-item" data-weight="${it.w}" onchange="scoreChecklist()"> ${it.t} <span style="font-size:.7rem;color:var(--txt2)">(${it.w} pts)</span></label>`;
+});
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>${cat.cat}</span><span class="arrow">▼</span></div><div class="acc-b">${items}</div>`;
+});
+window._totalW=totalWeight;
+})();
+
+function scoreChecklist(){
+let earned=0;
+document.querySelectorAll('.chk-item:checked').forEach(el=>{earned+=+(el.dataset.weight)});
+const pct=Math.round((earned/window._totalW)*100);
+const col=pct>=80?'var(--acc)':pct>=50?'var(--warn)':'var(--dng)';
+const grade=pct>=80?'Combat Ready':pct>=60?'Mostly Prepared':pct>=40?'Gaps Exist':'Critically Unprepared';
+const el=document.getElementById('checkScore');
+el.style.display='block';
+el.innerHTML=`<div style="font-size:2rem;font-weight:800;color:${col}">${pct}%</div><div style="font-size:1rem;color:${col};margin-top:4px">${grade}</div><div style="font-size:.8rem;color:var(--txt2);margin-top:8px">${earned} / ${window._totalW} points earned</div>`;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>06 — Doomsday Timeline | Ark v3 (Standalone)</title>
+<style>
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;--bg4:#20203a;
+  --glass:rgba(255,255,255,0.05);--glass2:rgba(255,255,255,0.09);--glass3:rgba(255,255,255,0.03);
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --primary:#00ff88;--danger:#ff4444;--warn:#ffaa00;--info:#00aaff;--purple:#bb44ff;--teal:#00ddcc;
+  --text:#e8e8f0;--muted:#777;--muted2:#aaa;
+  --r:12px;--r2:8px;--r3:5px;
+  --shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+.gl{background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
+
+/* layout */
+.container{max-width:1080px;margin:0 auto;padding:2rem 1rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
+@media(max-width:700px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+/* type */
+h1{font-size:1.9rem;font-weight:700;letter-spacing:-.3px}
+h3{font-size:.98rem;font-weight:600}
+.accent{color:var(--primary)}
+.muted{color:var(--muted)}
+.sm{font-size:.83rem}
+.xs{font-size:.72rem}
+.xxs{font-size:.64rem}
+
+/* tabs */
+.stab{display:flex;gap:.2rem;background:var(--bg3);border-radius:var(--r2);padding:.2rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.stab button{flex:1;min-width:80px;padding:.42rem .7rem;background:transparent;border:none;border-radius:5px;color:var(--muted);cursor:pointer;font-size:.78rem;font-weight:600;transition:all .2s;white-space:nowrap}
+.stab button.active{background:var(--glass2);color:var(--text);border:1px solid var(--border2)}
+.spanel{display:none}.spanel.active{display:block}
+
+/* badge / tag */
+.badge{display:inline-flex;align-items:center;gap:.25rem;padding:.2rem .6rem;border-radius:20px;font-size:.7rem;font-weight:700}
+.b-c{background:rgba(255,68,68,.15);color:var(--danger);border:1px solid rgba(255,68,68,.3)}
+.b-h{background:rgba(255,170,0,.15);color:var(--warn);border:1px solid rgba(255,170,0,.3)}
+.b-m{background:rgba(0,170,255,.12);color:var(--info);border:1px solid rgba(0,170,255,.25)}
+.b-l{background:rgba(0,255,136,.1);color:var(--primary);border:1px solid rgba(0,255,136,.25)}
+.b-p{background:rgba(187,68,255,.12);color:var(--purple);border:1px solid rgba(187,68,255,.25)}
+.tag{display:inline-block;padding:.11rem .42rem;border-radius:3px;font-size:.67rem;font-weight:600;margin:.1rem}
+.tr{background:rgba(255,68,68,.12);color:var(--danger)}
+.ty{background:rgba(255,170,0,.12);color:var(--warn)}
+.tg{background:rgba(0,255,136,.1);color:var(--primary)}
+.tb{background:rgba(0,170,255,.1);color:var(--info)}
+.tp{background:rgba(187,68,255,.1);color:var(--purple)}
+
+/* pulse */
+.pulse{display:inline-block;width:8px;height:8px;border-radius:50%;animation:blink 1.6s infinite}
+.p-r{background:var(--danger)}.p-y{background:var(--warn);animation-delay:.5s}.p-g{background:var(--primary);animation-delay:1s}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* ── MAIN TIMELINE ── */
+.tl-container{position:relative;padding-left:0}
+.tl-spine{position:absolute;left:110px;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--primary),var(--warn),var(--danger),#ff0055);border-radius:2px;z-index:0}
+@media(max-width:600px){.tl-spine{left:12px}}
+
+.tl-era{margin-bottom:.25rem;position:relative}
+.tl-era-label{position:sticky;top:0;z-index:20;background:var(--bg2);border-bottom:1px solid var(--border);padding:.4rem 1rem .4rem 130px;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:.5rem}
+@media(max-width:600px){.tl-era-label{padding-left:30px}}
+
+.tl-event{display:flex;align-items:flex-start;gap:0;position:relative;margin-bottom:.5rem;z-index:1}
+.tl-date-col{min-width:110px;padding-right:1rem;text-align:right;padding-top:.6rem;flex-shrink:0}
+@media(max-width:600px){.tl-date-col{min-width:0;display:none}}
+.tl-date{font-size:.72rem;font-weight:700;color:var(--muted2);white-space:nowrap}
+.tl-year{font-size:.8rem;font-weight:700;color:var(--text)}
+
+.tl-node{position:relative;z-index:2;flex-shrink:0;margin-top:.55rem}
+.tl-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--bg);position:relative;z-index:2;flex-shrink:0;transition:transform .2s}
+.tl-connector{width:20px;height:2px;background:var(--border2);flex-shrink:0;margin-top:6px}
+
+.tl-card{flex:1;margin-left:.75rem;background:var(--glass);border:1px solid var(--border);border-radius:var(--r2);padding:.85rem 1rem;cursor:pointer;transition:all .25s;margin-bottom:0}
+.tl-card:hover{border-color:var(--border2);transform:translateX(3px)}
+.tl-card.active-card{border-color:var(--primary);background:rgba(0,255,136,.04)}
+.tl-card-body{display:none;margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)}
+.tl-card.active-card .tl-card-body{display:block}
+
+/* decision point */
+.decision-flag{background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.3);border-radius:var(--r3);padding:.5rem .8rem;margin:.6rem 0;font-size:.8rem;display:flex;gap:.5rem;align-items:flex-start}
+
+/* phase indicator */
+.phase-bar{height:6px;border-radius:3px;margin-bottom:1.5rem;display:flex;overflow:hidden;gap:2px}
+.phase-seg{height:100%;border-radius:2px;transition:flex .5s ease;cursor:pointer;position:relative}
+.phase-seg::after{content:attr(data-label);position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:.6rem;white-space:nowrap;color:var(--muted2);pointer-events:none}
+
+/* NOW marker */
+.now-marker{position:absolute;left:110px;z-index:10;transform:translateX(-50%)}
+.now-line{width:2px;height:100%;background:var(--primary);opacity:.4;position:absolute;left:0}
+.now-badge{background:var(--primary);color:#000;font-size:.65rem;font-weight:700;padding:.15rem .4rem;border-radius:3px;white-space:nowrap;position:relative;z-index:11}
+@media(max-width:600px){.now-marker{left:12px}}
+
+/* ark window */
+.ark-window{background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.2);border-radius:var(--r3);padding:.75rem;margin:.5rem 0;font-size:.8rem}
+
+/* countdown mini */
+.cd-mini{display:flex;gap:.6rem;margin-top:.5rem}
+.cd-unit{background:var(--bg3);border-radius:4px;padding:.3rem .5rem;text-align:center;min-width:44px}
+.cd-v{font-size:1.1rem;font-weight:700;color:var(--danger);font-variant-numeric:tabular-nums;line-height:1}
+.cd-l{font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+
+/* pbar */
+.pbar{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.pbar-f{height:100%;border-radius:3px;transition:width 1s ease}
+
+/* btn */
+.btn{display:inline-flex;align-items:center;gap:.3rem;padding:.45rem .95rem;border:none;border-radius:var(--r2);font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn-p{background:var(--primary);color:#000}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--glass2)}
+.btn-sm{padding:.28rem .6rem;font-size:.73rem}
+.flt-btn{padding:.28rem .65rem;background:var(--glass);border:1px solid var(--border);border-radius:20px;color:var(--muted);cursor:pointer;font-size:.74rem;font-weight:600;transition:all .2s}
+.flt-btn:hover{border-color:var(--border2);color:var(--text)}
+.flt-btn.fa{border-color:var(--primary);color:var(--primary);background:rgba(0,255,136,.06)}
+
+/* collapse path */
+.path-node{background:var(--glass);border:1px solid var(--border);border-radius:var(--r3);padding:.65rem .85rem;position:relative;transition:all .2s;cursor:pointer}
+.path-node:hover{border-color:var(--border2)}
+.path-arrow{text-align:center;font-size:1.2rem;color:var(--muted);padding:.1rem 0}
+
+/* alarm list */
+.alarm-row{display:flex;gap:.65rem;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.81rem;align-items:flex-start}
+.alarm-row:last-child{border-bottom:none}
+
+/* stat block */
+.s-stat{background:var(--glass);border:1px solid var(--border);border-radius:var(--r2);padding:.85rem;text-align:center}
+.s-val{font-size:1.5rem;font-weight:700;margin:.2rem 0}
+
+/* topbar */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.55rem 1rem;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap">
+    <span style="font-weight:700;font-size:.9rem">⏳ ARK <span style="color:var(--primary)">DOOMSDAY TIMELINE</span></span>
+    <span class="badge b-c"><span class="pulse p-r"></span>PHASE 3: ACCELERATION</span>
+    <span class="badge b-h">2025–2027 CRITICAL WINDOW</span>
+  </div>
+  <div class="cd-mini" id="topCountdown"></div>
+</div>
+
+<div class="container">
+
+<!-- HEADER -->
+<div style="margin-bottom:1.5rem;padding-top:.5rem">
+  <div style="display:flex;align-items:center;gap:.85rem;margin-bottom:.4rem">
+    <span style="font-size:2.2rem">⏳</span>
+    <div>
+      <h1>Doomsday <span class="accent">Timeline</span></h1>
+      <p class="muted sm">Section 06 — Ark Collective v3 | Historical escalation → 2027 critical window → Ark action gates</p>
+    </div>
+  </div>
+  <p style="color:var(--muted2);max-width:700px;font-size:.88rem;line-height:1.65;margin-top:.5rem">
+    The collapse of civilisations follows a measurable arc. This timeline maps the escalation from post-WWII stability through the current inflection point, forecasting the critical 2025–2030 window. Each node carries an Ark decision gate — the action required to stay ahead of the collapse curve.
+  </p>
+</div>
+
+<!-- PHASE BAR -->
+<div class="gl" style="padding:1.1rem 1.25rem;margin-bottom:1.25rem">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:.85rem">
+    <h3>🌡️ Civilisational Escalation Arc — Current Phase: <span style="color:var(--danger)">Phase 3 — Acceleration</span></h3>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap" id="phaseFilterBar"></div>
+  </div>
+  <div id="phaseBarWrap" style="position:relative;padding-top:28px;margin-bottom:.5rem">
+    <div class="phase-bar" id="phaseBar" style="height:10px"></div>
+  </div>
+  <div class="g4" id="phaseCards" style="margin-top:.75rem"></div>
+</div>
+
+<!-- SUMMARY STATS -->
+<div class="g4" style="margin-bottom:1.25rem" id="summaryStats"></div>
+
+<!-- CONTROLS -->
+<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center">
+  <span class="xs muted">Filter:</span>
+  <div id="filterBar" style="display:flex;gap:.35rem;flex-wrap:wrap"></div>
+  <div style="margin-left:auto;display:flex;gap:.4rem">
+    <button class="btn btn-ghost btn-sm" onclick="expandAll()">Expand All</button>
+    <button class="btn btn-ghost btn-sm" onclick="collapseAll()">Collapse All</button>
+    <button class="btn btn-p btn-sm" onclick="scrollToNow()">▶ Jump to NOW</button>
+  </div>
+</div>
+
+<!-- TIMELINE -->
+<div style="position:relative;margin-bottom:1.5rem" id="tlWrap">
+  <div class="tl-spine"></div>
+  <div id="timelineContainer"></div>
+</div>
+
+<!-- ANALYSIS TABS -->
+<div class="gl" style="padding:1.25rem;margin-bottom:1rem">
+  <div class="stab" id="analysisTabs">
+    <button class="active" onclick="switchTab('analysisTabs','analysisPanels','paths')">🔀 Collapse Paths</button>
+    <button onclick="switchTab('analysisTabs','analysisPanels','gates')">🚪 Ark Decision Gates</button>
+    <button onclick="switchTab('analysisTabs','analysisPanels','alarms')">🔔 Alarm Conditions</button>
+    <button onclick="switchTab('analysisTabs','analysisPanels','scenarios')">📖 Scenario Mapping</button>
+  </div>
+  <div id="analysisPanels">
+
+    <div class="spanel active" id="panel-paths">
+      <p class="sm muted" style="margin-bottom:1rem">Three divergent collapse paths from the current inflection point. Each has different triggers, velocities, and preparation requirements.</p>
+      <div class="g3" id="pathsGrid"></div>
+    </div>
+
+    <div class="spanel" id="panel-gates">
+      <p class="sm muted" style="margin-bottom:1rem">Specific Ark action gates triggered by timeline events. Each gate defines: trigger condition, decision window, and required preparation action.</p>
+      <div id="gatesContent"></div>
+    </div>
+
+    <div class="spanel" id="panel-alarms">
+      <p class="sm muted" style="margin-bottom:1rem">Real-time alarm conditions to monitor. When these thresholds are breached, escalate your Ark protocol tier immediately.</p>
+      <div id="alarmsContent"></div>
+    </div>
+
+    <div class="spanel" id="panel-scenarios">
+      <p class="sm muted" style="margin-bottom:1rem">How the Doomsday Timeline maps to specific Collapse Bible scenarios by class.</p>
+      <div id="scenariosContent"></div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   DATA BLOCK
+════════════════════════════════════════ */
+const PHASES=[
+  {id:'p1',label:'Phase 1: Stability',years:'1945–1971',col:'var(--primary)',pct:15,
+   desc:'Post-WWII Bretton Woods gold standard, US hegemony, Cold War bipolarity. Structural stability with nuclear deterrence.'},
+  {id:'p2',label:'Phase 2: Expansion',years:'1971–2008',col:'var(--info)',pct:25,
+   desc:'Nixon shock (USD/gold decoupling), neoliberal globalisation, financialisation. Growth masking structural fragility.'},
+  {id:'p3',label:'Phase 3: Stress',years:'2008–2020',col:'#ffd700',pct:20,
+   desc:'GFC exposed systemic fragility. QE, zero rates, rising inequality. Institutions begin delegitimisation.'},
+  {id:'p4',label:'Phase 4: Acceleration ← NOW',years:'2020–2027',col:'var(--warn)',pct:18,
+   desc:'COVID, supply chain collapse, Ukraine war, AI acceleration, debt spirals. Multiple simultaneous crises.'},
+  {id:'p5',label:'Phase 5: Cascade',years:'2025–2030',col:'var(--danger)',pct:13,
+   desc:'Expected convergence of financial, political, biological, and geopolitical crises. Non-linear cascade possible.'},
+  {id:'p6',label:'Phase 6: Resolution',years:'2028–2040+',col:'#ff0055',pct:9,
+   desc:'Outcome uncertain: new order, regional fragmentation, or civilisational contraction. Ark survivors become founders.'},
+];
+
+const EVENTS=[
+  // PHASE 1
+  {id:'e1',phase:'p1',era:'Post-War Foundations',year:'1944',label:'Bretton Woods',
+   type:'financial',icon:'🏛️',severity:'low',isNow:false,
+   summary:'44 nations establish USD as global reserve currency backed by gold. US holds 65% of world gold reserves. Foundation of post-war financial order.',
+   impact:'Created the "exorbitant privilege" that enabled 80 years of US deficit financing. Its end (1971) set the collapse clock.',
+   arkSignal:'N/A — Stability phase. No immediate action required.',
+   decisionGate:null,
+   collapseLinks:['A8 (USD Depegging)']},
+  {id:'e2',phase:'p1',era:'Post-War Foundations',year:'1945',label:'UN / NATO Founded',
+   type:'political',icon:'🌐',severity:'low',isNow:false,
+   summary:'International institutional framework created to prevent repeat of WWII. NATO (1949) provides collective defence framework.',
+   impact:'Institutions that are now delegitimising. NATO expansion eastward became the strategic trigger for Russia-Ukraine conflict.',
+   arkSignal:'Monitor NATO cohesion as leading indicator of Western institutional stability.',
+   decisionGate:null,
+   collapseLinks:['C1 (Civil/Political)','F1 (Nuclear)']},
+  {id:'e3',phase:'p1',era:'Nuclear Age',year:'1962',label:'Cuban Missile Crisis',
+   type:'nuclear',icon:'☢️',severity:'critical',isNow:false,
+   summary:'13 days that came closest to nuclear exchange in history. Soviet missiles in Cuba; US blockade. Khrushchev/Kennedy back-channel resolved at last moment.',
+   impact:'Established nuclear hotline. Demonstrated both the risk and the human capacity for last-minute rational decision. Precedent for current nuclear doctrine.',
+   arkSignal:'Any equivalent standoff without functional back-channel communication = Tier 4 immediate.',
+   decisionGate:null,
+   collapseLinks:['F1 (Tactical Nuclear)','F5 (Full Exchange)']},
+
+  // PHASE 2
+  {id:'e4',phase:'p2',era:'Fiat Era Begins',year:'1971',label:'Nixon Shock — Gold Standard Ends',
+   type:'financial',icon:'💵',severity:'high',isNow:false,
+   summary:'Nixon suspends USD/gold convertibility. Bretton Woods collapses. USD becomes pure fiat currency. The 52-year countdown to dollar debasement collapse begins.',
+   impact:'Enabled unlimited money printing. US debt grew from $400B (1971) to $36.4T (2024). The structural cause of the 2025–2030 financial crisis window.',
+   arkSignal:'This event started the clock. We are now 53 years into a fiat experiment with no historical precedent for this scale.',
+   decisionGate:{trigger:'USD loses reserve currency status',action:'Immediate: hard assets, offshore diversification, second residency'},
+   collapseLinks:['A1 (Hyperinflation)','A4 (Sovereign Default)','A8 (USD Depegging)']},
+  {id:'e5',phase:'p2',era:'Globalisation Peak',year:'1989',label:'Soviet Collapse / Unipolar Moment',
+   type:'political',icon:'☭',severity:'high',isNow:false,
+   summary:'USSR dissolves. "End of history" declared (Fukuyama). US unipolar moment. Globalisation accelerates. NATO expands eastward to Russian borders.',
+   impact:'Created the strategic miscalculation that Ukraine conflict is built on. Also: nomenklatura privatisation = the original blueprint for oligarchic asset seizure.',
+   arkSignal:'Multipolarity is now reasserting. The unipolar era that enabled free global movement of capital/people is ending.',
+   decisionGate:null,
+   collapseLinks:['C1 (Political)','F1 (Nuclear)']},
+  {id:'e6',phase:'p2',era:'Globalisation Peak',year:'1999',label:'China WTO Entry / Financialisation Peak',
+   type:'financial',icon:'🏭',severity:'medium',isNow:false,
+   summary:'China joins WTO (2001). Financial deregulation (Glass-Steagall repeal 1999). Derivatives explode. Supply chains shift to China. The productive economy hollowed out.',
+   impact:'Created the supply chain vulnerability exposed in COVID. China holds leverage over 400+ critical goods categories. Financial system complexity reached dangerous levels.',
+   arkSignal:'Supply chain diversification is now a strategic necessity, not efficiency calculation.',
+   decisionGate:null,
+   collapseLinks:['A5 (Derivatives)','A7 (Supply Chain)','B5 (Food Distribution)']},
+
+  // PHASE 3
+  {id:'e7',phase:'p3',era:'First Systemic Shock',year:'2008',label:'Global Financial Crisis',
+   type:'financial',icon:'🏦',severity:'critical',isNow:false,
+   summary:'Subprime collapse triggers first global systemic financial crisis since 1929. $11T in US household wealth destroyed. Resolved via QE — printing money to buy time. The can kicked.',
+   impact:'Established the precedent: banks bailed out, ordinary people bear costs. Trust in institutions begins decline. QE creates the next, larger bubble.',
+   arkSignal:'QE never truly ended. Fed balance sheet: $900B (2008) → $9T (2022). This will resolve in inflation or default.',
+   decisionGate:{trigger:'QE reversal fails (balance sheet reduction triggers crisis)',action:'Reduce equity exposure, increase gold/hard assets to 25%'},
+   collapseLinks:['A2 (Bank Bail-In)','A5 (Derivatives)']},
+  {id:'e8',phase:'p3',era:'Political Fracture',year:'2016',label:'Brexit / Trump — Populist Inflection',
+   type:'political',icon:'🗳️',severity:'high',isNow:false,
+   summary:'Brexit vote (June 2016) and Trump election (November 2016) signal systemic rejection of the post-1945 institutional order. Globalisation backlash becomes electoral force.',
+   impact:'Institutional legitimacy crisis becomes visible. "Rules-based international order" begins unravelling. National interest vs multilateralism conflict intensifies.',
+   arkSignal:'Populist leaders increase variance in all political outcomes. Tails fatter. Preparation for low-probability/high-impact events becomes more urgent.',
+   decisionGate:null,
+   collapseLinks:['C1 (Civil/Political)','S07 (US Constitutional Crisis)']},
+  {id:'e9',phase:'p3',era:'Political Fracture',year:'2019',label:'Repo Market Crisis (Ignored)',
+   type:'financial',icon:'📊',severity:'high',isNow:false,
+   summary:'September 2019: overnight repo rate spikes to 10% (from 2%). Fed injects $75B+/day for weeks. Near-invisible Lehman-II signal in plumbing of financial system.',
+   impact:'Exposed that the banking system was already under stress before COVID. QE 4.0 quietly began before any pandemic. COVID masked the financial crisis with a health crisis.',
+   arkSignal:'Repo market stress indicators remain elevated. This system has not been repaired — it has been papered over.',
+   decisionGate:{trigger:'Overnight repo rate spikes >5% for 3+ days',action:'Treat as pre-bank-run signal. Move cash to hard assets within 72 hours.'},
+   collapseLinks:['A2 (Bank Bail-In)','A5 (Derivatives)']},
+
+  // PHASE 4 — NOW
+  {id:'e10',phase:'p4',era:'Acceleration',year:'2020',label:'COVID — System Stress Test',
+   type:'biological',icon:'🦠',severity:'critical',isNow:false,
+   summary:'COVID-19 exposes every systemic fragility simultaneously: supply chains, healthcare, government competence, information systems, financial system. Emergency powers template established.',
+   impact:'$12T in global fiscal/monetary stimulus. Government emergency powers normalised. Supply chain fragility proven. Inflation loaded into future pipeline. CBDC discussion accelerated.',
+   arkSignal:'COVID proved: 6-month supply stockpile, off-grid capacity, rural property — all validated. The preparedness model is correct. Increase all Ark parameters.',
+   decisionGate:{trigger:'Novel pathogen WHO PHEIC declaration',action:'Activate isolation protocol immediately. Do not wait for community transmission confirmation.'},
+   collapseLinks:['D1 (Pandemic)','B7 (Supply Chain)','A1 (Inflation)']},
+  {id:'e11',phase:'p4',era:'Acceleration',year:'2022',label:'Ukraine War — Geopolitical Rupture',
+   type:'nuclear',icon:'🇺🇦',severity:'critical',isNow:false,
+   summary:'Russia invades Ukraine February 24, 2022. First major land war in Europe since WWII. Nuclear doctrine revised. Energy crisis. Food supply disrupted (Ukraine = 10% of global wheat). $1T+ in sanctions.',
+   impact:'NATO forced to spend. European energy dependency on Russia exposed. Nuclear taboo challenged. Precedent set for great power conflict.',
+   arkSignal:'This is not a regional conflict. It is the opening act of a multipolar restructuring that will last 10–20 years. Plan for European energy volatility and nuclear signalling.',
+   decisionGate:{trigger:'NATO Article 5 formally invoked',action:'Tier 4 protocol. Execute bug-out within 24 hours if in Europe.'},
+   collapseLinks:['F1 (Tactical Nuclear)','A7 (Supply Chain)','E1 (Food Crisis)']},
+  {id:'e12',phase:'p4',era:'Acceleration',year:'2023',label:'Doomsday Clock: 90 Seconds',
+   type:'nuclear',icon:'⏱️',severity:'critical',isNow:false,
+   summary:'Bulletin of Atomic Scientists moves clock to 90 seconds to midnight — closest in 76-year history. Reason: Russia-Ukraine nuclear signalling, DPRK advancement, AI arms race, climate acceleration.',
+   impact:'Not symbolic. The BAS methodology is rigorous. 90 seconds reflects the actual convergence of multiple existential risk vectors.',
+   arkSignal:'Each 30-second advance of the clock should be treated as escalation of one Ark tier.',
+   decisionGate:{trigger:'Clock moves to 60 seconds or less',action:'Tier 3 → Tier 4 automatic escalation. Ark location must be operational.'},
+   collapseLinks:['F1 (Nuclear)','F2 (AGI)','F5 (Full Exchange)']},
+  {id:'e13',phase:'p4',era:'Acceleration',year:'2023',label:'SVB / Credit Suisse — Banking Crack',
+   type:'financial',icon:'🏦',severity:'high',isNow:false,
+   summary:'Silicon Valley Bank ($212B) and Signature Bank collapse in 48 hours (March 2023). Credit Suisse ($530B, 167-year institution) forced-merged with UBS. Third-largest US bank failure in history.',
+   impact:'Revealed unrealised losses of $600B+ sitting in US bank bond portfolios. Fed backstop prevented contagion. Problem not solved — deferred.',
+   arkSignal:'The unrealised bond losses have not resolved. Rising rates continue to stress bank balance sheets. Regional bank crisis is probability, not possibility.',
+   decisionGate:{trigger:'3+ US regional bank failures in 30 days',action:'Treat as pre-corralito signal. Maximum 3-month expenses in any single bank.'},
+   collapseLinks:['A2 (Bank Bail-In)','A5 (Derivatives)']},
+  {id:'e14',phase:'p4',era:'AI Inflection',year:'2023',label:'ChatGPT / GPT-4 — AGI Proximity',
+   type:'technology',icon:'🤖',severity:'high',isNow:false,
+   summary:'ChatGPT reaches 100M users in 60 days (fastest product adoption in history). GPT-4 passes bar exam top percentile. 1,000+ AI researchers sign open letter warning of existential risk. AI safety debate goes mainstream.',
+   impact:'Disruption to white-collar employment accelerates. AI weapons systems deployed in active conflicts. AGI timeline compressed by leading researchers to 2027–2033.',
+   arkSignal:'AI creates winner/loser bifurcation at extraordinary speed. Own the AI or compete with it. No middle ground.',
+   decisionGate:{trigger:'AGI (human-level autonomous reasoning) demonstrated by any lab',action:'Immediate Tier 4 preparation. AGI misalignment risk becomes primary existential concern.'},
+   collapseLinks:['F2 (AGI Misalignment)','C4 (Social Collapse)','S14 (AI Unemployment)']},
+
+  // PHASE 5 — NEAR FUTURE
+  {id:'e15',phase:'p5',era:'2025 Critical Window',year:'2025',label:'Financial System Stress Peak',
+   type:'financial',icon:'💹',severity:'critical',isNow:false,isFuture:true,
+   summary:'PREDICTED: CRE maturity wall ($1.5T), pension fund solvency stress, potential bank failures, and first G7 sovereign debt warning converge. VIX expected 45+. Recession probability exceeds 75%.',
+   impact:'Financial crisis of GFC magnitude or larger. Fed response options exhausted. No space for QE without triggering hyperinflationary response.',
+   arkSignal:'2025 Q1–Q3 is the primary financial preparation window. Act before this event, not during.',
+   decisionGate:{trigger:'VIX >45 sustained 5+ days OR 2+ major bank failures',action:'Tier 3 immediate. Execute all financial preparation actions. Begin relocation planning.'},
+   collapseLinks:['A2 (Bank Bail-In)','A5 (Derivatives)','S01 (Sovereign Debt)']},
+  {id:'e16',phase:'p5',era:'2026 Convergence',year:'2026',label:'Geopolitical Flashpoints Converge',
+   type:'nuclear',icon:'🌍',severity:'critical',isNow:false,isFuture:true,
+   summary:'PREDICTED: Taiwan Strait increased military pressure, Middle East multi-front conflict escalation, Russia-NATO Baltic incidents, and North Korea ICBM demonstration converge in 2026 window.',
+   impact:'Any single flashpoint triggering miscalculation could cascade to nuclear signalling. Multiple simultaneous flashpoints increase non-linear risk dramatically.',
+   arkSignal:'Geographic positioning becomes critical. Avoid: Eastern Europe, Taiwan Strait region, Middle East. Relocate toward: Southern hemisphere, inland NW Europe, Oceania.',
+   decisionGate:{trigger:'Any 2 simultaneous military crises involving nuclear states',action:'Tier 4. Physical relocation to Ark location. Activate full bug-out protocol.'},
+   collapseLinks:['F1 (Nuclear)','S09 (Taiwan)','S17 (Tactical Nuclear)']},
+  {id:'e17',phase:'p5',era:'2027 Apex',year:'2027',label:'Pentagon "Pacing Threat" Window',
+   type:'nuclear',icon:'🎯',severity:'critical',isNow:false,isFuture:true,
+   summary:'PREDICTED: Pentagon\'s assessed optimal window for Chinese Taiwan action. US military pre-positioned. TSMC contingency plans in place. Semiconductor supply chain disruption probability peaks.',
+   impact:'Even a credible threat (without actual conflict) triggers: semiconductor shortage, equity market crash, supply chain freeze, flight to USD/gold.',
+   arkSignal:'All scenario preparation should be complete before this window. This is the stress test date.',
+   decisionGate:{trigger:'PLA naval exercises exceed 2022 scale around Taiwan',action:'Pre-positioned at Ark location. All preparation complete. Monitor daily.'},
+   collapseLinks:['S09 (Taiwan)','S05 (EMP)','S20 (Multi-System)']},
+  {id:'e18',phase:'p5',era:'2027 Apex',year:'2027',label:'Ark Decision: Act or Accept',
+   type:'ark',icon:'🛡️',severity:'critical',isNow:false,isFuture:true,
+   summary:'PREDICTED: By 2027, the divergence between those who acted on early signals and those who waited becomes structural. Preparation costs will be 3–5× higher. Exit options narrowed. The decision window closes.',
+   impact:'Historical precedent: those who left Yugoslavia before the siege, Argentina before the corralito, Venezuela before hyperinflation. The window is open until it isn\'t.',
+   arkSignal:'This is the Ark\'s core premise: act while the window is open. The 2027 inflection is not the endpoint — it is the closing of the preparation window.',
+   decisionGate:{trigger:'Any Phase 5 event occurring',action:'All Ark preparation complete. Community established. Location operational. Finances secured.'},
+   collapseLinks:['All Class A–F scenarios']},
+
+  // PHASE 6
+  {id:'e19',phase:'p6',era:'Resolution Phase',year:'2028',label:'New Order Emergence',
+   type:'political',icon:'🌱',severity:'high',isNow:false,isFuture:true,
+   summary:'PROJECTED: Post-cascade restructuring. Possible outcomes: (A) Multipolar regional order with new institutions, (B) Digital authoritarian equilibrium, (C) Civilisational contraction with regional feudalism, (D) Ark communities as nuclei of new local governance.',
+   impact:'Survivors of the cascade phase become the founders of the next order. Skills, communities, values, and knowledge preserved through collapse determine what comes next.',
+   arkSignal:'The Ark is not just about surviving collapse. It is about what you build after.',
+   decisionGate:null,
+   collapseLinks:['All scenarios — resolution phase']},
+  {id:'e20',phase:'p6',era:'Resolution Phase',year:'2035',label:'Ark Communities: New Foundations',
+   type:'ark',icon:'🏗️',severity:'low',isNow:false,isFuture:true,
+   summary:'PROJECTED: Self-sufficient communities with preserved knowledge, functioning governance, and productive land form the nuclei of regional recovery. The Ark Collective model: not survival bunkers, but civilisational seeds.',
+   impact:'Every major collapse in history has been followed by reconstruction. The question is who holds the knowledge, skills, and social capital to rebuild.',
+   arkSignal:'Build a community worth inheriting. The Ark is a legacy project, not just a survival project.',
+   decisionGate:null,
+   collapseLinks:['Resolution of all Class F scenarios']},
+];
+
+const COLLAPSE_PATHS=[
+  {id:'path-a',icon:'💸',label:'Path A: Financial Implosion',col:'var(--warn)',prob:45,
+   nodes:['Debt service crisis (2025)','G7 sovereign default (2026)','Hyperinflation cascade','CBDC mandatory rollout','Financial surveillance state'],
+   timing:'2025–2028',arkResponse:'Hard assets, offshore, second residency, BTC self-custody'},
+  {id:'path-b',icon:'🔥',label:'Path B: Geopolitical Rupture',col:'var(--danger)',prob:30,
+   nodes:['Taiwan military pressure (2026–27)','NATO-Russia escalation','Nuclear signalling exchange','Supply chain collapse','Regional conflict spread'],
+   timing:'2026–2029',arkResponse:'Geographic relocation, bug-out execution, Ark community activation'},
+  {id:'path-c',icon:'🦠',label:'Path C: Pandemic + System Failure',col:'var(--purple)',prob:25,
+   nodes:['H5N1 human adaptation','Healthcare system collapse','Supply chain freeze','Emergency powers expansion','Surveillance/control infrastructure'],
+   timing:'Any time → 2027',arkResponse:'6-month isolation capability, PPE cache, rural location, medical stockpile'},
+];
+
+const ARK_GATES=[
+  {id:'g1',phase:'NOW',trigger:'VIX sustained >35 for 10+ days',severity:'HIGH',window:'30 days',
+   actions:['Convert 5% additional net worth to physical gold','Withdraw 60-day cash to physical foreign currency','Reduce equity leverage to zero','Review offshore account status']},
+  {id:'g2',phase:'NEAR',trigger:'Any G7 bank failure OR CRE delinquency >8%',severity:'CRITICAL',window:'72 hours',
+   actions:['Move maximum 3-months expenses per bank immediately','Purchase physical gold and silver','Activate offshore transfer to second jurisdiction','Brief family on bug-out protocol']},
+  {id:'g3',phase:'NEAR',trigger:'WHO PHEIC declaration for respiratory pathogen',severity:'CRITICAL',window:'48 hours',
+   actions:['Activate isolation protocol immediately','Do not wait for community transmission','Deploy 30-day supply for isolation','Brief all household members']},
+  {id:'g4',phase:'NEAR',trigger:'NATO Article 5 formally invoked OR nuclear test by any state',severity:'TIER 4',window:'24 hours',
+   actions:['Execute bug-out to Ark location immediately','No deliberation. Action only.','Activate community communications','All financial transfers pre-executed']},
+  {id:'g5',phase:'MEDIUM',trigger:'Second citizenship application window closes (processing >36 months)',severity:'HIGH',window:'6 months',
+   actions:['File application for Portugal/CR/Malta/Caribbean NOW','Document preparation: birth certificates, apostilles, marriage certificates','Legal representation in target jurisdiction','Financial proof of funds documentation']},
+  {id:'g6',phase:'MEDIUM',trigger:'CBDC mandatory adoption announced in home country',severity:'HIGH',window:'90 days',
+   actions:['Bitcoin self-custody on hardware wallet — move all crypto off exchanges','Offshore account funding to maximum before restrictions','Physical cash: 6-month household in foreign currency','Real estate or land — hard asset acquisition window']},
+];
+
+const ALARM_CONDITIONS=[
+  {cat:'Financial',col:'var(--warn)',alarms:[
+    {signal:'US 10yr yield >5.5% sustained 30+ days',tier:'T3',action:'Reduce bond exposure, increase gold'},
+    {signal:'VIX >45 (sustained)',tier:'T3',action:'Execute financial protocol immediately'},
+    {signal:'G7 bank bail-in announcement',tier:'T4',action:'All cash to physical/offshore within 24hrs'},
+    {signal:'CBDC rollout timeline announced (any G7)',tier:'T2',action:'BTC self-custody, offshore account fully funded'},
+    {signal:'IMF emergency meeting convened',tier:'T3',action:'Financial circuit breaker. Review all positions.'},
+  ]},
+  {cat:'Nuclear/Military',col:'var(--danger)',alarms:[
+    {signal:'DEFCON 2 or equivalent raised',tier:'T4',action:'Immediate bug-out execution'},
+    {signal:'Any nuclear detonation anywhere',tier:'T4',action:'Full Ark protocol. No exceptions.'},
+    {signal:'NATO Article 5 invoked',tier:'T4',action:'Leave Europe within 24 hours'},
+    {signal:'Taiwan Strait naval blockade initiated',tier:'T3',action:'Pre-position at Ark location'},
+    {signal:'Doomsday Clock moves to 60 seconds',tier:'T3',action:'Ark location must be operational'},
+  ]},
+  {cat:'Biological',col:'var(--purple)',alarms:[
+    {signal:'H5N1 human-to-human cluster confirmed',tier:'T3',action:'Activate isolation protocol'},
+    {signal:'WHO PHEIC for respiratory pathogen',tier:'T3',action:'Isolation. Do not wait.'},
+    {signal:'Hospital system at >120% capacity (any G7)',tier:'T2',action:'Deploy PPE cache, avoid medical facilities'},
+    {signal:'Antibiotic-resistant pathogen community outbreak',tier:'T2',action:'Antibiotic stockpile review, infection prevention'},
+  ]},
+  {cat:'Political',col:'var(--info)',alarms:[
+    {signal:'Election result formally disputed by incumbent',tier:'T2',action:'Reduce urban profile, increase preparedness'},
+    {signal:'Emergency powers invoked without legislative approval',tier:'T3',action:'Capital controls may follow. Act immediately.'},
+    {signal:'Ethnic minority being scapegoated in state media',tier:'T3',action:'If affected minority: immediate departure planning'},
+    {signal:'Internet shutdown in any G20 nation',tier:'T2',action:'Offline comms activated. Mesh network.'},
+  ]},
+];
+
+const SCENARIO_MAPPING=[
+  {phase:'p4',period:'2020–2025',scenarios:['A1 Hyperinflation','A2 Bank Bail-In','A3 CBDC','B7 Supply Chain','D1 Pandemic','C3 Surveillance'],
+   note:'Current accumulation phase. All these scenarios are in active development. No single trigger yet.'},
+  {phase:'p5',period:'2025–2027',scenarios:['A4 Sovereign Default','A5 Derivatives','B1 EMP','C1 Civil Conflict','F1 Nuclear','S09 Taiwan'],
+   note:'The cascade window. Multiple simultaneous trigger risks. Each amplifies others.'},
+  {phase:'p6',period:'2027+',scenarios:['F2 AGI Misalignment','F3 Engineered Pandemic','F5 Full Nuclear','S20 Multi-System'],
+   note:'Post-cascade scenarios. Resolution or existential continuation. Ark communities become relevant.'},
+];
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let activeFilter='ALL', expandedEvents=new Set();
+const NOW_EVENT_ID='e13'; // SVB/2023 as "now" marker
+
+/* ════════════════════════════════════════
+   RENDER BLOCK
+════════════════════════════════════════ */
+const TYPE_COL={financial:'var(--warn)',political:'var(--info)',nuclear:'var(--danger)',biological:'var(--purple)',technology:'var(--teal)',ark:'var(--primary)',medium:'#ffd700'};
+const SEV_COL={low:'var(--primary)',medium:'#ffd700',high:'var(--warn)',critical:'var(--danger)'};
+
+function renderTopCountdown(){
+  const target=new Date('2027-01-01');
+  function upd(){
+    const diff=target-new Date();
+    const d=Math.max(0,Math.floor(diff/86400000));
+    const h=Math.max(0,Math.floor((diff%86400000)/3600000));
+    document.getElementById('topCountdown').innerHTML=[{v:d,l:'Days'},{v:h,l:'Hrs'}].map(u=>
+      `<div class="cd-unit"><div class="cd-v">${String(u.v).padStart(3,'0')}</div><div class="cd-l">${u.l}</div></div>`
+    ).join('');
+  }
+  upd();setInterval(upd,60000);
+}
+
+function renderPhaseBar(){
+  document.getElementById('phaseBar').innerHTML=PHASES.map(p=>
+    `<div class="phase-seg" data-label="${p.label.split(':')[1].trim()}" style="flex:${p.pct};background:${p.col}" title="${p.label}: ${p.years}" onclick="filterByPhase('${p.id}')"></div>`
+  ).join('');
+  document.getElementById('phaseCards').innerHTML=PHASES.map(p=>`
+    <div style="background:${p.col}18;border:1px solid ${p.col}44;border-radius:var(--r3);padding:.65rem;cursor:pointer;transition:all .2s"
+      onclick="filterByPhase('${p.id}')" onmouseover="this.style.borderColor='${p.col}'" onmouseout="this.style.borderColor='${p.col}44'">
+      <div style="font-size:.72rem;font-weight:700;color:${p.col};margin-bottom:.2rem">${p.label}</div>
+      <div class="xxs muted">${p.years}</div>
+      <div class="xxs" style="color:var(--muted2);margin-top:.25rem;line-height:1.4">${p.desc.slice(0,80)}…</div>
+    </div>`
+  ).join('');
+  document.getElementById('phaseFilterBar').innerHTML=`
+    <button class="flt-btn fa" onclick="filterByPhase('ALL')">All Phases</button>
+    ${PHASES.map(p=>`<button class="flt-btn" onclick="filterByPhase('${p.id}')" style="border-color:${p.col}44;color:${p.col}">${p.label.split(':')[0]}</button>`).join('')}`;
+}
+
+function renderStats(){
+  const d=[
+    {v:'20',lbl:'Timeline events',col:'var(--primary)'},
+    {v:'6',lbl:'Civilisational phases',col:'var(--info)'},
+    {v:'90s',lbl:'Doomsday Clock',col:'var(--danger)'},
+    {v:'2027',lbl:'Critical apex window',col:'var(--warn)'},
+  ];
+  document.getElementById('summaryStats').innerHTML=d.map(s=>`
+    <div class="s-stat">
+      <div class="s-val" style="color:${s.col}">${s.v}</div>
+      <div class="xs muted">${s.lbl}</div>
+    </div>`).join('');
+}
+
+function renderFilters(){
+  const types=['ALL','financial','political','nuclear','biological','technology','ark'];
+  const labels={ALL:'All',financial:'💸 Financial',political:'🏛️ Political',nuclear:'☢️ Nuclear',biological:'🦠 Bio',technology:'🤖 Tech',ark:'🛡️ Ark Gates'};
+  document.getElementById('filterBar').innerHTML=types.map(t=>
+    `<button class="flt-btn ${t===activeFilter?'fa':''}" onclick="applyFilter('${t}')">${labels[t]}</button>`
+  ).join('');
+}
+
+function renderTimeline(){
+  const list=activeFilter==='ALL'?EVENTS:EVENTS.filter(e=>e.type===activeFilter);
+  // Group by era
+  const eras=[...new Set(list.map(e=>e.era))];
+  let nowInserted=false;
+  let html='';
+  eras.forEach(era=>{
+    const evs=list.filter(e=>e.era===era);
+    html+=`<div class="tl-era">
+      <div class="tl-era-label">
+        <span style="color:${evs[0].isFuture?'var(--warn)':evs.some(e=>e.id===NOW_EVENT_ID)?'var(--primary)':'var(--muted)'}">${era}</span>
+        <span class="badge ${evs[0].isFuture?'b-h':'b-m'}" style="font-size:.6rem">${evs[0].isFuture?'PROJECTED':'HISTORICAL'}</span>
+      </div>`;
+    evs.forEach(ev=>{
+      const isNow=ev.id===NOW_EVENT_ID;
+      const col=TYPE_COL[ev.type]||'var(--muted)';
+      const sc=SEV_COL[ev.severity]||'var(--muted)';
+      const isExp=expandedEvents.has(ev.id);
+      if(isNow&&!nowInserted){
+        html+=`<div id="now-anchor" style="display:flex;align-items:center;gap:.75rem;padding:.3rem 0 .3rem 130px;position:relative;z-index:5">
+          <div style="height:1px;flex:0 0 22px;background:var(--primary)"></div>
+          <div style="background:var(--primary);color:#000;font-size:.68rem;font-weight:700;padding:.2rem .55rem;border-radius:3px;white-space:nowrap">▶ YOU ARE HERE — Feb 2026</div>
+          <div style="height:1px;flex:1;background:rgba(0,255,136,.2)"></div>
+        </div>`;
+        nowInserted=true;
+      }
+      html+=`
+      <div class="tl-event">
+        <div class="tl-date-col">
+          <div class="tl-year" style="color:${ev.isFuture?'var(--warn)':'var(--muted2)'}">${ev.year}</div>
+        </div>
+        <div class="tl-node" style="display:flex;align-items:flex-start;gap:0">
+          <div class="tl-dot" style="background:${col};box-shadow:0 0 8px ${col}66;margin-top:2px"></div>
+          <div class="tl-connector"></div>
+        </div>
+        <div class="tl-card ${isExp?'active-card':''}" id="card-${ev.id}" onclick="toggleEvent('${ev.id}')">
+          <div style="display:flex;align-items:flex-start;gap:.6rem;flex-wrap:wrap">
+            <span style="font-size:1.2rem">${ev.icon}</span>
+            <div style="flex:1">
+              <div style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;margin-bottom:.2rem">
+                <span style="font-weight:700;font-size:.88rem">${ev.label}</span>
+                ${ev.isFuture?'<span class="badge b-h" style="font-size:.62rem">PREDICTED</span>':''}
+                <span class="badge" style="background:${col}22;color:${col};border:1px solid ${col}44;font-size:.62rem">${ev.type}</span>
+                <span class="badge" style="background:${sc}22;color:${sc};border:1px solid ${sc}44;font-size:.62rem">${ev.severity.toUpperCase()}</span>
+              </div>
+              <div class="xs muted" style="line-height:1.5">${ev.summary.slice(0,120)}…</div>
+            </div>
+            <span style="font-size:.75rem;color:var(--muted);margin-left:auto">${isExp?'▲':'▼'}</span>
+          </div>
+          <div class="tl-card-body">
+            <p class="sm" style="color:var(--muted2);line-height:1.65;margin-bottom:.75rem">${ev.summary}</p>
+            <div class="g2" style="margin-bottom:.75rem">
+              <div>
+                <div class="xs" style="color:var(--warn);font-weight:700;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.06em">📈 Systemic Impact</div>
+                <div class="sm muted" style="line-height:1.55">${ev.impact}</div>
+              </div>
+              <div>
+                <div class="xs" style="color:var(--primary);font-weight:700;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.06em">🛡️ Ark Signal</div>
+                <div class="sm muted" style="line-height:1.55">${ev.arkSignal}</div>
+              </div>
+            </div>
+            ${ev.decisionGate?`
+            <div class="decision-flag">
+              <span style="font-size:1rem;flex-shrink:0">🚪</span>
+              <div>
+                <div class="xs" style="font-weight:700;color:var(--warn);margin-bottom:.2rem">ARK DECISION GATE</div>
+                <div class="xs" style="color:var(--muted2);margin-bottom:.2rem"><strong>Trigger:</strong> ${ev.decisionGate.trigger}</div>
+                <div class="xs" style="color:var(--muted2)"><strong>Action:</strong> ${ev.decisionGate.action}</div>
+              </div>
+            </div>`:''}
+            <div style="margin-top:.4rem;display:flex;gap:.3rem;flex-wrap:wrap">
+              ${ev.collapseLinks.map(l=>`<span class="tag ty">${l}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  document.getElementById('timelineContainer').innerHTML=html;
+}
+
+function renderPaths(){
+  document.getElementById('pathsGrid').innerHTML=COLLAPSE_PATHS.map(p=>`
+    <div style="background:${p.col}10;border:1px solid ${p.col}33;border-radius:var(--r2);padding:1rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;flex-wrap:wrap;gap:.4rem">
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <span style="font-size:1.3rem">${p.icon}</span>
+          <span style="font-weight:700;font-size:.9rem">${p.label}</span>
+        </div>
+        <span class="badge" style="background:${p.col}22;color:${p.col};border:1px solid ${p.col}44">${p.prob}% prob.</span>
+      </div>
+      <div class="pbar" style="margin-bottom:.75rem"><div class="pbar-f" style="width:${p.prob}%;background:${p.col}"></div></div>
+      ${p.nodes.map((n,i)=>`
+        <div class="path-node" style="margin-bottom:.3rem;border-left:2px solid ${p.col}88">
+          <div style="display:flex;gap:.4rem;align-items:center">
+            <span class="xxs" style="color:${p.col};font-weight:700;min-width:14px">${i+1}.</span>
+            <span class="xs">${n}</span>
+          </div>
+        </div>`).join('')}
+      <div class="ark-window" style="margin-top:.75rem;background:${p.col}08;border-color:${p.col}33">
+        <div class="xxs" style="font-weight:700;color:${p.col};margin-bottom:.2rem">Timing: ${p.timing}</div>
+        <div class="xs muted" style="line-height:1.5">Ark Response: ${p.arkResponse}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderGates(){
+  document.getElementById('gatesContent').innerHTML=ARK_GATES.map(g=>`
+    <div style="display:flex;gap:.75rem;padding:.75rem 0;border-bottom:1px solid var(--border);align-items:flex-start">
+      <div style="background:${g.severity==='TIER 4'?'var(--danger)':g.severity==='CRITICAL'?'var(--danger)':g.severity==='HIGH'?'var(--warn)':'var(--info)'}22;border:1px solid ${g.severity==='TIER 4'?'var(--danger)':g.severity==='CRITICAL'?'var(--danger)':g.severity==='HIGH'?'var(--warn)':'var(--info)'}44;border-radius:var(--r3);padding:.35rem .6rem;min-width:64px;text-align:center;flex-shrink:0">
+        <div class="xxs" style="color:var(--muted)">Phase</div>
+        <div class="xs" style="font-weight:700;color:${g.phase==='NEAR'?'var(--danger)':g.phase==='NOW'?'var(--warn)':'var(--info)'}">${g.phase}</div>
+        <div class="xxs" style="font-weight:700;color:${g.severity==='TIER 4'?'var(--danger)':g.severity==='CRITICAL'?'var(--danger)':g.severity==='HIGH'?'var(--warn)':'var(--info)'}">${g.severity}</div>
+      </div>
+      <div style="flex:1">
+        <div class="xs" style="font-weight:700;color:var(--warn);margin-bottom:.25rem">🚨 TRIGGER: ${g.trigger}</div>
+        <div class="xs muted" style="margin-bottom:.35rem">Decision window: <strong style="color:var(--text)">${g.window}</strong></div>
+        <div style="display:flex;flex-wrap:wrap;gap:.3rem">
+          ${g.actions.map(a=>`<div style="background:var(--glass);border-radius:var(--r3);padding:.25rem .5rem;font-size:.73rem;color:var(--muted2);flex:1;min-width:160px">◆ ${a}</div>`).join('')}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderAlarms(){
+  document.getElementById('alarmsContent').innerHTML=ALARM_CONDITIONS.map(cat=>`
+    <div style="margin-bottom:1rem">
+      <h3 style="font-size:.85rem;color:${cat.col};margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.06em">${cat.cat} Alarms</h3>
+      ${cat.alarms.map(a=>`
+        <div class="alarm-row">
+          <span class="pulse ${a.tier==='T4'?'p-r':a.tier==='T3'?'p-y':'p-g'}" style="margin-top:3px"></span>
+          <div style="flex:1">
+            <div class="sm" style="font-weight:600">${a.signal}</div>
+            <div class="xs muted" style="margin-top:.15rem">Action: ${a.action}</div>
+          </div>
+          <span class="badge ${a.tier==='T4'?'b-c':a.tier==='T3'?'b-h':a.tier==='T2'?'b-m':'b-l'}">${a.tier}</span>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function renderScenarios(){
+  document.getElementById('scenariosContent').innerHTML=SCENARIO_MAPPING.map(m=>`
+    <div style="padding:.75rem 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;margin-bottom:.4rem">
+        <span class="badge b-h" style="font-size:.68rem">${m.period}</span>
+        <span class="xs muted">${m.note}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:.3rem">
+        ${m.scenarios.map(s=>`<span class="tag ty">${s}</span>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+/* ════════════════════════════════════════
+   INTERACTION BLOCK
+════════════════════════════════════════ */
+function toggleEvent(id){
+  if(expandedEvents.has(id)) expandedEvents.delete(id); else expandedEvents.add(id);
+  renderTimeline();
+}
+
+function applyFilter(type){
+  activeFilter=type;
+  renderFilters();
+  renderTimeline();
+}
+
+function filterByPhase(phaseId){
+  if(phaseId==='ALL'){activeFilter='ALL';renderFilters();}
+  expandedEvents.clear();
+  // Filter by phase
+  const list=phaseId==='ALL'?EVENTS:EVENTS.filter(e=>e.phase===phaseId);
+  activeFilter='ALL';
+  renderFilters();
+  renderTimeline();
+  if(phaseId!=='ALL'){
+    const firstEv=list[0];
+    if(firstEv){
+      setTimeout(()=>{
+        const el=document.getElementById('card-'+firstEv.id);
+        if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+      },100);
+    }
+  }
+}
+
+function expandAll(){expandedEvents=new Set(EVENTS.map(e=>e.id));renderTimeline();}
+function collapseAll(){expandedEvents.clear();renderTimeline();}
+function scrollToNow(){
+  document.getElementById('now-anchor')?.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+const PANELS=['paths','gates','alarms','scenarios'];
+function switchTab(tg,pg,pid){
+  PANELS.forEach(p=>{const el=document.getElementById('panel-'+p);if(el){el.style.display='none';el.classList.remove('active');}});
+  const a=document.getElementById('panel-'+pid);if(a){a.style.display='block';a.classList.add('active');}
+  document.getElementById(tg).querySelectorAll('button').forEach(b=>{b.classList.toggle('active',b.getAttribute('onclick')?.includes(`'${pid}'`));});
+}
+
+/* ════════ INIT ════════ */
+renderTopCountdown();
+renderPhaseBar();
+renderStats();
+renderFilters();
+renderTimeline();
+renderPaths();
+renderGates();
+renderAlarms();
+renderScenarios();
+PANELS.slice(1).forEach(p=>{const el=document.getElementById('panel-'+p);if(el){el.style.display='none';el.classList.remove('active');}});
+</script>
+</body>
+</html>

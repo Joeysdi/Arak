@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>10.3 — Tax Implications | Ark v3 (Standalone)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0c10;--s1:#0f1218;--s2:#161b24;--gl:rgba(255,255,255,.04);--glb:rgba(255,255,255,.08);--acc:#00e5a0;--acc2:#00b8ff;--acc3:#ff6b35;--warn:#ffb300;--dng:#ff3d5a;--txt:#e0e0e0;--txt2:#8a8fa8;--rad:12px;--glow:0 0 20px rgba(0,229,160,.15)}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.65;overflow-x:hidden;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:clamp(1.6rem,4vw,2.4rem);background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.sub{color:var(--txt2);font-size:.95rem;margin-bottom:28px}
+h2{font-size:1.25rem;color:var(--acc);margin-bottom:14px}
+h3{font-size:1.05rem;color:var(--acc2);margin-bottom:8px}
+.gl{background:var(--gl);border:1px solid var(--glb);border-radius:var(--rad);padding:22px;margin-bottom:18px;backdrop-filter:blur(12px)}
+.gl:hover{border-color:rgba(0,229,160,.18);box-shadow:var(--glow)}
+.stab{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.stab button{background:var(--gl);border:1px solid var(--glb);color:var(--txt2);padding:9px 18px;border-radius:8px;cursor:pointer;font-size:.85rem;transition:.25s}
+.stab button:hover{border-color:var(--acc);color:var(--acc)}
+.stab button.on{background:rgba(0,229,160,.12);border-color:var(--acc);color:var(--acc);box-shadow:0 0 10px rgba(0,229,160,.15)}
+.spanel{display:none;animation:fadeUp .35s ease}.spanel.show{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.acc-h{background:var(--s2);border:1px solid var(--glb);border-radius:8px;padding:13px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;transition:.2s;font-size:.92rem}
+.acc-h:hover{border-color:var(--acc);color:var(--acc)}
+.acc-h .arrow{transition:transform .3s;font-size:.75rem;color:var(--acc)}
+.acc-h.open .arrow{transform:rotate(180deg)}
+.acc-b{max-height:0;overflow:hidden;transition:max-height .4s ease;padding:0 18px}
+.acc-b.open{max-height:4000px;padding:14px 18px}
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin:10px 0}
+th{background:var(--s2);color:var(--acc);padding:10px 8px;text-align:left;border-bottom:1px solid var(--glb);position:sticky;top:0}
+td{padding:9px 8px;border-bottom:1px solid rgba(255,255,255,.04)}
+tr:hover td{background:rgba(0,229,160,.03)}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.72rem;font-weight:600}
+.badge-g{background:rgba(0,229,160,.15);color:var(--acc)}
+.badge-b{background:rgba(0,184,255,.15);color:var(--acc2)}
+.badge-w{background:rgba(255,179,0,.15);color:var(--warn)}
+.badge-d{background:rgba(255,61,90,.15);color:var(--dng)}
+.badge-o{background:rgba(255,107,53,.15);color:var(--acc3)}
+.tag{display:inline-block;margin:2px 4px 2px 0;padding:2px 8px;border-radius:6px;font-size:.72rem;background:var(--s2);color:var(--txt2);border:1px solid var(--glb)}
+.note{font-size:.8rem;color:var(--txt2);border-left:3px solid var(--warn);padding:8px 12px;margin:10px 0;background:rgba(255,179,0,.04)}
+.note-d{border-color:var(--dng);background:rgba(255,61,90,.04)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.stat-card{background:var(--s2);border:1px solid var(--glb);border-radius:10px;padding:16px;text-align:center}
+.stat-card .sv{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-card .sl{font-size:.78rem;color:var(--txt2);margin-top:4px}
+/* Calculator */
+.calc-row{display:flex;align-items:center;gap:12px;margin:8px 0;flex-wrap:wrap}
+.calc-row label{min-width:180px;font-size:.84rem;color:var(--txt2)}
+.calc-row input,.calc-row select{background:var(--s2);color:var(--txt);border:1px solid var(--glb);border-radius:8px;padding:9px 12px;font-size:.88rem;width:220px}
+.calc-row input:focus,.calc-row select:focus{outline:none;border-color:var(--acc)}
+.btn{padding:10px 24px;border-radius:8px;border:none;cursor:pointer;font-size:.88rem;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#000;font-weight:700}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-secondary{background:var(--s2);color:var(--txt2);border:1px solid var(--glb)}
+.result-box{background:linear-gradient(135deg,rgba(0,229,160,.06),rgba(0,184,255,.04));border:1px solid var(--acc);border-radius:var(--rad);padding:20px;margin:16px 0}
+.result-box .big{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.bar-h{display:flex;align-items:center;gap:8px;margin:5px 0}
+.bar-h .bl{min-width:120px;font-size:.8rem;color:var(--txt2)}
+.bar-h .bw{flex:1;height:8px;background:var(--s2);border-radius:4px;overflow:hidden}
+.bar-h .bf{height:100%;border-radius:4px}
+.bar-h .bv{min-width:60px;text-align:right;font-size:.8rem;font-weight:600}
+.ref{font-size:.72rem;color:var(--txt2);margin-top:18px;padding-top:12px;border-top:1px solid var(--glb)}
+@media(max-width:600px){.calc-row{flex-direction:column;align-items:flex-start}.calc-row input,.calc-row select{width:100%}.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap" id="tax-implications">
+
+<h1>10.3 — Tax Implications of Relocation</h1>
+<p class="sub">Expatriation Tax Mapping · 35-Country Regime Comparison · Dual-Residency Calculator · Collapse-Era Tax Risk Matrix · Exit Tax Strategies</p>
+
+<div class="stab" id="mainTabs">
+<button class="on" onclick="switchTab('mainTabs','mp','mp-regimes')">Tax Regime Matrix</button>
+<button onclick="switchTab('mainTabs','mp','mp-calc')">Tax Burden Calculator</button>
+<button onclick="switchTab('mainTabs','mp','mp-exit')">Exit Tax & Expatriation</button>
+<button onclick="switchTab('mainTabs','mp','mp-struct')">Offshore Structures</button>
+<button onclick="switchTab('mainTabs','mp','mp-collapse')">Collapse-Era Tax Risks</button>
+</div>
+
+<!-- ═══ TAX REGIME MATRIX ═══ -->
+<div class="spanel show" id="mp-regimes">
+<div class="gl">
+<h2>Global Tax Regime Comparison</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:6px">35 Ark-relevant destinations rated by income tax, capital gains, wealth tax, territorial scope, and treaty network.</p>
+
+<div class="stab" id="regFilter">
+<button class="on" onclick="filterReg('all')">All</button>
+<button onclick="filterReg('territorial')">Territorial</button>
+<button onclick="filterReg('zero')">Zero Income Tax</button>
+<button onclick="filterReg('low')">Low Tax (≤20%)</button>
+<button onclick="filterReg('dta')">Strong DTA Network</button>
+</div>
+
+<div style="overflow-x:auto"><table id="regimeTable"></table></div>
+<div class="note">Territorial = only local-source income taxed. Worldwide = global income taxed. Remittance = taxed only when remitted to country.</div>
+</div>
+
+<div class="gl">
+<h2>Tax System Archetypes</h2>
+<div id="archetypeAcc"></div>
+</div>
+</div>
+
+<!-- ═══ TAX BURDEN CALCULATOR ═══ -->
+<div class="spanel" id="mp-calc">
+<div class="gl">
+<h2>🧮 Comparative Tax Burden Calculator</h2>
+<p style="font-size:.85rem;color:var(--txt2);margin-bottom:14px">Estimate your annual tax liability across up to 3 destination countries based on income profile.</p>
+
+<div class="calc-row"><label>Annual Employment Income</label><input type="number" id="cIncome" value="120000" placeholder="USD"></div>
+<div class="calc-row"><label>Investment / Passive Income</label><input type="number" id="cPassive" value="40000" placeholder="USD"></div>
+<div class="calc-row"><label>Capital Gains (annual)</label><input type="number" id="cGains" value="30000" placeholder="USD"></div>
+<div class="calc-row"><label>Total Net Worth</label><input type="number" id="cWealth" value="1500000" placeholder="USD"></div>
+<div class="calc-row"><label>Country 1</label><select id="cCountry1"></select></div>
+<div class="calc-row"><label>Country 2</label><select id="cCountry2"></select></div>
+<div class="calc-row"><label>Country 3</label><select id="cCountry3"></select></div>
+
+<div style="margin-top:14px"><button class="btn btn-primary" onclick="calcTax()">📊 Compare Tax Burden</button></div>
+
+<div id="taxResult" style="display:none"></div>
+</div>
+</div>
+
+<!-- ═══ EXIT TAX ═══ -->
+<div class="spanel" id="mp-exit">
+<div class="gl">
+<h2>Exit Tax & Expatriation Obligations</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:14px">Countries that impose departure taxes on emigrating citizens or residents. Critical planning required 1–3 years before relocation.</p>
+<div style="overflow-x:auto"><table id="exitTable"></table></div>
+</div>
+<div class="gl">
+<h2>Exit Tax Mitigation Strategies</h2>
+<div id="exitStratAcc"></div>
+</div>
+</div>
+
+<!-- ═══ OFFSHORE STRUCTURES ═══ -->
+<div class="spanel" id="mp-struct">
+<div class="gl">
+<h2>Legal Offshore Structuring</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:10px">Legitimate entity structures for tax efficiency during relocation. All structures assume full compliance and reporting.</p>
+<div id="structAcc"></div>
+<div class="note note-d">⚠️ This is educational information, not tax advice. Consult qualified cross-border tax professionals. Non-compliance carries severe criminal penalties in most jurisdictions. CRS/FATCA auto-reporting means hiding assets offshore is effectively impossible.</div>
+</div>
+</div>
+
+<!-- ═══ COLLAPSE-ERA RISKS ═══ -->
+<div class="spanel" id="mp-collapse">
+<div class="gl">
+<h2>Collapse-Era Tax Risks</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:10px">How tax regimes mutate during economic crises. Mapped from 150 Collapse Bible scenarios.</p>
+<div id="collapseAcc"></div>
+</div>
+<div class="gl">
+<h2>Protective Measures Timeline</h2>
+<div style="overflow-x:auto"><table id="timelineTable"></table></div>
+</div>
+</div>
+
+<div class="ref">Ark Collective v3 § 10.3 · Tax regime data as of early 2026 · Not tax or legal advice · Consult licensed cross-border tax professionals · Collapse Bible integration</div>
+</div>
+
+<script>
+/* ═══ DATA ═══ */
+const D={
+regimes:[
+{c:"🇦🇪 UAE",income:0,cg:0,wealth:"None",scope:"Territorial",dta:80,ark:"T1",cat:["zero","territorial","dta"],note:"Free zones; 9% corporate from 2023 on >$100k profit"},
+{c:"🇵🇦 Panama",income:25,cg:10,wealth:"None",scope:"Territorial",dta:20,ark:"T2",cat:["territorial","low"],note:"Only local-source taxed; no global CRS exchange"},
+{c:"🇵🇾 Paraguay",income:10,cg:10,wealth:"None",scope:"Territorial",dta:8,ark:"T2",cat:["territorial","zero","low"],note:"10% flat; only local income; very low burden"},
+{c:"🇨🇷 Costa Rica",income:25,cg:0,wealth:"None",scope:"Territorial",dta:6,ark:"T2",cat:["territorial","low"],note:"No CG tax; territorial; moderate income rates"},
+{c:"🇺🇾 Uruguay",income:36,cg:12,wealth:"None",scope:"Territorial*",dta:18,ark:"T1",cat:["territorial"],note:"Tax holiday 11 yr on foreign income; then territorial"},
+{c:"🇵🇹 Portugal",income:48,cg:28,wealth:"None",scope:"NHR/Worldwide",dta:75,ark:"T1",cat:["dta"],note:"NHR regime: 20% flat on certain income for 10 yr"},
+{c:"🇪🇸 Spain",income:47,cg:28,wealth:"0.2–3.5%",scope:"Worldwide",dta:90,ark:"T2",cat:["dta"],note:"Beckham Law: 24% flat for 6 yr on qualifying income"},
+{c:"🇬🇷 Greece",income:44,cg:15,wealth:"None",scope:"Worldwide",dta:55,ark:"T2",cat:["dta"],note:"Non-dom: €100k flat/yr on foreign income for 15 yr"},
+{c:"🇮🇪 Ireland",income:40,cg:33,wealth:"None",scope:"Remittance*",dta:72,ark:"T2",cat:["dta"],note:"Non-dom: remittance basis for foreign income"},
+{c:"🇲🇹 Malta",income:35,cg:0,wealth:"None",scope:"Remittance",dta:70,ark:"T2",cat:["low","dta"],note:"Remittance basis; no CG on overseas assets"},
+{c:"🇨🇾 Cyprus",income:35,cg:0,wealth:"None",scope:"Non-dom",dta:60,ark:"T2",cat:["low","dta"],note:"Non-dom: 0% CG, 0% dividends, 0% interest for 17 yr"},
+{c:"🇬🇪 Georgia",income:20,cg:0,wealth:"None",scope:"Territorial",dta:55,ark:"T2",cat:["territorial","low"],note:"1% for small biz; 0% CG; very favorable"},
+{c:"🇲🇾 Malaysia",income:30,cg:0,wealth:"None",scope:"Territorial*",dta:65,ark:"T2",cat:["territorial","low","dta"],note:"Foreign income exempted; 0% CG on shares"},
+{c:"🇹🇭 Thailand",income:35,cg:35,wealth:"None",scope:"Remittance*",dta:60,ark:"T3",cat:["dta"],note:"Remittance basis changing; watch 2024+ reforms"},
+{c:"🇸🇬 Singapore",income:22,cg:0,wealth:"None",scope:"Territorial",dta:85,ark:"T1",cat:["territorial","low","dta"],note:"No CG; territorial; strong treaty network"},
+{c:"🇭🇰 Hong Kong",income:15,cg:0,wealth:"None",scope:"Territorial",dta:40,ark:"T2",cat:["territorial","low"],note:"15% cap; territorial; no CG/dividends tax"},
+{c:"🇳🇿 New Zealand",income:39,cg:0,wealth:"None",scope:"Worldwide*",dta:40,ark:"T1",cat:[],note:"No formal CG tax; FIF rules on foreign investment"},
+{c:"🇦🇺 Australia",income:45,cg:22.5,wealth:"None",scope:"Worldwide",dta:45,ark:"T1",cat:["dta"],note:"50% CG discount >12 mo; temporary resident exemption"},
+{c:"🇨🇦 Canada",income:53,cg:26.5,wealth:"None",scope:"Worldwide",dta:90,ark:"T2",cat:["dta"],note:"Departure tax on unrealized gains; strong treaty net"},
+{c:"🇺🇸 USA",income:37,cg:23.8,wealth:"None*",scope:"Citizenship",dta:65,ark:"T2",cat:["dta"],note:"Citizenship-based taxation; exit tax on renunciation; FATCA"},
+{c:"🇲🇪 Montenegro",income:15,cg:15,wealth:"None",scope:"Worldwide",dta:40,ark:"T2",cat:["low"],note:"Flat 15%; EU candidate; CBI available"},
+{c:"🇧🇿 Belize",income:25,cg:0,wealth:"None",scope:"Territorial",dta:5,ark:"T3",cat:["territorial","low"],note:"QRP: no tax on foreign income; minimal reporting"},
+{c:"🇪🇨 Ecuador",income:37,cg:25,wealth:"None",scope:"Worldwide",dta:15,ark:"T3",cat:[],note:"Moderate; deductions available; weak enforcement"},
+{c:"🇨🇱 Chile",income:40,cg:40,wealth:"None",scope:"3-yr exemption",dta:30,ark:"T2",cat:[],note:"3-year foreign income exemption for new residents"},
+{c:"🇧🇬 Bulgaria",income:10,cg:10,wealth:"None",scope:"Worldwide",dta:68,ark:"T2",cat:["low","dta"],note:"Flat 10% on everything; EU member"},
+{c:"🇪🇪 Estonia",income:20,cg:20,wealth:"None",scope:"Worldwide",dta:60,ark:"T2",cat:["low","dta"],note:"0% corp on retained earnings; e-Residency"},
+{c:"🇫🇮 Finland",income:56,cg:30,wealth:"None",scope:"Worldwide",dta:80,ark:"T1",cat:["dta"],note:"High tax; excellent services; strong treaty net"},
+{c:"🇨🇭 Switzerland",income:40,cg:0,wealth:"0.3–1%",scope:"Worldwide",dta:100,ark:"T1",cat:["dta"],note:"Lump-sum tax option for non-employed; cantonal variance"},
+{c:"🇧🇸 Bahamas",income:0,cg:0,wealth:"None",scope:"None",dta:5,ark:"T3",cat:["zero"],note:"Zero direct taxes; VAT only; limited treaty net"},
+{c:"🇻🇬 Cayman Islands",income:0,cg:0,wealth:"None",scope:"None",dta:3,ark:"T3",cat:["zero"],note:"Zero direct taxes; fund domicile; limited residency"},
+],
+
+archetypes:[
+{name:"Territorial (Tax Only Local Income)",desc:"Countries like Panama, Singapore, Hong Kong, Georgia, and Malaysia only tax income earned within their borders. Foreign-source passive income, capital gains, and remote work earnings go untaxed. Ideal for digital nomads, remote workers, and those with overseas investment portfolios. Limitation: CRS reporting still applies — assets are reported to home country even if untaxed locally."},
+{name:"Remittance-Based (Tax Only What You Bring In)",desc:"Ireland (non-dom), UK (non-dom until 2025 reforms), Malta, and Thailand tax foreign income only when remitted into the country. You can earn globally and leave funds offshore tax-free. Strategy: maintain offshore accounts and remit only what's needed for living expenses. Increasingly under reform pressure from EU and OECD."},
+{name:"Special Regime / Non-Habitual Resident",desc:"Portugal NHR, Spain Beckham Law, Greece non-dom, Italy flat tax, Cyprus non-dom. These offer reduced rates (often flat 20–25%) or exemptions on foreign income for a fixed period (typically 5–15 years). Ideal for high earners relocating. Must plan for regime expiry and potential follow-on taxation. Application windows can close without notice."},
+{name:"Citizenship-Based Taxation (US/Eritrea)",desc:"The United States and Eritrea tax citizens on worldwide income regardless of residency. US citizens must file annually even if living abroad for decades. Foreign Earned Income Exclusion ($126,500 in 2024) and Foreign Tax Credits mitigate double taxation but don't eliminate complexity. Renunciation triggers exit tax on unrealized gains above $866k. Plan 3–5 years ahead."},
+{name:"Zero-Tax Jurisdictions",desc:"UAE, Bahamas, Cayman Islands, Vanuatu, and a few others impose no income or capital gains tax. Attractive but considerations include: cost of living (UAE/Cayman are expensive), limited treaty networks (may cause problems with home country), CRS reporting still applies, and some have substance requirements. Not immune to future policy changes during economic crises."},
+{name:"Flat Tax Economies",desc:"Bulgaria (10%), Estonia (20%), Georgia (20%), Montenegro (15%), Hungary (15%). Simple, predictable, and low. Especially attractive for entrepreneurs. EU members offer access to European market and treaty networks. Risk: these rates attract attention from EU harmonization efforts and may increase post-crisis."}
+],
+
+exitTax:[
+{c:"🇺🇸 USA",type:"Exit Tax (Mark-to-Market)",trigger:"Renunciation of citizenship or long-term residency",rate:"23.8% on unrealized gains above $866k exemption",planning:"3–5 yr. Realize gains incrementally; gift assets; establish irrevocable trusts pre-decision",severity:"Extreme"},
+{c:"🇨🇦 Canada",type:"Deemed Disposition",trigger:"Ceasing tax residency",rate:"Marginal rate (up to 26.5% effective on gains)",planning:"2–3 yr. Step-up basis timing; departure year planning; treaty election for real property",severity:"High"},
+{c:"🇦🇺 Australia",type:"CGT Event I1",trigger:"Ceasing tax residency (post-2006 rules)",rate:"Up to 22.5% on worldwide assets",planning:"1–2 yr. Temporary resident exemption if applicable; choose departure date for optimal basis",severity:"High"},
+{c:"🇩🇪 Germany",type:"Extended Tax Liability",trigger:"Leaving Germany with substantial holdings",rate:"Up to 26.375% on shares ≥1% in German companies; 10-year reach-back",planning:"2–5 yr. Restructure holdings; treaty-shop for exemptions; staged departure",severity:"High"},
+{c:"🇫🇷 France",type:"Exit Tax (Art. 167 bis)",trigger:"Leaving with >€800k in securities or >50% in a company",rate:"30% flat on unrealized gains; deferred with guarantee",planning:"2–3 yr. Limit gains pre-departure; relocate to treaty country with deferral provisions",severity:"Moderate–High"},
+{c:"🇳🇱 Netherlands",type:"Conserving Assessment",trigger:"Emigration with substantial interest (≥5%) in Dutch company",rate:"26.9% on deemed dividend",planning:"1–2 yr. Reduce shareholding below 5%; treaty-based deferral",severity:"Moderate"},
+{c:"🇳🇴 Norway",type:"Exit Tax (2024 reform)",trigger:"Emigrating with unrealized gains >NOK 500k",rate:"37.84% on gains; 12-year reach-back",planning:"2–5 yr. Norway's 2024 tightening is aggressive; plan early or avoid accumulation in Norway",severity:"High"},
+{c:"🇿🇦 South Africa",type:"Deemed Disposal / CGT Exit",trigger:"Ceasing tax residency or financial emigration",rate:"18% effective on gains (45% inclusion x 40% marginal for individuals)",planning:"1–2 yr. Time retirement fund withdrawals; use annual exclusions; manage exchange control",severity:"Moderate"},
+{c:"🇪🇸 Spain",type:"Exit Tax (Modelo 113)",trigger:"Leaving with shares >€4M or >25% in qualifying entities",rate:"Up to 28% on unrealized gains; deferred within EU",planning:"1–2 yr. EU deferral provision; restructure below thresholds",severity:"Moderate"},
+{c:"🇩🇰 Denmark",type:"Exit Taxation",trigger:"Emigrating with shares in closely held companies",rate:"Up to 42% on unrealized gains",planning:"2–3 yr. Restructure ownership; utilize EU deferral if relocating within EU",severity:"High"}
+],
+
+exitStrategies:[
+{name:"Staged Gain Realization",desc:"Sell assets incrementally over 3–5 years before departure to realize gains under current (lower) tax rates and reset cost basis. Each year's gains can utilize annual exemptions, lower brackets, and loss harvesting. Particularly effective for US citizens using the $40k–$80k 0% LTCG bracket."},
+{name:"Asset Gifting Pre-Departure",desc:"Transfer appreciated assets to family members in lower-tax situations before triggering exit. US: $18k annual exclusion per recipient (2024); $13.61M lifetime exemption. Irrevocable trusts can remove assets from estate. Must be completed well before departure date — look-back rules apply."},
+{name:"Treaty Shopping for Deferral",desc:"Some exit taxes (France, Spain, Netherlands) defer collection when relocating to EU/treaty countries. Strategically choose first destination to defer exit tax, then onward-move to final destination. Requires careful analysis of bilateral treaties and anti-avoidance provisions."},
+{name:"Threshold Management",desc:"Many exit taxes have exemptions (US: $866k; Norway: NOK 500k; Spain: €4M). Structure portfolio to stay below thresholds. Split assets between spouses. Convert gains to basis through wash-sale equivalent strategies where legal. Municipal bonds or qualifying exempt investments."},
+{name:"Residency vs. Citizenship Planning",desc:"In most countries, severing tax residency (not citizenship) is sufficient. Maintain citizenship for passport benefits while establishing tax residency elsewhere. Exception: US, which taxes by citizenship. For US persons, residency restructuring alone is insufficient — renunciation may be necessary for full tax freedom."},
+{name:"Pre-Immigration Step-Up",desc:"Some destination countries offer a step-up in cost basis on immigration (e.g., Australia for temporary residents, Portugal NHR, Uruguay). Time your move to maximize this basis reset, minimizing future gains in the new jurisdiction. Document fair market values thoroughly on arrival."}
+],
+
+structures:[
+{name:"Holding Company (Non-CFC Jurisdiction)",desc:"Establish a holding company in a jurisdiction with no Controlled Foreign Corporation (CFC) rules vis-à-vis your residence. Routes: Singapore PTE → holds global investments; Cyprus company → 12.5% corp tax, 0% on dividend repatriation within EU. Must satisfy substance requirements (local directors, office, employees). Shell structures without substance are flagged under BEPS Action 5."},
+{name:"Family Foundation / Private Interest Foundation",desc:"Panama, Liechtenstein, Netherlands all offer foundation structures that separate legal ownership from beneficial enjoyment. Assets transfer to foundation; family members are beneficiaries. Provides: asset protection, succession planning, privacy (varies by jurisdiction). Costs: $15k–$50k setup; $5k–$15k annual. Must be reported under CRS."},
+{name:"Irrevocable Trust (Offshore)",desc:"Common law trusts in jurisdictions like New Zealand, Cook Islands, Jersey, or Guernsey. Settlor irrevocably transfers assets; trustees manage for beneficiaries. Asset protection: Cook Islands trusts have 2-year statute of limitations. Not a tax avoidance tool — must be reported. But can protect from future lawsuits, divorce claims, and political seizure."},
+{name:"Multi-Jurisdictional Corporate Chain",desc:"Operating company (high-tax country) → IP/management company (low-tax) → holding company (treaty jurisdiction) → ultimate beneficial owner (territorial tax country). This is the structure used by multinational corporations. Legal for individuals if substance requirements met at each level. Transfer pricing documentation essential. Costs: $50k–$200k setup + $20k–$50k/yr compliance."},
+{name:"Crypto & Digital Asset Structures",desc:"Certain jurisdictions offer favorable crypto treatment: Portugal (was 0% until 2023, now 28% >1yr), Singapore (no CG on crypto), UAE (0%), Germany (0% after 1-year hold). Strategy: establish residency in favorable jurisdiction, hold >1 year, dispose. Must comply with CRS crypto reporting (CARF framework from 2027). Self-custody adds complexity."},
+{name:"Retirement Account Optimization",desc:"Many countries have bilateral treaties recognizing retirement accounts. US 401(k)/IRA may be treaty-protected when moving to UK, Canada, Australia. Roth IRA treatment varies wildly by treaty. Strategy: Roth-convert before departure to countries that don't recognize Roth (tax-free growth may be lost). Analyze pension portability and taxation at both ends."}
+],
+
+collapseRisks:[
+{name:"Emergency Wealth Taxes",desc:"During fiscal crises, governments historically impose one-time or recurring wealth taxes. Examples: Cyprus 2013 bank levy (6.75–9.9% on deposits), Argentina 2020 solidarity tax (up to 3.5% on wealth), Italy's proposed recurring patrimonial tax. Ark implication: Assets held in crisis-prone jurisdictions are vulnerable to surprise levies. Diversify asset custody across 3+ jurisdictions. Physical gold and hard assets outside banking system reduce exposure.",scenarios:"Scenarios 1–8, 42–48 (Collapse Bible)"},
+{name:"Capital Controls & Currency Traps",desc:"Governments restrict capital movement to prevent flight. Greece 2015: €60/day ATM limit. Argentina: multiple exchange rates with 50%+ spread. Venezuela: complete capital controls. Ark implication: Move assets pre-crisis. Maintain accounts in 3+ countries. Hold cash and portable valuables. Crypto as backup transfer mechanism (if accessible). Priority: establish offshore accounts while still legal.",scenarios:"Scenarios 9–15, 55–62"},
+{name:"Retroactive Tax Legislation",desc:"Desperate governments change rules retroactively. Examples: UK 2008 non-dom reforms; Norway 2024 exit tax with retroactive elements; Spain's retroactive wealth tax. Ark implication: Don't assume current favorable regimes will last. Build 2-year buffer for any tax plan. Have backup jurisdictions ready. Document everything — rights-based challenges require evidence of prior compliance.",scenarios:"Scenarios 16–22, 70–78"},
+{name:"CRS/FATCA Weaponization",desc:"Automatic exchange of financial information (CRS: 100+ countries; FATCA: US-specific) means governments know where your assets are. In crisis, this data enables targeted seizure orders. Ark implication: Legal compliance is non-negotiable (penalties are severe). But diversify account types — CRS covers bank accounts, not physical assets. Safe deposit boxes, precious metals in allocated storage, and real property have different reporting thresholds.",scenarios:"Scenarios 23–30, 80–85"},
+{name:"Expatriation Restrictions",desc:"Some countries restrict departure during crises. Historical: Soviet Union exit visas; China current restrictions on certain nationals; Russia post-2022 selective emigration barriers. Ark implication: Maintain multiple valid passports/travel documents. Establish second residency before crisis. Have pre-positioned assets and a 'go bag' with essential documents. Don't wait for the crisis to start moving.",scenarios:"Scenarios 31–38, 90–95"},
+{name:"Treaty Suspension & Diplomatic Breakdown",desc:"Tax treaties can be suspended during conflict or diplomatic crises. Russia/Ukraine treaty suspensions post-2022. US-Russia treaty partially suspended. Ark implication: Don't rely solely on treaty protections for your tax plan. Have standalone favorable regimes as backup. Physical presence in the favorable jurisdiction provides more certainty than treaty-based remote benefits.",scenarios:"Scenarios 39–45, 100–108"}
+],
+
+timeline:[
+{phase:"36+ months pre-move",actions:"Research destination tax regimes; consult cross-border advisor; begin staged gain realization; obtain cost basis documentation; establish offshore accounts legally; apply for second residency/citizenship",priority:"HIGH"},
+{phase:"24–36 months",actions:"Execute asset restructuring; set up holding companies or trusts if applicable; Roth conversions if US-based; begin gifting strategy; document all valuations",priority:"HIGH"},
+{phase:"12–24 months",actions:"File necessary tax elections; establish physical presence in destination; open local bank accounts; transfer pension/retirement accounts if possible; finalize entity structures",priority:"HIGH"},
+{phase:"6–12 months",actions:"Sever home-country tax residency ties (property, family, bank accounts, mail, clubs); confirm exit tax liabilities; file departure returns; transfer remaining liquid assets; establish local tax advisor",priority:"CRITICAL"},
+{phase:"0–6 months",actions:"Execute move; file departure tax returns; register with destination tax authority; confirm treaty protections; establish ongoing compliance calendar; secure tax residency certificate",priority:"CRITICAL"},
+{phase:"Post-move Year 1",actions:"First local tax return; confirm no dual-residency triggers; review passive income sourcing; validate treaty benefits; annual CRS/FATCA review; adjust structure as needed",priority:"HIGH"},
+{phase:"Ongoing annually",actions:"Maintain local substance; compliance filings in all jurisdictions; monitor tax law changes; review collapse-risk indicators; maintain document archive; reassess every 3 years",priority:"MODERATE"}
+]
+};
+
+/* ═══ INTERACTIONS ═══ */
+function switchTab(barId,prefix,target){
+const bar=document.getElementById(barId);
+bar.querySelectorAll('button').forEach((b,i)=>{
+const panels=document.querySelectorAll(`[id^="${prefix}-"]`);
+if(panels[i]&&panels[i].id===target){b.classList.add('on');panels[i].classList.add('show')}
+else if(panels[i]){b.classList.remove('on');panels[i].classList.remove('show')}
+});
+}
+function toggleAcc(el){
+const b=el.nextElementSibling;const o=b.classList.contains('open');
+el.parentElement.querySelectorAll('.acc-b').forEach(x=>x.classList.remove('open'));
+el.parentElement.querySelectorAll('.acc-h').forEach(x=>x.classList.remove('open'));
+if(!o){b.classList.add('open');el.classList.add('open')}
+}
+
+let activeFilter='all';
+function filterReg(f){
+activeFilter=f;
+document.querySelectorAll('#regFilter button').forEach(b=>b.classList.remove('on'));
+event.target.classList.add('on');
+renderRegimes();
+}
+
+/* ═══ RENDER ═══ */
+
+function renderRegimes(){
+const t=document.getElementById('regimeTable');
+const data=activeFilter==='all'?D.regimes:D.regimes.filter(r=>r.cat.includes(activeFilter));
+let h='<thead><tr><th>Country</th><th>Income</th><th>CG</th><th>Wealth</th><th>Scope</th><th>DTA#</th><th>Ark</th><th>Notes</th></tr></thead><tbody>';
+data.forEach(r=>{
+const ic=r.income===0?'var(--acc)':r.income<=20?'var(--acc2)':r.income<=35?'var(--warn)':'var(--dng)';
+const gc=r.cg===0?'var(--acc)':r.cg<=15?'var(--acc2)':r.cg<=25?'var(--warn)':'var(--dng)';
+const ac=r.ark==='T1'?'badge-g':r.ark==='T2'?'badge-b':'badge-w';
+h+=`<tr>
+<td style="font-weight:600;white-space:nowrap">${r.c}</td>
+<td style="color:${ic};font-weight:700">${r.income}%</td>
+<td style="color:${gc};font-weight:700">${r.cg}%</td>
+<td style="font-size:.78rem">${r.wealth}</td>
+<td><span class="tag">${r.scope}</span></td>
+<td>${r.dta}</td>
+<td><span class="badge ${ac}">${r.ark}</span></td>
+<td style="font-size:.78rem;color:var(--txt2)">${r.note}</td>
+</tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+}
+renderRegimes();
+
+// Archetypes
+(function(){
+const c=document.getElementById('archetypeAcc');
+D.archetypes.forEach(a=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>${a.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${a.desc}</p></div>`;
+});
+})();
+
+// Country selects
+(function(){
+['cCountry1','cCountry2','cCountry3'].forEach((id,i)=>{
+const s=document.getElementById(id);
+s.innerHTML='<option value="">— Select —</option>';
+D.regimes.forEach((r,j)=>{s.innerHTML+=`<option value="${j}">${r.c.replace(/[^\w\s]/g,'').trim()}</option>`});
+if(i===0)s.value="5";if(i===1)s.value="11";if(i===2)s.value="0";
+});
+})();
+
+function calcTax(){
+const inc=+document.getElementById('cIncome').value||0;
+const pas=+document.getElementById('cPassive').value||0;
+const gains=+document.getElementById('cGains').value||0;
+const wealth=+document.getElementById('cWealth').value||0;
+const total=inc+pas+gains;
+
+const picks=[
+document.getElementById('cCountry1').value,
+document.getElementById('cCountry2').value,
+document.getElementById('cCountry3').value
+].filter(v=>v!=='').map(v=>D.regimes[+v]);
+
+if(picks.length===0){alert('Select at least one country');return}
+
+const results=picks.map(r=>{
+let tax=0;
+// Income
+const scope=r.scope.toLowerCase();
+if(scope.includes('territorial'))tax+=0; // foreign income not taxed
+else tax+=(inc+pas)*(r.income/100);
+// CG
+if(scope.includes('territorial'))tax+=0;
+else tax+=gains*(r.cg/100);
+// Wealth
+let wt=0;
+if(r.wealth.includes('%')){const m=r.wealth.match(/([\d.]+)/);if(m)wt=wealth*(parseFloat(m[1])/100)}
+tax+=wt;
+return{name:r.c,tax:Math.round(tax),effective:total>0?((tax/total)*100).toFixed(1):0,wealth:Math.round(wt)};
+});
+
+const maxTax=Math.max(...results.map(r=>r.tax),1);
+
+let html='<div class="result-box"><h3 style="margin-bottom:14px">Estimated Annual Tax Comparison</h3>';
+results.forEach(r=>{
+const pct=(r.tax/maxTax)*100;
+const col=r.effective<=15?'var(--acc)':r.effective<=30?'var(--warn)':'var(--dng)';
+html+=`<div class="bar-h"><div class="bl">${r.name}</div><div class="bw"><div class="bf" style="width:${pct}%;background:${col}"></div></div><div class="bv" style="color:${col}">$${r.tax.toLocaleString()}</div></div>
+<div style="font-size:.75rem;color:var(--txt2);margin:0 0 10px 128px">Effective rate: ${r.effective}% · Wealth tax: $${r.wealth.toLocaleString()}</div>`;
+});
+
+const best=results.reduce((a,b)=>a.tax<b.tax?a:b);
+const saving=results.reduce((a,b)=>a.tax>b.tax?a:b).tax-best.tax;
+html+=`<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--glb)"><span style="color:var(--acc);font-weight:700">💡 Best option: ${best.name}</span> — saves ~$${saving.toLocaleString()}/yr vs worst option</div>`;
+html+=`</div><div class="note">Estimates use simplified top marginal rates. Actual liability varies with deductions, brackets, treaty provisions, filing status, and source-country withholding. Territorial systems assume all income is foreign-source.</div>`;
+document.getElementById('taxResult').style.display='block';
+document.getElementById('taxResult').innerHTML=html;
+}
+
+// Exit Tax Table
+(function(){
+const t=document.getElementById('exitTable');
+let h='<thead><tr><th>Country</th><th>Type</th><th>Trigger</th><th>Rate</th><th>Planning Lead</th><th>Severity</th></tr></thead><tbody>';
+D.exitTax.forEach(e=>{
+const sc=e.severity==='Extreme'?'badge-d':e.severity==='High'?'badge-o':'badge-w';
+h+=`<tr><td style="font-weight:600">${e.c}</td><td style="font-size:.8rem">${e.type}</td><td style="font-size:.78rem;color:var(--txt2)">${e.trigger}</td><td style="font-size:.8rem">${e.rate}</td><td>${e.planning.split('.')[0]}</td><td><span class="badge ${sc}">${e.severity}</span></td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// Exit Strategies
+(function(){
+const c=document.getElementById('exitStratAcc');
+D.exitStrategies.forEach(s=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>${s.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${s.desc}</p></div>`;
+});
+})();
+
+// Structures
+(function(){
+const c=document.getElementById('structAcc');
+D.structures.forEach(s=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>${s.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${s.desc}</p></div>`;
+});
+})();
+
+// Collapse Risks
+(function(){
+const c=document.getElementById('collapseAcc');
+D.collapseRisks.forEach(r=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)" style="border-left:3px solid var(--dng)"><span>⚠️ ${r.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem;margin-bottom:8px">${r.desc}</p><div class="tag">${r.scenarios}</div></div>`;
+});
+})();
+
+// Timeline Table
+(function(){
+const t=document.getElementById('timelineTable');
+let h='<thead><tr><th>Phase</th><th>Actions</th><th>Priority</th></tr></thead><tbody>';
+D.timeline.forEach(r=>{
+const pc=r.priority==='CRITICAL'?'badge-d':r.priority==='HIGH'?'badge-o':'badge-w';
+h+=`<tr><td style="font-weight:600;white-space:nowrap;color:var(--acc2)">${r.phase}</td><td style="font-size:.82rem">${r.actions}</td><td><span class="badge ${pc}">${r.priority}</span></td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+</script>
+</body>
+</html>

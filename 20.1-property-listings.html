@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>20.1 — Property Listings | Ark v3 (Standalone)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #070a0e;
+    --bg2: #0c1018;
+    --glass: rgba(255,255,255,0.035);
+    --glass2: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --accent: #00ffa3;
+    --accent2: #00c8ff;
+    --danger: #ff4a6b;
+    --warn: #ffb347;
+    --text: #e4eaf0;
+    --muted: #607080;
+    --dim: rgba(255,255,255,0.04);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 100%, rgba(0,255,163,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 0%, rgba(0,200,255,0.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* ── FOUNDATION ── */
+  .ark-foundation {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(7,10,14,0.94);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 32px;
+  }
+  .ark-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.05rem; letter-spacing: 0.18em; color: var(--accent); text-decoration: none; }
+  .ark-nav { display: flex; gap: 24px; }
+  .ark-nav a { font-size: 0.68rem; color: var(--muted); text-decoration: none; letter-spacing: 0.1em; transition: color .2s; }
+  .ark-nav a:hover { color: var(--accent); }
+  .ark-badge { background: var(--accent); color: #000; font-size: 0.58rem; font-weight: 700; padding: 3px 10px; letter-spacing: 0.12em; border-radius: 2px; }
+
+  /* ── LAYOUT ── */
+  .page { position: relative; z-index: 1; max-width: 1360px; margin: 0 auto; padding: 100px 24px 100px; }
+
+  /* ── HERO ── */
+  .section-tag { font-size: 0.62rem; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .section-tag::before { content: ''; display: inline-block; width: 28px; height: 1px; background: var(--accent); }
+  h1 { font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 800; line-height: 1.05; margin-bottom: 14px; }
+  h1 span { color: var(--accent); }
+  .hero-sub { color: var(--muted); font-size: 0.8rem; max-width: 600px; line-height: 1.75; }
+  .hero { margin-bottom: 44px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px; }
+  .hero-right { display: flex; gap: 10px; align-items: flex-end; }
+
+  /* ── GLASS CARD ── */
+  .gl {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+  }
+
+  /* ── BTN ── */
+  .btn {
+    padding: 9px 20px; border-radius: 6px; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; font-weight: 500; cursor: pointer; border: none; letter-spacing: 0.08em; transition: all .2s;
+  }
+  .btn-accent { background: var(--accent); color: #000; }
+  .btn-accent:hover { background: #00e090; transform: translateY(-1px); }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border2); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--accent2); }
+  .btn-danger { background: rgba(255,74,107,0.15); color: var(--danger); border: 1px solid rgba(255,74,107,0.25); }
+  .btn-danger:hover { background: rgba(255,74,107,0.25); }
+
+  /* ── TAG ── */
+  .tag {
+    display: inline-block; padding: 2px 8px; border-radius: 3px;
+    font-size: 0.58rem; letter-spacing: 0.08em; font-weight: 600;
+  }
+  .tag-green { background: rgba(0,255,163,0.1); color: var(--accent); border: 1px solid rgba(0,255,163,0.18); }
+  .tag-red { background: rgba(255,74,107,0.1); color: var(--danger); border: 1px solid rgba(255,74,107,0.2); }
+  .tag-orange { background: rgba(255,179,71,0.1); color: var(--warn); border: 1px solid rgba(255,179,71,0.2); }
+  .tag-blue { background: rgba(0,200,255,0.1); color: var(--accent2); border: 1px solid rgba(0,200,255,0.2); }
+
+  /* ── FILTER SIDEBAR ── */
+  .layout { display: grid; grid-template-columns: 280px 1fr; gap: 24px; }
+  .sidebar { position: sticky; top: 88px; height: calc(100vh - 100px); overflow-y: auto; padding: 24px; }
+  .sidebar::-webkit-scrollbar { width: 3px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border2); }
+
+  .filter-section { margin-bottom: 28px; }
+  .filter-title { font-size: 0.6rem; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .filter-opts { display: flex; flex-direction: column; gap: 6px; }
+  .filter-opt { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 6px 8px; border-radius: 5px; transition: background .15s; }
+  .filter-opt:hover { background: var(--glass2); }
+  .filter-opt input { accent-color: var(--accent); }
+  .filter-opt span { font-size: 0.72rem; color: var(--muted); flex: 1; }
+  .filter-opt .count { font-size: 0.6rem; color: var(--muted); background: var(--dim); padding: 1px 6px; border-radius: 10px; }
+
+  .range-wrap { margin-top: 8px; }
+  .range-wrap input[type=range] { width: 100%; accent-color: var(--accent); }
+  .range-labels { display: flex; justify-content: space-between; font-size: 0.62rem; color: var(--muted); margin-top: 4px; }
+
+  /* ── LISTING GRID ── */
+  .main-col {}
+  .view-toggle { display: flex; gap: 8px; margin-bottom: 20px; align-items: center; }
+  .view-toggle .count-info { font-size: 0.7rem; color: var(--muted); margin-right: auto; }
+  .sort-select {
+    background: var(--glass2); border: 1px solid var(--border2);
+    color: var(--text); font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; padding: 7px 12px; border-radius: 6px; outline: none;
+  }
+  .sort-select option { background: #0c1018; }
+
+  .listings-grid { display: grid; gap: 18px; }
+  .listings-grid.view-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+  .listings-grid.view-list { grid-template-columns: 1fr; }
+
+  /* ── LISTING CARD ── */
+  .listing-card {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color .25s, transform .2s, box-shadow .25s;
+    position: relative;
+  }
+  .listing-card:hover {
+    border-color: rgba(0,255,163,0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,255,163,0.06);
+  }
+  .listing-card.saved { border-color: rgba(0,200,255,0.3); }
+  .listing-card.saved::after { content: '★ SAVED'; position: absolute; top: 12px; right: 12px; background: var(--accent2); color: #000; font-size: 0.55rem; padding: 2px 8px; border-radius: 2px; font-weight: 700; letter-spacing: 0.1em; }
+
+  .card-image {
+    height: 180px; position: relative;
+    background: linear-gradient(135deg, #0f1b12 0%, #0a1520 100%);
+    overflow: hidden;
+  }
+  .card-image .map-bg {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3.5rem; opacity: 0.15;
+  }
+  .card-image .elevation-tag {
+    position: absolute; bottom: 10px; left: 12px;
+    background: rgba(0,0,0,0.7); font-size: 0.6rem; color: var(--accent2);
+    padding: 3px 8px; border-radius: 3px;
+  }
+  .card-image .tier-badge {
+    position: absolute; top: 12px; left: 12px;
+  }
+  .card-image .score-badge {
+    position: absolute; top: 12px; right: 48px;
+    background: rgba(0,0,0,0.8);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px; padding: 6px 12px; text-align: center;
+  }
+  .score-badge .sv { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; }
+  .score-badge .sl { font-size: 0.55rem; color: var(--muted); }
+
+  .card-body { padding: 18px 20px 16px; }
+  .card-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 3px; }
+  .card-loc { font-size: 0.68rem; color: var(--muted); margin-bottom: 14px; }
+  .card-price { font-family: 'Syne', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--accent2); margin-bottom: 12px; }
+
+  .card-specs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .spec { }
+  .spec-label { font-size: 0.57rem; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 2px; }
+  .spec-val { font-size: 0.72rem; }
+
+  .card-metrics { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .mini-metric { display: flex; flex-direction: column; align-items: center; background: var(--dim); border-radius: 5px; padding: 6px 10px; flex: 1; min-width: 48px; }
+  .mini-metric .mv { font-size: 0.85rem; font-weight: 600; }
+  .mini-metric .ml { font-size: 0.5rem; color: var(--muted); margin-top: 1px; }
+
+  .card-features { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+  .feat-chip { font-size: 0.58rem; padding: 2px 7px; background: var(--dim); border: 1px solid var(--border); border-radius: 3px; color: var(--muted); }
+
+  .card-actions { display: flex; gap: 8px; }
+
+  /* ── LIST VIEW ── */
+  .listing-card.list-mode .card-image { height: auto; }
+  .list-mode-inner { display: grid; grid-template-columns: 220px 1fr; gap: 0; }
+  .list-mode-inner .card-image { height: 100%; min-height: 140px; }
+  .list-mode-inner .card-body { padding: 16px 20px; }
+
+  /* ── DETAIL PANEL ── */
+  .detail-overlay {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(7,10,14,0.92);
+    backdrop-filter: blur(12px);
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s;
+    display: flex; align-items: center; justify-content: flex-end;
+  }
+  .detail-overlay.open { opacity: 1; pointer-events: all; }
+  .detail-panel {
+    width: min(680px, 95vw);
+    height: 100vh;
+    overflow-y: auto;
+    background: #0c1018;
+    border-left: 1px solid var(--border2);
+    padding: 40px 36px;
+    transform: translateX(100%);
+    transition: transform .35s cubic-bezier(.4,0,.2,1);
+  }
+  .detail-overlay.open .detail-panel { transform: translateX(0); }
+  .detail-panel::-webkit-scrollbar { width: 4px; }
+  .detail-panel::-webkit-scrollbar-thumb { background: var(--border2); }
+
+  .dp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
+  .dp-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.4rem; transition: color .2s; }
+  .dp-close:hover { color: var(--danger); }
+
+  .dp-section { margin-bottom: 28px; }
+  .dp-section-title { font-size: 0.6rem; letter-spacing: 0.15em; color: var(--accent); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .dp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .dp-field label { font-size: 0.58rem; color: var(--muted); letter-spacing: 0.1em; display: block; margin-bottom: 3px; }
+  .dp-field span { font-size: 0.78rem; }
+
+  .metric-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .metric-label { font-size: 0.63rem; color: var(--muted); width: 130px; flex-shrink: 0; }
+  .mbar-track { flex: 1; height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; }
+  .mbar-fill { height: 100%; border-radius: 3px; }
+  .mbar-num { font-size: 0.65rem; color: var(--muted); width: 24px; text-align: right; flex-shrink: 0; }
+
+  .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .pros ul, .cons ul { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+  .pros li::before { content: '✓ '; color: var(--accent); }
+  .pros li, .cons li { font-size: 0.7rem; color: var(--muted); }
+  .cons li::before { content: '✕ '; color: var(--danger); }
+  .pros-title { font-size: 0.65rem; font-weight: 600; color: var(--accent); }
+  .cons-title { font-size: 0.65rem; font-weight: 600; color: var(--danger); }
+
+  .doctrine-box { background: rgba(0,255,163,0.04); border: 1px solid rgba(0,255,163,0.1); border-radius: 8px; padding: 16px; }
+  .doctrine-box p { font-size: 0.7rem; color: var(--muted); line-height: 1.7; }
+
+  /* ── SAVED PANEL ── */
+  .saved-counter {
+    position: fixed; top: 18px; right: 140px; z-index: 200;
+    background: var(--accent2); color: #000; font-size: 0.62rem; font-weight: 700;
+    padding: 4px 12px; border-radius: 3px; letter-spacing: 0.08em;
+    opacity: 0; transition: opacity .3s;
+  }
+  .saved-counter.show { opacity: 1; }
+
+  /* ── PAGINATION ── */
+  .pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 32px; }
+  .pg-btn { padding: 8px 14px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; cursor: pointer; border: 1px solid var(--border2); background: var(--glass); color: var(--muted); transition: all .2s; }
+  .pg-btn:hover, .pg-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,255,163,0.05); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; }
+    .ark-nav { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── FOUNDATION PASTE ── -->
+<nav class="ark-foundation">
+  <a class="ark-logo" href="#">◈ ARK COLLECTIVE</a>
+  <div class="ark-nav">
+    <a href="#risk">RISK CALC</a>
+    <a href="#scout">SCOUT</a>
+    <a href="#strategies">STRATEGIES</a>
+    <a href="#simulator">SIMULATOR</a>
+    <a href="#30-day">SPRINT</a>
+  </div>
+  <span class="ark-badge">v3 LIVE</span>
+</nav>
+
+<div class="saved-counter" id="savedCounter">★ <span id="savedNum">0</span> SAVED</div>
+
+<!-- ── PAGE ── -->
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div>
+      <div class="section-tag">MODULE 20.1 — ARK PROPERTY LISTINGS</div>
+      <h1>Live <span>Property</span><br>Listings Database</h1>
+      <p class="hero-sub">Curated Ark-grade properties across 11 Safe Zone nations. Each listing is scored against the Collapse Bible's 150-scenario framework and Five-Layer Safe Zone Doctrine.</p>
+    </div>
+    <div class="hero-right">
+      <button class="btn btn-ghost" onclick="toggleView()">⊞ TOGGLE VIEW</button>
+      <button class="btn btn-accent" onclick="showSaved()">★ SHORTLIST</button>
+    </div>
+  </div>
+
+  <!-- DATA BLOCK -->
+  <script>
+    const LISTINGS = [
+      {
+        id:1, name:"Bitterroot Valley Ranch", country:"USA", region:"Montana, USA", tier:"Tier-1",
+        type:"Rural Compound", price:1_420_000, acres:340, water:"Spring + Well", elevation:1370, grid:"Off-Grid Ready",
+        status:"AVAILABLE", emoji:"🏔️",
+        defense:88, water_s:92, food_s:85, access:72, community:78, climate:83, legal:90, medical:55, overall:82,
+        pros:["3 natural springs on-site","340 acres defensible perimeter","Near Ark community cluster","Montana permitless carry","Rich elk + deer hunting"],
+        cons:["Cold winters limit growing season","5hr drive to major trauma centre","Border crossing required for Tier-2 evac"],
+        features:["Barn","Workshop","Root Cellar","Shooting Range","Solar-Ready","Well"],
+        doctrine:"Five-Layer compliant. Outer Ring: wilderness buffer >40km. Defensible terrain with canyon approach. Water sovereignty fully achieved.",
+        note:"Top-ranked US property in 2025 Ark database."
+      },
+      {
+        id:2, name:"Coromandel Retreat NZ", country:"NZL", region:"North Island, NZ", tier:"Tier-1",
+        type:"Coastal Farm", price:980_000, acres:95, water:"Rainwater + Creek", elevation:220, grid:"Hybrid Solar",
+        status:"AVAILABLE", emoji:"🌿",
+        defense:72, water_s:88, food_s:90, access:68, community:85, climate:91, legal:88, medical:70, overall:83,
+        pros:["NZ ranks #1 global collapse refuge","Year-round growing season","Strong ex-pat Ark community","Low seismic risk zone","Clean air index A+"],
+        cons:["Island isolation cuts off resupply","Lower defensibility due to coastal exposure","Property transfer restrictions for non-residents"],
+        features:["Orchard","Greenhouse","Rainwater System","Ferry Access","Community Hub"],
+        doctrine:"Outer Ring: 60km from nearest city. Climate resilience gold standard. Food sovereignty achievable within 18 months of setup.",
+        note:"Highest food production score in entire database."
+      },
+      {
+        id:3, name:"Okanagan Homestead", country:"CAN", region:"BC Interior, Canada", tier:"Tier-1",
+        type:"Agricultural", price:1_150_000, acres:210, water:"Lake + Well", elevation:890, grid:"Solar + Grid",
+        status:"AVAILABLE", emoji:"🍇",
+        defense:80, water_s:90, food_s:88, access:78, community:80, climate:78, legal:87, medical:62, overall:81,
+        pros:["Largest freshwater lake access","Mild four-season climate","Established wine/agriculture corridor","Good Ark community density","Canadian legal stability"],
+        cons:["Wildfire risk increasing annually","Provincial gun restrictions vs US","Medical access 90min drive"],
+        features:["Vineyard","2x Wells","Lake Frontage","Workshop","Solar Array"],
+        doctrine:"Water Layer: Okanagan Lake provides 50yr reserves. Thermal Layer: Temperate valley microclimate. Community Layer: 3 established Ark nodes within 40km.",
+        note:"Recommended for families prioritising food + water over defense."
+      },
+      {
+        id:4, name:"Alentejo Stone Quinta", country:"PRT", region:"Alentejo, Portugal", tier:"Tier-2",
+        type:"Heritage Estate", price:620_000, acres:68, water:"Borehole + Tank", elevation:340, grid:"Solar Only",
+        status:"AVAILABLE", emoji:"🏛️",
+        defense:65, water_s:72, food_s:80, access:74, community:70, climate:76, legal:82, medical:68, overall:74,
+        pros:["Portugal NHR tax regime (10yr tax break)","Affordable entry price","Schengen + EU access","Mediterranean diet / olive + wine production","Low crime environment"],
+        cons:["Summer drought risk increasing","Lower natural defensibility","Borehole water table dropping"],
+        features:["Olive Grove","Stone Farmhouse","Cistern","Guest Cottage","Cellar"],
+        doctrine:"Tier-2 suitable for financial preservation + EU optionality. Not recommended as primary Ark without significant hardening investment.",
+        note:"Best value EU property for dual-use lifestyle/Ark strategy."
+      },
+      {
+        id:5, name:"Patagonia Highland", country:"ARG", region:"Neuquén, Argentina", tier:"Tier-1",
+        type:"Mountain Retreat", price:390_000, acres:520, water:"Glacier Melt + River", elevation:2200, grid:"Off-Grid",
+        status:"AVAILABLE", emoji:"🏔️",
+        defense:90, water_s:95, food_s:72, access:52, community:58, climate:70, legal:75, medical:35, overall:72,
+        pros:["Most remote and defensible on list","520 acres glacial water sovereignty","Extremely low property price","Below geopolitical radar","No strategic nuclear target within 2000km"],
+        cons:["Medical access crisis-level (5hr evac)","Short growing season at altitude","Argentine political instability","No Ark community within 300km"],
+        features:["River Frontage","Off-Grid Hydro","Helicopter Pad","Root Cellar","Animal Shelter"],
+        doctrine:"Outer Ring Doctrine achieved: >200km from nearest city. Requires full medical self-sufficiency capability. Suitable only for advanced Ark operators.",
+        note:"Maximum isolation score. Solo or small-team operational model only."
+      },
+      {
+        id:6, name:"Ozark Hardwood Estate", country:"USA", region:"Missouri, USA", tier:"Tier-2",
+        type:"Forest Homestead", price:780_000, acres:187, water:"Well + Creek", elevation:610, grid:"Grid + Solar",
+        status:"UNDER CONTRACT", emoji:"🌲",
+        defense:82, water_s:85, food_s:82, access:80, community:74, climate:72, legal:89, medical:58, overall:78,
+        pros:["Mature hardwood for fuel + building","Limestone cave network on-property","Missouri legal +2A friendly","90min from Springfield for medical","Excellent deer + turkey hunting"],
+        cons:["Currently under contract","Tornado risk in region","Cave flooding in wet years"],
+        features:["Cave System","Hardwood Forest","Well","Creek","Gun Range","Root Cellar"],
+        doctrine:"Five-Layer compliant. Subsurface shelter capability via cave network is unique strategic asset not available in other listings.",
+        note:"UNDER CONTRACT — watch for relisting."
+      },
+      {
+        id:7, name:"Scottish Highland Croft", country:"GBR", region:"Sutherland, Scotland", tier:"Tier-2",
+        type:"Croft + Workshop", price:520_000, acres:44, water:"Burn + Loch", elevation:480, grid:"Wind + Solar",
+        status:"AVAILABLE", emoji:"⛰️",
+        defense:70, water_s:86, food_s:75, access:62, community:65, climate:60, legal:84, medical:55, overall:71,
+        pros:["UK residency stability","Loch freshwater access","Wind + solar energy independence","Low population density (0.2/km²)","Deer stalking rights included"],
+        cons:["Harsh winters reduce productivity","Limited growing season","Post-Brexit supply chain uncertainty","Medical 2hr+ drive"],
+        features:["Croft House","Workshop","Loch Access","Wind Turbine","Peat Store"],
+        doctrine:"Northern European Ark viable. Cold-climate hardening required. Recommended as secondary property for UK passport holders.",
+        note:"Lowest population density of any European listing."
+      },
+      {
+        id:8, name:"Transylvania Fortress", country:"ROU", region:"Brasov County, Romania", tier:"Tier-2",
+        type:"Fortified Estate", price:480_000, acres:32, water:"Well + Spring", elevation:820, grid:"Solar + Grid",
+        status:"AVAILABLE", emoji:"🏰",
+        defense:94, water_s:78, food_s:70, access:66, community:60, climate:68, legal:72, medical:60, overall:72,
+        pros:["Highest defense score of any EU property","Stone walls: 14th century foundations","EU passport pathway","Low property prices allow hardening budget","NATO eastern flank — low direct conflict risk"],
+        cons:["Food production limited by acreage","Romanian bureaucracy challenging","Smaller Ark community presence","Energy dependence on Soviet-era grid"],
+        features:["Stone Fortress","Medieval Walls","Chapel","Cellar Network","Courtyard","Well"],
+        doctrine:"Hardpoint Doctrine applies: this property functions as a hardened final-position asset. Recommend pairing with agricultural satellite property within 30km.",
+        note:"Unique asset: highest structural defense rating. Not for agricultural-primary Ark operations."
+      },
+      {
+        id:9, name:"Tasmania Wilderness Block", country:"AUS", region:"Southwest Tasmania, AUS", tier:"Tier-1",
+        type:"Wilderness Acreage", price:850_000, acres:280, water:"River + Rain", elevation:350, grid:"Off-Grid Solar",
+        status:"AVAILABLE", emoji:"🌊",
+        defense:78, water_s:94, food_s:86, access:60, community:72, climate:82, legal:88, medical:48, overall:79,
+        pros:["Australia: top 3 global collapse refuge","World-class rainfall + river systems","Temperate climate year-round","Low bushfire risk (SW region)","Strong Ark community forming"],
+        cons:["Remote medical access","Ferry dependency for resupply","Limited road network"],
+        features:["River Frontage","Solar Array","Rainwater System","Wilderness Access","Boat Ramp"],
+        doctrine:"Tasmania ranks #2 in AUS for post-collapse habitability after South Island NZ. Water sovereignty: fully achieved. Food Layer: requires 2yr development.",
+        note:"Recommended for AUS residents seeking Tier-1 domestic refuge."
+      },
+      {
+        id:10, name:"Costa Rica Cloud Forest", country:"CRI", region:"Monteverde, Costa Rica", tier:"Tier-2",
+        type:"Permaculture Farm", price:560_000, acres:55, water:"Springs + Collection", elevation:1650, grid:"Micro-Hydro",
+        status:"AVAILABLE", emoji:"🌺",
+        defense:62, water_s:90, food_s:92, access:58, community:76, climate:88, legal:70, medical:65, overall:76,
+        pros:["Highest food production in tropics","Micro-hydro: perpetual off-grid power","Costa Rica: abolish army 1948, neutral nation","Biodiversity = medicinal plant access","Year-round growing with 3 harvests/yr"],
+        cons:["Political risk: Central America corridor","Lower defensibility","US dollar dependency","Seismic zone active"],
+        features:["Permaculture Zones","Micro-Hydro","Springs","Processing Kitchen","Community Hall"],
+        doctrine:"Biological Layer: CR's biodiversity provides unmatched medicinal + nutritional redundancy. Recommended for Ark nodes prioritizing food sovereignty above security.",
+        note:"Unique micro-hydro energy system — only listing with perpetual power generation."
+      },
+      {
+        id:11, name:"Idaho Canyon Property", country:"USA", region:"Idaho, USA", tier:"Tier-1",
+        type:"Canyon Compound", price:1_080_000, acres:160, water:"Spring + Well", elevation:1050, grid:"Solar + Backup",
+        status:"AVAILABLE", emoji:"🏜️",
+        defense:86, water_s:88, food_s:80, access:76, community:70, climate:75, legal:91, medical:60, overall:80,
+        pros:["Canyon terrain: natural chokepoint defense","Idaho: #1 US state for Ark density","Permitless carry + strong +2A legal","Spring on-property: water independence","3hr from Boise trauma centre"],
+        cons:["Canyon may flood in extreme events","Snow isolation Nov-Mar","Growing season 130 days"],
+        features:["Canyon Access","Spring","Solar Array","Workshop","Rifle Range","Root Cellar"],
+        doctrine:"Idaho Ark Cluster: 3 established communities within 60km enable Five-Layer Community support. Canyon approach creates single-vector defense advantage.",
+        note:"Best US property for community network density + legal environment."
+      },
+      {
+        id:12, name:"Extremadura Finca", country:"ESP", region:"Extremadura, Spain", tier:"Tier-2",
+        type:"Agricultural Estate", price:410_000, acres:90, water:"Borehole", elevation:580, grid:"Solar + Grid",
+        status:"AVAILABLE", emoji:"🫒",
+        defense:68, water_s:70, food_s:84, access:72, community:68, climate:74, legal:80, medical:62, overall:73,
+        pros:["Spain: EU residency + Schengen access","Iberian Black Pig (Ibérico) production potential","Affordable price for 90 acres","Low population density region","Mild winters + 300 sun days"],
+        cons:["Water stress increasing","Borehole only — no surface water","Lower community / Ark density"],
+        features:["Finca House","Borehole","Olive Grove","Pig Enclosure","Solar Array"],
+        doctrine:"Tier-2 EU optionality property. Supplement with rainwater harvesting to achieve Water Layer compliance. Suitable as secondary / lifestyle Ark.",
+        note:"Best value for EU passport + agricultural production combination."
+      },
+      {
+        id:13, name:"Southern Alps NZ", country:"NZL", region:"South Island, New Zealand", tier:"Tier-1",
+        type:"Alpine Station", price:1_620_000, acres:680, water:"Glacier + Stream", elevation:1850, grid:"Off-Grid Hydro",
+        status:"AVAILABLE", emoji:"❄️",
+        defense:85, water_s:96, food_s:78, access:55, community:62, climate:72, legal:90, medical:42, overall:77,
+        pros:["Highest water security score — glacier source","680 acres: largest listing","NZ: #1 global collapse refuge","Hydro power: perpetual energy","Zero-nuclear-target zone"],
+        cons:["Extreme altitude: short growing season","Medical helicopter only","Significant hardening investment needed"],
+        features:["Hydro System","Glacier Access","Alpine Meadow","Station Homestead","Helipad"],
+        doctrine:"NZ South Island represents ultimate long-duration Ark position. 10yr+ self-sufficiency possible with full build-out. Recommended for multi-family compound strategy.",
+        note:"Maximum water security + land. Requires largest investment to operationalise."
+      },
+      {
+        id:14, name:"Algarve Hilltop Villa", country:"PRT", region:"Faro, Portugal", tier:"Tier-3",
+        type:"Villa + Land", price:890_000, acres:12, water:"Mains + Tank", elevation:320, grid:"Solar + Grid",
+        status:"AVAILABLE", emoji:"☀️",
+        defense:58, water_s:62, food_s:60, access:85, community:72, climate:80, legal:82, medical:78, overall:68,
+        pros:["Best access + medical score on list","Portugal NHR tax regime","EU + Schengen strategic optionality","High quality of life buffer","Strong international community"],
+        cons:["Lowest survival score: not a true Ark","Water dependency on municipal supply","Wildfire exposure","Limited food production"],
+        features:["Villa","Pool","12 Acres","Solar","Guest Suite","Near Airport"],
+        doctrine:"This property does NOT meet Five-Layer Ark doctrine. Classified as Tier-3 Financial Refuge / Quality of Life Asset only. Suitable as base while primary Ark is built.",
+        note:"Lifestyle-first property. Use as EU anchor while Tier-1 Ark is operational."
+      },
+      {
+        id:15, name:"Dordogne River Valley Farm", country:"FRA", region:"Périgord, France", tier:"Tier-2",
+        type:"Stone Farmhouse", price:740_000, acres:38, water:"Well + River", elevation:190, grid:"Grid + Solar",
+        status:"AVAILABLE", emoji:"🍷",
+        defense:65, water_s:78, food_s:82, access:78, community:75, climate:76, legal:78, medical:72, overall:74,
+        pros:["Dordogne: low conflict history, stable region","French agricultural law protects farmers","River frontage: water + food","Strong local community integration","Medical 45min from Périgueux"],
+        cons:["Lower defensibility in open valley","French bureaucracy complex","EU agricultural subsidy dependency risk"],
+        features:["Stone Farmhouse","River Frontage","Well","Barn","Vineyard","Vegetable Garden"],
+        doctrine:"Tier-2 European baseline. Water Layer partially achieved via river + well. Recommended for EU nationals prioritising stability over maximum isolation.",
+        note:"Most culturally integrated Ark option on European continent."
+      },
+    ];
+
+    let savedIds = JSON.parse(localStorage.getItem('arkSaved') || '[]');
+    let currentView = 'grid';
+    let activeListingId = null;
+    let activeTiers = [], activeCountries = [];
+    let maxPrice = 2000000, minScore = 0;
+    let sortField = 'overall';
+  </script>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="gl sidebar">
+      <div class="filter-section">
+        <div class="filter-title">TIER CLASSIFICATION</div>
+        <div class="filter-opts" id="tierFilters"></div>
+      </div>
+      <div class="filter-section">
+        <div class="filter-title">COUNTRY / REGION</div>
+        <div class="filter-opts" id="countryFilters"></div>
+      </div>
+      <div class="filter-section">
+        <div class="filter-title">MAX PRICE</div>
+        <div class="range-wrap">
+          <input type="range" min="300000" max="2000000" step="50000" value="2000000" id="priceRange" oninput="updatePrice(this.value)">
+          <div class="range-labels"><span>$300K</span><span id="priceLabel">No Limit</span><span>$2M</span></div>
+        </div>
+      </div>
+      <div class="filter-section">
+        <div class="filter-title">MIN SURVIVAL SCORE</div>
+        <div class="range-wrap">
+          <input type="range" min="0" max="90" step="5" value="0" id="scoreRange" oninput="updateScore(this.value)">
+          <div class="range-labels"><span>0</span><span id="scoreLabel">Any</span><span>90+</span></div>
+        </div>
+      </div>
+      <div class="filter-section">
+        <div class="filter-title">SORT BY</div>
+        <select class="sort-select" style="width:100%" onchange="sortField=this.value; renderListings()">
+          <option value="overall">Overall Score</option>
+          <option value="price">Price (Low–High)</option>
+          <option value="acres">Acreage</option>
+          <option value="defense">Defense</option>
+          <option value="water_s">Water Security</option>
+          <option value="food_s">Food Production</option>
+        </select>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn btn-ghost" style="width:100%;margin-bottom:8px" onclick="clearFilters()">CLEAR FILTERS</button>
+        <button class="btn btn-accent" style="width:100%" onclick="showSaved()">★ VIEW SHORTLIST (<span id="savedCount2">0</span>)</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-col">
+      <div class="view-toggle">
+        <span class="count-info" id="countInfo">Showing 15 properties</span>
+        <button class="btn btn-ghost" onclick="toggleView()">⊞</button>
+      </div>
+      <div class="listings-grid view-grid" id="listingsGrid"></div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="detail-overlay" id="detailOverlay" onclick="closeDetail(event)">
+  <div class="detail-panel" id="detailPanel"></div>
+</div>
+
+<!-- INTERACTION BLOCK -->
+<script>
+  function scoreColor(v) {
+    if (v >= 85) return 'var(--accent)';
+    if (v >= 75) return 'var(--accent2)';
+    if (v >= 65) return 'var(--warn)';
+    return 'var(--danger)';
+  }
+  function fmtP(p) {
+    return p >= 1_000_000 ? '$' + (p/1_000_000).toFixed(2) + 'M' : '$' + (p/1000).toFixed(0) + 'K';
+  }
+  function tierTag(t) {
+    const cls = t==='Tier-1'?'tag-green':t==='Tier-2'?'tag-orange':'tag-red';
+    return `<span class="tag ${cls}">${t}</span>`;
+  }
+  function statusTag(s) {
+    const cls = s==='AVAILABLE'?'tag-green':'tag-orange';
+    return `<span class="tag ${cls}">${s}</span>`;
+  }
+
+  // Build sidebar filters
+  function buildSidebar() {
+    const tiers = [...new Set(LISTINGS.map(p=>p.tier))];
+    document.getElementById('tierFilters').innerHTML = tiers.map(t => {
+      const c = LISTINGS.filter(p=>p.tier===t).length;
+      return `<label class="filter-opt"><input type="checkbox" value="${t}" onchange="toggleTier(this)"> <span>${t}</span><span class="count">${c}</span></label>`;
+    }).join('');
+    const countries = [...new Set(LISTINGS.map(p=>p.country))];
+    document.getElementById('countryFilters').innerHTML = countries.map(c => {
+      const n = LISTINGS.filter(p=>p.country===c).length;
+      return `<label class="filter-opt"><input type="checkbox" value="${c}" onchange="toggleCountry(this)"> <span>${c}</span><span class="count">${n}</span></label>`;
+    }).join('');
+  }
+
+  function toggleTier(cb) {
+    if (cb.checked) activeTiers.push(cb.value);
+    else activeTiers = activeTiers.filter(x=>x!==cb.value);
+    renderListings();
+  }
+  function toggleCountry(cb) {
+    if (cb.checked) activeCountries.push(cb.value);
+    else activeCountries = activeCountries.filter(x=>x!==cb.value);
+    renderListings();
+  }
+  function updatePrice(v) {
+    maxPrice = +v;
+    document.getElementById('priceLabel').textContent = v >= 2000000 ? 'No Limit' : fmtP(+v);
+    renderListings();
+  }
+  function updateScore(v) {
+    minScore = +v;
+    document.getElementById('scoreLabel').textContent = v <= 0 ? 'Any' : v + '+';
+    renderListings();
+  }
+  function clearFilters() {
+    activeTiers = []; activeCountries = [];
+    document.querySelectorAll('#tierFilters input, #countryFilters input').forEach(i => i.checked = false);
+    document.getElementById('priceRange').value = 2000000; maxPrice = 2000000;
+    document.getElementById('scoreRange').value = 0; minScore = 0;
+    document.getElementById('priceLabel').textContent = 'No Limit';
+    document.getElementById('scoreLabel').textContent = 'Any';
+    renderListings();
+  }
+
+  function getFiltered() {
+    return LISTINGS.filter(p => {
+      if (activeTiers.length && !activeTiers.includes(p.tier)) return false;
+      if (activeCountries.length && !activeCountries.includes(p.country)) return false;
+      if (p.price > maxPrice) return false;
+      if (p.overall < minScore) return false;
+      return true;
+    }).sort((a,b) => sortField === 'price' ? a[sortField]-b[sortField] : b[sortField]-a[sortField]);
+  }
+
+  function renderListings() {
+    const filtered = getFiltered();
+    document.getElementById('countInfo').textContent = `Showing ${filtered.length} properties`;
+    document.getElementById('listingsGrid').innerHTML = filtered.map(p => {
+      const isSaved = savedIds.includes(p.id);
+      return `<div class="listing-card ${isSaved?'saved':''}" onclick="openDetail(${p.id})">
+        <div class="card-image">
+          <div class="map-bg">${p.emoji}</div>
+          <div class="tier-badge">${tierTag(p.tier)}</div>
+          <div class="score-badge">
+            <div class="sv" style="color:${scoreColor(p.overall)}">${p.overall}</div>
+            <div class="sl">SCORE</div>
+          </div>
+          <div class="elevation-tag">⬆ ${p.elevation}m elev.</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">${p.name}</div>
+          <div class="card-loc">📍 ${p.region}</div>
+          <div class="card-price">${fmtP(p.price)}</div>
+          <div class="card-specs">
+            <div class="spec"><div class="spec-label">ACREAGE</div><div class="spec-val">${p.acres.toLocaleString()} ac</div></div>
+            <div class="spec"><div class="spec-label">WATER</div><div class="spec-val">${p.water}</div></div>
+            <div class="spec"><div class="spec-label">GRID</div><div class="spec-val">${p.grid}</div></div>
+            <div class="spec"><div class="spec-label">STATUS</div><div>${statusTag(p.status)}</div></div>
+          </div>
+          <div class="card-metrics">
+            <div class="mini-metric"><span class="mv" style="color:${scoreColor(p.defense)}">${p.defense}</span><span class="ml">DEF</span></div>
+            <div class="mini-metric"><span class="mv" style="color:${scoreColor(p.water_s)}">${p.water_s}</span><span class="ml">H₂O</span></div>
+            <div class="mini-metric"><span class="mv" style="color:${scoreColor(p.food_s)}">${p.food_s}</span><span class="ml">FOOD</span></div>
+            <div class="mini-metric"><span class="mv" style="color:${scoreColor(p.community)}">${p.community}</span><span class="ml">COMM</span></div>
+            <div class="mini-metric"><span class="mv" style="color:${scoreColor(p.climate)}">${p.climate}</span><span class="ml">CLIM</span></div>
+          </div>
+          <div class="card-features">${p.features.slice(0,4).map(f=>`<span class="feat-chip">${f}</span>`).join('')}${p.features.length>4?`<span class="feat-chip">+${p.features.length-4}</span>`:''}</div>
+          <div class="card-actions">
+            <button class="btn btn-accent" style="flex:1;font-size:0.65rem" onclick="event.stopPropagation();openDetail(${p.id})">VIEW DETAILS</button>
+            <button class="btn ${isSaved?'btn-danger':'btn-ghost'}" onclick="event.stopPropagation();toggleSave(${p.id})">${isSaved?'★ SAVED':'☆ SAVE'}</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    updateSavedUI();
+  }
+
+  function toggleView() {
+    const grid = document.getElementById('listingsGrid');
+    currentView = currentView === 'grid' ? 'list' : 'grid';
+    grid.className = `listings-grid view-${currentView}`;
+  }
+
+  function toggleSave(id) {
+    if (savedIds.includes(id)) savedIds = savedIds.filter(x=>x!==id);
+    else savedIds.push(id);
+    try { localStorage.setItem('arkSaved', JSON.stringify(savedIds)); } catch(e){}
+    renderListings();
+    updateSavedUI();
+  }
+
+  function updateSavedUI() {
+    const n = savedIds.length;
+    document.getElementById('savedNum').textContent = n;
+    document.getElementById('savedCount2').textContent = n;
+    document.getElementById('savedCounter').classList.toggle('show', n > 0);
+  }
+
+  function showSaved() {
+    if (savedIds.length === 0) { alert('No saved properties yet. Click ☆ SAVE on any listing.'); return; }
+    activeTiers = []; activeCountries = [];
+    // Filter to saved only - directly render
+    const saved = LISTINGS.filter(p => savedIds.includes(p.id));
+    document.getElementById('countInfo').textContent = `★ ${saved.length} saved properties`;
+    document.getElementById('listingsGrid').innerHTML = saved.map(p => {
+      return `<div class="listing-card saved" onclick="openDetail(${p.id})">
+        <div class="card-image"><div class="map-bg">${p.emoji}</div>
+        <div class="tier-badge">${tierTag(p.tier)}</div>
+        <div class="score-badge"><div class="sv" style="color:${scoreColor(p.overall)}">${p.overall}</div><div class="sl">SCORE</div></div>
+        </div>
+        <div class="card-body">
+          <div class="card-name">${p.name}</div>
+          <div class="card-loc">📍 ${p.region}</div>
+          <div class="card-price">${fmtP(p.price)}</div>
+          <div class="card-actions">
+            <button class="btn btn-accent" style="flex:1;font-size:0.65rem" onclick="event.stopPropagation();openDetail(${p.id})">VIEW DETAILS</button>
+            <button class="btn btn-danger" onclick="event.stopPropagation();toggleSave(${p.id})">REMOVE</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function openDetail(id) {
+    const p = LISTINGS.find(x=>x.id===id);
+    activeListingId = id;
+    const metrics = [
+      ['Defense',p.defense],['Water Security',p.water_s],['Food Production',p.food_s],
+      ['Access/Evac',p.access],['Community',p.community],['Climate',p.climate],
+      ['Legal Framework',p.legal],['Medical Access',p.medical],
+    ];
+    document.getElementById('detailPanel').innerHTML = `
+      <div class="dp-header">
+        <div>
+          <div style="font-size:0.6rem;color:var(--muted);letter-spacing:0.12em;margin-bottom:10px">PROPERTY DETAIL — ARK v3</div>
+          <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;line-height:1.1">${p.name}</div>
+          <div style="color:var(--muted);font-size:0.72rem;margin-top:6px">📍 ${p.region}</div>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">${tierTag(p.tier)} ${statusTag(p.status)}</div>
+        </div>
+        <button class="dp-close" onclick="closeDetail()">✕</button>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:20px;padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:28px;">
+        <div>
+          <div style="font-size:0.58rem;color:var(--muted);letter-spacing:0.1em">COMPOSITE SURVIVAL SCORE</div>
+          <div style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:${scoreColor(p.overall)}">${p.overall}<span style="font-size:1rem;color:var(--muted)">/100</span></div>
+        </div>
+        <div>
+          <div style="font-size:0.58rem;color:var(--muted);letter-spacing:0.1em">PRICE</div>
+          <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--accent2)">${fmtP(p.price)}</div>
+        </div>
+        <div style="margin-left:auto">
+          <button class="btn ${savedIds.includes(p.id)?'btn-danger':'btn-ghost'}" onclick="toggleSave(${p.id}); document.querySelector('.dp-header + div button.btn-danger, .dp-header + div button.btn-ghost').className = savedIds.includes(${p.id}) ? 'btn btn-danger' : 'btn btn-ghost'">${savedIds.includes(p.id)?'★ SAVED':'☆ SAVE'}</button>
+        </div>
+      </div>
+
+      <div class="dp-section">
+        <div class="dp-section-title">PROPERTY SPECIFICATIONS</div>
+        <div class="dp-grid">
+          <div class="dp-field"><label>PROPERTY TYPE</label><span>${p.type}</span></div>
+          <div class="dp-field"><label>TOTAL ACREAGE</label><span>${p.acres.toLocaleString()} acres</span></div>
+          <div class="dp-field"><label>WATER SOURCE</label><span>${p.water}</span></div>
+          <div class="dp-field"><label>ELEVATION</label><span>${p.elevation.toLocaleString()}m ASL</span></div>
+          <div class="dp-field"><label>GRID STATUS</label><span>${p.grid}</span></div>
+          <div class="dp-field"><label>COUNTRY</label><span>${p.country}</span></div>
+        </div>
+      </div>
+
+      <div class="dp-section">
+        <div class="dp-section-title">SURVIVAL METRICS</div>
+        ${metrics.map(([l,v])=>`<div class="metric-row"><span class="metric-label">${l}</span><div class="mbar-track"><div class="mbar-fill" style="width:${v}%;background:${scoreColor(v)}"></div></div><span class="mbar-num">${v}</span></div>`).join('')}
+      </div>
+
+      <div class="dp-section">
+        <div class="dp-section-title">INSTALLED FEATURES</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">${p.features.map(f=>`<span class="feat-chip" style="font-size:0.65rem;padding:4px 10px">${f}</span>`).join('')}</div>
+      </div>
+
+      <div class="dp-section">
+        <div class="dp-section-title">PROS / CONS ANALYSIS</div>
+        <div class="pros-cons">
+          <div class="pros"><div class="pros-title">STRENGTHS</div><ul>${p.pros.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+          <div class="cons"><div class="cons-title">WEAKNESSES</div><ul>${p.cons.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+        </div>
+      </div>
+
+      <div class="dp-section">
+        <div class="dp-section-title">FIVE-LAYER DOCTRINE ASSESSMENT</div>
+        <div class="doctrine-box"><p>${p.doctrine}</p></div>
+      </div>
+
+      <div class="dp-section" style="background:rgba(0,200,255,0.04);border:1px solid rgba(0,200,255,0.1);border-radius:8px;padding:16px;">
+        <div class="dp-section-title" style="color:var(--accent2)">ARK INTEL NOTE</div>
+        <p style="font-size:0.72rem;color:var(--muted);line-height:1.7">${p.note}</p>
+      </div>
+    `;
+    document.getElementById('detailOverlay').classList.add('open');
+  }
+
+  function closeDetail(e) {
+    if (!e || e.target === document.getElementById('detailOverlay')) {
+      document.getElementById('detailOverlay').classList.remove('open');
+    }
+  }
+
+  // INIT
+  buildSidebar();
+  renderListings();
+  updateSavedUI();
+</script>
+</body>
+</html>

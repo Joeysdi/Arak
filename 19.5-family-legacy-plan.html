@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>19.5 — Family Legacy & Succession Plan | Ark v3 (Standalone)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#08060a;--bg2:#0f0c14;--bg3:#16121f;
+  --glass:rgba(180,140,255,0.03);--glass-h:rgba(180,140,255,0.07);
+  --border:rgba(180,140,255,0.1);--border-h:rgba(180,140,255,0.28);
+  --accent:#c9a84c;--accent2:#9b6dff;--accent3:#e8c97a;
+  --txt:#f0ece8;--txt2:#9890a8;--txt3:#534960;
+  --gold:#c9a84c;--gold2:#e8c97a;--purple:#9b6dff;
+  --r:10px;--r2:18px;
+  --ff:'Cormorant Garamond',serif;--ff-mono:'DM Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--txt);font-family:var(--ff);
+  min-height:100vh;overflow-x:hidden;font-size:18px;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 50% 0%,rgba(155,109,255,.1),transparent),
+    radial-gradient(ellipse 40% 60% at 100% 100%,rgba(201,168,76,.07),transparent),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239b6dff' fill-opacity='0.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.gl{
+  background:var(--glass);border:1px solid var(--border);
+  border-radius:var(--r2);backdrop-filter:blur(16px);
+  transition:border .3s,box-shadow .3s,background .3s;
+}
+.gl:hover{border-color:var(--border-h);background:var(--glass-h);box-shadow:0 12px 60px rgba(155,109,255,.08)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 28px;position:relative}
+/* hero */
+.hero{padding:100px 0 60px;text-align:center;position:relative}
+.hero-tag{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:20px}
+.hero h1{font-size:clamp(3rem,7vw,5.5rem);font-weight:600;line-height:1.0;margin-bottom:20px;letter-spacing:-.01em}
+.hero h1 em{font-style:italic;color:var(--gold)}
+.hero p{color:var(--txt2);font-family:var(--ff-mono);font-size:.78rem;max-width:580px;margin:0 auto 40px;line-height:1.85}
+/* gold divider */
+.divider{width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 24px}
+/* tabs */
+.stab{display:flex;gap:2px;flex-wrap:wrap;background:rgba(155,109,255,.04);padding:5px;border-radius:14px;margin-bottom:32px;border:1px solid var(--border)}
+.stab-btn{flex:1;min-width:140px;padding:11px 16px;border:none;background:transparent;color:var(--txt2);font-family:var(--ff-mono);font-size:.65rem;cursor:pointer;border-radius:10px;transition:all .25s;letter-spacing:.06em;text-transform:uppercase}
+.stab-btn.active{background:linear-gradient(135deg,var(--purple),var(--gold));color:#fff;box-shadow:0 4px 24px rgba(155,109,255,.25)}
+.spanel{display:none}
+.spanel.active{display:block;animation:revealUp .35s ease}
+@keyframes revealUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+/* accordion */
+.acc-btn{
+  width:100%;background:none;border:none;border-bottom:1px solid var(--border);
+  padding:18px 24px;display:flex;justify-content:space-between;align-items:center;
+  cursor:pointer;color:var(--txt);font-family:var(--ff);font-size:1.05rem;text-align:left;transition:background .2s;
+}
+.acc-btn:hover{background:rgba(155,109,255,.03)}
+.acc-btn .arr{transition:transform .3s;color:var(--txt3);font-size:.7rem;font-family:var(--ff-mono);flex-shrink:0}
+.acc-btn.open{color:var(--gold)}
+.acc-btn.open .arr{transform:rotate(180deg);color:var(--gold)}
+.acc-panel{max-height:0;overflow:hidden;transition:max-height .45s ease}
+.acc-panel.open{max-height:1200px}
+.acc-inner{padding:20px 24px 28px;font-family:var(--ff-mono);font-size:.74rem;color:var(--txt2);line-height:1.85}
+/* will builder */
+.will-section{border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;background:rgba(0,0,0,.2)}
+.will-section-title{font-size:.78rem;font-weight:600;color:var(--gold);margin-bottom:12px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--ff-mono)}
+.will-field{margin-bottom:12px}
+.will-label{font-family:var(--ff-mono);font-size:.67rem;color:var(--txt3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;display:block}
+.will-input,.will-textarea,.will-select{
+  width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:8px;
+  padding:10px 14px;color:var(--txt);font-family:var(--ff-mono);font-size:.78rem;outline:none;transition:border .2s;
+}
+.will-input:focus,.will-textarea:focus,.will-select:focus{border-color:var(--gold)}
+.will-textarea{resize:vertical;min-height:80px}
+.will-select option{background:var(--bg3)}
+.gen-btn{
+  width:100%;padding:14px;background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.3));
+  border:1px solid var(--gold);border-radius:12px;color:var(--gold);
+  font-family:var(--ff-mono);font-size:.78rem;cursor:pointer;letter-spacing:.08em;
+  transition:all .2s;font-weight:500;
+}
+.gen-btn:hover{background:linear-gradient(135deg,rgba(201,168,76,.25),rgba(201,168,76,.45));box-shadow:0 0 30px rgba(201,168,76,.15)}
+.output-box{
+  margin-top:20px;padding:24px;background:rgba(0,0,0,.5);border:1px solid var(--gold);
+  border-radius:12px;font-family:var(--ff-mono);font-size:.73rem;line-height:1.9;
+  color:var(--txt2);display:none;white-space:pre-wrap;
+}
+.output-box.show{display:block;animation:revealUp .4s ease}
+/* training matrix */
+.train-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.train-card{padding:24px}
+.train-age{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.train-title{font-size:1.3rem;font-weight:600;margin-bottom:10px}
+.train-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.train-list li{font-family:var(--ff-mono);font-size:.7rem;color:var(--txt2);padding:6px 10px;background:rgba(155,109,255,.04);border-radius:6px;border-left:2px solid var(--purple);display:flex;align-items:flex-start;gap:8px}
+.train-list li::before{content:'◆';color:var(--gold);font-size:.5rem;margin-top:2px;flex-shrink:0}
+/* succession matrix */
+.succ-table{width:100%;border-collapse:collapse}
+.succ-table th{padding:12px 16px;background:rgba(155,109,255,.06);color:var(--txt3);font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;text-align:left;border-bottom:1px solid var(--border)}
+.succ-table td{padding:12px 16px;border-bottom:1px solid rgba(155,109,255,.06);font-family:var(--ff-mono);font-size:.73rem;color:var(--txt2);vertical-align:top}
+.succ-table td:first-child{color:var(--txt);font-weight:500}
+.succ-table tr:hover td{background:rgba(155,109,255,.03)}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+/* letter generator */
+.letter-output{
+  padding:32px;background:rgba(0,0,0,.5);border:1px solid var(--border);
+  border-radius:var(--r2);font-family:var(--ff);font-size:1rem;line-height:1.8;
+  color:var(--txt2);display:none;border-left:4px solid var(--gold);
+}
+.letter-output.show{display:block;animation:revealUp .5s ease}
+.letter-output h3{font-size:1.5rem;color:var(--txt);margin-bottom:8px}
+.letter-output p{margin-bottom:16px}
+.letter-output .salutation{font-style:italic;color:var(--gold);font-size:1.1rem;margin-bottom:20px;display:block}
+/* asset vault */
+.vault-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.vault-card{padding:20px;cursor:pointer;position:relative;overflow:hidden}
+.vault-card::after{
+  content:'';position:absolute;inset:0;border-radius:var(--r2);
+  background:linear-gradient(135deg,transparent,rgba(201,168,76,.03));
+  pointer-events:none;
+}
+.vault-icon{font-size:1.5rem;margin-bottom:10px}
+.vault-name{font-size:.85rem;font-weight:600;margin-bottom:6px;font-family:var(--ff)}
+.vault-status{font-family:var(--ff-mono);font-size:.62rem;padding:2px 8px;border-radius:4px;display:inline-block;margin-bottom:8px}
+.vault-desc{font-family:var(--ff-mono);font-size:.68rem;color:var(--txt2);line-height:1.6}
+.vault-status.done{background:rgba(201,168,76,.12);color:var(--gold);border:1px solid rgba(201,168,76,.25)}
+.vault-status.pending{background:rgba(155,109,255,.12);color:var(--purple);border:1px solid rgba(155,109,255,.25)}
+.vault-status.critical{background:rgba(232,64,64,.12);color:#e84040;border:1px solid rgba(232,64,64,.25)}
+/* knowledge library */
+.lib-items{display:flex;flex-direction:column;gap:0;overflow:hidden}
+.lib-item{display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--border);transition:background .2s;cursor:pointer}
+.lib-item:hover{background:rgba(155,109,255,.03)}
+.lib-cat{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);width:110px;flex-shrink:0}
+.lib-title{font-size:.88rem;font-weight:600;flex:1}
+.lib-format{font-family:var(--ff-mono);font-size:.6rem;padding:2px 8px;border-radius:4px;background:rgba(155,109,255,.1);color:var(--purple);border:1px solid rgba(155,109,255,.2)}
+.lib-priority{font-family:var(--ff-mono);font-size:.6rem;padding:2px 8px;border-radius:4px}
+/* progress tracker */
+.legacy-progress{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:32px}
+.prog-item{padding:18px;text-align:center}
+.prog-num{font-size:2.4rem;font-weight:600;color:var(--gold);line-height:1;font-family:var(--ff-mono)}
+.prog-label{font-family:var(--ff-mono);font-size:.62rem;color:var(--txt3);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+@media(max-width:680px){
+  .stab{flex-direction:column}
+  .stab-btn{flex:none}
+  .calc-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ── DATA BLOCK ── -->
+<script>
+const LEGACY_DOCS=[
+  {
+    q:'Last Will & Testament — Structure',
+    a:`The Ark-optimized will has 7 critical sections that differ from a standard will:
+
+1. ASSET INVENTORY CLAUSE — References a sealed, annually updated Asset Registry (stored separately). This prevents the will itself from becoming outdated as assets shift.
+
+2. ARK CONTINGENCY CLAUSE — Specifies what happens to your Ark membership shares, community position, and stored assets if you die before, during, or after a collapse event. Standard wills are silent on this.
+
+3. SKILLS & KNOWLEDGE TRANSFER — Names the heir responsible for being trained in your specific skills before your death. Includes a competency verification process.
+
+4. TRUST STRUCTURE — All productive assets (land, tools, seed stock) flow into a discretionary family trust, not directly to individuals. This prevents forced sale under duress.
+
+5. GUARDIAN PROTOCOL — Designates not just guardian of minor children but a secondary "collapse guardian" who takes custody specifically if primary guardian is unreachable for 30+ days.
+
+6. DIGITAL & CRYPTO ASSETS — Includes hardware wallet access protocol, seed phrase custody chain, and emergency decryption instructions stored with legal counsel.
+
+7. LETTER OF INSTRUCTION — Non-legally binding letter (stored with will) that explains your WHY, values, and guidance for situations law cannot anticipate.`
+  },
+  {
+    q:'Trust Structures for Collapse Asset Protection',
+    a:`Why a trust beats a will in collapse scenarios:
+
+IRREVOCABLE ASSET PROTECTION TRUST
+• Removes assets from your estate before legal systems degrade
+• Creditor and confiscation protection in most jurisdictions
+• Fund during stable period; cannot be easily unwound
+• Trustee can be a trusted Ark community member
+
+DISCRETIONARY FAMILY TRUST
+• Trustee has full discretion on distribution — optimal when future circumstances are unknown
+• Protects assets from divorce, bankruptcy, or behavioral issues in heirs
+• Can include "Ark participation" as a condition of distribution
+
+LAND TRUST / NOMINEE ARRANGEMENT
+• Legal separation of beneficial ownership from record ownership
+• Critical for international real estate — reduces foreign ownership exposure
+• Nominee company in trust-friendly jurisdiction holds title
+
+ARK RECOMMENDATION: Establish at minimum a discretionary family trust for all hard assets (land, PMs, productive equipment) before any crisis event. Cost: $2,000–$8,000. Benefit: Irreplaceable.`
+  },
+  {
+    q:'Business Succession & Leadership Transfer',
+    a:`The Ark leadership succession model (adapted for families and businesses):
+
+PHASE 1 — SHADOW PERIOD (12–24 months)
+Designated successor shadows primary leader in all decisions. Observes, does not yet decide. Explicit mentorship contract.
+
+PHASE 2 — SUPERVISED DECISION (6–12 months)
+Successor makes decisions; primary reviews and adjusts. Debrief after every major call. Build decision journal.
+
+PHASE 3 — INDEPENDENT OPERATION (6 months)
+Successor operates independently. Primary available as consultant only. No interference unless catastrophic.
+
+PHASE 4 — FORMAL TRANSFER
+Legal transfer of authority, title, and relationships. Formal announcement to community/stakeholders. Primary retires to advisory.
+
+KEY RULE: Never transfer without completing all 4 phases. Never skip ahead. The competency built in each phase is non-transferable from training alone.
+
+COLLAPSE CONTINGENCY: If primary dies suddenly, Phase 3 deputy activates immediately with no vote required. Pre-agreed in writing by all community members.`
+  },
+  {
+    q:'Letter of Instruction — What Goes In It',
+    a:`The Letter of Instruction (LOI) is the most important document in your legacy portfolio. Unlike a will, it speaks in your voice.
+
+REQUIRED SECTIONS:
+
+1. Who I Am (for heirs who may not know your full story)
+   • Your defining experiences and how they shaped you
+   • What you're most proud of that isn't about money
+
+2. Why I Built the Ark
+   • Your threat assessment and reasoning
+   • What you want the family to do with it
+
+3. My Values (not generic — specific and personal)
+   • 5 values, each with a story showing what they mean in practice
+
+4. Guidance for Scenarios I Couldn't Anticipate
+   • Your thinking process, not your conclusions
+   • How you evaluated risk; how you chose community members
+
+5. What I Want for You (not prescriptive — aspirational)
+   • Character qualities you hope they develop
+   • Relationships you hope they'll tend
+
+6. Apologies and Gratitude
+   • Unfinished emotional business, stated clearly
+
+7. Final Instructions for Distribution
+   • Practical: who gets what item that has emotional value
+   • The watch, the books, the rifle — stated clearly to prevent conflict
+
+STORE WITH: Original will + legal counsel copy + fireproof sealed envelope at Ark property.`
+  }
+];
+
+const TRAINING_MATRIX=[
+  {age:'Ages 4–8',title:'Foundation',color:'var(--gold)',items:['Names and uses of 20 common tools','Basic food gardening — plant, water, harvest','Fire safety and what to do if lost','Family emergency code words and meeting point','Basic first aid: cuts, burns, calling for help']},
+  {age:'Ages 9–13',title:'Capability',color:'var(--purple)',items:['Grow a complete vegetable from seed to harvest','Basic navigation: map, compass, landmark','Cook 10 meals from scratch over fire','Animal husbandry: care for chickens or goats','First aid: CPR, wound care, splinting','Identify 20 local edible and medicinal plants']},
+  {age:'Ages 14–17',title:'Competence',color:'var(--gold)',items:['Learn one complete trade skill (electrical, plumbing, etc.)','Drive and maintain a vehicle (including basic repairs)','Manage a real budget for 6 months','Solo 3-day wilderness survival exercise','Build something substantial (shelter, furniture, fence)','Mediation and conflict resolution role-play']},
+  {age:'Ages 18–22',title:'Leadership',color:'var(--purple)',items:['Complete Ark governance training','Lead a 30-day community project from inception','Legal fundamentals: wills, contracts, property rights','Advanced medical training (EMT level)','Develop and execute an independent income stream','Shadow current Ark leadership for 12 months']},
+  {age:'Ages 23+',title:'Succession',color:'var(--gold)',items:['Formal succession phase initiation','Complete asset management training','International jurisdiction exposure (residency/visa)','Develop own threat assessment and response plan','Establish independent Ark-level preparedness','Contribute to next generation training as mentor']},
+];
+
+const SUCCESSION_ROLES=[
+  {role:'Primary Asset Trustee',current:'Self',successor:'Designated heir',status:'pending',notes:'Legal transfer requires trust amendment + attestation'},
+  {role:'Ark Community Leadership',current:'Self',successor:'Phase 3 deputy',status:'pending',notes:'Community vote required; Phase 2 succession in progress'},
+  {role:'Property Management',current:'Self',successor:'Heir + property manager',status:'critical',notes:'Not yet designated. Urgent action required.'},
+  {role:'Financial Portfolio',current:'Self / advisor',successor:'Heir + Ark CFO',status:'done',notes:'Power of attorney filed. Advisor briefed on succession.'},
+  {role:'Medical Decision Authority',current:'Spouse',successor:'Adult child',status:'done',notes:'Healthcare proxy executed and filed.'},
+  {role:'Digital Asset Access',current:'Self',successor:'Heir with seed phrase',status:'pending',notes:'Hardware wallet + sealed instructions prepared. Not yet transferred.'},
+  {role:'Community Relationships',current:'Self',successor:'Deputy + heir',status:'pending',notes:'Introduction meetings scheduled for Q2.'},
+  {role:'Knowledge Transmission',current:'Ongoing',successor:'All heirs',status:'done',notes:'Annual family skill weekend established. Documentation ongoing.'},
+];
+
+const VAULT_ITEMS=[
+  {icon:'📜',name:'Original Will & Trust Docs',status:'done',desc:'Notarized originals with attorney. Copies at Ark safe, home safe.'},
+  {icon:'🔑',name:'Property Title Portfolio',status:'done',desc:'All deeds, ownership docs, survey maps. Fireproof box + attorney.'},
+  {icon:'💎',name:'Asset Registry (Sealed)',status:'done',desc:'Updated annually. Lists all accounts, PMs, crypto, business interests.'},
+  {icon:'🔐',name:'Hardware Wallet & Seed Phrase',status:'pending',desc:'Seed phrase split custody with attorney + heir. Not yet finalized.'},
+  {icon:'📋',name:'Letter of Instruction',status:'pending',desc:'Draft complete. Final review needed before notarization.'},
+  {icon:'🗝',name:'Safe Combination & Access Codes',status:'done',desc:'Sealed with attorney, secondary copy with Ark deputy.'},
+  {icon:'🏦',name:'Financial Account List',status:'done',desc:'All accounts, advisors, contacts. Updated quarterly.'},
+  {icon:'⚕️',name:'Medical Directives & Proxy',status:'done',desc:'Advanced directive + healthcare proxy filed with physician and hospital.'},
+  {icon:'💼',name:'Business Succession Agreement',status:'critical',desc:'Not yet drafted. Business has no formal succession plan. URGENT.'},
+  {icon:'🌐',name:'International Asset Documentation',status:'pending',desc:'Offshore accounts and property titles need consolidated registry.'},
+  {icon:'👨‍👩‍👧',name:'Guardian Designations',status:'done',desc:'Primary and collapse-contingency guardians named in will.'},
+  {icon:'📖',name:'Family History & Oral Record',status:'pending',desc:'Video recording project started. Not yet complete.'},
+];
+
+const KNOWLEDGE_LIBRARY=[
+  {cat:'Medical',title:'Emergency Medicine Manual — Ark Edition',format:'Physical Book',priority:'critical'},
+  {cat:'Medical',title:'Pharmacology Reference for Austere Environments',format:'Physical Book',priority:'critical'},
+  {cat:'Agriculture',title:'Seed Saving & Heirloom Varieties',format:'Physical + Digital',priority:'high'},
+  {cat:'Agriculture',title:'Intensive Food Production for Small Land',format:'Physical Book',priority:'high'},
+  {cat:'Engineering',title:'Practical Electrical Systems (Off-Grid)',format:'Physical + Digital',priority:'high'},
+  {cat:'Engineering',title:'Water System Design & Maintenance',format:'Physical Book',priority:'high'},
+  {cat:'Legal',title:'Family Trust & Estate Documentation',format:'Digital (encrypted)',priority:'critical'},
+  {cat:'Legal',title:'Property Records & Title Portfolio',format:'Physical + Digital',priority:'critical'},
+  {cat:'Security',title:'Community Defense & Threat Assessment',format:'Physical (sealed)',priority:'high'},
+  {cat:'Finance',title:'Asset Registry (Annual Update)',format:'Physical (sealed)',priority:'critical'},
+  {cat:'History',title:'20 Collapse Case Studies & Lessons',format:'Digital',priority:'medium'},
+  {cat:'Skills',title:'Trades Training Records (All Members)',format:'Digital',priority:'high'},
+  {cat:'Governance',title:'Ark Community Rules & Constitution',format:'Physical + Digital',priority:'high'},
+  {cat:'Succession',title:'Letter of Instruction',format:'Physical (sealed)',priority:'critical'},
+  {cat:'Succession',title:'Decision Journal (Annual)',format:'Physical',priority:'medium'},
+];
+</script>
+
+<!-- ── RENDER BLOCK ── -->
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-tag">⬡ Ark Collective v3 · Section 19.5</div>
+    <h1>Family Legacy &<br/><em>Succession Plan</em></h1>
+    <div class="divider"></div>
+    <p>Your wealth, knowledge, and community survive you only if you build systems for transmission. This section provides the complete Ark succession architecture: legal structures, training programs, knowledge vaults, and the documents that speak after you cannot.</p>
+  </section>
+
+  <!-- Progress overview -->
+  <div class="legacy-progress" id="progressGrid"></div>
+
+  <div class="stab" id="mainTabs">
+    <button class="stab-btn active" onclick="switchTab('legal',this)">Legal Documents</button>
+    <button class="stab-btn" onclick="switchTab('training',this)">Heir Training</button>
+    <button class="stab-btn" onclick="switchTab('succession',this)">Role Succession</button>
+    <button class="stab-btn" onclick="switchTab('vault',this)">Document Vault</button>
+    <button class="stab-btn" onclick="switchTab('knowledge',this)">Knowledge Library</button>
+    <button class="stab-btn" onclick="switchTab('letter',this)">Letter Generator</button>
+  </div>
+
+  <!-- ── PANEL: Legal Documents ── -->
+  <div class="spanel active" id="tab-legal">
+    <div style="text-align:center;margin-bottom:32px">
+      <h2 style="font-size:2rem;font-weight:600;margin-bottom:8px">Legal Legacy Architecture</h2>
+      <div class="divider"></div>
+      <p style="font-family:var(--ff-mono);font-size:.72rem;color:var(--txt2)">Four essential document structures every Ark member must have in place</p>
+    </div>
+    <div class="gl" id="legalAccordion" style="overflow:hidden"></div>
+  </div>
+
+  <!-- ── PANEL: Heir Training ── -->
+  <div class="spanel" id="tab-training">
+    <div style="text-align:center;margin-bottom:32px">
+      <h2 style="font-size:2rem;font-weight:600;margin-bottom:8px">Heir Training Curriculum</h2>
+      <div class="divider"></div>
+      <p style="font-family:var(--ff-mono);font-size:.72rem;color:var(--txt2)">A five-stage age-graduated curriculum to produce collapse-capable heirs</p>
+    </div>
+    <div class="train-grid" id="trainGrid"></div>
+    <div class="gl" style="padding:28px;margin-top:20px;text-align:center">
+      <div style="font-size:.6rem;letter-spacing:.2em;font-family:var(--ff-mono);text-transform:uppercase;color:var(--gold);margin-bottom:10px">Core Principle</div>
+      <div style="font-size:1.6rem;font-style:italic;color:var(--txt);margin-bottom:12px">"An heir who cannot do is not an heir — they are a burden."</div>
+      <div style="font-family:var(--ff-mono);font-size:.72rem;color:var(--txt2);max-width:520px;margin:0 auto;line-height:1.85">Every skill in the curriculum has a specific collapse-relevant application. We do not train for the world that exists. We train for the world that is coming.</div>
+    </div>
+  </div>
+
+  <!-- ── PANEL: Succession Matrix ── -->
+  <div class="spanel" id="tab-succession">
+    <div style="text-align:center;margin-bottom:32px">
+      <h2 style="font-size:2rem;font-weight:600;margin-bottom:8px">Role Succession Matrix</h2>
+      <div class="divider"></div>
+      <p style="font-family:var(--ff-mono);font-size:.72rem;color:var(--txt2)">Every critical role mapped to a current holder, successor, and completion status</p>
+    </div>
+    <div class="gl" style="overflow:hidden">
+      <table class="succ-table" id="succTable"></table>
+    </div>
+    <div class="gl" style="padding:24px;margin-top:16px;display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <span style="font-family:var(--ff-mono);font-size:.7rem;color:var(--txt2)"><span class="status-dot" style="background:#c9a84c"></span>Done</span>
+        <span style="font-family:var(--ff-mono);font-size:.7rem;color:var(--txt2)"><span class="status-dot" style="background:#9b6dff"></span>Pending</span>
+        <span style="font-family:var(--ff-mono);font-size:.7rem;color:var(--txt2)"><span class="status-dot" style="background:#e84040"></span>Critical Gap</span>
+      </div>
+      <div style="flex:1;font-family:var(--ff-mono);font-size:.7rem;color:var(--txt3);text-align:right">Click any row to begin succession planning for that role</div>
+    </div>
+  </div>
+
+  <!-- ── PANEL: Document Vault ── -->
+  <div class="spanel" id="tab-vault">
+    <div style="text-align:center;margin-bottom:32px">
+      <h2 style="font-size:2rem;font-weight:600;margin-bottom:8px">Legacy Document Vault</h2>
+      <div class="divider"></div>
+      <p style="font-family:var(--ff-mono);font-size:.72rem;color:var(--txt2)">12 essential documents. Track completion status. Nothing missing.</p>
+    </div>
+    <div class="vault-grid" id="vaultGrid"></div>
+  </div>
+
+  <!-- ── PANEL: Knowledge Library ── -->
+  <div class="spanel" id="tab-knowledge">
+    <div style="text-align:center;margin-bottom:32px">
+      <h2 style="font-size:2rem;font-weight:600;margin-bottom:8px">Family Knowledge Library</h2>
+      <div class="divider"></div>
+      <p style="font-family:var(--ff-mono);font-size:.72rem;color:var(--txt2)">The books, manuals, and documents that must exist in physical form at your Ark property</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px" id="libFilters">
+      <button onclick="filterLib('all',this)" class="stab-btn active" style="flex:none;min-width:80px;font-size:.65rem">All</button>
+    </div>
+    <div class="gl lib-items" id="libTable"></div>
+  </div>
+
+  <!-- ── PANEL: Letter Generator ── -->
+  <div class="spanel" id="tab-letter">
+    <div style="text-align:center;margin-bottom:32px">
+      <h2 style="font-size:2rem;font-weight:600;margin-bottom:8px">Legacy Letter Generator</h2>
+      <div class="divider"></div>
+      <p style="font-family:var(--ff-mono);font-size:.72rem;color:var(--txt2)">Generate a structured Letter of Instruction / legacy letter to accompany your will</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px" class="will-form-grid">
+      <div>
+        <div class="will-section">
+          <div class="will-section-title">About You</div>
+          <div class="will-field"><label class="will-label">Your name</label><input class="will-input" id="lName" placeholder="e.g. James Harmon"/></div>
+          <div class="will-field"><label class="will-label">Primary heir / recipient name</label><input class="will-input" id="lHeir" placeholder="e.g. my children, Sarah & Marcus"/></div>
+          <div class="will-field"><label class="will-label">Your core defining value (one word)</label><input class="will-input" id="lValue" placeholder="e.g. Resilience, Honor, Truth"/></div>
+        </div>
+        <div class="will-section">
+          <div class="will-section-title">Your Ark & Legacy</div>
+          <div class="will-field"><label class="will-label">Why you built the Ark (2–3 sentences)</label><textarea class="will-textarea" id="lWhy" placeholder="I built the Ark because I believed..."></textarea></div>
+          <div class="will-field"><label class="will-label">Your greatest lesson (1 sentence)</label><input class="will-input" id="lLesson" placeholder="The most important thing I learned was..."/></div>
+          <div class="will-field"><label class="will-label">What you want them to protect above all</label><input class="will-input" id="lProtect" placeholder="e.g. the community, the land, each other"/></div>
+        </div>
+        <div class="will-section">
+          <div class="will-section-title">Tone</div>
+          <div class="will-field">
+            <label class="will-label">Letter tone</label>
+            <select class="will-select" id="lTone">
+              <option value="formal">Formal & Dignified</option>
+              <option value="warm">Warm & Personal</option>
+              <option value="direct">Direct & Practical</option>
+            </select>
+          </div>
+        </div>
+        <button class="gen-btn" onclick="generateLetter()">Generate My Legacy Letter →</button>
+      </div>
+      <div>
+        <div class="letter-output" id="letterOutput"></div>
+        <div style="display:none" id="letterCopy">
+          <button onclick="copyLetter()" style="margin-top:12px;width:100%;padding:10px;background:rgba(201,168,76,.1);border:1px solid var(--gold);border-radius:8px;color:var(--gold);font-family:var(--ff-mono);font-size:.7rem;cursor:pointer">Copy to Clipboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:80px"></div>
+</div>
+
+<!-- ── INTERACTION BLOCK ── -->
+<script>
+/* switchTab */
+function switchTab(id,btn){
+  document.querySelectorAll('.spanel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.stab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* toggleAcc */
+function toggleAcc(btn){
+  const panel=btn.nextElementSibling;
+  const isOpen=panel.classList.contains('open');
+  btn.closest('.gl').querySelectorAll('.acc-panel').forEach(p=>p.classList.remove('open'));
+  btn.closest('.gl').querySelectorAll('.acc-btn').forEach(b=>b.classList.remove('open'));
+  if(!isOpen){panel.classList.add('open');btn.classList.add('open')}
+}
+
+/* render progress */
+function renderProgress(){
+  const done=VAULT_ITEMS.filter(v=>v.status==='done').length;
+  const pending=VAULT_ITEMS.filter(v=>v.status==='pending').length;
+  const critical=VAULT_ITEMS.filter(v=>v.status==='critical').length;
+  const succDone=SUCCESSION_ROLES.filter(r=>r.status==='done').length;
+  document.getElementById('progressGrid').innerHTML=[
+    {num:done+'/'+VAULT_ITEMS.length,label:'Vault Documents Complete'},
+    {num:succDone+'/'+SUCCESSION_ROLES.length,label:'Succession Roles Assigned'},
+    {num:TRAINING_MATRIX.length,label:'Training Stages Defined'},
+    {num:critical,label:'Critical Gaps Remaining'},
+  ].map(p=>`<div class="gl prog-item">
+    <div class="prog-num" style="color:${p.label.includes('Gap')?'#e84040':'var(--gold)'}">${p.num}</div>
+    <div class="prog-label">${p.label}</div>
+  </div>`).join('');
+}
+
+/* render legal accordion */
+function renderLegal(){
+  document.getElementById('legalAccordion').innerHTML=LEGACY_DOCS.map(d=>`
+    <div>
+      <button class="acc-btn" onclick="toggleAcc(this)">
+        <span>${d.q}</span><span class="arr">▼</span>
+      </button>
+      <div class="acc-panel">
+        <div class="acc-inner" style="white-space:pre-line">${d.a}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* render training */
+function renderTraining(){
+  document.getElementById('trainGrid').innerHTML=TRAINING_MATRIX.map(t=>`
+    <div class="gl train-card" style="border-top:3px solid ${t.color}">
+      <div class="train-age">${t.age}</div>
+      <div class="train-title" style="color:${t.color}">${t.title}</div>
+      <ul class="train-list">${t.items.map(i=>`<li>${i}</li>`).join('')}</ul>
+    </div>`).join('');
+}
+
+/* render succession table */
+function renderSuccession(){
+  const statusMap={done:{color:'#c9a84c',label:'✓ Done'},pending:{color:'#9b6dff',label:'○ Pending'},critical:{color:'#e84040',label:'⚠ Critical'}};
+  document.getElementById('succTable').innerHTML=`
+    <thead><tr><th>Role</th><th>Current Holder</th><th>Designated Successor</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody>${SUCCESSION_ROLES.map(r=>`
+      <tr>
+        <td>${r.role}</td>
+        <td>${r.current}</td>
+        <td>${r.successor}</td>
+        <td><span class="status-dot" style="background:${statusMap[r.status].color}"></span><span style="color:${statusMap[r.status].color};font-family:var(--ff-mono);font-size:.7rem">${statusMap[r.status].label}</span></td>
+        <td>${r.notes}</td>
+      </tr>`).join('')}</tbody>`;
+}
+
+/* render vault */
+function renderVault(){
+  document.getElementById('vaultGrid').innerHTML=VAULT_ITEMS.map(v=>`
+    <div class="gl vault-card">
+      <div class="vault-icon">${v.icon}</div>
+      <div class="vault-name">${v.name}</div>
+      <span class="vault-status ${v.status}">${v.status==='done'?'✓ COMPLETE':v.status==='pending'?'○ PENDING':'⚠ CRITICAL'}</span>
+      <div class="vault-desc">${v.desc}</div>
+    </div>`).join('');
+}
+
+/* render library */
+let currentLibFilter='all';
+function renderLib(filter){
+  currentLibFilter=filter;
+  const cats=[...new Set(KNOWLEDGE_LIBRARY.map(i=>i.cat))];
+  // render filter buttons
+  const filterDiv=document.getElementById('libFilters');
+  filterDiv.innerHTML=`<button onclick="filterLib('all',this)" class="stab-btn ${filter==='all'?'active':''}" style="flex:none;min-width:80px;font-size:.65rem">All</button>`
+    +cats.map(c=>`<button onclick="filterLib('${c}',this)" class="stab-btn ${filter===c?'active':''}" style="flex:none;min-width:80px;font-size:.65rem">${c}</button>`).join('');
+  const data=filter==='all'?KNOWLEDGE_LIBRARY:KNOWLEDGE_LIBRARY.filter(i=>i.cat===filter);
+  const priColor={critical:'#e84040',high:'var(--gold)',medium:'var(--purple)'};
+  document.getElementById('libTable').innerHTML=data.map(i=>`
+    <div class="lib-item">
+      <div class="lib-cat">${i.cat}</div>
+      <div class="lib-title">${i.title}</div>
+      <span class="lib-format">${i.format}</span>
+      <span class="lib-priority" style="background:${priColor[i.priority]}15;color:${priColor[i.priority]};border:1px solid ${priColor[i.priority]}30">${i.priority.toUpperCase()}</span>
+    </div>`).join('');
+}
+function filterLib(cat,btn){
+  document.querySelectorAll('#libFilters .stab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLib(cat);
+}
+
+/* letter generator */
+function generateLetter(){
+  const name=document.getElementById('lName').value||'[Your Name]';
+  const heir=document.getElementById('lHeir').value||'my children';
+  const value=document.getElementById('lValue').value||'resilience';
+  const why=document.getElementById('lWhy').value||'I saw a world that was not prepared, and I refused to leave you unprepared.';
+  const lesson=document.getElementById('lLesson').value||'community is more valuable than any single resource.';
+  const protect=document.getElementById('lProtect').value||'each other and the community';
+  const tone=document.getElementById('lTone').value;
+
+  const openings={
+    formal:`To ${heir},\n\nI write this letter in full possession of my faculties and with deliberate intention. What follows is not a legal document — it is something more important: an account of what I believed, why I built what I built, and what I ask of you.`,
+    warm:`My dearest ${heir},\n\nIf you're reading this, then the time has come for you to carry what I've spent a lifetime building. I want you to know something before anything else: every single decision I made was made with you in mind.`,
+    direct:`${heir},\n\nThis is a letter of instruction, not sentiment. I've made my emotional communications in life. What this letter contains is what I need you to know and do. Read it carefully. Then read it again.`
+  };
+
+  const closings={
+    formal:`I leave you not wealth alone, but a way of seeing the world. The systems I built are only as strong as the people who tend them. Be worthy of what has been entrusted to you.\n\nWith all the dignity I possessed,\n${name}`,
+    warm:`Everything I built — the land, the community, the knowledge, the preparation — was an act of love. It is how I said: you matter enough for me to sacrifice comfort and normalcy and ease. I hope you feel that.\n\nWith all my love,\n${name}`,
+    direct:`You now own the outcome. The tools are there. The knowledge is there. The community is there. Whether you use them well is entirely up to you. I expect you to.\n\n— ${name}`
+  };
+
+  const letter=`${openings[tone]}\n\n─────────────────────────\n\nWhy I Built the Ark\n\n${why}\n\nI was not wrong to prepare. I may have been wrong about the specific trigger. I was not wrong about the principle: that the world is fragile, that systems fail, and that the only meaningful response to that truth is preparation — not fear.\n\n─────────────────────────\n\nThe Most Important Thing I Learned\n\nAfter everything — ${lesson}\n\nI learned this not from theory, but from watching what happened to people who did not believe it. Do not repeat their mistakes.\n\n─────────────────────────\n\nWhat I Ask You to Protect\n\nAbove the land. Above the money. Above the equipment and the plans:\n\nProtect ${protect}.\n\nEverything else can be rebuilt. That cannot.\n\n─────────────────────────\n\nOn the Value I Lived By\n\n${value.charAt(0).toUpperCase()+value.slice(1)} was not just a word to me. It was a daily practice. A thing I chose in the moments when it would have been easier not to choose it.\n\nI am asking you to carry this forward. Not as an abstraction. As a lived practice, every day, especially on the days when it is most inconvenient.\n\n─────────────────────────\n\nFor the Situations I Couldn't Anticipate\n\nYou will face things I could not foresee. When you do, ask yourself:\n• What would preserve the community?\n• What would I be proud of if I could see it?\n• What is the decision that I could defend to someone I deeply respect?\n\nMake that decision. Don't wait for certainty.\n\n─────────────────────────\n\n${closings[tone]}`;
+
+  const out=document.getElementById('letterOutput');
+  out.innerHTML=`<p style="white-space:pre-wrap;font-family:var(--ff);line-height:2;color:var(--txt2)">${letter}</p>`;
+  out.classList.add('show');
+  document.getElementById('letterCopy').style.display='block';
+  out.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function copyLetter(){
+  const text=document.getElementById('letterOutput').innerText;
+  navigator.clipboard.writeText(text).then(()=>alert('Letter copied to clipboard.'));
+}
+
+/* init */
+renderProgress();
+renderLegal();
+renderTraining();
+renderSuccession();
+renderVault();
+renderLib('all');
+
+/* responsive: collapse will form on mobile */
+const mq=window.matchMedia('(max-width:680px)');
+function adjustLayout(e){
+  const g=document.querySelector('.will-form-grid');
+  if(g) g.style.gridTemplateColumns=e.matches?'1fr':'1fr 1fr';
+}
+mq.addEventListener('change',adjustLayout);
+adjustLayout(mq);
+</script>
+</body>
+</html>

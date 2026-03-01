@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>10.4 — Visa Application Costs | Ark v3 (Standalone)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0c10;--s1:#0f1218;--s2:#161b24;--gl:rgba(255,255,255,.04);--glb:rgba(255,255,255,.08);--acc:#00e5a0;--acc2:#00b8ff;--acc3:#ff6b35;--warn:#ffb300;--dng:#ff3d5a;--txt:#e0e0e0;--txt2:#8a8fa8;--rad:12px;--glow:0 0 20px rgba(0,229,160,.15)}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.65;overflow-x:hidden;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:clamp(1.6rem,4vw,2.4rem);background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.sub{color:var(--txt2);font-size:.95rem;margin-bottom:28px}
+h2{font-size:1.25rem;color:var(--acc);margin-bottom:14px}
+h3{font-size:1.05rem;color:var(--acc2);margin-bottom:8px}
+.gl{background:var(--gl);border:1px solid var(--glb);border-radius:var(--rad);padding:22px;margin-bottom:18px;backdrop-filter:blur(12px)}
+.gl:hover{border-color:rgba(0,229,160,.18);box-shadow:var(--glow)}
+.stab{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.stab button{background:var(--gl);border:1px solid var(--glb);color:var(--txt2);padding:9px 18px;border-radius:8px;cursor:pointer;font-size:.85rem;transition:.25s}
+.stab button:hover{border-color:var(--acc);color:var(--acc)}
+.stab button.on{background:rgba(0,229,160,.12);border-color:var(--acc);color:var(--acc);box-shadow:0 0 10px rgba(0,229,160,.15)}
+.spanel{display:none;animation:fadeUp .35s ease}.spanel.show{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.acc-h{background:var(--s2);border:1px solid var(--glb);border-radius:8px;padding:13px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;transition:.2s;font-size:.92rem}
+.acc-h:hover{border-color:var(--acc);color:var(--acc)}
+.acc-h .arrow{transition:transform .3s;font-size:.75rem;color:var(--acc)}
+.acc-h.open .arrow{transform:rotate(180deg)}
+.acc-b{max-height:0;overflow:hidden;transition:max-height .4s ease;padding:0 18px}
+.acc-b.open{max-height:4000px;padding:14px 18px}
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin:10px 0}
+th{background:var(--s2);color:var(--acc);padding:10px 8px;text-align:left;border-bottom:1px solid var(--glb);position:sticky;top:0}
+td{padding:9px 8px;border-bottom:1px solid rgba(255,255,255,.04)}
+tr:hover td{background:rgba(0,229,160,.03)}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.72rem;font-weight:600}
+.badge-g{background:rgba(0,229,160,.15);color:var(--acc)}
+.badge-b{background:rgba(0,184,255,.15);color:var(--acc2)}
+.badge-w{background:rgba(255,179,0,.15);color:var(--warn)}
+.badge-d{background:rgba(255,61,90,.15);color:var(--dng)}
+.badge-o{background:rgba(255,107,53,.15);color:var(--acc3)}
+.tag{display:inline-block;margin:2px 4px 2px 0;padding:2px 8px;border-radius:6px;font-size:.72rem;background:var(--s2);color:var(--txt2);border:1px solid var(--glb)}
+.note{font-size:.8rem;color:var(--txt2);border-left:3px solid var(--warn);padding:8px 12px;margin:10px 0;background:rgba(255,179,0,.04)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.stat-card{background:var(--s2);border:1px solid var(--glb);border-radius:10px;padding:16px;text-align:center}
+.stat-card .sv{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-card .sl{font-size:.78rem;color:var(--txt2);margin-top:4px}
+.calc-row{display:flex;align-items:center;gap:12px;margin:8px 0;flex-wrap:wrap}
+.calc-row label{min-width:180px;font-size:.84rem;color:var(--txt2)}
+.calc-row select,.calc-row input{background:var(--s2);color:var(--txt);border:1px solid var(--glb);border-radius:8px;padding:9px 12px;font-size:.88rem;width:220px}
+.calc-row select:focus,.calc-row input:focus{outline:none;border-color:var(--acc)}
+.btn{padding:10px 24px;border-radius:8px;border:none;cursor:pointer;font-size:.88rem;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#000;font-weight:700}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.result-box{background:linear-gradient(135deg,rgba(0,229,160,.06),rgba(0,184,255,.04));border:1px solid var(--acc);border-radius:var(--rad);padding:20px;margin:16px 0}
+.bar-h{display:flex;align-items:center;gap:8px;margin:6px 0}
+.bar-h .bl{min-width:140px;font-size:.8rem;color:var(--txt2)}
+.bar-h .bw{flex:1;height:8px;background:var(--s2);border-radius:4px;overflow:hidden}
+.bar-h .bf{height:100%;border-radius:4px}
+.bar-h .bv{min-width:70px;text-align:right;font-size:.8rem;font-weight:600}
+.ck{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:.84rem;cursor:pointer}
+.ck input{accent-color:var(--acc);width:16px;height:16px}
+.ref{font-size:.72rem;color:var(--txt2);margin-top:18px;padding-top:12px;border-top:1px solid var(--glb)}
+@media(max-width:600px){.calc-row{flex-direction:column;align-items:flex-start}.calc-row select,.calc-row input{width:100%}.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap" id="visa-costs">
+
+<h1>10.4 — Visa Application Costs</h1>
+<p class="sub">30-Country Cost Breakdown · Total Cost Builder · Hidden Fee Exposé · Budget Tier Planning · CBI/Golden Visa Investment Tracker</p>
+
+<!-- Stats -->
+<div class="grid3" style="margin-bottom:20px">
+<div class="stat-card"><div class="sv">$350–$8k</div><div class="sl">Skills Visa Range</div></div>
+<div class="stat-card"><div class="sv">$100k–$10M</div><div class="sl">Golden / Investor Visa</div></div>
+<div class="stat-card"><div class="sv">$2k–$15k</div><div class="sl">Avg. Legal Fees</div></div>
+<div class="stat-card"><div class="sv">30–120%</div><div class="sl">Hidden Cost Markup</div></div>
+</div>
+
+<div class="stab" id="mainTabs">
+<button class="on" onclick="switchTab('mainTabs','mp','mp-matrix')">Cost Matrix</button>
+<button onclick="switchTab('mainTabs','mp','mp-builder')">Total Cost Builder</button>
+<button onclick="switchTab('mainTabs','mp','mp-hidden')">Hidden Fees</button>
+<button onclick="switchTab('mainTabs','mp','mp-golden')">Golden / CBI Programs</button>
+<button onclick="switchTab('mainTabs','mp','mp-budget')">Budget Tier Plans</button>
+</div>
+
+<!-- ═══ COST MATRIX ═══ -->
+<div class="spanel show" id="mp-matrix">
+<div class="gl">
+<h2>Visa Application Cost Matrix — 30 Countries</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:8px">Government fees, typical legal costs, and total estimated spend by visa category.</p>
+
+<div class="stab" id="catFilter">
+<button class="on" onclick="filterCat('all')">All Types</button>
+<button onclick="filterCat('skills')">Skills / Work</button>
+<button onclick="filterCat('invest')">Investor / Golden</button>
+<button onclick="filterCat('nomad')">Digital Nomad</button>
+<button onclick="filterCat('retire')">Retirement</button>
+<button onclick="filterCat('cbi')">Citizenship by Investment</button>
+</div>
+
+<div style="overflow-x:auto"><table id="costMatrix"></table></div>
+<div class="note">All amounts in USD. Government fees are official published rates. Legal fees are market mid-range. Total includes medical, translations, apostilles, and biometrics where applicable.</div>
+</div>
+</div>
+
+<!-- ═══ TOTAL COST BUILDER ═══ -->
+<div class="spanel" id="mp-builder">
+<div class="gl">
+<h2>🧮 Total Immigration Cost Builder</h2>
+<p style="font-size:.85rem;color:var(--txt2);margin-bottom:14px">Select your destination and circumstances to calculate the true all-in cost.</p>
+
+<div class="calc-row"><label>Destination Country</label><select id="bCountry" onchange="updateBuilder()"></select></div>
+<div class="calc-row"><label>Visa Category</label><select id="bCategory" onchange="updateBuilder()">
+<option value="skills">Skills / Work Visa</option>
+<option value="invest">Investor / Golden Visa</option>
+<option value="nomad">Digital Nomad</option>
+<option value="retire">Retirement / Passive Income</option>
+</select></div>
+<div class="calc-row"><label>Family Size</label><select id="bFamily" onchange="updateBuilder()">
+<option value="1">Solo applicant</option>
+<option value="2">Couple (2)</option>
+<option value="3">Family of 3</option>
+<option value="4">Family of 4</option>
+<option value="5">Family of 5+</option>
+</select></div>
+
+<h3 style="margin:14px 0 8px">Optional Add-Ons</h3>
+<div id="addOns"></div>
+
+<div style="margin-top:14px"><button class="btn btn-primary" onclick="calcBuild()">📊 Calculate Total Cost</button></div>
+<div id="buildResult" style="display:none"></div>
+</div>
+</div>
+
+<!-- ═══ HIDDEN FEES ═══ -->
+<div class="spanel" id="mp-hidden">
+<div class="gl">
+<h2>⚠️ Hidden Fee Exposé</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:12px">The costs that immigration agents and government websites don't advertise.</p>
+<div id="hiddenAcc"></div>
+</div>
+<div class="gl">
+<h2>Fee Avoidance & Cost-Cutting Strategies</h2>
+<div id="savingsAcc"></div>
+</div>
+</div>
+
+<!-- ═══ GOLDEN / CBI ═══ -->
+<div class="spanel" id="mp-golden">
+<div class="gl">
+<h2>Golden Visa & CBI Investment Programs</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:12px">Full cost breakdown including investment amount, government fees, due diligence, and ongoing obligations.</p>
+<div style="overflow-x:auto"><table id="goldenTable"></table></div>
+</div>
+<div class="gl">
+<h2>CBI Program Risk Assessment</h2>
+<div id="cbiRiskAcc"></div>
+</div>
+</div>
+
+<!-- ═══ BUDGET TIERS ═══ -->
+<div class="spanel" id="mp-budget">
+<div class="gl">
+<h2>Budget Tier Immigration Plans</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:14px">Optimized relocation strategies organized by total available budget.</p>
+<div id="tierCards"></div>
+</div>
+</div>
+
+<div class="ref">Ark Collective v3 § 10.4 · Visa costs current as of early 2026 · Fees subject to change · Not immigration advice · Consult licensed professionals</div>
+</div>
+
+<script>
+/* ═══ DATA ═══ */
+const D={
+costs:[
+{c:"🇳🇿 New Zealand",cats:{skills:{gov:680,legal:4000,total:6500},invest:{gov:4600,legal:12000,total:22000},nomad:{gov:0,legal:0,total:0}},ark:"T1",speed:"6–12 mo",note:"Skilled Migrant Category; Investor 1 & 2"},
+{c:"🇵🇹 Portugal",cats:{skills:{gov:170,legal:3000,total:4800},invest:{gov:5500,legal:8000,total:16000},nomad:{gov:220,legal:1500,total:2800},retire:{gov:170,legal:2500,total:4000}},ark:"T1",speed:"4–8 mo",note:"D7 / Golden Visa / Digital Nomad"},
+{c:"🇺🇾 Uruguay",cats:{skills:{gov:350,legal:2000,total:3500},retire:{gov:350,legal:1800,total:3200}},ark:"T1",speed:"2–4 mo",note:"Income-proof residency; very accessible"},
+{c:"🇨🇷 Costa Rica",cats:{skills:{gov:250,legal:2500,total:4200},retire:{gov:250,legal:2000,total:3500}},ark:"T2",speed:"3–6 mo",note:"Rentista ($2,500/mo proof) or Pensionado"},
+{c:"🇵🇦 Panama",cats:{skills:{gov:800,legal:3000,total:5500},invest:{gov:1000,legal:5000,total:9000},retire:{gov:300,legal:2000,total:3500}},ark:"T2",speed:"2–4 mo",note:"Friendly Nations; Qualified Investor ($300k min)"},
+{c:"🇵🇾 Paraguay",cats:{skills:{gov:200,legal:1200,total:2000},retire:{gov:200,legal:1000,total:1800}},ark:"T2",speed:"1–3 mo",note:"$5,500 bank deposit; cheapest pathway in Americas"},
+{c:"🇨🇦 Canada",cats:{skills:{gov:1365,legal:5000,total:8500}},ark:"T2",speed:"8–14 mo",note:"Express Entry; Provincial Nominee; LMIA-based"},
+{c:"🇦🇺 Australia",cats:{skills:{gov:4640,legal:5000,total:12000},invest:{gov:8000,legal:15000,total:28000}},ark:"T1",speed:"8–16 mo",note:"Points-based; Subclass 189/190/491; SIV $5M AUD"},
+{c:"🇮🇪 Ireland",cats:{skills:{gov:1000,legal:3500,total:6000},invest:{gov:1500,legal:8000,total:14000}},ark:"T2",speed:"6–10 mo",note:"Critical Skills; IIP (€1M min investment)"},
+{c:"🇬🇷 Greece",cats:{invest:{gov:2500,legal:6000,total:12000},nomad:{gov:150,legal:1500,total:2800},retire:{gov:150,legal:2000,total:3200}},ark:"T2",speed:"2–5 mo",note:"Golden Visa €250k property; DN visa available"},
+{c:"🇪🇸 Spain",cats:{skills:{gov:400,legal:3000,total:5200},invest:{gov:1500,legal:7000,total:12000},nomad:{gov:250,legal:2000,total:3500}},ark:"T2",speed:"3–8 mo",note:"Non-lucrative; Golden Visa €500k; Beckham Law"},
+{c:"🇲🇹 Malta",cats:{invest:{gov:40000,legal:15000,total:60000},skills:{gov:280,legal:3000,total:5000}},ark:"T2",speed:"4–8 mo",note:"MPRP residency; Global Residence Programme"},
+{c:"🇨🇾 Cyprus",cats:{invest:{gov:2000,legal:8000,total:14000},nomad:{gov:200,legal:1500,total:2800}},ark:"T2",speed:"2–4 mo",note:"Fast-track business; DN visa; no CBI since 2020"},
+{c:"🇬🇪 Georgia",cats:{skills:{gov:100,legal:800,total:1200},nomad:{gov:0,legal:500,total:800}},ark:"T2",speed:"<1 mo",note:"Remotely from Georgia program; visa-free 1 yr for many"},
+{c:"🇪🇪 Estonia",cats:{skills:{gov:160,legal:2000,total:3200},nomad:{gov:100,legal:1000,total:1800}},ark:"T2",speed:"2–4 mo",note:"Digital Nomad; Startup visa; e-Residency (not visa)"},
+{c:"🇲🇾 Malaysia",cats:{invest:{gov:2000,legal:4000,total:8500},retire:{gov:1500,legal:3000,total:6000}},ark:"T2",speed:"4–8 mo",note:"MM2H restructured 2021; higher requirements now"},
+{c:"🇹🇭 Thailand",cats:{invest:{gov:2000,legal:3000,total:7000},retire:{gov:600,legal:1500,total:3000},nomad:{gov:1500,legal:1000,total:3500}},ark:"T3",speed:"2–4 mo",note:"LTR visa; Retirement (O-A); DTV 2024 nomad visa"},
+{c:"🇸🇬 Singapore",cats:{skills:{gov:350,legal:5000,total:8000},invest:{gov:7500,legal:25000,total:40000}},ark:"T1",speed:"3–6 mo",note:"Employment Pass; GIP ($10M SGD min); very competitive"},
+{c:"🇲🇽 Mexico",cats:{skills:{gov:180,legal:1500,total:2800},retire:{gov:180,legal:1200,total:2200}},ark:"T3",speed:"1–3 mo",note:"Temporal/Permanente via income or assets proof"},
+{c:"🇨🇱 Chile",cats:{skills:{gov:150,legal:1800,total:3000},nomad:{gov:150,legal:1200,total:2200}},ark:"T2",speed:"2–4 mo",note:"Tech visa; subject-to-contract work permit"},
+{c:"🇧🇬 Bulgaria",cats:{skills:{gov:150,legal:1500,total:2600},invest:{gov:2000,legal:5000,total:9000}},ark:"T2",speed:"2–5 mo",note:"EU member; flat 10% tax; investor residency"},
+{c:"🇲🇪 Montenegro",cats:{skills:{gov:200,legal:1500,total:2800},invest:{gov:7500,legal:5000,total:15000}},ark:"T2",speed:"2–4 mo",note:"CBI via €450k property investment (+€200k donation)"},
+{c:"🇧🇿 Belize",cats:{retire:{gov:1500,legal:1000,total:3000}},ark:"T3",speed:"1–2 mo",note:"QRP: $2k/mo income proof; English-speaking"},
+{c:"🇪🇨 Ecuador",cats:{retire:{gov:400,legal:1200,total:2200},invest:{gov:500,legal:2000,total:3800}},ark:"T3",speed:"2–4 mo",note:"Low thresholds; pensionado $1,400/mo"},
+{c:"🇨🇭 Switzerland",cats:{skills:{gov:500,legal:8000,total:12000}},ark:"T1",speed:"6–12 mo",note:"Permit B; highly restricted; cantonal quotas"},
+],
+
+golden:[
+{c:"🇵🇹 Portugal",prog:"Golden Visa",invest:"€500k+ (fund/business)",gov:5500,dd:0,legal:8000,annual:500,path:"5 yr → citizenship",total:"~€520k+",risk:"Low",note:"Property route closed 2023; fund/capital route active"},
+{c:"🇬🇷 Greece",prog:"Golden Visa",invest:"€250k property (€500k in some areas)",gov:2500,dd:0,legal:6000,annual:300,path:"5 yr → renew (no citizenship path direct)",total:"~€260k+",risk:"Low",note:"Cheapest EU golden visa; rising thresholds expected"},
+{c:"🇪🇸 Spain",prog:"Golden Visa",invest:"€500k property",gov:1500,dd:0,legal:7000,annual:400,path:"5 yr → PR; 10 yr → citizenship",total:"~€510k+",risk:"Low",note:"Under review/possible closure; act fast if pursuing"},
+{c:"🇲🇹 Malta",prog:"MPRP / GRP",invest:"€300k property (buy) or €10k/yr (rent) + contribution",gov:40000,dd:7500,legal:15000,annual:2000,path:"5 yr → PR",total:"~€375k+",risk:"Low–Med",note:"Complex; Malta IIP for citizenship was €750k+"},
+{c:"🇦🇪 UAE",prog:"Golden Visa",invest:"AED 2M property (~$545k) or AED 10M business",gov:3800,dd:0,legal:5000,annual:0,path:"10 yr renewable; no citizenship",total:"~$555k+",risk:"Low",note:"10-year renewable; no path to citizenship typically"},
+{c:"🇦🇬 Antigua",prog:"CBI",invest:"$230k donation or $300k property",gov:50000,dd:7500,legal:15000,annual:0,path:"Immediate citizenship + passport",total:"~$300k+",risk:"Med",note:"Second passport in 3–6 months; visa-free 150+ countries"},
+{c:"🇩🇲 Dominica",prog:"CBI",invest:"$200k donation",gov:50000,dd:7500,legal:10000,annual:0,path:"Immediate citizenship",total:"~$270k+",risk:"Med",note:"Cheapest CBI; limited travel value vs Caribbean peers"},
+{c:"🇰🇳 St. Kitts",prog:"CBI",invest:"$250k donation or $400k property",gov:50000,dd:7500,legal:12000,annual:0,path:"Immediate citizenship",total:"~$320k+",risk:"Med",note:"Oldest CBI program; good reputation; EU visa waiver"},
+{c:"🇱🇨 St. Lucia",prog:"CBI",invest:"$240k donation or $300k property",gov:50000,dd:7500,legal:12000,annual:0,path:"Immediate citizenship",total:"~$310k+",risk:"Med",note:"Government bonds option also available ($300k)"},
+{c:"🇬🇩 Grenada",prog:"CBI",invest:"$235k donation or $350k property",gov:50000,dd:7500,legal:12000,annual:0,path:"Immediate citizenship; E-2 treaty with US",total:"~$305k+",risk:"Low–Med",note:"Only Caribbean CBI with US E-2 treaty access"},
+{c:"🇹🇷 Turkey",prog:"CBI",invest:"$400k property",gov:1500,dd:0,legal:8000,annual:0,path:"Citizenship in ~6 mo",total:"~$410k+",risk:"Med–High",note:"Geopolitical risk; but E-2 treaty; NATO member"},
+{c:"🇯🇴 Jordan",prog:"CBI",invest:"$750k Treasury Bond (5 yr)",gov:5000,dd:0,legal:10000,annual:0,path:"Citizenship",total:"~$765k+",risk:"Med",note:"Newer program; Middle East access"},
+{c:"🇲🇪 Montenegro",prog:"CBI",invest:"€450k property + €200k donation (north) / €100k (south)",gov:15000,dd:7500,legal:8000,annual:0,path:"Citizenship; potential EU access",total:"~€680k+",risk:"Med",note:"EU candidacy makes this a speculative EU passport play"},
+],
+
+hidden:[
+{name:"Translation & Apostille Fees",cost:"$500–$3,000",desc:"Every document (birth cert, marriage cert, diplomas, police clearances, bank statements) needs certified translation AND apostille. Cost per document: $50–$200 for translation + $20–$100 for apostille. Family of 4 may need 20+ documents. Expedited apostille services charge 3–5x more."},
+{name:"Medical Examinations",cost:"$200–$800 per person",desc:"Most countries require immigration medical exams from panel-approved physicians only. Includes chest X-ray, blood tests, vaccination records. Additional tests for applicants 50+ or with pre-existing conditions. Children need separate exams. Not covered by health insurance."},
+{name:"Health Insurance Mandates",cost:"$2,000–$8,000/yr per person",desc:"Many countries require private health insurance as a visa condition. Portugal D7: full coverage mandatory. Spain: comprehensive private policy required. EU Golden Visas typically mandate local private cover. Family of 4 can easily exceed $15k–$25k annually."},
+{name:"Biometric & Processing Surcharges",cost:"$100–$500",desc:"UK Immigration Health Surcharge alone is £1,035/yr per person. Australia biometrics: $85. Premium processing fees: US $2,805 (H-1B); Canada $1,500 (Express Entry). These are in addition to the base visa fee."},
+{name:"Bank Statement & Financial Proof Costs",cost:"$200–$1,500",desc:"Certified bank statements ($25–$50 each x 6–12 months). Notarized financial affidavits ($100–$300). CPA letters confirming income ($300–$800). Some countries require funds held in local banks before application, incurring transfer fees and FX spreads."},
+{name:"Property-Related Golden Visa Costs",cost:"5–12% of property value",desc:"Beyond the investment itself: property transfer tax (2–10%), legal conveyancing (1–2%), notary fees (0.5–1%), land registry (0.5–1%), property survey ($500–$2,000), annual property taxes, and mandatory maintenance. A €500k Golden Visa property actually costs €540k–€560k all-in."},
+{name:"Renewal & Maintenance Fees",cost:"$500–$5,000/yr",desc:"Most residency permits need periodic renewal: biennial or every 5 years. Each renewal has government fees ($200–$1,000), legal fees ($500–$2,000), and updated documentation costs. Missing a renewal can void your status. Budget 10–15% of initial cost annually for maintenance."},
+{name:"Agent & Fixer Commissions",cost:"$2,000–$25,000",desc:"Immigration agents charge 15–40% markup on total costs. Unlicensed 'fixers' in some countries charge $5k–$25k for 'guaranteed approval' (often scams). Licensed agents: $3k–$8k for standard visas, $10k–$25k for golden visas. Some embed commissions in property prices."},
+{name:"Opportunity Cost & Processing Delays",cost:"Variable ($5k–$50k+)",desc:"Average processing delays of 2–6 months beyond estimates. Each month of delay = lost income potential in destination, extended rent in origin country, expiring medical exams ($200–$800 to redo), and expired police clearances ($50–$150 to redo). Budget 50% more time than quoted."},
+{name:"Tax Advisory & Compliance Setup",cost:"$3,000–$15,000",desc:"Cross-border tax structuring advice before move: $3k–$10k. Departure tax returns: $1k–$5k. Setting up compliant structures in destination: $2k–$8k. Annual ongoing compliance in both jurisdictions first year: $2k–$5k. See § 10.3 for full tax implications."}
+],
+
+savings:[
+{name:"DIY Application Preparation",desc:"Government application forms and checklists are public. Many applicants can prepare their own applications using official guides, saving $2k–$8k in legal fees. Use lawyers only for review ($500–$1,000 flat) rather than full service. Risk: errors can cause rejection. Best for straightforward categories (retirement, digital nomad). Not recommended for complex investor or skills visas."},
+{name:"Group Application Discounts",desc:"When multiple families apply together through the same law firm, negotiate 15–30% group discounts. Some firms offer 'community rates' for Ark-style groups of 5+ families relocating together. Also reduces per-family costs for shared expenses like property surveys and due diligence."},
+{name:"Self-Apostille & Translation",desc:"Apostilles can be obtained directly from your country's competent authority ($5–$20 vs $50–$100 through an agent). Many translation services on platforms like Gengo or TranslatorsCafe charge 30–60% less than certified immigration translators. Verify the destination accepts the specific certification."},
+{name:"Timing Optimization",desc:"Apply during off-peak periods (January–March for most programs). Fee increases are announced in advance — file before hikes take effect. Portugal Golden Visa increased thresholds in 2023; early filers saved €250k+. Monitor program announcements and government gazettes."},
+{name:"Dual-Track Applications",desc:"Apply to 2 programs simultaneously as insurance. The second application's marginal cost ($3k–$5k) is far less than the cost of starting over if the first fails. Best combinations: one fast (Paraguay, Georgia) + one preferred (NZ, Portugal). First approval becomes your base; withdraw the other."},
+{name:"Leverage Existing Assets",desc:"Some Golden Visa programs accept pre-existing property or business investments. If you already own qualifying property in Greece, Portugal, or Spain, you may already meet investment thresholds. Audit existing assets against program requirements before spending on new investments."}
+],
+
+cbiRisks:[
+{name:"EU / OECD Crackdown Risk",desc:"EU has formally opposed CBI programs, pressuring member states and candidates to close them. Cyprus CBI closed 2020. Bulgaria closed 2022. Montenegro CBI under scrutiny during EU accession. Risk: program closure with grandfathering period may be short. Mitigation: apply to programs in stable non-EU jurisdictions or use existing programs before sunset."},
+{name:"US / UK Visa Revocation Risk",desc:"CBI passport holders from some jurisdictions face increased scrutiny for US/UK visas. In extreme cases, visa-free arrangements can be revoked (as happened with some Caribbean nations temporarily). Mitigation: maintain a clean primary passport alongside CBI passport. Use CBI for specific travel, not as sole document."},
+{name:"Investment Loss / Illiquidity",desc:"Property-route CBI requires holding real estate 3–7 years minimum, often in illiquid markets with 10–20% resale discounts. Development projects marketed for CBI can fail. Donation-route investments are non-recoverable. Mitigation: prefer donation route if passport is primary goal; real estate only if genuine utility."},
+{name:"Reputational / Compliance Risk",desc:"CBI programs attract money laundering scrutiny. Being associated with a program later found to have accepted illicit funds can create banking, tax, and travel complications. Mitigation: choose programs with rigorous due diligence (St. Kitts has best track record). Maintain all compliance documentation. Disclose CBI nationality to banks proactively."},
+{name:"Program Rule Changes",desc:"Governments unilaterally change CBI terms: increase prices, add restrictions, extend processing. Turkey raised threshold from $250k to $400k overnight. Dominica has increased fees multiple times. Mitigation: budget 15–20% above current quoted costs. Complete process as quickly as possible once started."}
+],
+
+tiers:[
+{name:"Bootstrap Tier ($2k–$10k)",budget:"$2,000 – $10,000",best:["🇵🇾 Paraguay — $1,800–$2,000","🇬🇪 Georgia — $800–$1,200","🇲🇽 Mexico — $2,200–$2,800","🇪🇨 Ecuador — $2,200–$3,800","🇧🇿 Belize — $3,000"],strategy:"Target territorial tax jurisdictions with low financial proof requirements. DIY applications, self-apostille, budget translations. Focus on income-proof residencies. Ideal for remote workers, freelancers, retirees with modest pensions. Timeline: 1–4 months.",color:"var(--acc2)"},
+{name:"Standard Tier ($10k–$50k)",budget:"$10,000 – $50,000",best:["🇵🇹 Portugal D7 — $4,800 + living","🇨🇷 Costa Rica — $3,500–$4,200","🇪🇪 Estonia DN — $1,800–$3,200","🇳🇿 New Zealand Skilled — $6,500","🇨🇦 Canada Express — $8,500"],strategy:"Can afford professional legal support. Target skills-based or digital nomad visas in Tier 1–2 Ark countries. Budget includes first 3 months living costs in destination. May be able to file dual-track applications for insurance. Timeline: 3–12 months.",color:"var(--acc)"},
+{name:"Investor Tier ($50k–$500k)",budget:"$50,000 – $500,000",best:["🇬🇷 Greece Golden — €260k+","🇵🇹 Portugal Golden — €520k+","🇵🇦 Panama Investor — $210k+","🇹🇷 Turkey CBI — $410k+","🇪🇸 Spain Golden — €510k+"],strategy:"Access to golden visas and investor categories. Full legal team. Can secure EU residency through property investment. Consider dual-track golden visa (e.g., Greece + Panama) for EU + Americas coverage. Negotiate property prices for CBI. Timeline: 3–8 months.",color:"var(--warn)"},
+{name:"Ultra Tier ($500k–$10M+)",budget:"$500,000 – $10M+",best:["🇬🇩 Grenada CBI — $305k + US E-2","🇲🇹 Malta — €375k+","🇸🇬 Singapore GIP — $10M SGD","🇦🇺 Australia SIV — $5M AUD","🇨🇭 Switzerland Lump-Sum"],strategy:"All pathways open. Can secure multiple citizenships simultaneously. Comprehensive tax planning with offshore structures (see § 10.3). Private immigration attorneys on retainer. Advance family succession planning. Multiple safe zone properties across Ark tiers. Timeline: as fast as 3 months (Caribbean CBI) to 12 months (Singapore GIP).",color:"var(--dng)"}
+]
+};
+
+/* ═══ INTERACTIONS ═══ */
+function switchTab(barId,prefix,target){
+const bar=document.getElementById(barId);
+bar.querySelectorAll('button').forEach((b,i)=>{
+const panels=document.querySelectorAll(`[id^="${prefix}-"]`);
+if(panels[i]&&panels[i].id===target){b.classList.add('on');panels[i].classList.add('show')}
+else if(panels[i]){b.classList.remove('on');panels[i].classList.remove('show')}
+});
+}
+function toggleAcc(el){
+const b=el.nextElementSibling;const o=b.classList.contains('open');
+el.parentElement.querySelectorAll('.acc-b').forEach(x=>x.classList.remove('open'));
+el.parentElement.querySelectorAll('.acc-h').forEach(x=>x.classList.remove('open'));
+if(!o){b.classList.add('open');el.classList.add('open')}
+}
+
+let activeCat='all';
+function filterCat(f){
+activeCat=f;
+document.querySelectorAll('#catFilter button').forEach(b=>b.classList.remove('on'));
+event.target.classList.add('on');
+renderCostMatrix();
+}
+
+/* ═══ RENDER ═══ */
+
+function renderCostMatrix(){
+const t=document.getElementById('costMatrix');
+let rows=[];
+D.costs.forEach(c=>{
+Object.entries(c.cats).forEach(([cat,v])=>{
+if(activeCat==='all'||activeCat===cat){
+rows.push({country:c.c,cat,gov:v.gov,legal:v.legal,total:v.total,ark:c.ark,speed:c.speed,note:c.note});
+}
+});
+});
+let h='<thead><tr><th>Country</th><th>Category</th><th>Gov Fee</th><th>Legal</th><th>Est. Total</th><th>Ark</th><th>Speed</th></tr></thead><tbody>';
+rows.sort((a,b)=>a.total-b.total).forEach(r=>{
+const catLabel={skills:'Skills',invest:'Investor',nomad:'Nomad',retire:'Retire'}[r.cat]||r.cat;
+const cc=r.total<3000?'var(--acc)':r.total<8000?'var(--acc2)':r.total<15000?'var(--warn)':'var(--dng)';
+const ac=r.ark==='T1'?'badge-g':r.ark==='T2'?'badge-b':'badge-w';
+const catBadge={skills:'badge-b',invest:'badge-w',nomad:'badge-g',retire:'badge-o'}[r.cat]||'badge-b';
+h+=`<tr><td style="font-weight:600;white-space:nowrap">${r.country}</td><td><span class="badge ${catBadge}">${catLabel}</span></td><td>$${r.gov.toLocaleString()}</td><td>$${r.legal.toLocaleString()}</td><td style="color:${cc};font-weight:700">$${r.total.toLocaleString()}</td><td><span class="badge ${ac}">${r.ark}</span></td><td style="font-size:.78rem">${r.speed}</td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+}
+renderCostMatrix();
+
+// Builder country select
+(function(){
+const s=document.getElementById('bCountry');
+s.innerHTML='<option value="">— Select —</option>';
+D.costs.forEach((c,i)=>{s.innerHTML+=`<option value="${i}">${c.c.replace(/[^\w\s]/g,'').trim()}</option>`});
+})();
+
+// Add-on checkboxes
+const addOns=[
+{id:"ao_legal",label:"Full-service immigration lawyer",cost:5000},
+{id:"ao_translate",label:"Document translations (est. 10 docs)",cost:1500},
+{id:"ao_apostille",label:"Apostille services",cost:800},
+{id:"ao_medical",label:"Medical examinations (per person)",cost:400},
+{id:"ao_insurance",label:"First year health insurance (per person)",cost:3000},
+{id:"ao_tax",label:"Cross-border tax advisory",cost:5000},
+{id:"ao_reloc",label:"Relocation logistics (shipping, flights)",cost:8000},
+{id:"ao_agent",label:"Immigration agent / fixer",cost:6000}
+];
+(function(){
+const c=document.getElementById('addOns');
+addOns.forEach(a=>{
+c.innerHTML+=`<label class="ck"><input type="checkbox" id="${a.id}" value="${a.cost}"> ${a.label} <span style="color:var(--acc);font-size:.8rem">(+$${a.cost.toLocaleString()})</span></label>`;
+});
+})();
+
+function updateBuilder(){}
+
+function calcBuild(){
+const ci=document.getElementById('bCountry').value;
+if(!ci){alert('Select a country');return}
+const country=D.costs[+ci];
+const cat=document.getElementById('bCategory').value;
+const fam=+document.getElementById('bFamily').value;
+
+const base=country.cats[cat];
+if(!base){
+document.getElementById('buildResult').style.display='block';
+document.getElementById('buildResult').innerHTML=`<div class="note note-d" style="border-color:var(--dng)">⚠️ ${country.c} does not offer a ${cat} visa category in our database. Try a different category.</div>`;
+return;
+}
+
+let breakdown=[
+{label:"Government fee",val:base.gov*fam},
+{label:"Legal / attorney",val:base.legal},
+];
+
+let addOnTotal=0;
+addOns.forEach(a=>{
+const el=document.getElementById(a.id);
+if(el&&el.checked){
+const perPerson=['ao_medical','ao_insurance'].includes(a.id);
+const cost=perPerson?a.cost*fam:a.cost;
+breakdown.push({label:a.label,val:cost});
+addOnTotal+=cost;
+}
+});
+
+const baseTotal=base.total*fam;
+const grandTotal=baseTotal+addOnTotal;
+const maxVal=Math.max(...breakdown.map(b=>b.val),1);
+
+let html=`<div class="result-box"><h3 style="margin-bottom:4px">${country.c} — ${cat.charAt(0).toUpperCase()+cat.slice(1)} Visa · Family of ${fam}</h3>`;
+breakdown.forEach(b=>{
+const pct=(b.val/maxVal)*100;
+html+=`<div class="bar-h"><div class="bl">${b.label}</div><div class="bw"><div class="bf" style="width:${pct}%;background:var(--acc2)"></div></div><div class="bv">$${b.val.toLocaleString()}</div></div>`;
+});
+html+=`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--glb);display:flex;justify-content:space-between;align-items:center">
+<span style="font-size:1.1rem;font-weight:700">Total Estimated Cost</span>
+<span style="font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent">$${grandTotal.toLocaleString()}</span>
+</div>`;
+html+=`</div><div class="note">Base visa cost × ${fam} applicants = $${baseTotal.toLocaleString()}. Add-ons = $${addOnTotal.toLocaleString()}. Actual costs may vary ±20%. Processing timeline: ${country.speed}.</div>`;
+
+document.getElementById('buildResult').style.display='block';
+document.getElementById('buildResult').innerHTML=html;
+}
+
+// Hidden fees
+(function(){
+const c=document.getElementById('hiddenAcc');
+D.hidden.forEach(h=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)" style="border-left:3px solid var(--dng)"><span>💸 ${h.name} <span class="badge badge-d" style="margin-left:8px">${h.cost}</span></span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${h.desc}</p></div>`;
+});
+const s=document.getElementById('savingsAcc');
+D.savings.forEach(sv=>{
+s.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)" style="border-left:3px solid var(--acc)"><span>💡 ${sv.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${sv.desc}</p></div>`;
+});
+})();
+
+// Golden table
+(function(){
+const t=document.getElementById('goldenTable');
+let h='<thead><tr><th>Country</th><th>Program</th><th>Min Investment</th><th>Gov + DD + Legal</th><th>Est. Total</th><th>Path</th><th>Risk</th></tr></thead><tbody>';
+D.golden.forEach(g=>{
+const rc=g.risk.includes('Low')?'badge-g':g.risk.includes('Med')&&!g.risk.includes('High')?'badge-w':'badge-d';
+h+=`<tr><td style="font-weight:600;white-space:nowrap">${g.c}</td><td style="font-size:.8rem">${g.prog}</td><td style="font-size:.8rem">${g.invest}</td><td style="font-size:.8rem">$${(g.gov+g.dd+g.legal).toLocaleString()}</td><td style="color:var(--warn);font-weight:700">${g.total}</td><td style="font-size:.78rem;color:var(--txt2)">${g.path}</td><td><span class="badge ${rc}">${g.risk}</span></td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// CBI Risks
+(function(){
+const c=document.getElementById('cbiRiskAcc');
+D.cbiRisks.forEach(r=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)" style="border-left:3px solid var(--warn)"><span>⚠️ ${r.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${r.desc}</p></div>`;
+});
+})();
+
+// Budget Tiers
+(function(){
+const c=document.getElementById('tierCards');
+D.tiers.forEach(t=>{
+let html=`<div class="gl" style="border-left:4px solid ${t.color}"><h3 style="color:${t.color}">${t.name}</h3><p style="font-size:.9rem;margin-bottom:10px;color:var(--txt)">${t.budget}</p><h3>Best Options</h3><div style="margin-bottom:10px">${t.best.map(b=>`<div class="tag" style="margin:3px 0">${b}</div>`).join('')}</div><h3>Strategy</h3><p style="font-size:.84rem;color:var(--txt2)">${t.strategy}</p></div>`;
+c.innerHTML+=html;
+});
+})();
+</script>
+</body>
+</html>

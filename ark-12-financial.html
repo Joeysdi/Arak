@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>12 — Financial Preparation | Ark v3 (Standalone)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0c10;--s1:#0f1218;--s2:#161b24;--gl:rgba(255,255,255,.04);--glb:rgba(255,255,255,.08);--acc:#00e5a0;--acc2:#00b8ff;--acc3:#ff6b35;--warn:#ffb300;--dng:#ff3d5a;--txt:#e0e0e0;--txt2:#8a8fa8;--rad:12px;--glow:0 0 20px rgba(0,229,160,.15)}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.65;overflow-x:hidden;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:clamp(1.6rem,4vw,2.4rem);background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.sub{color:var(--txt2);font-size:.95rem;margin-bottom:28px}
+h2{font-size:1.25rem;color:var(--acc);margin-bottom:14px}
+h3{font-size:1.05rem;color:var(--acc2);margin-bottom:8px}
+.gl{background:var(--gl);border:1px solid var(--glb);border-radius:var(--rad);padding:22px;margin-bottom:18px;backdrop-filter:blur(12px)}
+.gl:hover{border-color:rgba(0,229,160,.18);box-shadow:var(--glow)}
+.stab{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.stab button{background:var(--gl);border:1px solid var(--glb);color:var(--txt2);padding:9px 18px;border-radius:8px;cursor:pointer;font-size:.85rem;transition:.25s}
+.stab button:hover{border-color:var(--acc);color:var(--acc)}
+.stab button.on{background:rgba(0,229,160,.12);border-color:var(--acc);color:var(--acc);box-shadow:0 0 10px rgba(0,229,160,.15)}
+.spanel{display:none;animation:fadeUp .35s ease}.spanel.show{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.acc-h{background:var(--s2);border:1px solid var(--glb);border-radius:8px;padding:13px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;transition:.2s;font-size:.92rem}
+.acc-h:hover{border-color:var(--acc);color:var(--acc)}
+.acc-h .arrow{transition:transform .3s;font-size:.75rem;color:var(--acc)}
+.acc-h.open .arrow{transform:rotate(180deg)}
+.acc-b{max-height:0;overflow:hidden;transition:max-height .4s ease;padding:0 18px}
+.acc-b.open{max-height:5000px;padding:14px 18px}
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin:10px 0}
+th{background:var(--s2);color:var(--acc);padding:10px 8px;text-align:left;border-bottom:1px solid var(--glb);position:sticky;top:0}
+td{padding:9px 8px;border-bottom:1px solid rgba(255,255,255,.04)}
+tr:hover td{background:rgba(0,229,160,.03)}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.72rem;font-weight:600}
+.badge-g{background:rgba(0,229,160,.15);color:var(--acc)}
+.badge-b{background:rgba(0,184,255,.15);color:var(--acc2)}
+.badge-w{background:rgba(255,179,0,.15);color:var(--warn)}
+.badge-d{background:rgba(255,61,90,.15);color:var(--dng)}
+.badge-o{background:rgba(255,107,53,.15);color:var(--acc3)}
+.tag{display:inline-block;margin:2px 4px 2px 0;padding:2px 8px;border-radius:6px;font-size:.72rem;background:var(--s2);color:var(--txt2);border:1px solid var(--glb)}
+.note{font-size:.8rem;color:var(--txt2);border-left:3px solid var(--warn);padding:8px 12px;margin:10px 0;background:rgba(255,179,0,.04)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.stat-card{background:var(--s2);border:1px solid var(--glb);border-radius:10px;padding:16px;text-align:center}
+.stat-card .sv{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-card .sl{font-size:.78rem;color:var(--txt2);margin-top:4px}
+.calc-row{display:flex;align-items:center;gap:12px;margin:8px 0;flex-wrap:wrap}
+.calc-row label{min-width:180px;font-size:.84rem;color:var(--txt2)}
+.calc-row input,.calc-row select{background:var(--s2);color:var(--txt);border:1px solid var(--glb);border-radius:8px;padding:9px 12px;font-size:.88rem;width:220px}
+.calc-row input:focus,.calc-row select:focus{outline:none;border-color:var(--acc)}
+.btn{padding:10px 24px;border-radius:8px;border:none;cursor:pointer;font-size:.88rem;transition:.2s;margin:4px}
+.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#000;font-weight:700}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-secondary{background:var(--s2);color:var(--txt2);border:1px solid var(--glb)}
+.result-box{background:linear-gradient(135deg,rgba(0,229,160,.06),rgba(0,184,255,.04));border:1px solid var(--acc);border-radius:var(--rad);padding:20px;margin:16px 0}
+.bar-h{display:flex;align-items:center;gap:8px;margin:6px 0}
+.bar-h .bl{min-width:140px;font-size:.8rem;color:var(--txt2)}
+.bar-h .bw{flex:1;height:8px;background:var(--s2);border-radius:4px;overflow:hidden}
+.bar-h .bf{height:100%;border-radius:4px}
+.bar-h .bv{min-width:60px;text-align:right;font-size:.8rem;font-weight:600}
+.slider-row{display:flex;align-items:center;gap:12px;margin:8px 0}
+.slider-row label{min-width:160px;font-size:.84rem;color:var(--txt2)}
+.slider-row input[type=range]{flex:1;accent-color:var(--acc);height:6px}
+.slider-row .sv{min-width:40px;text-align:right;font-size:.85rem;color:var(--acc);font-weight:700}
+.donut{width:140px;height:140px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.donut .inner{width:100px;height:100px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.donut .pct{font-size:1.6rem;font-weight:800}
+.donut .lbl{font-size:.7rem;color:var(--txt2)}
+.ref{font-size:.72rem;color:var(--txt2);margin-top:18px;padding-top:12px;border-top:1px solid var(--glb)}
+@media(max-width:600px){.calc-row{flex-direction:column;align-items:flex-start}.calc-row input,.calc-row select{width:100%}.slider-row{flex-wrap:wrap}.slider-row label{min-width:100%}.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap" id="financial-preparation">
+
+<h1>12 — Financial Preparation</h1>
+<p class="sub">Crisis-Proof Portfolio Architecture · Multi-Asset Allocation Engine · Jurisdictional Diversification · Barter Economy Readiness · Collapse-Scenario Financial Mapping</p>
+
+<div class="grid3" style="margin-bottom:20px">
+<div class="stat-card"><div class="sv">6 Layers</div><div class="sl">Financial Defense Depth</div></div>
+<div class="stat-card"><div class="sv">3+ Countries</div><div class="sl">Jurisdictional Minimum</div></div>
+<div class="stat-card"><div class="sv">24 Months</div><div class="sl">Cash Runway Target</div></div>
+<div class="stat-card"><div class="sv">15–25%</div><div class="sl">Hard Asset Allocation</div></div>
+</div>
+
+<div class="stab" id="mainTabs">
+<button class="on" onclick="switchTab('mainTabs','mp','mp-arch')">Portfolio Architecture</button>
+<button onclick="switchTab('mainTabs','mp','mp-alloc')">Allocation Engine</button>
+<button onclick="switchTab('mainTabs','mp','mp-juris')">Jurisdictional Strategy</button>
+<button onclick="switchTab('mainTabs','mp','mp-hard')">Hard Assets & Barter</button>
+<button onclick="switchTab('mainTabs','mp','mp-collapse')">Collapse Financial Playbook</button>
+<button onclick="switchTab('mainTabs','mp','mp-timeline')">Implementation Timeline</button>
+</div>
+
+<!-- ═══ PORTFOLIO ARCHITECTURE ═══ -->
+<div class="spanel show" id="mp-arch">
+<div class="gl">
+<h2>Six-Layer Financial Defense Architecture</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:14px">Each layer serves a distinct survival function. Failure of any single layer should not compromise overall financial resilience.</p>
+<div id="layerAcc"></div>
+</div>
+<div class="gl">
+<h2>Layer Interdependency Matrix</h2>
+<div style="overflow-x:auto"><table id="depMatrix"></table></div>
+</div>
+</div>
+
+<!-- ═══ ALLOCATION ENGINE ═══ -->
+<div class="spanel" id="mp-alloc">
+<div class="gl">
+<h2>🧮 Crisis-Adjusted Portfolio Allocation Engine</h2>
+<p style="font-size:.85rem;color:var(--txt2);margin-bottom:14px">Adjust risk parameters to generate a recommended asset allocation optimized for collapse scenarios.</p>
+
+<div class="calc-row"><label>Total Portfolio Value ($)</label><input type="number" id="aTotal" value="500000"></div>
+<div class="slider-row"><label>Collapse Probability (your estimate)</label><input type="range" min="5" max="95" value="35" id="aCollapse" oninput="document.getElementById('avCollapse').textContent=this.value+'%'"><span class="sv" id="avCollapse">35%</span></div>
+<div class="slider-row"><label>Time Horizon (years)</label><input type="range" min="1" max="10" value="5" id="aHorizon" oninput="document.getElementById('avHorizon').textContent=this.value"><span class="sv" id="avHorizon">5</span></div>
+<div class="slider-row"><label>Risk Tolerance</label><input type="range" min="1" max="10" value="5" id="aRisk" oninput="document.getElementById('avRisk').textContent=this.value+'/10'"><span class="sv" id="avRisk">5/10</span></div>
+<div class="slider-row"><label>Liquidity Need</label><input type="range" min="1" max="10" value="6" id="aLiquid" oninput="document.getElementById('avLiquid').textContent=this.value+'/10'"><span class="sv" id="avLiquid">6/10</span></div>
+
+<div style="margin-top:14px"><button class="btn btn-primary" onclick="calcAlloc()">📊 Generate Allocation</button></div>
+<div id="allocResult" style="display:none"></div>
+</div>
+<div class="gl">
+<h2>Asset Class Performance in Collapse Scenarios</h2>
+<div style="overflow-x:auto"><table id="perfTable"></table></div>
+</div>
+</div>
+
+<!-- ═══ JURISDICTIONAL ═══ -->
+<div class="spanel" id="mp-juris">
+<div class="gl">
+<h2>Jurisdictional Diversification Strategy</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:14px">Distribute assets across 3+ legal jurisdictions to protect against single-country seizure, capital controls, or banking collapse.</p>
+<div id="jurisAcc"></div>
+</div>
+<div class="gl">
+<h2>Recommended Jurisdiction Combinations</h2>
+<div style="overflow-x:auto"><table id="jurisTable"></table></div>
+</div>
+</div>
+
+<!-- ═══ HARD ASSETS ═══ -->
+<div class="spanel" id="mp-hard">
+<div class="gl">
+<h2>Hard Asset & Barter Economy Preparation</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:10px">When digital systems fail, physical assets become the monetary base.</p>
+<div class="stab" id="hardTabs">
+<button class="on" onclick="switchTab('hardTabs','ht','ht-metals')">Precious Metals</button>
+<button onclick="switchTab('hardTabs','ht','ht-crypto')">Crypto Strategy</button>
+<button onclick="switchTab('hardTabs','ht','ht-barter')">Barter Goods</button>
+<button onclick="switchTab('hardTabs','ht','ht-cash')">Cash Reserves</button>
+</div>
+<div id="ht-metals" class="spanel show"></div>
+<div id="ht-crypto" class="spanel"></div>
+<div id="ht-barter" class="spanel"></div>
+<div id="ht-cash" class="spanel"></div>
+</div>
+</div>
+
+<!-- ═══ COLLAPSE PLAYBOOK ═══ -->
+<div class="spanel" id="mp-collapse">
+<div class="gl">
+<h2>Collapse-Scenario Financial Playbook</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:12px">Immediate financial actions mapped to each major collapse category from the Collapse Bible.</p>
+<div id="playbookAcc"></div>
+</div>
+</div>
+
+<!-- ═══ TIMELINE ═══ -->
+<div class="spanel" id="mp-timeline">
+<div class="gl">
+<h2>Financial Preparation Implementation Timeline</h2>
+<div style="overflow-x:auto"><table id="timeTable"></table></div>
+</div>
+<div class="gl">
+<h2>Monthly Action Checklist</h2>
+<div id="monthlyAcc"></div>
+</div>
+</div>
+
+<div class="ref">Ark Collective v3 § 12 · Financial Preparation · Not financial advice · Consult licensed financial professionals · Collapse Bible integration</div>
+</div>
+
+<script>
+/* ═══ DATA ═══ */
+const D={
+layers:[
+{name:"Layer 1 — Emergency Cash Reserve",icon:"💵",color:"var(--acc)",desc:"Immediate-access physical cash in multiple currencies. Minimum 3 months living expenses. Stored in secure locations across 2+ sites.",
+details:"Target: $10k–$50k depending on family size and location. Denominations: Mix of $100s, $20s, $10s for flexibility. Currencies: Home currency + USD + EUR + destination country currency. Storage: Home safe (fireproof/waterproof) + secondary cache (safe deposit or buried). Rotation: Replace old bills annually. Security: Only 2 people know all cache locations.",
+collapse:"First asset accessed in any crisis. ATMs fail within 24 hours of banking disruption. Card systems fail with grid. Cash buys 2–6 weeks of normal purchasing before fiat devaluation."},
+{name:"Layer 2 — Precious Metals",icon:"🥇",color:"var(--warn)",desc:"Physical gold and silver as portable, universally recognized store of value. 15–25% of portfolio. Mix of sizes for transaction flexibility.",
+details:"Gold: 1 oz coins (Eagle, Maple, Krugerrand) + fractional (1/4 oz, 1/10 oz) for smaller transactions. Silver: 1 oz rounds + pre-1965 US coins ('junk silver') for daily-level barter. Storage: Split across home safe, secure vault (non-bank), and safe zone property. Avoid numismatic premium — buy bullion only. Verify with scale + acid test kit. Target: 10% gold, 5% silver of total portfolio.",
+collapse:"Gold maintains purchasing power across all collapse types. Silver functions as 'change' for daily transactions. 1 oz silver ≈ 1 day of food historically. 1 oz gold ≈ 1 month of basic expenses."},
+{name:"Layer 3 — Cryptocurrency & Digital Assets",icon:"₿",color:"var(--acc2)",desc:"Censorship-resistant, borderless value transfer. 5–15% of portfolio. Hardware wallet + memorized seed phrase essential.",
+details:"Core: Bitcoin (70%) — most liquid, most accepted. Ethereum (20%) — smart contract utility. Stablecoins USDC/DAI (10%) — for stability without banking. Storage: Hardware wallet (Trezor/Ledger) in Faraday bag. Seed phrase: memorized + stamped in metal (2 locations). Never store on exchange >10% of holdings. Mesh network nodes enable offline Bitcoin transactions. Learn to use Bitcoin without internet (Blockstream satellite, mesh protocols).",
+collapse:"Functions when banking is seized but internet/power exists. Borderless transfers bypass capital controls. Requires operational infrastructure — Layer 5 backup essential. Not useful in total grid-down (transition to Layers 1–2)."},
+{name:"Layer 4 — Offshore Banking & Investments",icon:"🏦",color:"var(--acc3)",desc:"Accounts in 2–3 stable jurisdictions outside your home country. Provides banking access if home banking system collapses.",
+details:"Recommended jurisdictions: Singapore (stability), Switzerland (privacy + treaty network), New Zealand (physical distance + stability). Minimum $25k–$100k per account for relationship banking. Multi-currency accounts preferred. Wire transfer capability tested quarterly. Debit card from offshore account provides backup payment method. Full CRS/FATCA compliance mandatory — this is about diversification, not evasion.",
+collapse:"Home banking freeze → switch to offshore debit card. Capital controls → access foreign-held funds. Currency collapse → hold foreign currency. Political seizure → assets beyond domestic legal reach (within limits)."},
+{name:"Layer 5 — Productive Real Assets",icon:"🏡",color:"#c084fc",desc:"Land, property, equipment, and infrastructure that generates value independent of financial markets.",
+details:"Safe zone property (owned outright, no mortgage). Agricultural equipment and seed banks. Solar/energy infrastructure. Water rights. Productive tools and workshop equipment. Vehicles (EMP-resistant preferred). These assets produce ongoing value regardless of currency, markets, or banking. No counterparty risk. Target: 30–40% of total net worth in productive assets. Debt-free ownership critical.",
+collapse:"Only asset class that appreciates in every collapse scenario. Land + water + energy = survival. Productive assets can be leased/traded for other goods. No dependence on financial system continuity."},
+{name:"Layer 6 — Skills & Social Capital",icon:"🧠",color:"var(--dng)",desc:"Non-seizeable assets: medical training, trade skills, community relationships, leadership ability, and trusted reputation.",
+details:"Medical/dental first aid certification. Food production knowledge (permaculture, animal husbandry). Mechanical/electrical repair skills. Communications expertise (ham radio, mesh networks). Defensive training. Teaching ability. Leadership experience. Community trust built over years. These cannot be confiscated, frozen, or devalued. In collapse, the most valuable 'currency' is competence.",
+collapse:"Post-collapse economy runs on skills exchange. A surgeon, mechanic, or farmer is wealthy regardless of financial assets. Social capital determines community access. Invest 10+ hours/month in skill development now."}
+],
+
+depMatrix:[
+["","L1 Cash","L2 Metals","L3 Crypto","L4 Offshore","L5 Real Assets","L6 Skills"],
+["Grid Down","✅ Works","✅ Works","❌ Fails","⚠️ Limited","✅ Works","✅ Works"],
+["Banking Freeze","✅ Bypass","✅ Bypass","✅ Bypass","✅ Alternative","✅ Unaffected","✅ Barter"],
+["Hyperinflation","⚠️ Degrades","✅ Hedges","✅ Hedges","⚠️ Currency risk","✅ Appreciates","✅ Essential"],
+["Capital Controls","✅ Physical","✅ Portable","✅ Borderless","⚠️ May freeze","⚠️ Illiquid","✅ Movable"],
+["Political Seizure","⚠️ Findable","⚠️ If found","✅ Concealed","✅ Offshore","⚠️ Registered","✅ Unseizable"],
+["Supply Collapse","✅ Buys goods","✅ High value","⚠️ If vendors accept","❌ No goods to buy","✅ Self-produces","✅ Trade labor"]
+],
+
+allocModel:[
+{name:"Emergency Cash",base:8,collapseAdj:0.12,riskAdj:-0.3,liquidAdj:0.5,color:"var(--acc)"},
+{name:"Precious Metals",base:15,collapseAdj:0.2,riskAdj:0.1,liquidAdj:-0.3,color:"var(--warn)"},
+{name:"Crypto",base:8,collapseAdj:0.05,riskAdj:0.4,liquidAdj:0.2,color:"var(--acc2)"},
+{name:"Offshore Banking",base:12,collapseAdj:0.08,riskAdj:-0.1,liquidAdj:0.3,color:"var(--acc3)"},
+{name:"Productive Real Assets",base:35,collapseAdj:0.15,riskAdj:-0.2,liquidAdj:-0.6,color:"#c084fc"},
+{name:"Equities / Growth",base:15,collapseAdj:-0.35,riskAdj:0.5,liquidAdj:0.2,color:"#6366f1"},
+{name:"Bonds / Fixed Income",base:7,collapseAdj:-0.25,riskAdj:-0.4,liquidAdj:0.3,color:"#94a3b8"}
+],
+
+perfTable:[
+{asset:"Physical Cash",hyper:-90,deflation:30,grid:80,bank:90,war:50,pandemic:60},
+{asset:"Gold",hyper:95,deflation:40,grid:70,bank:85,war:80,pandemic:60},
+{asset:"Silver",hyper:80,deflation:20,grid:70,bank:75,war:70,pandemic:50},
+{asset:"Bitcoin",hyper:70,deflation:30,grid:-80,bank:90,war:40,pandemic:50},
+{asset:"Equities",hyper:-60,deflation:-50,grid:-90,bank:-70,war:-80,pandemic:-40},
+{asset:"Bonds",hyper:-80,deflation:60,grid:-50,bank:-60,war:-40,pandemic:20},
+{asset:"Real Estate (safe zone)",hyper:50,deflation:-20,grid:60,bank:50,war:-30,pandemic:40},
+{asset:"Farmland + Equipment",hyper:80,deflation:10,grid:90,bank:70,war:30,pandemic:70},
+{asset:"Barter Goods",hyper:95,deflation:40,grid:95,bank:80,war:85,pandemic:90}
+],
+
+jurisdictions:[
+{name:"Singapore Banking Hub",flag:"🇸🇬",type:"Banking + Investment",pros:"Political stability, strong legal system, multi-currency accounts, no capital gains tax, excellent fintech",cons:"High minimum balances ($200k+), strict KYC, AEOI reporting",bestFor:"Core offshore banking; Asian diversification"},
+{name:"Switzerland Private Banking",flag:"🇨🇭",type:"Private Banking + Storage",pros:"Deep banking tradition, vault storage, political neutrality, strong privacy laws, 100+ DTA treaties",cons:"Expensive (CHF 1k+/yr fees), high minimums, slower processes",bestFor:"High-net-worth storage; European anchor"},
+{name:"New Zealand Banking",flag:"🇳🇿",type:"Banking + Real Assets",pros:"Geographic isolation, stable democracy, English-speaking, simple banking, ties to safe zone property",cons:"Small market, limited investment products, remote timezone",bestFor:"Safe zone country banking; Southern Hemisphere hedge"},
+{name:"Panama Accounts",flag:"🇵🇦",type:"Banking + Foundation",pros:"Territorial tax, no CRS exchange (as of 2025), foundation structure, USD-based economy, Friendly Nations visa",cons:"Reputational risk (perception), limited investment access, banking correspondence challenges",bestFor:"Americas diversification; privacy-conscious strategies"},
+{name:"Estonia e-Residency",flag:"🇪🇪",type:"Digital + Corporate",pros:"EU company formation remotely, digital banking access, 0% corp tax on retained earnings, innovative ecosystem",cons:"Not physical banking; limited for large personal assets; still CRS compliant",bestFor:"Business income structuring; EU access for non-EU residents"},
+{name:"Cayman Islands",flag:"🇰🇾",type:"Fund Domicile + Banking",pros:"Zero direct tax, sophisticated fund structures, British legal system, strong banking secrecy (declining)",cons:"Very high costs, primarily institutional, limited retail banking",bestFor:"Fund structures for $2M+ portfolios; institutional-grade diversification"}
+],
+
+jurisCombos:[
+{name:"Standard Diversification",combo:"🇸🇬 Singapore + 🇨🇭 Switzerland + 🇳🇿 New Zealand",budget:"$100k–$1M",notes:"Covers Asia-Pacific + Europe + Oceania. Three stable democracies, three currencies, maximum geographic spread."},
+{name:"Americas + EU Coverage",combo:"🇵🇦 Panama + 🇵🇹 Portugal + 🇸🇬 Singapore",budget:"$50k–$500k",notes:"Territorial tax + EU residency pathway + Asian stability. Good for remote workers and entrepreneurs."},
+{name:"Maximum Privacy",combo:"🇵🇦 Panama + 🇨🇭 Switzerland + 🇰🇾 Cayman",budget:"$500k–$5M+",notes:"Strongest privacy jurisdictions (within legal compliance). High cost but maximum protection. Includes foundation + trust + fund structures."},
+{name:"Budget Diversification",combo:"🇬🇪 Georgia + 🇪🇪 Estonia + 🇺🇾 Uruguay",budget:"$10k–$100k",notes:"Low-cost entry. Territorial tax (Georgia, Uruguay) + EU digital presence (Estonia). Accessible for most budgets."},
+{name:"Collapse-Optimized",combo:"🇳🇿 New Zealand + 🇨🇭 Switzerland + 🇵🇾 Paraguay",budget:"$50k–$500k",notes:"Maximum geographic isolation (NZ) + wealth preservation (CH) + easy residency + territorial tax (PY). Optimized for Collapse Bible scenarios 1–50."}
+],
+
+hardAssets:{
+metals:[
+{item:"Gold 1 oz coins (Eagle/Maple/Krugerrand)",qty:"10–50 oz",value:"$20k–$100k",use:"Wealth storage; large transactions; cross-border portable",store:"Split: home safe + vault + safe zone"},
+{item:"Gold fractional (1/4 oz, 1/10 oz)",qty:"20–50 pcs",value:"$5k–$15k",use:"Medium transactions; more divisible than 1 oz",store:"Go-bag + home safe"},
+{item:"Silver 1 oz rounds",qty:"100–500 oz",value:"$3k–$15k",use:"Daily transactions; 1 oz ≈ 1 day food historically",store:"Home + safe zone (heavy)"},
+{item:"Junk silver (pre-1965 US coins)",qty:"$100–$500 face value",value:"$2k–$10k",use:"Small transactions; widely recognized; variable denominations",store:"Multiple caches"},
+{item:"Platinum 1 oz",qty:"5–10 oz",value:"$5k–$10k",use:"Ultra-dense wealth storage; less recognizable than gold",store:"Secure vault only"}
+],
+crypto:[
+{item:"Bitcoin (BTC)",pct:"60–70%",strategy:"Cold storage hardware wallet; memorized seed; split holdings across 2 wallets. Learn Blockstream satellite for grid-down access. Understand Lightning Network for small transactions.",risk:"Volatility; requires power + internet for transactions"},
+{item:"Ethereum (ETH)",pct:"15–20%",strategy:"Smart contract utility; DeFi access for yield if needed. Staking provides passive income. Use alongside BTC for diversification.",risk:"More centralized than BTC; regulatory risk"},
+{item:"Stablecoins (USDC/DAI)",pct:"10–15%",strategy:"Digital dollar equivalent without bank dependency. Use for quick transfers and as trading pair. DAI preferred for decentralization.",risk:"Counterparty risk (USDC); depegging events; regulatory seizure"},
+{item:"Monero (XMR)",pct:"5%",strategy:"Privacy coin for transactions requiring anonymity. Not recommended as primary store of value but useful for specific situations.",risk:"Exchange delistings; regulatory classification; smaller network"}
+],
+barter:[
+{item:"Ammunition (common calibers)",value:"Very High",shelf:"30+ years",note:"Universal trade currency post-collapse. .22 LR, 9mm, .223, 12 gauge most tradeable. Store properly (cool, dry, sealed)."},
+{item:"Medical supplies",value:"Very High",shelf:"2–10 years",note:"Antibiotics, painkillers, wound care, dental kits. Rotate stock. Training required for advanced items."},
+{item:"Seeds (heirloom, non-GMO)",value:"High",shelf:"2–5 years (rotate)",note:"Food production capability. Heirloom varieties reproduce. Vacuum-sealed for longevity. Focus on calorie-dense crops."},
+{item:"Alcohol (spirits)",value:"High",shelf:"Indefinite",note:"Antiseptic, morale, trade good. Small bottles (200ml) preferred for trade units. Moonshine production knowledge valuable."},
+{item:"Tools (hand tools, fixings)",value:"High",shelf:"Indefinite",note:"Axes, saws, wrenches, nails, screws, wire. Cannot be manufactured locally. Extreme long-term value."},
+{item:"Fire-starting supplies",value:"Medium-High",shelf:"10+ years",note:"Lighters, ferrocerium rods, waterproof matches. Cheap to stockpile, always in demand."},
+{item:"Water purification",value:"High",shelf:"5–10 years",note:"Tablets, filters, UV pens. Life-critical and lightweight. High trade value per unit weight."},
+{item:"Fuel (stabilized)",value:"High",shelf:"1–2 years (stabilized)",note:"Gasoline + Sta-Bil, diesel, propane. Extremely valuable early post-collapse. Rotate stock. Fire hazard."},
+{item:"Coffee / Tea / Tobacco",value:"Medium-High",shelf:"1–5 years",note:"Morale goods. Addictive products maintain trade value even when other goods become available."},
+{item:"Soap / Hygiene products",value:"Medium",shelf:"3–5 years",note:"Disease prevention. Unscented bar soap preferred. Includes toothpaste, sanitary products, bleach."}
+],
+cash:[
+{currency:"US Dollar (USD)",amount:"$3,000–$10,000",denom:"$100 × 50, $20 × 50, $10 × 50, $5 × 20, $1 × 50",note:"Global reserve currency. Accepted almost everywhere. Mix denominations for flexibility."},
+{currency:"Euro (EUR)",amount:"€2,000–€5,000",denom:"€100 × 20, €50 × 20, €20 × 30, €10 × 20",note:"Second reserve currency. Essential if EU safe zone. Widely accepted globally."},
+{currency:"Swiss Franc (CHF)",amount:"CHF 2,000–5,000",denom:"Mixed",note:"Ultimate safe-haven fiat. Retains value in crisis. Useful if Swiss banking relationship."},
+{currency:"Destination currency",amount:"3 months expenses",denom:"Mixed small + large",note:"Currency of your primary safe zone country. Critical for immediate post-arrival expenses."},
+{currency:"Singapore Dollar (SGD)",amount:"SGD 2,000–5,000",denom:"Mixed",note:"Stable Asian currency. Useful for Asia-Pacific safe zones."}
+]
+},
+
+playbook:[
+{name:"Hyperinflation (>50%/month)",icon:"📈",actions:"1. Convert all fiat to hard assets immediately (gold, silver, property, goods). 2. Settle all debts (debt devalues in real terms — this is the one scenario where debtors win). 3. Switch to barter/precious metals for daily transactions. 4. Price all goods in gold/silver weight, not currency. 5. Offer services for real goods, not money. 6. Begin food production immediately — food is the ultimate inflation hedge.",scenarios:"Collapse Bible #1–8",severity:"Extreme"},
+{name:"Banking Freeze / Bail-In",icon:"🏦",actions:"1. If warning signs present (bank run rumors, capital controls discussion), withdraw maximum cash immediately. 2. Activate offshore accounts — transfer spending to foreign debit cards. 3. Move to crypto for digital transactions. 4. Physical cash and metals become primary payment. 5. Expect 72-hour to 2-week freeze. 6. After freeze, expect deposit haircut (Cyprus 2013: 47.5% on deposits >€100k).",scenarios:"Collapse Bible #9–15",severity:"High"},
+{name:"Market Crash (>50% drawdown)",icon:"📉",actions:"1. Do NOT panic sell — cash reserves exist for this. 2. Rebalance into productive assets if possible (farmland at distressed prices). 3. Activate emergency cash for 6-month living expenses. 4. Pause all non-essential spending. 5. If employed, increase savings rate aggressively. 6. Deploy 10–20% of metals into discounted productive assets. Gold-to-real-estate ratio historically signals buying opportunities.",scenarios:"Collapse Bible #16–22",severity:"High"},
+{name:"Currency War / De-Dollarization",icon:"💱",actions:"1. Multi-currency reserves protect purchasing power. 2. Increase gold allocation to 25–30%. 3. Hold stable foreign currencies (CHF, SGD, NOK). 4. Crypto exposure provides non-sovereign alternative. 5. Physical assets in multiple jurisdictions. 6. Monitor SWIFT alternatives (CIPS, mBridge) for payment system shifts.",scenarios:"Collapse Bible #42–48",severity:"Moderate–High"},
+{name:"Grid Failure / EMP",icon:"⚡",actions:"1. Digital assets temporarily inaccessible — physical assets are everything. 2. Cash, metals, and barter goods become sole transaction media. 3. Protect hardware wallets in Faraday cage for eventual recovery. 4. Physical documentation of all accounts and holdings critical. 5. Community barter networks activate immediately. 6. Skills become primary earning mechanism.",scenarios:"Collapse Bible #30–42",severity:"Extreme"},
+{name:"Political Seizure / Expropriation",icon:"⚖️",actions:"1. Offshore assets beyond domestic legal reach (within compliance). 2. Crypto provides seizure-resistant storage. 3. Physical metals in private vaults or buried caches. 4. Property in other jurisdictions safe from domestic seizure orders. 5. Trust/foundation structures add legal barriers to seizure. 6. Multiple passports enable physical relocation of self (your most valuable asset).",scenarios:"Collapse Bible #55–68",severity:"High"}
+],
+
+timeline:[
+{phase:"Month 1–3",focus:"Foundation",actions:"Open offshore bank account · Purchase first gold/silver · Set up hardware crypto wallet · Build 1-month cash reserve · Inventory all existing assets · Establish budget for ongoing preparation",priority:"CRITICAL"},
+{phase:"Month 4–6",focus:"Diversification",actions:"Fund offshore account to $25k+ · Increase precious metals to 10% of portfolio · Research safe zone property · Build cash reserve to 3 months · Create encrypted document backup · Establish barter goods baseline",priority:"HIGH"},
+{phase:"Month 7–12",focus:"Deepening",actions:"Second offshore account (different continent) · Cash reserve to 6 months · Begin productive asset acquisition · Build barter inventory · Practice crypto transactions · Establish community trade network",priority:"HIGH"},
+{phase:"Year 2",focus:"Optimization",actions:"Property acquisition at safe zone · Portfolio to target allocation · Trust/foundation structure if applicable · Full barter inventory · Skill development program · Test all financial contingencies quarterly",priority:"MODERATE"},
+{phase:"Year 3+",focus:"Maintenance",actions:"Annual rebalancing · Rotate perishable barter goods · Update legal structures · Monitor collapse indicators · Quarterly liquidity test · Continuous skill investment · Community financial mutual aid",priority:"ONGOING"}
+],
+
+monthly:[
+{name:"Month 1: Cash Foundation",tasks:["Withdraw $2k–$5k cash in mixed denominations","Purchase small safe (fireproof/waterproof)","Open high-yield savings (bridge account)","List all assets and liabilities","Set 15% savings rate minimum"]},
+{name:"Month 2: Metals Entry",tasks:["Buy first 5 oz silver (1 oz rounds)","Buy first 1/4 oz gold coin","Research local coin dealers + online vendors","Set up price alerts for buying opportunities","Store securely in home safe"]},
+{name:"Month 3: Digital Defense",tasks:["Purchase hardware wallet (Trezor or Ledger)","Buy $500–$1,000 Bitcoin","Learn wallet operations + seed phrase backup","Stamp seed phrase in metal (2 locations)","Test send/receive with small amounts"]},
+{name:"Month 4: Offshore Opening",tasks:["Research 3 offshore banks (SG, CH, NZ)","Gather required documentation (passport, utility, reference)","Submit application to primary choice","Fund initial deposit upon opening","Set up multi-currency capability"]},
+{name:"Month 5: Barter Inventory",tasks:["Purchase first aid supplies ($200–$500)","Stock common ammunition if legal ($200–$500)","Buy heirloom seed collection ($50–$100)","Stockpile 12 bottles spirits","Begin hand tool collection"]},
+{name:"Month 6: Review & Rebalance",tasks:["Audit all six layers against targets","Rebalance any over/under allocations","Update encrypted document backup","Test offshore account access (withdrawal)","Review and adjust monthly budget allocation"]}
+]
+};
+
+/* ═══ INTERACTIONS ═══ */
+function switchTab(barId,prefix,target){
+const bar=document.getElementById(barId);
+bar.querySelectorAll('button').forEach((b,i)=>{
+const panels=document.querySelectorAll(`[id^="${prefix}-"]`);
+if(panels[i]&&panels[i].id===target){b.classList.add('on');panels[i].classList.add('show')}
+else if(panels[i]){b.classList.remove('on');panels[i].classList.remove('show')}
+});
+}
+function toggleAcc(el){
+const b=el.nextElementSibling;const o=b.classList.contains('open');
+el.parentElement.querySelectorAll('.acc-b').forEach(x=>x.classList.remove('open'));
+el.parentElement.querySelectorAll('.acc-h').forEach(x=>x.classList.remove('open'));
+if(!o){b.classList.add('open');el.classList.add('open')}
+}
+
+/* ═══ RENDER ═══ */
+
+// Layers
+(function(){
+const c=document.getElementById('layerAcc');
+D.layers.forEach(l=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)" style="border-left:3px solid ${l.color}"><span>${l.icon} ${l.name}</span><span class="arrow">▼</span></div>
+<div class="acc-b">
+<p style="font-size:.88rem;margin-bottom:10px">${l.desc}</p>
+<h3>Specifications</h3><p style="font-size:.84rem;color:var(--txt2);margin-bottom:10px">${l.details}</p>
+<h3>Collapse Performance</h3><p style="font-size:.84rem;color:var(--txt2)">${l.collapse}</p>
+</div>`;
+});
+})();
+
+// Dep Matrix
+(function(){
+const t=document.getElementById('depMatrix');
+let h='<thead><tr>';
+D.depMatrix[0].forEach(c=>h+=`<th style="font-size:.75rem">${c}</th>`);
+h+='</tr></thead><tbody>';
+for(let i=1;i<D.depMatrix.length;i++){
+h+='<tr>';
+D.depMatrix[i].forEach((c,j)=>{
+if(j===0)h+=`<td style="font-weight:600;color:var(--dng);font-size:.78rem">${c}</td>`;
+else{
+const col=c.startsWith('✅')?'var(--acc)':c.startsWith('⚠️')?'var(--warn)':'var(--dng)';
+h+=`<td style="color:${col};font-size:.8rem;text-align:center">${c}</td>`;
+}});
+h+='</tr>';
+}
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// Allocation Calculator
+function calcAlloc(){
+const total=+document.getElementById('aTotal').value||100000;
+const cp=(+document.getElementById('aCollapse').value-50)/100;
+const risk=(+document.getElementById('aRisk').value-5)/10;
+const liq=(+document.getElementById('aLiquid').value-5)/10;
+
+let allocs=D.allocModel.map(a=>{
+let pct=a.base+cp*a.collapseAdj*100+risk*a.riskAdj*15+liq*a.liquidAdj*10;
+return{...a,pct:Math.max(2,pct)};
+});
+const sum=allocs.reduce((s,a)=>s+a.pct,0);
+allocs=allocs.map(a=>({...a,pct:Math.round((a.pct/sum)*100),amt:Math.round((a.pct/sum)*total)}));
+
+// Fix rounding
+const diff=100-allocs.reduce((s,a)=>s+a.pct,0);
+allocs[0].pct+=diff;allocs[0].amt+=Math.round(diff*total/100);
+
+const maxPct=Math.max(...allocs.map(a=>a.pct));
+let html=`<div class="result-box"><h3 style="margin-bottom:14px">Recommended Allocation — $${total.toLocaleString()} Portfolio</h3>`;
+allocs.forEach(a=>{
+html+=`<div class="bar-h"><div class="bl">${a.name}</div><div class="bw"><div class="bf" style="width:${(a.pct/maxPct)*100}%;background:${a.color}"></div></div><div class="bv" style="color:${a.color}">${a.pct}% · $${a.amt.toLocaleString()}</div></div>`;
+});
+html+=`</div><div class="note">Collapse probability ${document.getElementById('aCollapse').value}% shifts allocation toward hard assets and away from conventional markets. Higher liquidity need increases cash, crypto, and offshore banking allocations. Adjust based on personal circumstances.</div>`;
+document.getElementById('allocResult').style.display='block';
+document.getElementById('allocResult').innerHTML=html;
+}
+
+// Performance Table
+(function(){
+const t=document.getElementById('perfTable');
+const cols=["Asset","Hyperinflation","Deflation","Grid Down","Bank Freeze","War/Conflict","Pandemic"];
+let h='<thead><tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr></thead><tbody>';
+D.perfTable.forEach(r=>{
+h+=`<tr><td style="font-weight:600">${r.asset}</td>`;
+[r.hyper,r.deflation,r.grid,r.bank,r.war,r.pandemic].forEach(v=>{
+const col=v>=50?'var(--acc)':v>=0?'var(--warn)':'var(--dng)';
+const sym=v>0?'+':'';
+h+=`<td style="color:${col};font-weight:600;text-align:center">${sym}${v}%</td>`;
+});
+h+='</tr>';
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// Jurisdictions
+(function(){
+const c=document.getElementById('jurisAcc');
+D.jurisdictions.forEach(j=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>${j.flag} ${j.name} <span class="badge badge-b">${j.type}</span></span><span class="arrow">▼</span></div>
+<div class="acc-b">
+<h3 style="color:var(--acc)">Pros</h3><p style="font-size:.84rem;margin-bottom:8px">${j.pros}</p>
+<h3 style="color:var(--dng)">Cons</h3><p style="font-size:.84rem;margin-bottom:8px">${j.cons}</p>
+<h3 style="color:var(--acc2)">Best For</h3><p style="font-size:.84rem">${j.bestFor}</p>
+</div>`;
+});
+const t=document.getElementById('jurisTable');
+let h='<thead><tr><th>Strategy</th><th>Combination</th><th>Budget</th><th>Notes</th></tr></thead><tbody>';
+D.jurisCombos.forEach(j=>{
+h+=`<tr><td style="font-weight:600;color:var(--acc)">${j.name}</td><td style="font-size:.8rem">${j.combo}</td><td style="font-size:.82rem">${j.budget}</td><td style="font-size:.8rem;color:var(--txt2)">${j.notes}</td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// Hard Assets sub-panels
+(function(){
+// Metals
+let h='<div style="overflow-x:auto"><table><thead><tr><th>Item</th><th>Recommended Qty</th><th>Value Range</th><th>Use Case</th><th>Storage</th></tr></thead><tbody>';
+D.hardAssets.metals.forEach(m=>{
+h+=`<tr><td style="font-weight:600">${m.item}</td><td>${m.qty}</td><td style="color:var(--warn)">${m.value}</td><td style="font-size:.8rem;color:var(--txt2)">${m.use}</td><td style="font-size:.8rem">${m.store}</td></tr>`;
+});
+h+='</tbody></table></div>';
+document.getElementById('ht-metals').innerHTML=h;
+
+// Crypto
+h='';
+D.hardAssets.crypto.forEach(c=>{
+h+=`<div class="acc-h" onclick="toggleAcc(this)"><span>${c.item} <span class="badge badge-b">${c.pct}</span></span><span class="arrow">▼</span></div><div class="acc-b"><h3>Strategy</h3><p style="font-size:.84rem;margin-bottom:8px">${c.strategy}</p><h3 style="color:var(--dng)">Risk</h3><p style="font-size:.84rem">${c.risk}</p></div>`;
+});
+document.getElementById('ht-crypto').innerHTML=h;
+
+// Barter
+h='<div style="overflow-x:auto"><table><thead><tr><th>Item</th><th>Trade Value</th><th>Shelf Life</th><th>Notes</th></tr></thead><tbody>';
+D.hardAssets.barter.forEach(b=>{
+const vc=b.value.includes('Very High')?'badge-d':b.value.includes('High')?'badge-o':'badge-w';
+h+=`<tr><td style="font-weight:600">${b.item}</td><td><span class="badge ${vc}">${b.value}</span></td><td>${b.shelf}</td><td style="font-size:.8rem;color:var(--txt2)">${b.note}</td></tr>`;
+});
+h+='</tbody></table></div>';
+document.getElementById('ht-barter').innerHTML=h;
+
+// Cash
+h='<div style="overflow-x:auto"><table><thead><tr><th>Currency</th><th>Amount</th><th>Denominations</th><th>Notes</th></tr></thead><tbody>';
+D.hardAssets.cash.forEach(c=>{
+h+=`<tr><td style="font-weight:600">${c.currency}</td><td style="color:var(--acc);font-weight:600">${c.amount}</td><td style="font-size:.8rem">${c.denom}</td><td style="font-size:.8rem;color:var(--txt2)">${c.note}</td></tr>`;
+});
+h+='</tbody></table></div>';
+document.getElementById('ht-cash').innerHTML=h;
+})();
+
+// Playbook
+(function(){
+const c=document.getElementById('playbookAcc');
+D.playbook.forEach(p=>{
+const sc=p.severity==='Extreme'?'badge-d':p.severity==='High'?'badge-o':'badge-w';
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)" style="border-left:3px solid var(--dng)"><span>${p.icon} ${p.name} <span class="badge ${sc}">${p.severity}</span></span><span class="arrow">▼</span></div>
+<div class="acc-b">
+<p style="font-size:.86rem;margin-bottom:8px;white-space:pre-line">${p.actions.replace(/\d\./g,'\n$&').trim()}</p>
+<div class="tag">${p.scenarios}</div>
+</div>`;
+});
+})();
+
+// Timeline
+(function(){
+const t=document.getElementById('timeTable');
+let h='<thead><tr><th>Phase</th><th>Focus</th><th>Key Actions</th><th>Priority</th></tr></thead><tbody>';
+D.timeline.forEach(r=>{
+const pc=r.priority==='CRITICAL'?'badge-d':r.priority==='HIGH'?'badge-o':r.priority==='MODERATE'?'badge-w':'badge-b';
+h+=`<tr><td style="font-weight:600;color:var(--acc2);white-space:nowrap">${r.phase}</td><td style="font-weight:600">${r.focus}</td><td style="font-size:.82rem">${r.actions}</td><td><span class="badge ${pc}">${r.priority}</span></td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// Monthly
+(function(){
+const c=document.getElementById('monthlyAcc');
+D.monthly.forEach(m=>{
+const tasks=m.tasks.map(t=>`<label style="display:flex;align-items:center;gap:8px;margin:5px 0;font-size:.84rem;cursor:pointer"><input type="checkbox" style="accent-color:var(--acc);width:15px;height:15px"> ${t}</label>`).join('');
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>📅 ${m.name}</span><span class="arrow">▼</span></div><div class="acc-b">${tasks}</div>`;
+});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>21 — Why Ark | Ark v3 (Standalone)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #04080c;
+    --bg2: #090e14;
+    --glass: rgba(255,255,255,0.03);
+    --glass2: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --accent: #00ffa3;
+    --accent2: #00c8ff;
+    --danger: #ff4a6b;
+    --warn: #ffb347;
+    --purple: #b06cff;
+    --text: #dde4ec;
+    --muted: #566070;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* noise grain */
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.35;
+  }
+
+  /* glow orbs */
+  .orb {
+    position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0;
+  }
+  .orb1 { width: 700px; height: 700px; background: rgba(0,255,163,0.05); top: -200px; left: -200px; }
+  .orb2 { width: 500px; height: 500px; background: rgba(0,200,255,0.04); bottom: -100px; right: -100px; }
+  .orb3 { width: 400px; height: 400px; background: rgba(176,108,255,0.03); top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+  /* ── NAV ── */
+  .ark-foundation {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(4,8,12,0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 40px;
+  }
+  .ark-logo { font-family: 'Syne', sans-serif; font-weight: 900; font-size: 1rem; letter-spacing: 0.2em; color: var(--accent); text-decoration: none; }
+  .ark-nav { display: flex; gap: 28px; }
+  .ark-nav a { font-size: 0.68rem; color: var(--muted); text-decoration: none; letter-spacing: 0.12em; text-transform: uppercase; transition: color .2s; }
+  .ark-nav a:hover { color: var(--accent); }
+  .ark-badge { background: var(--accent); color: #000; font-size: 0.58rem; font-weight: 700; padding: 4px 12px; letter-spacing: 0.14em; border-radius: 2px; }
+
+  /* ── LAYOUT ── */
+  .page { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 110px 32px 100px; }
+
+  /* ── SECTION TAG ── */
+  .stag {
+    font-size: 0.62rem; letter-spacing: 0.22em; color: var(--accent);
+    margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+    font-family: 'Syne', sans-serif;
+  }
+  .stag::before { content: ''; display: inline-block; width: 32px; height: 1px; background: var(--accent); }
+
+  /* ── HERO ── */
+  .hero { text-align: center; padding: 60px 0 80px; }
+  .hero h1 {
+    font-family: 'Syne', sans-serif; font-size: clamp(3rem, 8vw, 6.5rem);
+    font-weight: 900; line-height: 0.95; letter-spacing: -0.02em;
+    margin-bottom: 28px;
+  }
+  .hero h1 .line1 { display: block; color: var(--text); }
+  .hero h1 .line2 { display: block; color: var(--accent); }
+  .hero h1 .line3 { display: block; color: var(--muted); font-size: 0.55em; letter-spacing: 0.05em; margin-top: 8px; }
+  .hero-lead {
+    font-size: 1.1rem; color: var(--muted); max-width: 640px; margin: 0 auto 40px;
+    line-height: 1.8; font-weight: 300;
+  }
+  .hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    padding: 12px 28px; border-radius: 6px; font-family: 'Syne', sans-serif;
+    font-size: 0.78rem; font-weight: 700; cursor: pointer; border: none;
+    letter-spacing: 0.1em; text-transform: uppercase; transition: all .25s;
+  }
+  .btn-accent { background: var(--accent); color: #000; }
+  .btn-accent:hover { background: #00e090; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,255,163,0.25); }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border2); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--accent2); }
+
+  /* ── TICKER ── */
+  .ticker-wrap {
+    overflow: hidden; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    padding: 14px 0; margin-bottom: 80px; background: rgba(255,255,255,0.015);
+  }
+  .ticker-inner { display: flex; gap: 60px; white-space: nowrap; animation: ticker 30s linear infinite; }
+  .ticker-inner span { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.1em; }
+  .ticker-inner .hi { color: var(--danger); }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ── GL CARD ── */
+  .gl {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    backdrop-filter: blur(12px);
+  }
+
+  /* ── REASON GRID ── */
+  .section-title {
+    font-family: 'Syne', sans-serif; font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 800; margin-bottom: 10px; line-height: 1.1;
+  }
+  .section-sub { color: var(--muted); font-size: 0.88rem; margin-bottom: 44px; line-height: 1.7; max-width: 560px; }
+
+  .reasons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; margin-bottom: 80px; }
+  .reason-card {
+    padding: 28px 28px 24px; border-radius: 14px; position: relative; overflow: hidden;
+    background: var(--glass); border: 1px solid var(--border);
+    transition: border-color .3s, transform .25s;
+    cursor: default;
+  }
+  .reason-card:hover { border-color: var(--border2); transform: translateY(-3px); }
+  .reason-card .num {
+    font-family: 'Syne', sans-serif; font-size: 3.5rem; font-weight: 900;
+    position: absolute; top: -10px; right: 20px; opacity: 0.05; color: var(--accent);
+    line-height: 1; user-select: none;
+  }
+  .reason-icon { font-size: 1.8rem; margin-bottom: 14px; }
+  .reason-title { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; }
+  .reason-body { font-size: 0.82rem; color: var(--muted); line-height: 1.75; }
+  .reason-stat {
+    display: inline-block; margin-top: 14px; padding: 4px 12px;
+    background: rgba(0,255,163,0.08); border: 1px solid rgba(0,255,163,0.15);
+    border-radius: 4px; font-size: 0.7rem; color: var(--accent);
+    font-family: 'Syne', sans-serif; font-weight: 600;
+  }
+  .reason-card.danger .reason-stat { background: rgba(255,74,107,0.08); border-color: rgba(255,74,107,0.15); color: var(--danger); }
+  .reason-card.warn .reason-stat { background: rgba(255,179,71,0.08); border-color: rgba(255,179,71,0.15); color: var(--warn); }
+  .reason-card.blue .reason-stat { background: rgba(0,200,255,0.08); border-color: rgba(0,200,255,0.15); color: var(--accent2); }
+
+  /* ── DOOMSDAY CLOCK VISUAL ── */
+  .clock-section { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; margin-bottom: 80px; }
+  .clock-wrap { display: flex; justify-content: center; align-items: center; }
+  .clock-svg-wrap { position: relative; width: 280px; height: 280px; }
+  .clock-svg-wrap svg { width: 100%; height: 100%; }
+  .clock-center-text {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+  }
+  .clock-time { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 900; color: var(--danger); }
+  .clock-label { font-size: 0.62rem; color: var(--muted); letter-spacing: 0.12em; margin-top: 4px; }
+  .clock-info h3 { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; margin-bottom: 16px; }
+  .clock-info p { font-size: 0.85rem; color: var(--muted); line-height: 1.8; margin-bottom: 14px; }
+  .timeline { margin-top: 24px; }
+  .tl-row { display: flex; gap: 14px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .tl-year { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.82rem; color: var(--accent2); width: 52px; flex-shrink: 0; }
+  .tl-val { font-size: 0.75rem; color: var(--muted); flex: 1; }
+  .tl-bar { height: 3px; background: var(--danger); border-radius: 2px; margin-top: 4px; }
+
+  /* ── STATS ROW ── */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 80px; }
+  .stat-card { padding: 28px 24px; text-align: center; }
+  .stat-val { font-family: 'Syne', sans-serif; font-size: 2.4rem; font-weight: 900; line-height: 1; margin-bottom: 6px; }
+  .stat-lbl { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.1em; }
+  .stat-sub { font-size: 0.62rem; color: var(--muted); margin-top: 6px; opacity: 0.6; }
+
+  /* ── COLLAPSE SCENARIOS ── */
+  .scenarios-section { margin-bottom: 80px; }
+  .scenarios-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 32px; }
+  .scenario-item {
+    padding: 18px 20px; border-radius: 10px; cursor: pointer;
+    background: var(--glass); border: 1px solid var(--border);
+    transition: all .25s;
+  }
+  .scenario-item:hover { border-color: var(--border2); background: var(--glass2); transform: scale(1.01); }
+  .si-cat { font-size: 0.58rem; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 6px; }
+  .si-name { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; margin-bottom: 8px; }
+  .si-prob {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .prob-bar { flex: 1; height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; }
+  .prob-fill { height: 100%; border-radius: 2px; }
+  .prob-num { font-size: 0.65rem; font-weight: 600; }
+
+  /* ── TABS ── */
+  .stab { display: flex; gap: 2px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 3px; margin-bottom: 28px; width: fit-content; }
+  .stab-btn {
+    padding: 8px 18px; border-radius: 6px; font-family: 'Syne', sans-serif; font-size: 0.7rem;
+    font-weight: 700; letter-spacing: 0.1em; cursor: pointer; border: none; background: none;
+    color: var(--muted); transition: all .2s;
+  }
+  .stab-btn.active { background: var(--accent); color: #000; }
+  .spanel { display: none; }
+  .spanel.active { display: block; }
+
+  /* ── WHO SHOULD READ ── */
+  .profiles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 80px; }
+  .profile-card { padding: 24px; }
+  .profile-emoji { font-size: 2rem; margin-bottom: 12px; }
+  .profile-type { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; }
+  .profile-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.7; }
+  .profile-tag { margin-top: 12px; font-size: 0.62rem; color: var(--accent); letter-spacing: 0.1em; }
+
+  /* ── CTA BANNER ── */
+  .cta-banner {
+    text-align: center; padding: 64px 40px;
+    background: linear-gradient(135deg, rgba(0,255,163,0.06) 0%, rgba(0,200,255,0.04) 100%);
+    border: 1px solid rgba(0,255,163,0.12); border-radius: 20px; margin-bottom: 40px;
+  }
+  .cta-banner h2 { font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 900; margin-bottom: 16px; }
+  .cta-banner p { color: var(--muted); font-size: 0.9rem; max-width: 520px; margin: 0 auto 32px; line-height: 1.8; }
+  .cta-grid { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* ── COUNTER ANIMATION ── */
+  @keyframes countUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-in { animation: countUp .6s ease forwards; }
+
+  @media (max-width: 900px) {
+    .clock-section { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .scenarios-grid { grid-template-columns: repeat(2, 1fr); }
+    .ark-nav { display: none; }
+  }
+  @media (max-width: 600px) {
+    .scenarios-grid { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<!-- ── FOUNDATION PASTE ── -->
+<nav class="ark-foundation">
+  <a class="ark-logo" href="#">◈ ARK COLLECTIVE</a>
+  <div class="ark-nav">
+    <a href="#risk">RISK CALC</a>
+    <a href="#historical">HISTORICAL</a>
+    <a href="#scout">SCOUT</a>
+    <a href="#strategies">STRATEGIES</a>
+    <a href="#30-day">SPRINT</a>
+  </div>
+  <span class="ark-badge">v3 LIVE</span>
+</nav>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="stag" style="justify-content:center">MODULE 21 — THE ARK CASE</div>
+    <h1>
+      <span class="line1">WHY</span>
+      <span class="line2">BUILD AN ARK?</span>
+      <span class="line3">The evidence you can no longer ignore</span>
+    </h1>
+    <p class="hero-lead">The Doomsday Clock stands at 89 seconds to midnight. Civilisational continuity is no longer guaranteed. The Ark Collective exists because the probability of systemic collapse within 25 years exceeds 60%.</p>
+    <div class="hero-cta">
+      <button class="btn btn-accent" onclick="scrollTo({top:document.getElementById('reasons').offsetTop-80,behavior:'smooth'})">SEE THE EVIDENCE</button>
+      <button class="btn btn-ghost" onclick="scrollTo({top:document.getElementById('scenarios').offsetTop-80,behavior:'smooth'})">150 COLLAPSE SCENARIOS</button>
+    </div>
+  </div>
+
+  <!-- TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker-inner" id="ticker"></div>
+  </div>
+
+  <!-- DATA BLOCK -->
+  <script>
+    const TICKER_ITEMS = [
+      {t:"DOOMSDAY CLOCK", v:"89 SEC TO MIDNIGHT", cls:"hi"},
+      {t:"GLOBAL TEMP RISE", v:"+1.45°C ABOVE PRE-INDUSTRIAL", cls:"hi"},
+      {t:"NUCLEAR WARHEADS", v:"12,500 ACTIVE", cls:"hi"},
+      {t:"COLLAPSE SCENARIOS", v:"150 MAPPED", cls:""},
+      {t:"ELITE BUNKERS SOLD", v:"UP 900% SINCE 2020", cls:""},
+      {t:"FOOD INSECURITY", v:"783M PEOPLE", cls:"hi"},
+      {t:"ARK PROPERTIES", v:"15 LIVE LISTINGS", cls:""},
+      {t:"DEBT-TO-GDP", v:"US 123%", cls:"hi"},
+      {t:"BIODIVERSITY LOSS", v:"1M SPECIES THREATENED", cls:"hi"},
+      {t:"PANDEMIC PREPAREDNESS", v:"GRADE: D+", cls:"hi"},
+      {t:"SOLAR STORM PROBABILITY", v:"12% IN 10YR", cls:""},
+      {t:"ARK v3", v:"LIVE", cls:""},
+    ];
+
+    const REASONS = [
+      { num:"01", icon:"⚛️", title:"Nuclear Brinkmanship Is At A Record High", body:"Russia, China, and North Korea have all issued explicit nuclear threats in the past 36 months. NATO expansion has pushed us to Cold War-era tension levels. The Doomsday Clock moved to 89 seconds in 2023 — the closest it has ever been.", stat:"89 SEC TO MIDNIGHT", cls:"danger" },
+      { num:"02", icon:"🌡️", title:"Climate Systems Are Approaching Tipping Points", body:"The IPCC now warns of cascading tipping points — Arctic ice loss, Amazon dieback, permafrost methane release — that could accelerate beyond any policy intervention. Extreme weather events are becoming civilisation-level disruptions.", stat:"+1.45°C AND ACCELERATING", cls:"warn" },
+      { num:"03", icon:"🦠", title:"Pandemic Risk Remains Unaddressed", body:"COVID-19 exposed catastrophic gaps in global pandemic response. Gain-of-function research continues at BSL-4 labs worldwide. The WHO estimates a pathogen with 10× the CFR of COVID is 'a matter of when, not if'.", stat:"WHO: PANDEMIC RISK GRADE D+", cls:"danger" },
+      { num:"04", icon:"💰", title:"Debt Supercycle Has No Precedent", body:"Global debt stands at $307 trillion — 330% of global GDP. The US alone has $34T in debt. Historical precedent from every prior debt supercycle ends in one of three outcomes: default, hyperinflation, or war.", stat:"$307 TRILLION GLOBAL DEBT", cls:"danger" },
+      { num:"05", icon:"🌐", title:"Supply Chain Fragility Is Structural", body:"The COVID supply chain crisis showed that modern civilisation operates on 72-hour buffers. Just-in-time delivery systems have eliminated the resilience buffers that existed in 1950. A single major port blockage triggers cascades.", stat:"72-HR FOOD BUFFER IN CITIES", cls:"warn" },
+      { num:"06", icon:"⚡", title:"Grid Vulnerability Is Existential", body:"A Carrington-scale solar event (probability: 12% per decade) would destroy transformers across the northern hemisphere. US intelligence reports confirm adversaries have pre-positioned cyberweapons in critical infrastructure.", stat:"12% SOLAR STORM / 10 YEARS", cls:"warn" },
+      { num:"07", icon:"🤖", title:"AI Disruption Timeline Is Compressing", body:"AGI timeline estimates have collapsed from 20 years to 2-5 years. Mass unemployment, social instability, and autonomous weapons proliferation represent convergent civilisation-level risks that no governance framework addresses.", stat:"AGI: 2027–2030 CONSENSUS", cls:"blue" },
+      { num:"08", icon:"💧", title:"Water Wars Are Already Beginning", body:"17 countries are currently under 'extremely high water stress'. The Himalayan glaciers — drinking water source for 2 billion people — are projected to lose 40% of their volume by 2100. Water scarcity drives migration and conflict.", stat:"17 NATIONS: EXTREME STRESS", cls:"danger" },
+      { num:"09", icon:"🏛️", title:"Democratic Institutions Are Fracturing", body:"Freedom House reports global democracy has declined for 18 consecutive years. Authoritarian governments now control 72% of the world's population. When institutions fail, protection systems fail with them.", stat:"18 CONSECUTIVE YEARS DECLINE", cls:"warn" },
+      { num:"10", icon:"🔬", title:"Biosecurity Risks Are Accelerating", body:"CRISPR democratisation means that creating a custom pathogen is moving within reach of small state actors and even well-funded non-state groups. The 2024 WHO biosecurity report rated global preparedness 'critically inadequate'.", stat:"CRISPR: $500 GENE EDIT KITS", cls:"danger" },
+      { num:"11", icon:"📡", title:"Electromagnetic Pulse Threats Are Credible", body:"The EMP Commission (declassified 2020) concluded that a single high-altitude nuclear detonation over the US would destroy 90% of the electrical grid and kill up to 90% of the population within 12 months.", stat:"90% GRID LOSS: SINGLE EMP", cls:"danger" },
+      { num:"12", icon:"🏔️", title:"The Elite Already Know — And They're Building Arks", body:"SpaceX CEO Elon Musk, PayPal founder Peter Thiel, Google co-founder Larry Page, hedge fund manager Paul Singer — all have built or purchased survival compounds in New Zealand or remote locations. This isn't paranoia. It's pattern recognition.", stat:"BILLIONAIRE ARK SITES: 40+", cls:"blue" },
+    ];
+
+    const SCENARIOS = [
+      {cat:"GEOPOLITICAL", name:"US-China Taiwan Conflict", prob:38, color:"#ff4a6b"},
+      {cat:"CLIMATE", name:"Cascading Tipping Point Event", prob:31, color:"#ffb347"},
+      {cat:"PANDEMIC", name:"Engineered Pathogen Release", prob:22, color:"#ff4a6b"},
+      {cat:"FINANCIAL", name:"Global Sovereign Debt Crisis", prob:44, color:"#ffb347"},
+      {cat:"TECHNOLOGY", name:"Critical Infrastructure Cyberattack", prob:57, color:"#ffb347"},
+      {cat:"NATURAL", name:"Carrington-Scale Solar Event", prob:12, color:"#00c8ff"},
+      {cat:"NUCLEAR", name:"Regional Nuclear Exchange", prob:18, color:"#ff4a6b"},
+      {cat:"AI/TECH", name:"AGI Misalignment Event", prob:14, color:"#b06cff"},
+      {cat:"SOCIAL", name:"Democratic Collapse + Authoritarianism", prob:29, color:"#ffb347"},
+      {cat:"BIOLOGICAL", name:"Lab Leak / Biosecurity Failure", prob:26, color:"#ff4a6b"},
+      {cat:"ECONOMIC", name:"Hyperinflationary Spiral (US/EU)", prob:19, color:"#ffb347"},
+      {cat:"ENERGY", name:"Global Grid Failure Event", prob:16, color:"#00c8ff"},
+    ];
+
+    const PROFILES = [
+      { emoji:"💼", type:"High-Net-Worth Individual", desc:"You have assets worth protecting and understand that geographic diversification extends beyond financial portfolios.", tag:"PRIORITY: ASSET PROTECTION + MOBILITY" },
+      { emoji:"👨‍👩‍👧‍👦", type:"Family With Children", desc:"You can accept personal risk, but not for your children. The Ark framework gives families a credible multi-decade continuity plan.", tag:"PRIORITY: MULTIGENERATIONAL SECURITY" },
+      { emoji:"🔬", type:"Research-Driven Thinker", desc:"You've read the IPCC reports, the EMP Commission, the Biosecurity White Papers. The data disturbs you more than the fringe commentary does.", tag:"PRIORITY: EVIDENCE-BASED PREPARATION" },
+      { emoji:"🌍", type:"Global Citizen / Expat", desc:"You already live, work, and invest across multiple jurisdictions. The Ark is the next logical step in your existing lifestyle architecture.", tag:"PRIORITY: MULTI-JURISDICTION OPTIONALITY" },
+      { emoji:"🏗️", type:"Entrepreneur / Builder", desc:"You solve problems before they occur. You're not pessimistic — you're building margin into civilisational risk the same way you build margin into your business.", tag:"PRIORITY: PROACTIVE RISK ENGINEERING" },
+      { emoji:"🧭", type:"Thoughtful Sceptic", desc:"You don't fully believe in collapse — but you buy home insurance. The Ark is civilisational insurance with a positive expected value.", tag:"PRIORITY: RATIONAL OPTIONALITY" },
+    ];
+  </script>
+
+  <!-- RENDER: TICKER -->
+  <script>
+    const tickerEl = document.getElementById('ticker');
+    const items = [...TICKER_ITEMS, ...TICKER_ITEMS];
+    tickerEl.innerHTML = items.map(i => `<span class="${i.cls}">${i.t}: <strong>${i.v}</strong></span>`).join('');
+  </script>
+
+  <!-- STATS ROW -->
+  <div class="stats-row">
+    <div class="gl stat-card animate-in">
+      <div class="stat-val" style="color:var(--danger)" id="c1">89</div>
+      <div class="stat-lbl">SECONDS TO MIDNIGHT</div>
+      <div class="stat-sub">Doomsday Clock 2023</div>
+    </div>
+    <div class="gl stat-card animate-in" style="animation-delay:.1s">
+      <div class="stat-val" style="color:var(--warn)" id="c2">60%</div>
+      <div class="stat-lbl">CIVILISATIONAL COLLAPSE RISK</div>
+      <div class="stat-sub">Within 25 years — Ord 2020</div>
+    </div>
+    <div class="gl stat-card animate-in" style="animation-delay:.2s">
+      <div class="stat-val" style="color:var(--accent2)" id="c3">150</div>
+      <div class="stat-lbl">COLLAPSE SCENARIOS MAPPED</div>
+      <div class="stat-sub">Ark Collapse Bible v3</div>
+    </div>
+    <div class="gl stat-card animate-in" style="animation-delay:.3s">
+      <div class="stat-val" style="color:var(--accent)" id="c4">40+</div>
+      <div class="stat-lbl">ELITE ARK COMPOUNDS</div>
+      <div class="stat-sub">Confirmed billionaire sites</div>
+    </div>
+  </div>
+
+  <!-- REASONS -->
+  <section id="reasons">
+    <div class="stag">12 REASONS THE ARK FRAMEWORK EXISTS</div>
+    <h2 class="section-title">The Case Is No Longer Fringe</h2>
+    <p class="section-sub">These are not conspiracy theories. Each data point is sourced from peer-reviewed research, government reports, or documented elite behaviour.</p>
+    <div class="reasons-grid" id="reasonsGrid"></div>
+  </section>
+
+  <!-- DOOMSDAY CLOCK -->
+  <section>
+    <div class="clock-section">
+      <div class="clock-wrap">
+        <div class="clock-svg-wrap">
+          <svg viewBox="0 0 280 280">
+            <defs>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="4" result="blur"/>
+                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+              </filter>
+            </defs>
+            <!-- Background ring -->
+            <circle cx="140" cy="140" r="120" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="12"/>
+            <!-- Danger arc — 89/3600 * 360 = 8.9° from midnight, draw almost full circle -->
+            <circle cx="140" cy="140" r="120" fill="none" stroke="var(--danger)" stroke-width="12"
+              stroke-dasharray="752" stroke-dashoffset="18.6"
+              stroke-linecap="round" filter="url(#glow)"
+              transform="rotate(-90 140 140)"/>
+            <!-- Hour markers -->
+            <line x1="140" y1="22" x2="140" y2="42" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+            <line x1="258" y1="140" x2="238" y2="140" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+            <line x1="22" y1="140" x2="42" y2="140" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+            <line x1="140" y1="258" x2="140" y2="238" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+            <!-- Minute hand at 89 sec before midnight -->
+            <line x1="140" y1="140" x2="155" y2="30" stroke="var(--danger)" stroke-width="3" stroke-linecap="round" filter="url(#glow)"
+              transform="rotate(8.9 140 140)"/>
+            <!-- Hour hand -->
+            <line x1="140" y1="140" x2="140" y2="70" stroke="rgba(255,255,255,0.4)" stroke-width="4" stroke-linecap="round"/>
+            <!-- Center -->
+            <circle cx="140" cy="140" r="6" fill="var(--danger)"/>
+          </svg>
+          <div class="clock-center-text">
+            <div class="clock-time">89s</div>
+            <div class="clock-label">TO MIDNIGHT</div>
+          </div>
+        </div>
+      </div>
+      <div class="clock-info">
+        <div class="stag">DOOMSDAY CLOCK</div>
+        <h3>The Closest We've<br>Ever Been</h3>
+        <p>Since 1947, the Bulletin of Atomic Scientists has maintained the Doomsday Clock as a symbol of civilisational risk. In January 2023, it was moved to <strong style="color:var(--danger)">89 seconds to midnight</strong> — shattering its own record.</p>
+        <p style="font-size:0.8rem">The clock incorporates nuclear threat, climate disruption, disruptive technology, and biosecurity risk. All four are deteriorating simultaneously.</p>
+        <div class="timeline">
+          <div class="tl-row"><span class="tl-year">1953</span><span class="tl-val">120 sec — H-bomb development<div class="tl-bar" style="width:30%"></div></span></div>
+          <div class="tl-row"><span class="tl-year">1991</span><span class="tl-val">1,020 sec — Cold War ends<div class="tl-bar" style="width:8%;background:var(--accent)"></div></span></div>
+          <div class="tl-row"><span class="tl-year">2020</span><span class="tl-val">120 sec — Pandemic era<div class="tl-bar" style="width:30%"></div></span></div>
+          <div class="tl-row"><span class="tl-year">2023</span><span class="tl-val" style="color:var(--danger)">89 sec — All-time closest<div class="tl-bar" style="width:97%;"></div></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCENARIOS -->
+  <section id="scenarios">
+    <div class="stag">COLLAPSE BIBLE — 150 SCENARIOS</div>
+    <h2 class="section-title">What Are We Preparing For?</h2>
+    <p class="section-sub">The Ark Collapse Bible maps 150 distinct civilisational risk scenarios across 8 categories. Below: the 12 highest-probability events with 25-year risk estimates.</p>
+    <div class="stab">
+      <button class="stab-btn active" onclick="switchTab(this,'tAll')">ALL RISKS</button>
+      <button class="stab-btn" onclick="switchTab(this,'tGeo')">GEOPOLITICAL</button>
+      <button class="stab-btn" onclick="switchTab(this,'tTech')">TECH/AI</button>
+      <button class="stab-btn" onclick="switchTab(this,'tNat')">NATURAL</button>
+    </div>
+    <div class="spanel active" id="tAll">
+      <div class="scenarios-grid" id="sgAll"></div>
+    </div>
+    <div class="spanel" id="tGeo">
+      <div class="scenarios-grid" id="sgGeo"></div>
+    </div>
+    <div class="spanel" id="tTech">
+      <div class="scenarios-grid" id="sgTech"></div>
+    </div>
+    <div class="spanel" id="tNat">
+      <div class="scenarios-grid" id="sgNat"></div>
+    </div>
+  </section>
+
+  <!-- WHO SHOULD READ -->
+  <section style="margin-top:80px;margin-bottom:80px">
+    <div class="stag">WHO IS THE ARK FOR?</div>
+    <h2 class="section-title">Six Types of Ark Builder</h2>
+    <p class="section-sub">The Ark is not for doomsday cult members. It is for rational, evidence-driven people who understand that probability distributions apply to civilisations as much as to portfolios.</p>
+    <div class="profiles-grid">
+      <!-- rendered by JS -->
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <div class="cta-banner">
+    <div class="stag" style="justify-content:center">BEGIN YOUR ARK</div>
+    <h2>Ready To Build<br><span style="color:var(--accent)">Your Continuity Plan?</span></h2>
+    <p>The Ark Collective has mapped every step — from risk assessment to property acquisition, community formation, and off-grid systems. Start with your personal risk score.</p>
+    <div class="cta-grid">
+      <button class="btn btn-accent" onclick="location.href='#risk'">CALCULATE MY RISK SCORE</button>
+      <button class="btn btn-ghost" onclick="location.href='#scout'">BROWSE ARK PROPERTIES</button>
+      <button class="btn btn-ghost" onclick="location.href='#30-day'">START 30-DAY SPRINT</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- RENDER BLOCK -->
+<script>
+  // Ticker
+  document.getElementById('ticker').innerHTML += document.getElementById('ticker').innerHTML;
+
+  // Reasons
+  document.getElementById('reasonsGrid').innerHTML = REASONS.map(r => `
+    <div class="reason-card ${r.cls}">
+      <div class="num">${r.num}</div>
+      <div class="reason-icon">${r.icon}</div>
+      <div class="reason-title">${r.title}</div>
+      <div class="reason-body">${r.body}</div>
+      <div class="reason-stat">${r.stat}</div>
+    </div>`).join('');
+
+  // Profiles
+  document.querySelector('.profiles-grid').innerHTML = PROFILES.map(p => `
+    <div class="gl profile-card">
+      <div class="profile-emoji">${p.emoji}</div>
+      <div class="profile-type">${p.type}</div>
+      <div class="profile-desc">${p.desc}</div>
+      <div class="profile-tag">${p.tag}</div>
+    </div>`).join('');
+
+  // Scenarios
+  function renderScenarios(containerId, filter) {
+    const items = filter ? SCENARIOS.filter(s => {
+      if (filter === 'geo') return ['GEOPOLITICAL','NUCLEAR','SOCIAL'].includes(s.cat);
+      if (filter === 'tech') return ['TECHNOLOGY','AI/TECH','BIOLOGICAL'].includes(s.cat);
+      if (filter === 'nat') return ['NATURAL','CLIMATE','ENERGY'].includes(s.cat);
+      return true;
+    }) : SCENARIOS;
+    document.getElementById(containerId).innerHTML = items.map(s => `
+      <div class="scenario-item">
+        <div class="si-cat">${s.cat}</div>
+        <div class="si-name">${s.name}</div>
+        <div class="si-prob">
+          <div class="prob-bar"><div class="prob-fill" style="width:${s.prob}%;background:${s.color}"></div></div>
+          <span class="prob-num" style="color:${s.color}">${s.prob}%</span>
+        </div>
+      </div>`).join('');
+  }
+  renderScenarios('sgAll', null);
+  renderScenarios('sgGeo', 'geo');
+  renderScenarios('sgTech', 'tech');
+  renderScenarios('sgNat', 'nat');
+
+  // INTERACTION BLOCK
+  function switchTab(btn, panelId) {
+    btn.closest('.stab').querySelectorAll('.stab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    btn.closest('section').querySelectorAll('.spanel').forEach(p => p.classList.remove('active'));
+    document.getElementById(panelId).classList.add('active');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>16 — Post-Collapse Timeline | Ark v3 (Standalone)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  /* ── FOUNDATION PASTE ── */
+  :root{
+    --bg:#070a0f;--bg2:#0d1117;--bg3:#131a24;
+    --glass:rgba(255,255,255,0.04);--glass-b:rgba(255,255,255,0.09);
+    --border:rgba(255,255,255,0.08);--border-h:rgba(255,255,255,0.18);
+    --accent:#e8521a;--accent2:#f0a500;--accent3:#1ae8a0;
+    --txt:#e8e6e0;--txt2:#9a9590;--txt3:#5a5550;
+    --red:#e84040;--amber:#f0a500;--green:#1ae8a0;--blue:#3a8ef0;
+    --r:12px;--r2:20px;
+    --ff-head:'Syne',sans-serif;--ff-mono:'JetBrains Mono',monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--txt);font-family:var(--ff-mono);
+    min-height:100vh;overflow-x:hidden;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 20% 10%,rgba(232,82,26,.12),transparent),
+      radial-gradient(ellipse 60% 40% at 80% 80%,rgba(26,232,160,.08),transparent);
+  }
+  /* glassmorphic card */
+  .gl{
+    background:var(--glass);border:1px solid var(--border);
+    border-radius:var(--r2);backdrop-filter:blur(18px);
+    transition:border .25s,box-shadow .25s;
+  }
+  .gl:hover{border-color:var(--border-h);box-shadow:0 8px 40px rgba(0,0,0,.4)}
+  /* layout */
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  /* hero */
+  .hero{padding:80px 0 48px;text-align:center;position:relative}
+  .hero-tag{font-size:.65rem;letter-spacing:.25em;color:var(--accent);text-transform:uppercase;margin-bottom:16px}
+  .hero h1{font-family:var(--ff-head);font-size:clamp(2.2rem,5vw,3.8rem);font-weight:800;line-height:1.08;margin-bottom:20px}
+  .hero h1 em{font-style:normal;color:var(--accent)}
+  .hero p{color:var(--txt2);font-size:.9rem;max-width:640px;margin:0 auto 32px;line-height:1.7}
+  /* phase nav */
+  .phase-nav{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:48px}
+  .pnav-btn{
+    background:var(--glass);border:1px solid var(--border);border-radius:50px;
+    padding:8px 18px;font-family:var(--ff-mono);font-size:.72rem;cursor:pointer;color:var(--txt2);
+    transition:all .2s;letter-spacing:.04em;
+  }
+  .pnav-btn:hover,.pnav-btn.active{
+    background:var(--accent);border-color:var(--accent);color:#fff;
+  }
+  /* timeline container */
+  .timeline{position:relative;padding:0 0 40px}
+  .timeline::before{
+    content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;
+    background:linear-gradient(180deg,var(--accent),var(--accent2),var(--accent3));
+    transform:translateX(-50%);opacity:.35;
+  }
+  /* phase header */
+  .phase-header{
+    text-align:center;position:relative;margin:48px 0 32px;
+  }
+  .phase-header .ph-pill{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--bg3);border:1px solid var(--border);
+    border-radius:50px;padding:10px 24px;
+    font-family:var(--ff-head);font-size:.85rem;font-weight:700;
+  }
+  .ph-dot{width:10px;height:10px;border-radius:50%;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+  /* event card */
+  .event{
+    display:flex;gap:0;margin-bottom:24px;align-items:flex-start;
+    position:relative;
+  }
+  .event.left{flex-direction:row-reverse}
+  .event-content{
+    width:calc(50% - 36px);padding:20px 24px;
+  }
+  .event.right .event-content{margin-left:auto}
+  .event.left .event-content{margin-right:auto}
+  .event-dot{
+    position:absolute;left:50%;transform:translateX(-50%);
+    width:14px;height:14px;border-radius:50%;border:2px solid var(--bg);
+    top:22px;z-index:2;flex-shrink:0;
+  }
+  .event-day{font-size:.65rem;letter-spacing:.15em;color:var(--txt3);margin-bottom:6px;text-transform:uppercase}
+  .event-title{font-family:var(--ff-head);font-size:1rem;font-weight:700;margin-bottom:8px}
+  .event-desc{font-size:.78rem;color:var(--txt2);line-height:1.65;margin-bottom:10px}
+  .event-tags{display:flex;flex-wrap:wrap;gap:6px}
+  .etag{
+    font-size:.6rem;letter-spacing:.08em;padding:3px 8px;border-radius:4px;
+    background:rgba(255,255,255,.06);color:var(--txt2);border:1px solid var(--border);
+  }
+  .etag.danger{background:rgba(232,64,64,.12);color:var(--red);border-color:rgba(232,64,64,.25)}
+  .etag.warn{background:rgba(240,165,0,.12);color:var(--amber);border-color:rgba(240,165,0,.25)}
+  .etag.safe{background:rgba(26,232,160,.12);color:var(--green);border-color:rgba(26,232,160,.25)}
+  .etag.info{background:rgba(58,142,240,.12);color:var(--blue);border-color:rgba(58,142,240,.25)}
+  /* severity bar */
+  .sev-bar{height:3px;border-radius:2px;margin-top:10px;transition:width .8s ease}
+  /* ark action box */
+  .ark-action{
+    background:rgba(232,82,26,.07);border:1px solid rgba(232,82,26,.2);
+    border-radius:10px;padding:10px 14px;margin-top:10px;
+    font-size:.75rem;color:var(--accent);
+  }
+  .ark-action strong{display:block;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;opacity:.7}
+  /* hidden phase */
+  .phase-block{display:block}
+  .phase-block.hidden{display:none}
+  /* survival meter */
+  .surv-meter{
+    position:fixed;right:24px;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    z-index:100;
+  }
+  .surv-label{font-size:.58rem;letter-spacing:.1em;color:var(--txt3);writing-mode:vertical-rl;text-transform:uppercase}
+  .surv-track{width:6px;height:200px;background:rgba(255,255,255,.06);border-radius:3px;position:relative;overflow:hidden}
+  .surv-fill{position:absolute;bottom:0;width:100%;border-radius:3px;transition:height .6s ease;background:linear-gradient(0deg,var(--red),var(--amber),var(--green))}
+  .surv-pct{font-size:.7rem;font-weight:500;color:var(--txt)}
+  /* accordion */
+  .acc-btn{
+    width:100%;background:none;border:none;border-bottom:1px solid var(--border);
+    padding:14px 20px;display:flex;justify-content:space-between;align-items:center;
+    cursor:pointer;color:var(--txt);font-family:var(--ff-mono);font-size:.82rem;text-align:left;
+    transition:background .2s;
+  }
+  .acc-btn:hover{background:rgba(255,255,255,.03)}
+  .acc-btn .arr{transition:transform .3s;font-size:.7rem;color:var(--txt3)}
+  .acc-btn.open .arr{transform:rotate(180deg)}
+  .acc-panel{max-height:0;overflow:hidden;transition:max-height .4s ease}
+  .acc-panel.open{max-height:600px}
+  .acc-inner{padding:16px 20px;font-size:.8rem;color:var(--txt2);line-height:1.7}
+  /* responsive */
+  @media(max-width:720px){
+    .timeline::before{left:20px}
+    .event,.event.left{flex-direction:column}
+    .event-content,.event.right .event-content,.event.left .event-content{width:100%;margin:0 0 0 48px}
+    .event-dot{left:20px;transform:none}
+    .surv-meter{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ── DATA BLOCK ── -->
+<script>
+const PHASES = [
+  {
+    id:'acute', label:'Acute Collapse', days:'Day 0–72', color:'#e84040',
+    desc:'Systems simultaneously fail. Government loses control narrative. Social trust evaporates within 72 hours.',
+    events:[
+      {
+        side:'right', day:'Hour 0–6', title:'Grid Failure Cascade',
+        desc:'Power grid sections drop. ATMs offline. Hospital generators kick in. Cellular towers begin failing after 8h on backup power.',
+        tags:[{t:'CRITICAL',c:'danger'},{t:'Infrastructure',c:'info'}],
+        sev:95, ark:'Activate solar/battery backup. Inventory critical supplies. Do NOT leave shelter yet.'
+      },
+      {
+        side:'left', day:'Hour 6–18', title:'Financial System Seizure',
+        desc:'Bank runs exhaust cash reserves. Digital payments suspended. Barter economy emerges at local level within first day.',
+        tags:[{t:'Economic',c:'warn'},{t:'Tier 1 Action',c:'safe'}],
+        sev:85, ark:'Convert remaining digital assets to hard currency/PM. Pull 30-day cash reserve. Invoke financial dead-man switches.'
+      },
+      {
+        side:'right', day:'Day 1–3', title:'Supply Chain Rupture',
+        desc:'JIT logistics collapse. Gas stations dry in 48h. Grocery stores emptied in 36h. Medication shortages begin affecting dialysis, insulin-dependent populations.',
+        tags:[{t:'Supply Chain',c:'danger'},{t:'Medical',c:'danger'}],
+        sev:90, ark:'Do NOT hoard publicly. Quietly verify 12-month food stockpile integrity. Check water storage seals.'
+      },
+      {
+        side:'left', day:'Day 2–5', title:'Social Order Fractures',
+        desc:'Looting begins in dense urban cores. Law enforcement overwhelmed; 30% absenteeism as officers protect families. First vigilante groups form.',
+        tags:[{t:'Security',c:'danger'},{t:'Urban Risk',c:'warn'}],
+        sev:88, ark:'Shelter in place. Reduce visible wealth signals. Establish neighbor communication protocols.'
+      },
+      {
+        side:'right', day:'Day 3–7', title:'Government Emergency Declaration',
+        desc:'Martial law declared in major metros. National Guard mobilized. Curfews imposed. Confiscation authority invoked in some jurisdictions.',
+        tags:[{t:'Legal',c:'warn'},{t:'Confiscation Risk',c:'danger'}],
+        sev:80, ark:'Assets outside home jurisdiction now critical. Avoid compliance with confiscation orders through legal pre-planning.'
+      },
+    ]
+  },
+  {
+    id:'transition', label:'Transition Chaos', days:'Week 1–8', color:'#f0a500',
+    desc:'Power vacuums fill with warlords, militias, corporate security forces. Infrastructure partially restores in some zones.',
+    events:[
+      {
+        side:'right', day:'Week 1–2', title:'Refugee Flows Begin',
+        desc:'Urban exodus. 15–40% of city populations mobilize. Roads clog. First refugee camps form outside major cities. Disease vectors activate.',
+        tags:[{t:'Migration',c:'warn'},{t:'Disease Risk',c:'danger'}],
+        sev:75, ark:'If bugging out, execute now before roads lock. Pre-positioned Ark locations activated.'
+      },
+      {
+        side:'left', day:'Week 2–4', title:'Warlord Consolidation',
+        desc:'Territorial control claimed by armed groups. Gas and food become primary currencies. Protection rackets emerge. First checkpoints established.',
+        tags:[{t:'Security',c:'danger'},{t:'Economics',c:'warn'}],
+        sev:82, ark:'Ark community security protocols active. Perimeter established. Vetting incoming strangers.'
+      },
+      {
+        side:'right', day:'Week 3–5', title:'Medical System Collapse',
+        desc:'Hospitals unable to function without power/supply. ERs close. Chronic disease mortality spikes 300–700%. Infection rates rise sharply.',
+        tags:[{t:'Medical',c:'danger'},{t:'Mortality Risk',c:'danger'}],
+        sev:78, ark:'Activate community medic. Verify antibiotic/medical stockpile. Triage protocol active. No outside patients without vetting.'
+      },
+      {
+        side:'left', day:'Week 4–6', title:'Communication Fragmentation',
+        desc:'Internet routers lose power. Cellular towers dark. HAM radio and shortwave become primary intel sources. Information warfare intensifies.',
+        tags:[{t:'Communications',c:'info'},{t:'Intel',c:'warn'}],
+        sev:65, ark:'Shortwave receiver active. Mesh network operational. Intelligence sharing with allied Arks.'
+      },
+      {
+        side:'right', day:'Week 5–8', title:'First Order Attempts',
+        desc:'Provisional authorities emerge. Some regions stabilize under strong local leadership. Barter markets formalize. Fuel rationing systems appear.',
+        tags:[{t:'Political',c:'info'},{t:'Economic Recovery',c:'safe'}],
+        sev:55, ark:'Evaluate provisional authority legitimacy. Cautious engagement with stable local structures. Avoid dependence.'
+      },
+    ]
+  },
+  {
+    id:'adaptation', label:'Dark Adaptation', days:'Month 2–12', color:'#3a8ef0',
+    desc:'Survivors adapt to new normal. Power structures crystallize. Resource control becomes political control. Ark communities prove their design.',
+    events:[
+      {
+        side:'right', day:'Month 2–4', title:'New Economy Crystallizes',
+        desc:'Precious metals, fuel, medicine, seed, and skilled labor become the new monetary system. Property rights enforced by force, not law.',
+        tags:[{t:'Economic Shift',c:'warn'},{t:'Property Rights',c:'danger'}],
+        sev:60, ark:'Ark trading protocols active. No external disclosure of full inventory. Skills-first exchange policy.'
+      },
+      {
+        side:'left', day:'Month 3–6', title:'Agricultural Season Zero',
+        desc:'First post-collapse growing season begins. Communities without food production face starvation. Seed banks become strategic assets.',
+        tags:[{t:'Food',c:'danger'},{t:'Agriculture',c:'safe'}],
+        sev:70, ark:'All Ark gardens operational. Heirloom seed vault secured. Food production logs maintained.'
+      },
+      {
+        side:'right', day:'Month 4–8', title:'Proto-State Formation',
+        desc:'Warlord territories evolve into quasi-governments. Taxation (in resources) begins. Military strength determines jurisdiction boundaries.',
+        tags:[{t:'Political',c:'warn'},{t:'Legal Risk',c:'danger'}],
+        sev:65, ark:'Ark legal standing negotiated with local authority. Self-sufficient enough to resist extraction demands.'
+      },
+      {
+        side:'left', day:'Month 6–10', title:'Mental Health Crisis Wave',
+        desc:'PTSD, depression, grief saturation in survivor populations. Suicide rates spike. Domestic violence up 400%. Substance abuse from looted pharmacies.',
+        tags:[{t:'Psychological',c:'warn'},{t:'Community',c:'info'}],
+        sev:58, ark:'Ark psychological support protocols active. Community rituals, purpose structures, and mental health rotations.'
+      },
+      {
+        side:'right', day:'Month 8–12', title:'Technology Regression Locks In',
+        desc:'Industrial capacity offline. Communities revert to 1850s-level technology. Those with mechanical skills, not digital, gain status.',
+        tags:[{t:'Technology',c:'info'},{t:'Skills',c:'safe'}],
+        sev:45, ark:'Mechanical skills training program active. Analog library fully catalogued. Knowledge preservation priority.'
+      },
+    ]
+  },
+  {
+    id:'rebuild', label:'Reconstruction', days:'Year 1–5', color:'#1ae8a0',
+    desc:'Deliberate reconstruction by organized groups. Technology partial revival. New political orders compete. Ark communities become founding institutions.',
+    events:[
+      {
+        side:'right', day:'Year 1–2', title:'Ark Communities as Founding Nodes',
+        desc:'Well-prepared communities become anchors for regional recovery. Medical capacity, food surplus, and knowledge make them essential to neighbors.',
+        tags:[{t:'Leadership',c:'safe'},{t:'Influence',c:'info'}],
+        sev:30, ark:'Ark transitions from survival mode to civilization node. Expand vetting. Begin external teaching programs.'
+      },
+      {
+        side:'left', day:'Year 1–3', title:'Infrastructure Partial Revival',
+        desc:'Micro-grids established. Water treatment restored in stable zones. Some manufacturing restarts using salvaged industrial equipment.',
+        tags:[{t:'Infrastructure',c:'safe'},{t:'Energy',c:'info'}],
+        sev:25, ark:'Contribute engineering capacity to regional grid project. Establish Ark-branded energy reliability reputation.'
+      },
+      {
+        side:'right', day:'Year 2–4', title:'Constitutional Drafting Period',
+        desc:'Regional governance documents appear. New legal systems negotiated. Ark communities with clear governance docs have enormous leverage.',
+        tags:[{t:'Political',c:'info'},{t:'Legal',c:'safe'}],
+        sev:20, ark:'Ark governance model offered as template. Participate in regional constitutional conventions.'
+      },
+      {
+        side:'left', day:'Year 3–5', title:'Post-Collapse Economy Formalizes',
+        desc:'Currency systems re-emerge. Trade routes re-establish. Pre-positioned PMs and assets of Ark members gain enormous purchasing power.',
+        tags:[{t:'Economic',c:'safe'},{t:'Wealth',c:'safe'}],
+        sev:15, ark:'Ark financial protocols enter asset-deployment phase. Strategic acquisition of land, infrastructure, influence.'
+      },
+      {
+        side:'right', day:'Year 4–5', title:'New Normal Established',
+        desc:'A civilization, smaller and different, stabilizes. Those who planned lead. Those who did not either died or serve those who did.',
+        tags:[{t:'Civilization',c:'safe'},{t:'Long Term',c:'info'}],
+        sev:10, ark:'Ark mission complete: Phase I. Transition to Phase II: Founding a just, resilient civilization worth surviving for.'
+      },
+    ]
+  }
+];
+
+const ARK_FAQS = [
+  {q:'When should I actually bug out vs shelter in place?',
+   a:'Default: shelter in place for the first 72 hours unless your home is structurally at risk or you face imminent personal threat. The roads during acute collapse are exceptionally dangerous. Bug out only after Week 1 chaos peaks and routes are more predictable, OR if you have confirmed intel from trusted sources that your zone is deteriorating faster than normal.'},
+  {q:'How do Ark community resources actually get divided in collapse?',
+   a:'The Ark governance model uses a pre-agreed tiered contribution score. Those who contributed more resources pre-collapse have priority claim on community resources, but a minimum floor is guaranteed to all vetted members. This prevents resentment while maintaining incentive alignment.'},
+  {q:'What if local authorities try to commandeer my Ark property?',
+   a:'Legal pre-positioning is critical. Religious or community organization structures may provide some protection. Distributed assets across jurisdictions reduce single-point confiscation risk. The Ark maintains legal counsel relationships and document trails for all property.'},
+  {q:'How do you manage trust in a post-collapse community?',
+   a:'The Ark vetting system (see Section 23.5) uses a probationary period, skill verification, reference networks, and contribution tracking. No full membership rights until 90-day probation. Background intel shared across the Ark network for known bad actors.'},
+];
+</script>
+
+<!-- ── RENDER BLOCK ── -->
+<div class="surv-meter" id="survMeter">
+  <div class="surv-label">Survival Window</div>
+  <div class="surv-track"><div class="surv-fill" id="survFill" style="height:85%"></div></div>
+  <div class="surv-pct" id="survPct">85%</div>
+</div>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-tag">⬡ Ark Collective v3 · Section 16</div>
+    <h1>Post-Collapse<br/><em>Timeline</em></h1>
+    <p>A precise chronological map of what actually happens after systemic civilizational failure — from Hour Zero through Year Five. Each phase includes Ark-specific action directives.</p>
+
+    <nav class="phase-nav" id="phaseNav">
+      <button class="pnav-btn active" onclick="filterPhase('all',this)">All Phases</button>
+      <button class="pnav-btn" onclick="filterPhase('acute',this)" style="--acc:#e84040">🔴 Acute (0–72h)</button>
+      <button class="pnav-btn" onclick="filterPhase('transition',this)">🟡 Transition (Wk 1–8)</button>
+      <button class="pnav-btn" onclick="filterPhase('adaptation',this)">🔵 Adaptation (Mo 2–12)</button>
+      <button class="pnav-btn" onclick="filterPhase('rebuild',this)">🟢 Rebuild (Yr 1–5)</button>
+    </nav>
+  </section>
+
+  <!-- Timeline -->
+  <div class="timeline" id="timelineRoot"></div>
+
+  <!-- FAQ Accordion -->
+  <section style="margin:60px 0">
+    <div style="text-align:center;margin-bottom:28px">
+      <div class="hero-tag">Ark Intelligence</div>
+      <h2 style="font-family:var(--ff-head);font-size:1.6rem;font-weight:700">Collapse Decision FAQs</h2>
+    </div>
+    <div class="gl" id="faqRoot" style="overflow:hidden"></div>
+  </section>
+
+  <!-- Survival Probability Grid -->
+  <section style="margin:0 0 80px">
+    <div style="text-align:center;margin-bottom:28px">
+      <div class="hero-tag">Data</div>
+      <h2 style="font-family:var(--ff-head);font-size:1.6rem;font-weight:700">Survival Rate by Preparation Tier</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px" id="tierGrid"></div>
+  </section>
+</div>
+
+<!-- ── INTERACTION BLOCK ── -->
+<script>
+/* ─ render timeline ─ */
+function renderTimeline(filter){
+  const root = document.getElementById('timelineRoot');
+  root.innerHTML='';
+  PHASES.forEach(ph=>{
+    if(filter!=='all' && filter!==ph.id) return;
+    // phase header
+    const hdr=document.createElement('div');
+    hdr.className='phase-header';
+    hdr.innerHTML=`<div class="ph-pill">
+      <span class="ph-dot" style="background:${ph.color}"></span>
+      <span style="color:${ph.color}">${ph.label}</span>
+      <span style="color:var(--txt3);font-weight:400;font-size:.75rem">— ${ph.days}</span>
+    </div>
+    <p style="color:var(--txt2);font-size:.8rem;margin-top:12px;max-width:560px;margin-left:auto;margin-right:auto">${ph.desc}</p>`;
+    root.appendChild(hdr);
+
+    ph.events.forEach((ev,i)=>{
+      const el=document.createElement('div');
+      el.className=`event ${ev.side}`;
+      const dotColor=ph.color;
+      const severityColor=ev.sev>80?'var(--red)':ev.sev>60?'var(--amber)':'var(--green)';
+      el.innerHTML=`
+        <div class="event-dot" style="background:${dotColor};box-shadow:0 0 12px ${dotColor}55"></div>
+        <div class="gl event-content" style="animation:fadeSlide .4s ease ${i*.08}s both">
+          <div class="event-day">${ev.day}</div>
+          <div class="event-title">${ev.title}</div>
+          <div class="event-desc">${ev.desc}</div>
+          <div class="event-tags">${ev.tags.map(t=>`<span class="etag ${t.c}">${t.t}</span>`).join('')}
+            <span class="etag" style="margin-left:auto;color:${severityColor};border-color:${severityColor}40;background:${severityColor}10">Threat: ${ev.sev}%</span>
+          </div>
+          <div class="sev-bar" style="background:linear-gradient(90deg,${severityColor}33,${severityColor});width:${ev.sev}%"></div>
+          <div class="ark-action"><strong>⬡ Ark Action Directive</strong>${ev.ark}</div>
+        </div>`;
+      root.appendChild(el);
+    });
+  });
+}
+
+/* ─ filter ─ */
+function filterPhase(id,btn){
+  document.querySelectorAll('.pnav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTimeline(id);
+  updateSurvMeter(id);
+}
+
+/* ─ survival meter ─ */
+function updateSurvMeter(phase){
+  const map={all:85,acute:92,transition:70,adaptation:55,rebuild:30};
+  const pct=map[phase]||85;
+  document.getElementById('survFill').style.height=pct+'%';
+  document.getElementById('survPct').textContent=pct+'%';
+}
+
+/* ─ FAQ accordion ─ */
+function renderFAQ(){
+  const root=document.getElementById('faqRoot');
+  root.innerHTML=ARK_FAQS.map((f,i)=>`
+    <div>
+      <button class="acc-btn" onclick="toggleAcc(this)" id="faq${i}">
+        <span>${f.q}</span><span class="arr">▼</span>
+      </button>
+      <div class="acc-panel">
+        <div class="acc-inner">${f.a}</div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleAcc(btn){
+  const panel=btn.nextElementSibling;
+  const isOpen=panel.classList.contains('open');
+  // close all in same parent
+  btn.closest('.gl, [id]').querySelectorAll('.acc-panel').forEach(p=>p.classList.remove('open'));
+  btn.closest('.gl, [id]').querySelectorAll('.acc-btn').forEach(b=>b.classList.remove('open'));
+  if(!isOpen){panel.classList.add('open');btn.classList.add('open')}
+}
+
+/* ─ tier grid ─ */
+const TIERS=[
+  {name:'No Prep',tier:'Tier 0',color:'var(--red)',surv:'3–8%',desc:'Urban dwellers with <1 week food. No skills. No community.'},
+  {name:'Basic Prep',tier:'Tier 1',color:'var(--amber)',surv:'18–35%',desc:'3-month food supply. Some skills. No community or location strategy.'},
+  {name:'Advanced Prep',tier:'Tier 2',color:'var(--blue)',surv:'45–65%',desc:'12+ months food. Skills. Basic community. No second location.'},
+  {name:'Ark Member',tier:'Tier 3',color:'var(--green)',surv:'72–91%',desc:'Full Ark protocol. Distributed assets. Community. Off-grid capability.'},
+];
+function renderTiers(){
+  document.getElementById('tierGrid').innerHTML=TIERS.map(t=>`
+    <div class="gl" style="padding:24px;text-align:center">
+      <div style="font-size:.6rem;letter-spacing:.2em;color:${t.color};text-transform:uppercase;margin-bottom:8px">${t.tier}</div>
+      <div style="font-family:var(--ff-head);font-size:1.1rem;font-weight:700;margin-bottom:4px">${t.name}</div>
+      <div style="font-size:2rem;font-weight:800;color:${t.color};margin:12px 0">${t.surv}</div>
+      <div style="font-size:.72rem;color:var(--txt2);line-height:1.5">${t.desc}</div>
+    </div>`).join('');
+}
+
+/* ─ CSS animation ─ */
+const style=document.createElement('style');
+style.textContent=`@keyframes fadeSlide{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}`;
+document.head.appendChild(style);
+
+/* ─ scroll-driven survival meter ─ */
+window.addEventListener('scroll',()=>{
+  const pct=Math.max(10,85-Math.round(window.scrollY/document.body.scrollHeight*75));
+  document.getElementById('survFill').style.height=pct+'%';
+  document.getElementById('survPct').textContent=pct+'%';
+},{passive:true});
+
+/* ─ init ─ */
+renderTimeline('all');
+renderFAQ();
+renderTiers();
+</script>
+</body>
+</html>

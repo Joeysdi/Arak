@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>03 — Modal & FAB | Ark v3 (Standalone)</title>
+<style>
+  :root {
+    --ink: #0a0e1a;
+    --void: #060910;
+    --glass: rgba(255,255,255,0.04);
+    --glass-b: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.10);
+    --accent: #e8c84a;
+    --accent2: #ff6b35;
+    --text: #c8d4e8;
+    --muted: #5a6a8a;
+    --danger: #ff3b3b;
+    --safe: #2ecc71;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--void);color:var(--text);font-family:'Courier New',monospace;min-height:100vh;}
+
+  /* ── FOUNDATION PASTE ── */
+  .gl{background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:12px;}
+  .gl-b{background:var(--glass-b);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.15);border-radius:16px;}
+  .stab{display:flex;gap:4px;padding:4px;background:rgba(0,0,0,0.3);border-radius:8px;margin-bottom:16px;}
+  .stab button{flex:1;padding:8px 12px;background:transparent;border:none;color:var(--muted);cursor:pointer;border-radius:6px;font-family:inherit;font-size:12px;transition:all .2s;}
+  .stab button.active{background:var(--accent);color:var(--ink);font-weight:700;}
+  .spanel{display:none;} .spanel.active{display:block;}
+  .acc-head{width:100%;background:transparent;border:none;color:var(--text);text-align:left;padding:12px 16px;cursor:pointer;font-family:inherit;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+  .acc-body{display:none;padding:16px;border-bottom:1px solid var(--border);}
+  .acc-body.open{display:block;}
+  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.05em;}
+  .pill-danger{background:rgba(255,59,59,.2);color:var(--danger);border:1px solid rgba(255,59,59,.3);}
+  .pill-warn{background:rgba(232,200,74,.15);color:var(--accent);border:1px solid rgba(232,200,74,.3);}
+  .pill-safe{background:rgba(46,204,113,.15);color:var(--safe);border:1px solid rgba(46,204,113,.3);}
+
+  /* ── FAB DATA ── */
+  /* Floating Action Button */
+  #ark-fab{
+    position:fixed;bottom:32px;right:32px;z-index:9000;
+  }
+  .fab-main{
+    width:58px;height:58px;border-radius:50%;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;
+    box-shadow:0 8px 32px rgba(232,200,74,.4);
+    transition:transform .25s, box-shadow .25s;
+    position:relative;z-index:2;
+  }
+  .fab-main:hover{transform:scale(1.08);box-shadow:0 12px 40px rgba(232,200,74,.55);}
+  .fab-main.open{transform:rotate(45deg);}
+
+  .fab-ring{
+    position:absolute;inset:-6px;border-radius:50%;
+    border:1px solid rgba(232,200,74,.3);
+    animation:ring-pulse 2s infinite;pointer-events:none;
+  }
+  @keyframes ring-pulse{0%,100%{transform:scale(1);opacity:.6;}50%{transform:scale(1.15);opacity:.2;}}
+
+  .fab-menu{
+    position:absolute;bottom:68px;right:0;
+    display:flex;flex-direction:column;gap:8px;
+    pointer-events:none;
+    opacity:0;transform:scale(.9) translateY(10px);
+    transition:all .2s ease;
+  }
+  .fab-menu.open{pointer-events:all;opacity:1;transform:scale(1) translateY(0);}
+
+  .fab-item{
+    display:flex;align-items:center;gap:10px;
+    justify-content:flex-end;
+    animation:none;
+  }
+  .fab-label{
+    padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;
+    white-space:nowrap;letter-spacing:.04em;
+    background:rgba(8,12,24,.95);border:1px solid var(--border);
+    color:var(--text);backdrop-filter:blur(20px);
+    box-shadow:0 4px 16px rgba(0,0,0,.5);
+  }
+  .fab-btn{
+    width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+    transition:transform .2s;flex-shrink:0;
+  }
+  .fab-btn:hover{transform:scale(1.1);}
+  .fab-btn-a{background:rgba(255,59,59,.9);box-shadow:0 4px 16px rgba(255,59,59,.4);}
+  .fab-btn-b{background:rgba(232,200,74,.9);box-shadow:0 4px 16px rgba(232,200,74,.4);}
+  .fab-btn-c{background:rgba(46,204,113,.9);box-shadow:0 4px 16px rgba(46,204,113,.4);}
+  .fab-btn-d{background:rgba(74,179,244,.9);box-shadow:0 4px 16px rgba(74,179,244,.4);}
+
+  /* ── MODAL SYSTEM ── */
+  .modal-overlay{
+    position:fixed;inset:0;z-index:10000;
+    background:rgba(6,9,16,.85);
+    backdrop-filter:blur(12px);
+    display:flex;align-items:center;justify-content:center;padding:20px;
+    opacity:0;pointer-events:none;transition:opacity .25s;
+  }
+  .modal-overlay.open{opacity:1;pointer-events:all;}
+
+  .modal-box{
+    background:rgba(10,14,26,.97);
+    border:1px solid var(--border);
+    border-radius:20px;
+    width:100%;max-width:600px;max-height:90vh;overflow-y:auto;
+    transform:scale(.94) translateY(20px);
+    transition:transform .3s ease;
+    box-shadow:0 32px 100px rgba(0,0,0,.8);
+    scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+  }
+  .modal-overlay.open .modal-box{transform:scale(1) translateY(0);}
+
+  .modal-header{
+    padding:24px 24px 0;
+    display:flex;align-items:flex-start;justify-content:space-between;
+    border-bottom:1px solid var(--border);padding-bottom:20px;
+    position:sticky;top:0;background:rgba(10,14,26,.97);z-index:1;
+  }
+  .modal-title{font-size:18px;font-weight:900;color:#fff;letter-spacing:-.01em;}
+  .modal-sub{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.04em;}
+  .modal-close{
+    width:32px;height:32px;border-radius:50%;
+    background:var(--glass);border:1px solid var(--border);
+    color:var(--muted);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+    transition:all .2s;flex-shrink:0;
+  }
+  .modal-close:hover{background:rgba(255,59,59,.2);color:var(--danger);border-color:rgba(255,59,59,.3);}
+  .modal-body{padding:24px;}
+  .modal-footer{
+    padding:16px 24px;border-top:1px solid var(--border);
+    display:flex;gap:10px;justify-content:flex-end;
+    background:rgba(10,14,26,.97);
+  }
+
+  .btn-primary{
+    padding:10px 24px;border-radius:8px;font-family:inherit;font-size:12px;
+    font-weight:700;letter-spacing:.08em;cursor:pointer;border:none;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:var(--ink);text-transform:uppercase;transition:all .2s;
+  }
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(232,200,74,.35);}
+  .btn-ghost{
+    padding:10px 24px;border-radius:8px;font-family:inherit;font-size:12px;
+    font-weight:700;letter-spacing:.08em;cursor:pointer;
+    background:transparent;color:var(--muted);border:1px solid var(--border);
+    text-transform:uppercase;transition:all .2s;
+  }
+  .btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,.2);}
+
+  /* ── JOIN MODAL ── */
+  .join-tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:16px 0;}
+  .join-tier{
+    padding:16px;border-radius:12px;border:2px solid var(--border);cursor:pointer;
+    transition:all .2s;text-align:center;
+  }
+  .join-tier:hover,.join-tier.selected{border-color:var(--accent);background:rgba(232,200,74,.05);}
+  .join-tier-icon{font-size:28px;margin-bottom:8px;}
+  .join-tier-name{font-size:13px;font-weight:700;color:#fff;}
+  .join-tier-price{font-size:11px;color:var(--accent);margin-top:4px;}
+  .join-tier-desc{font-size:10px;color:var(--muted);margin-top:6px;line-height:1.5;}
+
+  .form-row{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+  .form-row label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+  .form-row input, .form-row select{
+    background:rgba(255,255,255,.04);border:1px solid var(--border);
+    border-radius:8px;padding:10px 14px;color:var(--text);font-family:inherit;font-size:13px;
+    transition:border .2s;
+  }
+  .form-row input:focus,.form-row select:focus{outline:none;border-color:rgba(232,200,74,.4);}
+  .form-row select option{background:#0a0e1a;}
+
+  /* ── ALERT MODAL ── */
+  .alert-level{
+    display:flex;align-items:center;gap:12px;padding:16px;
+    border-radius:10px;margin-bottom:16px;
+  }
+  .alert-level-icon{font-size:28px;}
+  .alert-level-text h3{font-size:14px;font-weight:700;color:#fff;}
+  .alert-level-text p{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5;}
+  .al-crit{background:rgba(255,59,59,.08);border:1px solid rgba(255,59,59,.2);}
+  .al-high{background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.2);}
+  .al-med{background:rgba(232,200,74,.08);border:1px solid rgba(232,200,74,.2);}
+  .al-low{background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2);}
+
+  .alert-action-list{display:flex;flex-direction:column;gap:6px;}
+  .alert-action{
+    display:flex;align-items:center;gap:10px;padding:10px 14px;
+    border-radius:8px;background:var(--glass);border:1px solid var(--border);
+    font-size:12px;cursor:pointer;transition:background .15s;
+  }
+  .alert-action:hover{background:var(--glass-b);}
+  .alert-action-num{
+    width:24px;height:24px;border-radius:50%;
+    background:rgba(232,200,74,.15);border:1px solid rgba(232,200,74,.3);
+    display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:var(--accent);flex-shrink:0;
+  }
+
+  /* ── DEMO PAGE ── */
+  .demo{min-height:100vh;padding:60px 24px;max-width:900px;margin:0 auto;}
+  .demo h1{font-size:clamp(24px,4vw,40px);font-weight:900;color:#fff;margin-bottom:8px;}
+  .demo p{color:var(--muted);margin-bottom:32px;font-size:13px;}
+  .demo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+  .demo-btn-card{padding:20px;cursor:pointer;}
+  .demo-btn-card h3{font-size:13px;font-weight:700;color:#fff;margin-bottom:6px;}
+  .demo-btn-card p{font-size:11px;color:var(--muted);line-height:1.5;}
+  .demo-btn-card:hover{background:var(--glass-b);}
+
+  .toast-container{position:fixed;bottom:110px;right:32px;display:flex;flex-direction:column;gap:8px;z-index:9999;}
+  .toast{
+    padding:12px 20px;border-radius:10px;font-size:12px;font-weight:600;
+    background:rgba(10,14,26,.97);border:1px solid var(--border);
+    box-shadow:0 8px 32px rgba(0,0,0,.6);
+    transform:translateX(120%);transition:transform .3s ease;
+    max-width:280px;
+  }
+  .toast.show{transform:translateX(0);}
+  .toast-success{border-color:rgba(46,204,113,.3);color:var(--safe);}
+  .toast-warn{border-color:rgba(232,200,74,.3);color:var(--accent);}
+  .toast-danger{border-color:rgba(255,59,59,.3);color:var(--danger);}
+</style>
+</head>
+<body>
+
+<!-- ── DATA BLOCK ── -->
+<script>
+const MODAL_DATA = {
+  tiers: [
+    { icon:"👁", name:"Observer", price:"Free", desc:"Read-only access to public protocols and threat feeds." },
+    { icon:"🔰", name:"Prepared", price:"$47/mo", desc:"Full scenario library + 72-hr kit checklists." },
+    { icon:"⭐", name:"Member", price:"$197/mo", desc:"Safe zone maps, visa guides, property scout tool." },
+    { icon:"💎", name:"Partner", price:"$497/mo", desc:"Personal risk profile, evacuation simulator, legal vault." },
+    { icon:"🏛", name:"Founder", price:"$2,500/mo", desc:"Governance seat, inner circle access, white-glove service." }
+  ],
+  alertActions: [
+    "Activate 72-hour evacuation protocol",
+    "Transfer 20% liquid assets to cold storage",
+    "Verify rendezvous coordinates with inner circle",
+    "Charge all comms & backup power systems",
+    "Review Bug-Out-Bag and vehicle readiness",
+    "Alert Tier-2 network via encrypted channel"
+  ]
+};
+</script>
+
+<!-- ── RENDER BLOCK ── -->
+
+<!-- DEMO PAGE -->
+<main class="demo">
+  <h1>Modal & FAB System</h1>
+  <p>Global interaction layer for Ark v3 — Join modal, Alert modal, Tier selector, Toast system, and Floating Action Button.</p>
+  <div class="demo-grid">
+    <div class="gl demo-btn-card" onclick="openModal('join')">
+      <h3>🏛 Join Ark Modal</h3>
+      <p>Tier selector → form onboarding flow. 5 membership tiers with pricing.</p>
+    </div>
+    <div class="gl demo-btn-card" onclick="openModal('alert')">
+      <h3>🚨 Threat Alert Modal</h3>
+      <p>Emergency action checklist. Triggered by threat level escalation.</p>
+    </div>
+    <div class="gl demo-btn-card" onclick="openModal('evac')">
+      <h3>🏃 Evac Protocol Modal</h3>
+      <p>72-hour countdown + staged action plan.</p>
+    </div>
+    <div class="gl demo-btn-card" onclick="showToast('Threat level updated to CRITICAL','danger')">
+      <h3>⚡ Toast Notifications</h3>
+      <p>Click to trigger a threat toast. Success, warn, and danger variants.</p>
+    </div>
+    <div class="gl demo-btn-card" onclick="showToast('Asset transfer confirmed to cold storage','success')">
+      <h3>✅ Success Toast</h3>
+      <p>Confirmation feedback for actions and form submissions.</p>
+    </div>
+    <div class="gl demo-btn-card" onclick="showToast('2027 window analysis updated','warn')">
+      <h3>⚠ Warning Toast</h3>
+      <p>Advisory messages for pending protocol actions.</p>
+    </div>
+  </div>
+  <p style="margin-top:32px;color:var(--muted);font-size:11px;">↗ Click the ✕ FAB in the bottom-right corner to access quick actions.</p>
+</main>
+
+<!-- ──────────────────── MODALS ──────────────────── -->
+
+<!-- JOIN MODAL -->
+<div class="modal-overlay" id="modal-join" onclick="closeOnBg(event,'join')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">🏛 Join Ark Collective</div>
+        <div class="modal-sub">Select your membership tier to begin</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('join')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Tier selector -->
+      <div class="join-tiers" id="tier-selector"></div>
+
+      <!-- Form -->
+      <div class="form-row">
+        <label>Full Name</label>
+        <input type="text" placeholder="Your name" id="join-name">
+      </div>
+      <div class="form-row">
+        <label>Email</label>
+        <input type="email" placeholder="secure@email.com" id="join-email">
+      </div>
+      <div class="form-row">
+        <label>Country of Primary Residence</label>
+        <select id="join-country">
+          <option value="">Select country...</option>
+          <option>United States</option><option>United Kingdom</option><option>Canada</option>
+          <option>Australia</option><option>Switzerland</option><option>New Zealand</option>
+          <option>Singapore</option><option>UAE</option><option>Portugal</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Primary Threat Concern</label>
+        <select id="join-threat">
+          <option value="">Select concern...</option>
+          <option>Economic Collapse</option><option>Political Instability</option>
+          <option>Nuclear/WMD Risk</option><option>Climate Cascades</option>
+          <option>Pandemic/Bioweapon</option><option>Cyber/Grid Failure</option>
+          <option>All of the Above</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('join')">Cancel</button>
+      <button class="btn-primary" onclick="submitJoin()">REQUEST ACCESS →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ALERT MODAL -->
+<div class="modal-overlay" id="modal-alert" onclick="closeOnBg(event,'alert')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">🚨 THREAT ALERT: CRITICAL</div>
+        <div class="modal-sub">Immediate action recommended — Review protocol checklist</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('alert')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert-level al-crit">
+        <div class="alert-level-icon">☢</div>
+        <div class="alert-level-text">
+          <h3>DEFCON 2 · 90 Seconds to Midnight</h3>
+          <p>Multiple threat vectors active simultaneously. Collapse Bible scenarios C-07, C-19, and C-44 are live. Immediate protocol activation recommended.</p>
+        </div>
+      </div>
+      <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;font-weight:700;">IMMEDIATE ACTIONS</div>
+      <div class="alert-action-list" id="action-list"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('alert')">Acknowledge</button>
+      <button class="btn-primary" onclick="location.href='11-evacuation-plan.html'">ACTIVATE EVAC →</button>
+    </div>
+  </div>
+</div>
+
+<!-- EVAC MODAL -->
+<div class="modal-overlay" id="modal-evac" onclick="closeOnBg(event,'evac')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">🏃 72-Hour Evacuation Protocol</div>
+        <div class="modal-sub">Staged departure sequence — T-0 to T+72HR</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('evac')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="alert-level al-crit">
+          <div class="alert-level-icon">⚡</div>
+          <div class="alert-level-text"><h3>T+0 · NOW (0–4 hours)</h3><p>Activate Go-Bag. Alert inner circle via encrypted channel. Move to safe house or departure point.</p></div>
+        </div>
+        <div class="alert-level al-high">
+          <div class="alert-level-icon">🚗</div>
+          <div class="alert-level-text"><h3>T+4 · TRANSIT (4–24 hours)</h3><p>Execute primary exit route. Cache secondary fuel. Monitor border conditions via satellite phone.</p></div>
+        </div>
+        <div class="alert-level al-med">
+          <div class="alert-level-icon">🏠</div>
+          <div class="alert-level-text"><h3>T+24 · CONSOLIDATE (24–48 hours)</h3><p>Reach pre-positioned safe zone. Run supply inventory. Establish comms schedule with network.</p></div>
+        </div>
+        <div class="alert-level al-low">
+          <div class="alert-level-icon">🌿</div>
+          <div class="alert-level-text"><h3>T+72 · STABILIZE (48–72 hours)</h3><p>Full operational status. Begin long-term protocol. Activate off-grid systems.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('evac')">Close</button>
+      <button class="btn-primary" onclick="location.href='11.5-evacuation-simulator.html'">FULL SIMULATOR →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── FAB ── -->
+<div id="ark-fab">
+  <div class="fab-ring"></div>
+  <button class="fab-main" id="fab-toggle" onclick="toggleFab()" title="Ark Quick Actions">＋</button>
+  <div class="fab-menu" id="fab-menu">
+    <div class="fab-item">
+      <span class="fab-label">🚨 Threat Alert</span>
+      <button class="fab-btn fab-btn-a" onclick="openModal('alert');closeFab()">🚨</button>
+    </div>
+    <div class="fab-item">
+      <span class="fab-label">🏃 Evac Protocol</span>
+      <button class="fab-btn fab-btn-b" onclick="openModal('evac');closeFab()" style="background:rgba(255,107,53,.9);">🏃</button>
+    </div>
+    <div class="fab-item">
+      <span class="fab-label">🧮 Risk Calculator</span>
+      <button class="fab-btn fab-btn-c" onclick="location.href='04.5-risk-calculator.html'">🧮</button>
+    </div>
+    <div class="fab-item">
+      <span class="fab-label">🏛 Join Ark</span>
+      <button class="fab-btn fab-btn-d" onclick="openModal('join');closeFab()">🏛</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toasts"></div>
+
+<!-- ── INTERACTION BLOCK ── -->
+<script>
+// ── Render tier selector ──
+const tierSel = document.getElementById('tier-selector');
+let selectedTier = null;
+MODAL_DATA.tiers.forEach((t,i)=>{
+  const d = document.createElement('div');
+  d.className = 'join-tier';
+  d.innerHTML = `
+    <div class="join-tier-icon">${t.icon}</div>
+    <div class="join-tier-name">${t.name}</div>
+    <div class="join-tier-price">${t.price}</div>
+    <div class="join-tier-desc">${t.desc}</div>
+  `;
+  d.onclick = ()=>{
+    document.querySelectorAll('.join-tier').forEach(x=>x.classList.remove('selected'));
+    d.classList.add('selected');
+    selectedTier = t.name;
+  };
+  tierSel.appendChild(d);
+});
+
+// ── Render action list ──
+const actionList = document.getElementById('action-list');
+MODAL_DATA.alertActions.forEach((a,i)=>{
+  const d = document.createElement('div');
+  d.className = 'alert-action';
+  d.innerHTML = `<div class="alert-action-num">${i+1}</div><span>${a}</span>`;
+  d.onclick = ()=>{
+    d.style.textDecoration = 'line-through';
+    d.style.opacity = '.5';
+    showToast(`Action ${i+1} logged: ${a.substring(0,40)}...`, 'success');
+  };
+  actionList.appendChild(d);
+});
+
+// ── Modal open/close ──
+function openModal(id){
+  document.getElementById('modal-'+id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id){
+  document.getElementById('modal-'+id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeOnBg(e, id){
+  if(e.target === document.getElementById('modal-'+id)) closeModal(id);
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){
+  document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));
+  document.body.style.overflow = '';
+}});
+
+// ── FAB ──
+let fabOpen = false;
+function toggleFab(){
+  fabOpen = !fabOpen;
+  document.getElementById('fab-toggle').classList.toggle('open', fabOpen);
+  document.getElementById('fab-menu').classList.toggle('open', fabOpen);
+}
+function closeFab(){
+  fabOpen = false;
+  document.getElementById('fab-toggle').classList.remove('open');
+  document.getElementById('fab-menu').classList.remove('open');
+}
+
+// ── Toast ──
+function showToast(msg, type='warn'){
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  document.getElementById('toasts').appendChild(t);
+  requestAnimationFrame(()=>{ setTimeout(()=>t.classList.add('show'),10); });
+  setTimeout(()=>{
+    t.classList.remove('show');
+    setTimeout(()=>t.remove(), 350);
+  }, 3500);
+}
+
+// ── Join submit ──
+function submitJoin(){
+  const name = document.getElementById('join-name').value.trim();
+  const email = document.getElementById('join-email').value.trim();
+  if(!name||!email){ showToast('Please fill in all required fields','warn'); return; }
+  if(!selectedTier){ showToast('Please select a membership tier','warn'); return; }
+  closeModal('join');
+  showToast(`Application submitted: ${name} — ${selectedTier} tier`,'success');
+}
+
+// ── Foundation helpers ──
+function switchTab(group, id){
+  document.querySelectorAll('[data-tab-group="'+group+'"]').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('[data-panel-group="'+group+'"]').forEach(p=>p.classList.remove('active'));
+  document.querySelector('[data-tab-group="'+group+'"][data-tab="'+id+'"]').classList.add('active');
+  document.querySelector('[data-panel-group="'+group+'"][data-panel="'+id+'"]').classList.add('active');
+}
+function toggleAcc(el){
+  const body = el.nextElementSibling;
+  const arrow = el.querySelector('.acc-arrow');
+  body.classList.toggle('open');
+  if(arrow) arrow.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+</script>
+</body>
+</html>

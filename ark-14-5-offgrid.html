@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>14.5 — Off-Grid Systems & Infrastructure | Ark v3 (Standalone)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0c10;--s1:#0f1218;--s2:#161b24;--gl:rgba(255,255,255,.04);--glb:rgba(255,255,255,.08);--acc:#00e5a0;--acc2:#00b8ff;--acc3:#ff6b35;--warn:#ffb300;--dng:#ff3d5a;--txt:#e0e0e0;--txt2:#8a8fa8;--rad:12px;--glow:0 0 20px rgba(0,229,160,.15)}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.65;overflow-x:hidden;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:clamp(1.6rem,4vw,2.4rem);background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.sub{color:var(--txt2);font-size:.95rem;margin-bottom:28px}
+h2{font-size:1.25rem;color:var(--acc);margin-bottom:14px}
+h3{font-size:1.05rem;color:var(--acc2);margin-bottom:8px}
+.gl{background:var(--gl);border:1px solid var(--glb);border-radius:var(--rad);padding:22px;margin-bottom:18px;backdrop-filter:blur(12px)}
+.gl:hover{border-color:rgba(0,229,160,.18);box-shadow:var(--glow)}
+.stab{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.stab button{background:var(--gl);border:1px solid var(--glb);color:var(--txt2);padding:9px 18px;border-radius:8px;cursor:pointer;font-size:.85rem;transition:.25s}
+.stab button:hover{border-color:var(--acc);color:var(--acc)}
+.stab button.on{background:rgba(0,229,160,.12);border-color:var(--acc);color:var(--acc);box-shadow:0 0 10px rgba(0,229,160,.15)}
+.spanel{display:none;animation:fadeUp .35s ease}.spanel.show{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.acc-h{background:var(--s2);border:1px solid var(--glb);border-radius:8px;padding:13px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;transition:.2s;font-size:.92rem}
+.acc-h:hover{border-color:var(--acc);color:var(--acc)}
+.acc-h .arrow{transition:transform .3s;font-size:.75rem;color:var(--acc)}
+.acc-h.open .arrow{transform:rotate(180deg)}
+.acc-b{max-height:0;overflow:hidden;transition:max-height .45s ease;padding:0 18px}
+.acc-b.open{max-height:6000px;padding:14px 18px}
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin:10px 0}
+th{background:var(--s2);color:var(--acc);padding:10px 8px;text-align:left;border-bottom:1px solid var(--glb);position:sticky;top:0}
+td{padding:9px 8px;border-bottom:1px solid rgba(255,255,255,.04)}
+tr:hover td{background:rgba(0,229,160,.03)}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.72rem;font-weight:600}
+.badge-g{background:rgba(0,229,160,.15);color:var(--acc)}
+.badge-b{background:rgba(0,184,255,.15);color:var(--acc2)}
+.badge-w{background:rgba(255,179,0,.15);color:var(--warn)}
+.badge-d{background:rgba(255,61,90,.15);color:var(--dng)}
+.badge-o{background:rgba(255,107,53,.15);color:var(--acc3)}
+.tag{display:inline-block;margin:2px 4px 2px 0;padding:2px 8px;border-radius:6px;font-size:.72rem;background:var(--s2);color:var(--txt2);border:1px solid var(--glb)}
+.note{font-size:.8rem;color:var(--txt2);border-left:3px solid var(--warn);padding:8px 12px;margin:10px 0;background:rgba(255,179,0,.04)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.stat-card{background:var(--s2);border:1px solid var(--glb);border-radius:10px;padding:16px;text-align:center}
+.stat-card .sv{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-card .sl{font-size:.78rem;color:var(--txt2);margin-top:4px}
+.calc-row{display:flex;align-items:center;gap:12px;margin:8px 0;flex-wrap:wrap}
+.calc-row label{min-width:200px;font-size:.84rem;color:var(--txt2)}
+.calc-row input,.calc-row select{background:var(--s2);color:var(--txt);border:1px solid var(--glb);border-radius:8px;padding:9px 12px;font-size:.88rem;width:200px}
+.calc-row input:focus,.calc-row select:focus{outline:none;border-color:var(--acc)}
+.btn{padding:10px 24px;border-radius:8px;border:none;cursor:pointer;font-size:.88rem;transition:.2s;margin:4px}
+.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#000;font-weight:700}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.result-box{background:linear-gradient(135deg,rgba(0,229,160,.06),rgba(0,184,255,.04));border:1px solid var(--acc);border-radius:var(--rad);padding:20px;margin:16px 0}
+.bar-h{display:flex;align-items:center;gap:8px;margin:6px 0}
+.bar-h .bl{min-width:150px;font-size:.8rem;color:var(--txt2)}
+.bar-h .bw{flex:1;height:8px;background:var(--s2);border-radius:4px;overflow:hidden}
+.bar-h .bf{height:100%;border-radius:4px}
+.bar-h .bv{min-width:70px;text-align:right;font-size:.8rem;font-weight:600}
+.spec{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.82rem;margin:8px 0}
+.spec dt{color:var(--txt2)}.spec dd{color:var(--txt);font-weight:600}
+.ref{font-size:.72rem;color:var(--txt2);margin-top:18px;padding-top:12px;border-top:1px solid var(--glb)}
+@media(max-width:600px){.calc-row{flex-direction:column;align-items:flex-start}.calc-row input,.calc-row select{width:100%}.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap" id="offgrid">
+
+<h1>14.5 — Off-Grid Systems & Infrastructure</h1>
+<p class="sub">Solar Sizing Calculator · Water System Design · Waste & Sanitation · Communications Grid · Food Production Infrastructure · EMP Hardening</p>
+
+<div class="grid3" style="margin-bottom:20px">
+<div class="stat-card"><div class="sv">4–6 kWh</div><div class="sl">Per Person / Day Target</div></div>
+<div class="stat-card"><div class="sv">200 L</div><div class="sl">Water / Person / Day (all uses)</div></div>
+<div class="stat-card"><div class="sv">0.5 ha</div><div class="sl">Arable Land / Person</div></div>
+<div class="stat-card"><div class="sv">3 Layers</div><div class="sl">Comms Redundancy Min</div></div>
+</div>
+
+<div class="stab" id="mainTabs">
+<button class="on" onclick="switchTab('mainTabs','mp','mp-solar')">Solar & Energy</button>
+<button onclick="switchTab('mainTabs','mp','mp-water')">Water Systems</button>
+<button onclick="switchTab('mainTabs','mp','mp-food')">Food Production</button>
+<button onclick="switchTab('mainTabs','mp','mp-waste')">Waste & Sanitation</button>
+<button onclick="switchTab('mainTabs','mp','mp-comms')">Communications</button>
+<button onclick="switchTab('mainTabs','mp','mp-emp')">EMP Hardening</button>
+</div>
+
+<!-- ═══ SOLAR & ENERGY ═══ -->
+<div class="spanel show" id="mp-solar">
+<div class="gl">
+<h2>☀️ Solar System Sizing Calculator</h2>
+<p style="font-size:.85rem;color:var(--txt2);margin-bottom:14px">Calculate your off-grid solar array, battery bank, and inverter requirements based on household load.</p>
+<div class="calc-row"><label>Number of people</label><input type="number" id="sPeople" value="6" min="1" max="50"></div>
+<div class="calc-row"><label>Daily energy target (kWh/person)</label><select id="sKwh"><option value="3">3 kWh (Minimal)</option><option value="4.5" selected>4.5 kWh (Standard)</option><option value="6">6 kWh (Comfortable)</option><option value="8">8 kWh (Full Modern)</option></select></div>
+<div class="calc-row"><label>Peak sun hours / day</label><select id="sSun"><option value="3">3 hrs (Northern / Cloudy)</option><option value="4">4 hrs (Temperate)</option><option value="5" selected>5 hrs (Subtropical)</option><option value="6">6 hrs (Tropical / Desert)</option></select></div>
+<div class="calc-row"><label>Autonomy days (no sun)</label><select id="sAuto"><option value="2">2 days</option><option value="3" selected>3 days</option><option value="5">5 days</option></select></div>
+<div class="calc-row"><label>Battery type</label><select id="sBatt"><option value="lifepo4" selected>LiFePO4 (Best)</option><option value="agm">AGM Lead-Acid</option><option value="gel">Gel Lead-Acid</option></select></div>
+<div style="margin-top:14px"><button class="btn btn-primary" onclick="calcSolar()">⚡ Calculate System</button></div>
+<div id="solarResult" style="display:none"></div>
+</div>
+
+<div class="gl">
+<h2>Energy Source Comparison</h2>
+<div style="overflow-x:auto"><table id="energyTable"></table></div>
+</div>
+<div class="gl">
+<h2>Load Reference Table</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:10px">Common appliance power consumption for off-grid planning.</p>
+<div style="overflow-x:auto"><table id="loadTable"></table></div>
+</div>
+</div>
+
+<!-- ═══ WATER ═══ -->
+<div class="spanel" id="mp-water">
+<div class="gl">
+<h2>💧 Water System Design</h2>
+<div class="calc-row"><label>Number of people</label><input type="number" id="wPeople" value="6" min="1" max="50"></div>
+<div class="calc-row"><label>Water source</label><select id="wSource"><option value="spring">Spring / Gravity-fed</option><option value="well">Bored Well</option><option value="rain">Rainwater Harvesting</option><option value="stream">Stream / River (treatment required)</option></select></div>
+<div class="calc-row"><label>Annual rainfall (mm)</label><input type="number" id="wRain" value="1000" min="100" max="5000"></div>
+<div class="calc-row"><label>Roof catchment area (m²)</label><input type="number" id="wRoof" value="120" min="10" max="500"></div>
+<div style="margin-top:14px"><button class="btn btn-primary" onclick="calcWater()">💧 Calculate Water System</button></div>
+<div id="waterResult" style="display:none"></div>
+</div>
+<div class="gl">
+<h2>Water Treatment Methods</h2>
+<div id="waterTreatAcc"></div>
+</div>
+</div>
+
+<!-- ═══ FOOD ═══ -->
+<div class="spanel" id="mp-food">
+<div class="gl">
+<h2>🌾 Food Production Infrastructure</h2>
+<div id="foodAcc"></div>
+</div>
+<div class="gl">
+<h2>Calorie Production Matrix</h2>
+<div style="overflow-x:auto"><table id="calorieTable"></table></div>
+</div>
+</div>
+
+<!-- ═══ WASTE ═══ -->
+<div class="spanel" id="mp-waste">
+<div class="gl">
+<h2>🚽 Waste & Sanitation Systems</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:10px">Sanitation failure is the #1 killer in grid-down scenarios. Proper waste management is a survival priority, not a comfort luxury.</p>
+<div id="wasteAcc"></div>
+</div>
+</div>
+
+<!-- ═══ COMMS ═══ -->
+<div class="spanel" id="mp-comms">
+<div class="gl">
+<h2>📡 Communications Infrastructure</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:10px">Three-layer redundancy: local, regional, global.</p>
+<div style="overflow-x:auto"><table id="commsTable"></table></div>
+</div>
+<div class="gl">
+<h2>Communications Equipment Loadout</h2>
+<div id="commsAcc"></div>
+</div>
+</div>
+
+<!-- ═══ EMP ═══ -->
+<div class="spanel" id="mp-emp">
+<div class="gl">
+<h2>⚡ EMP / CME Hardening</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:10px">Protect critical electronics from electromagnetic pulse (nuclear EMP) and coronal mass ejection (solar CME).</p>
+<div id="empAcc"></div>
+</div>
+<div class="gl">
+<h2>Critical Equipment Protection Checklist</h2>
+<div style="overflow-x:auto"><table id="empTable"></table></div>
+</div>
+</div>
+
+<div class="ref">Ark Collective v3 § 14.5 · Off-Grid Systems & Infrastructure · Solar sizing based on standard PV calculations · Consult licensed electricians for installation · Collapse Bible integration</div>
+</div>
+
+<script>
+/* ═══ DATA ═══ */
+const D={
+energy:[
+{source:"Solar PV",output:"4–6 kWh/kW/day",cost:"$1–$2/W installed",life:"25–30 yr",pros:"Silent, scalable, low maintenance, no fuel",cons:"Intermittent, needs battery, large area",emp:"Panels survive; inverter vulnerable",best:"Primary for most locations"},
+{source:"Micro-Hydro",output:"24 kWh/kW/day",cost:"$2–$5k per kW",life:"30+ yr",pros:"24/7 power, very reliable, no battery needed",cons:"Requires flowing water, seasonal variation",emp:"Mechanical survives; electronics vulnerable",best:"If stream available — best single source"},
+{source:"Wind Turbine",output:"2–8 kWh/kW/day",cost:"$3–$6k per kW",life:"15–20 yr",pros:"Complements solar (wind at night/winter)",cons:"Noisy, mechanical failure, needs height",emp:"Mechanical survives; charge controller vulnerable",best:"Coastal or elevated sites; solar supplement"},
+{source:"Generator (Diesel/Gas)",output:"On-demand",cost:"$500–$5k",life:"5k–20k hrs",pros:"Instant power, high output, reliable",cons:"Fuel dependency, noisy, maintenance, detectable",emp:"Pre-EMP engines work; post-EMP vulnerable",best:"Backup only — not primary"},
+{source:"Biogas Digester",output:"0.5–2 kWh/day per cow",cost:"$500–$3k DIY",life:"10–20 yr",pros:"Uses waste, produces fertilizer, low tech",cons:"Low output, requires livestock/waste, maintenance",emp:"Fully EMP-resistant (no electronics)",best:"Supplement with livestock operations"},
+{source:"Wood Gasifier",output:"Variable (2–10 kW)",cost:"$500–$3k DIY",life:"5–10 yr",pros:"Uses abundant fuel, produces heat + power",cons:"Labor intensive, smoke, learning curve",emp:"Fully EMP-resistant",best:"Cold climates; abundant wood supply"}
+],
+
+loads:[
+{item:"LED Lighting (per room)",w:10,hrs:6,wh:60},{item:"Refrigerator (efficient)",w:80,hrs:8,wh:640},
+{item:"Laptop / Tablet charging",w:50,hrs:4,wh:200},{item:"Water pump (1/2 HP)",w:400,hrs:2,wh:800},
+{item:"Washing machine (efficient)",w:500,hrs:0.5,wh:250},{item:"Cooking (induction, limited)",w:1500,hrs:1,wh:1500},
+{item:"Communications (radio + charge)",w:30,hrs:4,wh:120},{item:"Medical equipment (basic)",w:100,hrs:2,wh:200},
+{item:"Power tools (intermittent)",w:1000,hrs:0.5,wh:500},{item:"Space heating (heat pump)",w:1500,hrs:4,wh:6000},
+{item:"Water heating (solar assist)",w:1000,hrs:1,wh:1000},{item:"Fan / Ventilation",w:50,hrs:8,wh:400}
+],
+
+waterTreat:[
+{name:"Slow Sand Filter",desc:"Biological filtration through sand bed. Removes 95–99% bacteria, 90–99% protozoa. Build from locally sourced materials. Flow rate: 0.1–0.3 m³/hr per m² of filter area. Requires 2–3 week maturation for biological layer (schmutzdecke). Maintain by scraping top 1–2 cm when flow rate drops. Cost: $200–$500 DIY.",emp:"Fully EMP-proof — gravity powered, no electronics."},
+{name:"Ceramic Filter (Gravity)",desc:"Berkey-style or locally made ceramic filters with colloidal silver. Removes bacteria, protozoa, sediment. Flow: 1–4 L/hr per element. Lifespan: 3,000–6,000 gallons per element. Keep spares (4–8 elements per household). Cost: $200–$400 per unit. Can be manufactured locally from clay + sawdust + colloidal silver.",emp:"Fully EMP-proof."},
+{name:"UV Sterilization",desc:"Kills 99.99% bacteria/viruses in clear water. Requires pre-filtering for turbid water. Power: 30–40W per unit. Options: commercial UV (SteriPEN, UV tube) or SODIS (solar disinfection in PET bottles, 6 hrs full sun). UV tubes last 9,000 hrs. SODIS is free and infinite.",emp:"Commercial UV vulnerable. SODIS is EMP-proof."},
+{name:"Chlorination",desc:"Pool shock (calcium hypochlorite) — 1 lb treats 10,000 gallons. Store dry (indefinite shelf life vs liquid bleach which degrades). Dosage: 1 tsp per 200 gallons for clear water. Wait 30 min before drinking. Residual chlorine provides ongoing protection. Cost: $5–$15/lb.",emp:"Fully EMP-proof. Essential backup method."},
+{name:"Reverse Osmosis (Solar-Powered)",desc:"Removes 95–99% of all contaminants including heavy metals, radiation, TDS. Requires pressure pump (solar-powered for off-grid). Output: 50–200 GPD residential units. Waste ratio: 3:1 (3 gallons waste per 1 gallon clean). Membrane replacement every 2–5 years. Cost: $500–$2,000.",emp:"Pump/electronics vulnerable. Store spare controller in Faraday cage."},
+{name:"Distillation",desc:"Boiling + condensation removes virtually everything: bacteria, viruses, heavy metals, radiation, salt. Energy-intensive (requires fuel/solar thermal). Output: 3–5 L/hr for household unit. Best for contaminated or brackish sources. Solar still: 2–4 L/day passive. Cost: $100–$500 DIY.",emp:"Fully EMP-proof if fuel/fire-powered."}
+],
+
+food:[
+{name:"Kitchen Garden (Intensive Raised Beds)",desc:"Biointensive/square-foot method. 200 sq ft per person for vegetables. Yields 5–20x conventional per area. Companion planting, succession planting, vertical growing. Focus: leafy greens, tomatoes, beans, squash, herbs. Requires: quality soil/compost, seeds, water, knowledge. Setup cost: $200–$800 per 100 sq ft. Maintenance: 30 min/day per person's garden allocation.",cal:"800–1,500 kcal/day per person (vegetable only)"},
+{name:"Staple Crop Field (Calories Focus)",desc:"Potatoes, sweet potatoes, corn, wheat, rice (climate dependent). 0.25–0.5 ha per person for calorie self-sufficiency. Potatoes: 20,000–40,000 kcal per 100 sq ft (highest calorie/area for temperate). Sweet potato: similar yield, stores well. Corn: lower yield but storable as grain. Requires: tillage, seed saving, crop rotation, pest management.",cal:"2,000+ kcal/day per person (staple + garden combined)"},
+{name:"Livestock — Small Scale",desc:"Chickens (6–12): 4–8 eggs/day, meat, pest control. Goats (2–4): 1–2 gallons milk/day, meat, brush clearing. Rabbits (breeding trio): 50+ lbs meat/year, fertilizer. Quail: eggs + meat in tiny space. Feed: kitchen scraps + forage + supplemental grain. Housing: simple structures, predator protection essential. Veterinary knowledge critical.",cal:"+500–1,000 kcal/day (eggs, milk, meat)"},
+{name:"Aquaponics / Fish",desc:"Combined fish farming + hydroponic vegetables. Tilapia, catfish, or trout depending on climate. 250-gallon tank supports 20–30 fish + 30 sq ft growing beds. Harvest: 20–40 lbs fish/year per tank + year-round vegetables. Requires: pump (solar), fish feed (can supplement with insects/duckweed), water testing, greenhouse in cold climates. Cost: $1,000–$5,000 for household system.",cal:"+200–400 kcal/day"},
+{name:"Food Preservation Infrastructure",desc:"Root cellar (32–40°F year-round): stores potatoes, carrots, apples, canned goods 6–12 months. Solar dehydrator: fruits, vegetables, jerky — lightweight, compact storage. Canning (water bath + pressure): vegetables, meat, sauces — 1–5 year shelf life. Smoking/salt curing: meat and fish preservation — traditional methods, no electricity. Fermentation: sauerkraut, kimchi, pickles — preserves nutrients + probiotics.",cal:"Preserves surplus for 6+ months of non-growing season"},
+{name:"Seed Bank & Nursery",desc:"Heirloom/open-pollinated seeds ONLY (reproduce true). Minimum 50 varieties across vegetables, herbs, grains, medicinal plants. Storage: cool, dry, dark — vacuum sealed with desiccant. Viability testing annually (germination test). Seed saving protocol for each crop. Trade network with other communities for genetic diversity. Cost: $200–$500 initial collection. Most valuable long-term asset after water.",cal:"Infinite calorie potential — seed = future food supply"}
+],
+
+waste:[
+{name:"Composting Toilet System",desc:"Separates urine from feces. Feces composted with carbon material (sawdust, straw) for 12–24 months at 55°C+ to kill pathogens. Finished compost safe for fruit trees (not root vegetables). Urine diluted 8:1 with water = excellent nitrogen fertilizer. No water required. No plumbing. No smell if managed correctly (carbon:nitrogen ratio). Options: bucket system ($20), commercial unit ($1,000–$3,000), custom built ($200–$800). Capacity: 1 unit per 4–6 people."},
+{name:"Greywater Recycling",desc:"Sink, shower, and laundry water filtered and reused for irrigation. Three-stage: settling tank → gravel/sand filter → subsurface irrigation. Use biodegradable soaps only. Never reuse greywater from kitchen (food particles). System: 200L settling drum + gravel bed + drip irrigation. Recycles 80–150 L/person/day for gardens. Cost: $200–$500 DIY. Reduces freshwater demand by 40–60%."},
+{name:"Blackwater Septic (If Water Available)",desc:"Traditional septic for flush toilet if water supply supports it. 1,000-gallon tank + drain field for family of 6. Requires periodic pumping (3–5 years) or bioaugmentation. Not recommended for water-scarce safe zones. Alternative: constructed wetland processes blackwater through reed beds. More sustainable but requires larger area (10–20 sq m per person)."},
+{name:"Solid Waste Management",desc:"Reduce: minimize packaging and single-use items in procurement. Reuse: repair, repurpose — nothing is waste in off-grid life. Recycle: metals melted or traded, glass reused, paper composted. Organic waste: composting (hot compost 55°C for pathogen kill). Burn pit: paper, cardboard, clean wood. Bury pit: non-recyclable non-toxic waste. Hazardous: batteries, chemicals stored separately for eventual proper disposal."},
+{name:"Disease Prevention Protocols",desc:"Hand-washing stations at latrine + kitchen (soap + clean water). Fly screens on all latrine vents and kitchen areas. 30m minimum separation between latrine and water source, downhill from water. Footwear required at all times (hookworm prevention). Food preparation hygiene training for all community members. Water quality testing monthly (if test kits available). Quarantine protocols for gastrointestinal illness — separate latrine."}
+],
+
+comms:[
+{layer:"Local (0–5 km)",equip:"FRS/GMRS radios, CB radio, wired intercom, signal flags",freq:"FRS 462 MHz / CB 27 MHz",power:"0.5–5W",license:"FRS: No / GMRS: Yes",use:"Perimeter patrol, work parties, daily coordination",cost:"$50–$200"},
+{layer:"Regional (5–150 km)",equip:"VHF/UHF amateur radio, repeater",freq:"VHF 144 MHz / UHF 430 MHz",power:"5–50W",license:"Yes (Ham Technician)",use:"Community-to-community, intel network, mutual aid",cost:"$150–$500"},
+{layer:"Long Range (150+ km)",equip:"HF amateur radio, NVIS antenna",freq:"HF 3–30 MHz",power:"20–100W",license:"Yes (Ham General/Extra)",use:"Continental/global communication, news monitoring, emergency relay",cost:"$500–$2,000"},
+{layer:"Data / Digital",equip:"Meshtastic LoRa nodes, Winlink email",freq:"LoRa 915 MHz / HF digital",power:"1–100W",license:"LoRa: No / Winlink: Yes",use:"Text messaging without internet, email via radio, file transfer",cost:"$30–$100 per node"},
+{layer:"Passive / OPSEC",equip:"Scanner/receiver, shortwave radio",freq:"All bands (receive only)",power:"<1W",license:"No",use:"Monitor military, commercial, emergency broadcasts without transmitting",cost:"$50–$300"},
+{layer:"Last Resort",equip:"Signal mirror, smoke signals, runner/courier",freq:"Visual / Physical",power:"0",license:"No",use:"When all electronic comms are compromised",cost:"$5–$20"}
+],
+
+commsEquip:[
+{name:"Baofeng UV-5R (VHF/UHF)",desc:"Cheap, disposable, effective handheld. $25–$35 each. Buy 10+ for community. Spare batteries essential. Program local frequencies + GMRS + emergency channels. Limitations: 5W max, poor receiver filtering. Good for local comms, not long range. Store spares in Faraday cage.",cost:"$25–$35"},
+{name:"Yaesu FT-891 (HF Mobile)",desc:"Compact 100W HF transceiver. All-band HF (160m–6m). Digital + voice modes. Excellent for Winlink email. Portable with external battery. $650–$750. Primary HF radio for safe zone. Pair with NVIS antenna for 50–300 km reliable coverage. Store backup in Faraday cage.",cost:"$650–$750"},
+{name:"Meshtastic LoRa Nodes",desc:"$30–$50 per node. Create mesh text messaging network without internet or cell service. Range: 1–10 km per node (more with elevation). Solar-powered. Encrypted. Deploy 5–10 nodes for community coverage. No license required. Pairs with smartphone via Bluetooth. Excellent OPSEC — low power, spread spectrum.",cost:"$30–$50/node"},
+{name:"Tecsun PL-880 Shortwave Receiver",desc:"High-sensitivity shortwave receiver for monitoring global broadcasts, emergency channels, and military frequencies. SSB capable for ham listening. Battery powered (18650 cells). $150–$200. Essential for situational awareness without transmitting (zero electronic signature). Store in Faraday bag.",cost:"$150–$200"},
+{name:"Wire Antenna Kit (NVIS + Dipole)",desc:"DIY wire antennas for HF: NVIS (near vertical incidence skywave) for 50–300 km regional coverage, dipole for longer range. Total cost: $30–$80 for wire, insulators, balun, coax. Mount between trees or poles. NVIS at 10–15 ft height provides overhead bounce. Dipole at 30+ ft for DX. Multiple antennas for multiple bands.",cost:"$30–$80"}
+],
+
+emp:[
+{name:"Faraday Cage Construction",desc:"Continuous metal enclosure that blocks electromagnetic fields. Options: Galvanized steel trash can with tight-fitting lid (seal gap with aluminum tape) — cheapest effective option. Ammo cans with gasket continuity. Nested design (cage within cage) provides additional 20–40 dB attenuation. All items inside must NOT touch cage walls — use cardboard or foam lining. Test with AM radio inside: if signal drops significantly, cage works. Cost: $20–$100."},
+{name:"What to Protect (Priority List)",desc:"1. Communications: HF radio, handheld radios, LoRa nodes, shortwave receiver. 2. Power: charge controllers, inverters (keep spares), solar microinverters. 3. Medical: any electronic medical devices, pulse oximeters, blood pressure monitors. 4. Data: hard drives with reference library, encrypted backups, laptops. 5. Lighting: LED flashlights, lanterns (battery-powered). 6. Ignition: vehicle spare ECU/ignition module if modern vehicle."},
+{name:"Vehicle EMP Protection",desc:"Pre-1985 vehicles with points ignition: inherently EMP-resistant (no ECU). Keep as backup/primary evacuation vehicle. Modern vehicles: uncertain — some testing suggests many will restart after EMP. Store spare ECU, ignition coil, and fuel pump module in Faraday cage. Diesel engines (mechanical injection) more resilient than gasoline EFI. If budget allows, maintain one EMP-proof vehicle (old diesel truck/Land Rover)."},
+{name:"Whole-Building Protection",desc:"For critical structures: copper mesh (Faraday cage) built into walls and roof. Every penetration (doors, windows, wiring) must maintain electrical continuity. Metal-clad buildings (shipping containers, metal roofing + siding) provide partial protection. Entry-point surge protectors on all wiring entering building. Cost: $5,000–$50,000 depending on building size. Usually only justified for communications center or medical facility."},
+{name:"Solar System EMP Hardening",desc:"Solar panels themselves survive EMP/CME (no active electronics in cells). Vulnerable components: charge controller, inverter, monitoring systems. Strategy: keep spare charge controller + inverter in Faraday cage. Use micro-inverters with spares vs single string inverter. Disconnect system from grid/long wire runs during solar storm warnings. Whole-house surge protector at panel entry point. Budget: $500–$2,000 for spare components."}
+],
+
+empChecklist:[
+{item:"Spare HF radio (Faraday stored)",priority:"Critical",cost:"$500–$800",note:"Primary long-range comm after EMP"},
+{item:"Spare handheld radios ×4",priority:"Critical",cost:"$100–$150",note:"Local comms restoration"},
+{item:"Spare charge controller",priority:"Critical",cost:"$150–$500",note:"Solar system recovery"},
+{item:"Spare inverter",priority:"Critical",cost:"$300–$2,000",note:"AC power restoration"},
+{item:"Meshtastic nodes ×6 (spares)",priority:"High",cost:"$180–$300",note:"Mesh network rebuild"},
+{item:"Laptop + hard drive (data)",priority:"High",cost:"$400–$800",note:"Reference library + records"},
+{item:"LED flashlights + batteries",priority:"High",cost:"$50–$100",note:"Immediate lighting"},
+{item:"Medical electronics (spares)",priority:"High",cost:"$200–$500",note:"Pulse ox, BP, glucometer"},
+{item:"Vehicle ECU / ignition spares",priority:"Moderate",cost:"$200–$600",note:"Vehicle recovery"},
+{item:"Shortwave receiver (spare)",priority:"Moderate",cost:"$100–$200",note:"Intel gathering"}
+]
+};
+
+/* ═══ INTERACTIONS ═══ */
+function switchTab(barId,prefix,target){
+const bar=document.getElementById(barId);
+bar.querySelectorAll('button').forEach((b,i)=>{
+const panels=document.querySelectorAll(`[id^="${prefix}-"]`);
+if(panels[i]&&panels[i].id===target){b.classList.add('on');panels[i].classList.add('show')}
+else if(panels[i]){b.classList.remove('on');panels[i].classList.remove('show')}
+});
+}
+function toggleAcc(el){
+const b=el.nextElementSibling;const o=b.classList.contains('open');
+el.parentElement.querySelectorAll('.acc-b').forEach(x=>x.classList.remove('open'));
+el.parentElement.querySelectorAll('.acc-h').forEach(x=>x.classList.remove('open'));
+if(!o){b.classList.add('open');el.classList.add('open')}
+}
+
+/* ═══ SOLAR CALCULATOR ═══ */
+function calcSolar(){
+const ppl=+document.getElementById('sPeople').value||6;
+const kwh=+document.getElementById('sKwh').value;
+const sun=+document.getElementById('sSun').value;
+const auto=+document.getElementById('sAuto').value;
+const btype=document.getElementById('sBatt').value;
+
+const dailyKwh=ppl*kwh;
+const sysLoss=1.25;// 25% losses (wiring, inverter, temp)
+const panelKw=Math.ceil((dailyKwh*sysLoss/sun)*10)/10;
+const panelCount=Math.ceil(panelKw/0.4);// 400W panels
+const panelArea=Math.ceil(panelCount*2);// ~2m² per panel
+
+const dod=btype==='lifepo4'?0.8:btype==='agm'?0.5:0.5;
+const battKwh=Math.ceil((dailyKwh*auto)/dod);
+const battV=48;
+const battAh=Math.ceil((battKwh*1000)/battV);
+
+const inverterKw=Math.ceil(panelKw*1.2);
+
+const costs={
+lifepo4:{panel:panelCount*280,batt:battKwh*400,inv:inverterKw*300,misc:2000},
+agm:{panel:panelCount*280,batt:battKwh*200,inv:inverterKw*300,misc:1500},
+gel:{panel:panelCount*280,batt:battKwh*250,inv:inverterKw*300,misc:1500}
+};
+const c=costs[btype];
+const totalCost=c.panel+c.batt+c.inv+c.misc;
+
+const battLife=btype==='lifepo4'?'10–15 yr':'3–5 yr';
+const items=[
+{label:"Daily demand",val:`${dailyKwh.toFixed(1)} kWh`,col:"var(--acc2)"},
+{label:"Solar array size",val:`${panelKw.toFixed(1)} kW (${panelCount}× 400W panels)`,col:"var(--acc)"},
+{label:"Panel area needed",val:`~${panelArea} m² (${Math.ceil(panelArea*10.76)} sq ft)`,col:"var(--acc)"},
+{label:"Battery bank",val:`${battKwh} kWh (${battAh} Ah @ ${battV}V ${btype.toUpperCase()})`,col:"var(--warn)"},
+{label:"Battery lifespan",val:battLife,col:"var(--txt2)"},
+{label:"Inverter size",val:`${inverterKw} kW (pure sine wave)`,col:"var(--acc3)"},
+{label:"Panels cost",val:`~$${c.panel.toLocaleString()}`,col:"var(--txt)"},
+{label:"Battery cost",val:`~$${c.batt.toLocaleString()}`,col:"var(--txt)"},
+{label:"Inverter + BOS",val:`~$${(c.inv+c.misc).toLocaleString()}`,col:"var(--txt)"},
+{label:"TOTAL SYSTEM COST",val:`~$${totalCost.toLocaleString()}`,col:"var(--acc)"}
+];
+
+const maxCost=totalCost;
+let html='<div class="result-box"><h3 style="margin-bottom:12px">☀️ Solar System Specification — '+ppl+' People</h3>';
+items.forEach(it=>{
+html+=`<div class="bar-h"><div class="bl">${it.label}</div><div class="bv" style="color:${it.col}">${it.val}</div></div>`;
+});
+html+=`</div>`;
+html+=`<div class="note">Costs are approximate component prices before installation labor. Include 20–30% contingency. LiFePO4 recommended: 3× battery lifespan vs lead-acid justifies 2× upfront cost. Add ${Math.ceil(panelCount*0.15)} spare panels and 1 spare charge controller (Faraday-stored for EMP).</div>`;
+document.getElementById('solarResult').style.display='block';
+document.getElementById('solarResult').innerHTML=html;
+}
+
+/* ═══ WATER CALCULATOR ═══ */
+function calcWater(){
+const ppl=+document.getElementById('wPeople').value||6;
+const src=document.getElementById('wSource').value;
+const rain=+document.getElementById('wRain').value;
+const roof=+document.getElementById('wRoof').value;
+
+const dailyL=ppl*200;// 200L total per person (drinking+cooking+hygiene+garden)
+const drinkL=ppl*5;// 5L drinking/cooking
+const yearlyL=dailyL*365;
+const harvestL=Math.round(roof*rain*0.8);// 80% collection efficiency
+const harvestPct=Math.min(100,Math.round((harvestL/yearlyL)*100));
+const storageL=dailyL*30;// 30-day reserve
+const tankM3=Math.ceil(storageL/1000);
+
+const srcData={spring:{treat:"Minimal (test annually)",pump:"Gravity (free)",reliability:"High (perennial) / Medium (seasonal)"},well:{treat:"Moderate (sediment + possible minerals)",pump:"Solar-powered submersible ($800–$2k)",reliability:"High (if properly drilled)"},rain:{treat:"Moderate (first-flush diverter + filter)",pump:"Gravity from elevated tank",reliability:"Seasonal (depends on rainfall pattern)"},stream:{treat:"Full treatment required (biological + chemical)",pump:"Solar or ram pump ($200–$2k)",reliability:"Medium (seasonal flow variation)"}};
+const sd=srcData[src];
+
+let html=`<div class="result-box"><h3 style="margin-bottom:12px">💧 Water System — ${ppl} People</h3>
+<div class="spec">
+<dt>Daily demand:</dt><dd>${dailyL} L/day (${(dailyL*0.264).toFixed(0)} gal)</dd>
+<dt>Drinking/cooking:</dt><dd>${drinkL} L/day</dd>
+<dt>Annual demand:</dt><dd>${(yearlyL/1000).toFixed(0)} m³ (${(yearlyL*0.264).toFixed(0)} gal)</dd>
+<dt>Rainwater harvest:</dt><dd>${(harvestL/1000).toFixed(0)} m³/year (${harvestPct}% of demand)</dd>
+<dt>Storage target (30-day):</dt><dd>${storageL.toLocaleString()} L = ${tankM3} m³ tank</dd>
+<dt>Treatment needed:</dt><dd>${sd.treat}</dd>
+<dt>Pumping:</dt><dd>${sd.pump}</dd>
+<dt>Source reliability:</dt><dd>${sd.reliability}</dd>
+</div></div>`;
+html+=`<div class="note">${harvestPct<50?'⚠️ Rainwater alone covers <50% of demand. Secondary source (well/spring/stream) essential. Increase roof catchment area or add secondary collection surfaces.':harvestPct<80?'Rain covers '+harvestPct+'% — supplement with secondary source for dry periods. Consider additional storage for seasonal buffering.':'✅ Rainwater covers '+harvestPct+'% of demand. Maintain secondary source as backup. Ensure first-flush diverter installed.'}</div>`;
+document.getElementById('waterResult').style.display='block';
+document.getElementById('waterResult').innerHTML=html;
+}
+
+/* ═══ RENDER ═══ */
+
+// Energy table
+(function(){
+const t=document.getElementById('energyTable');
+let h='<thead><tr><th>Source</th><th>Output</th><th>Cost</th><th>Lifespan</th><th>Pros</th><th>Cons</th><th>EMP</th></tr></thead><tbody>';
+D.energy.forEach(e=>{
+h+=`<tr><td style="font-weight:600">${e.source}</td><td>${e.output}</td><td style="font-size:.78rem">${e.cost}</td><td>${e.life}</td><td style="font-size:.78rem;color:var(--acc)">${e.pros}</td><td style="font-size:.78rem;color:var(--dng)">${e.cons}</td><td style="font-size:.78rem">${e.emp}</td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// Load table
+(function(){
+const t=document.getElementById('loadTable');
+let h='<thead><tr><th>Appliance</th><th>Watts</th><th>Hrs/Day</th><th>Wh/Day</th></tr></thead><tbody>';
+D.loads.forEach(l=>{
+const c=l.wh>1000?'var(--dng)':l.wh>400?'var(--warn)':'var(--acc)';
+h+=`<tr><td>${l.item}</td><td>${l.w}W</td><td>${l.hrs}</td><td style="color:${c};font-weight:600">${l.wh.toLocaleString()}</td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// Water treatment
+(function(){
+const c=document.getElementById('waterTreatAcc');
+D.waterTreat.forEach(w=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>💧 ${w.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem;margin-bottom:8px">${w.desc}</p><p style="font-size:.82rem;color:var(--acc2)">EMP Resilience: ${w.emp}</p></div>`;
+});
+})();
+
+// Food
+(function(){
+const c=document.getElementById('foodAcc');
+D.food.forEach(f=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>🌾 ${f.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem;margin-bottom:8px">${f.desc}</p><div class="tag" style="border-color:var(--acc);color:var(--acc)">📊 ${f.cal}</div></div>`;
+});
+// Calorie table
+const ct=document.getElementById('calorieTable');
+const crops=[
+{crop:"Potatoes",cal:20000,area:"100 sq ft",season:"90–120 days",store:"4–6 mo (root cellar)"},
+{crop:"Sweet Potatoes",cal:18000,area:"100 sq ft",season:"90–150 days",store:"6–12 mo"},
+{crop:"Corn (dried)",cal:15000,area:"100 sq ft",season:"60–100 days",store:"1–2 yr"},
+{crop:"Winter Squash",cal:8000,area:"100 sq ft",season:"85–110 days",store:"3–6 mo"},
+{crop:"Dry Beans",cal:12000,area:"100 sq ft",season:"80–100 days",store:"2–5 yr"},
+{crop:"Wheat/Grain",cal:10000,area:"100 sq ft",season:"100–130 days",store:"5+ yr (sealed)"},
+{crop:"Cabbage/Kale",cal:3000,area:"100 sq ft",season:"60–100 days",store:"Fermented 1+ yr"},
+{crop:"Eggs (12 hens)",cal:1200,area:"Coop + run",season:"Year-round",store:"Fresh 3–4 wk"},
+{crop:"Goat Milk (2 does)",cal:2400,area:"Pasture + shed",season:"10 mo/yr",store:"Cheese 6+ mo"}
+];
+let h='<thead><tr><th>Crop / Source</th><th>kcal / 100 sq ft / season</th><th>Area Needed</th><th>Growing Season</th><th>Storage Life</th></tr></thead><tbody>';
+crops.forEach(c=>{
+const col=c.cal>=15000?'var(--acc)':c.cal>=8000?'var(--acc2)':'var(--warn)';
+h+=`<tr><td style="font-weight:600">${c.crop}</td><td style="color:${col};font-weight:700">${c.cal.toLocaleString()}</td><td>${c.area}</td><td>${c.season}</td><td>${c.store}</td></tr>`;
+});
+h+='</tbody>';ct.innerHTML=h;
+})();
+
+// Waste
+(function(){
+const c=document.getElementById('wasteAcc');
+D.waste.forEach(w=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>🚽 ${w.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${w.desc}</p></div>`;
+});
+})();
+
+// Comms table
+(function(){
+const t=document.getElementById('commsTable');
+let h='<thead><tr><th>Layer</th><th>Equipment</th><th>Frequency</th><th>Power</th><th>License</th><th>Use</th><th>Cost</th></tr></thead><tbody>';
+D.comms.forEach(c=>{
+h+=`<tr><td style="font-weight:600;color:var(--acc2)">${c.layer}</td><td style="font-size:.8rem">${c.equip}</td><td style="font-size:.78rem">${c.freq}</td><td>${c.power}</td><td>${c.license}</td><td style="font-size:.78rem;color:var(--txt2)">${c.use}</td><td>${c.cost}</td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// Comms equipment
+(function(){
+const c=document.getElementById('commsAcc');
+D.commsEquip.forEach(e=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>📻 ${e.name} <span class="badge badge-b">${e.cost}</span></span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${e.desc}</p></div>`;
+});
+})();
+
+// EMP
+(function(){
+const c=document.getElementById('empAcc');
+D.emp.forEach(e=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>⚡ ${e.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${e.desc}</p></div>`;
+});
+const t=document.getElementById('empTable');
+let h='<thead><tr><th>Item</th><th>Priority</th><th>Cost</th><th>Notes</th></tr></thead><tbody>';
+D.empChecklist.forEach(e=>{
+const pc=e.priority==='Critical'?'badge-d':e.priority==='High'?'badge-o':'badge-w';
+h+=`<tr><td style="font-weight:600">${e.item}</td><td><span class="badge ${pc}">${e.priority}</span></td><td>${e.cost}</td><td style="font-size:.8rem;color:var(--txt2)">${e.note}</td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+</script>
+</body>
+</html>

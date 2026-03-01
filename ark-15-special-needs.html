@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>15 — Special Needs Considerations | Ark v3 (Standalone)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0c10;--s1:#0f1218;--s2:#161b24;--gl:rgba(255,255,255,.04);--glb:rgba(255,255,255,.08);--acc:#00e5a0;--acc2:#00b8ff;--acc3:#ff6b35;--warn:#ffb300;--dng:#ff3d5a;--txt:#e0e0e0;--txt2:#8a8fa8;--rad:12px;--glow:0 0 20px rgba(0,229,160,.15)}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.65;overflow-x:hidden;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:clamp(1.6rem,4vw,2.4rem);background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.sub{color:var(--txt2);font-size:.95rem;margin-bottom:28px}
+h2{font-size:1.25rem;color:var(--acc);margin-bottom:14px}
+h3{font-size:1.05rem;color:var(--acc2);margin-bottom:8px}
+.gl{background:var(--gl);border:1px solid var(--glb);border-radius:var(--rad);padding:22px;margin-bottom:18px;backdrop-filter:blur(12px)}
+.gl:hover{border-color:rgba(0,229,160,.18);box-shadow:var(--glow)}
+.stab{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.stab button{background:var(--gl);border:1px solid var(--glb);color:var(--txt2);padding:9px 18px;border-radius:8px;cursor:pointer;font-size:.85rem;transition:.25s}
+.stab button:hover{border-color:var(--acc);color:var(--acc)}
+.stab button.on{background:rgba(0,229,160,.12);border-color:var(--acc);color:var(--acc);box-shadow:0 0 10px rgba(0,229,160,.15)}
+.spanel{display:none;animation:fadeUp .35s ease}.spanel.show{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.acc-h{background:var(--s2);border:1px solid var(--glb);border-radius:8px;padding:13px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;transition:.2s;font-size:.92rem}
+.acc-h:hover{border-color:var(--acc);color:var(--acc)}
+.acc-h .arrow{transition:transform .3s;font-size:.75rem;color:var(--acc)}
+.acc-h.open .arrow{transform:rotate(180deg)}
+.acc-b{max-height:0;overflow:hidden;transition:max-height .45s ease;padding:0 18px}
+.acc-b.open{max-height:6000px;padding:14px 18px}
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin:10px 0}
+th{background:var(--s2);color:var(--acc);padding:10px 8px;text-align:left;border-bottom:1px solid var(--glb);position:sticky;top:0}
+td{padding:9px 8px;border-bottom:1px solid rgba(255,255,255,.04)}
+tr:hover td{background:rgba(0,229,160,.03)}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.72rem;font-weight:600}
+.badge-g{background:rgba(0,229,160,.15);color:var(--acc)}
+.badge-b{background:rgba(0,184,255,.15);color:var(--acc2)}
+.badge-w{background:rgba(255,179,0,.15);color:var(--warn)}
+.badge-d{background:rgba(255,61,90,.15);color:var(--dng)}
+.badge-o{background:rgba(255,107,53,.15);color:var(--acc3)}
+.tag{display:inline-block;margin:2px 4px 2px 0;padding:2px 8px;border-radius:6px;font-size:.72rem;background:var(--s2);color:var(--txt2);border:1px solid var(--glb)}
+.note{font-size:.8rem;color:var(--txt2);border-left:3px solid var(--warn);padding:8px 12px;margin:10px 0;background:rgba(255,179,0,.04)}
+.note-g{border-color:var(--acc);background:rgba(0,229,160,.04)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.stat-card{background:var(--s2);border:1px solid var(--glb);border-radius:10px;padding:16px;text-align:center}
+.stat-card .sv{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-card .sl{font-size:.78rem;color:var(--txt2);margin-top:4px}
+.ck{display:flex;align-items:flex-start;gap:8px;margin:5px 0;font-size:.84rem;cursor:pointer}
+.ck input{accent-color:var(--acc);width:16px;height:16px;margin-top:3px;flex-shrink:0}
+.med-card{background:var(--s1);border:1px solid var(--glb);border-radius:10px;padding:16px;margin:8px 0}
+.med-card h4{color:var(--acc);font-size:.92rem;margin-bottom:6px}
+.med-card p{font-size:.82rem;color:var(--txt2)}
+.ref{font-size:.72rem;color:var(--txt2);margin-top:18px;padding-top:12px;border-top:1px solid var(--glb)}
+@media(max-width:600px){.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap" id="special-needs">
+
+<h1>15 — Special Needs Considerations</h1>
+<p class="sub">Medical Dependencies · Elderly Care · Children & Infants · Disability Accommodation · Mental Health · Pregnancy & Newborns · Pet & Animal Planning</p>
+
+<div class="grid3" style="margin-bottom:20px">
+<div class="stat-card"><div class="sv">24 mo</div><div class="sl">Medication Stockpile Target</div></div>
+<div class="stat-card"><div class="sv">3 Backups</div><div class="sl">Per Critical Medical Device</div></div>
+<div class="stat-card"><div class="sv">120 Days</div><div class="sl">Infant Supply Reserve</div></div>
+<div class="stat-card"><div class="sv">2+ Trained</div><div class="sl">Caregivers Per Dependent</div></div>
+</div>
+
+<div class="stab" id="mainTabs">
+<button class="on" onclick="switchTab('mainTabs','mp','mp-med')">Medical Dependencies</button>
+<button onclick="switchTab('mainTabs','mp','mp-elderly')">Elderly Care</button>
+<button onclick="switchTab('mainTabs','mp','mp-children')">Children & Infants</button>
+<button onclick="switchTab('mainTabs','mp','mp-disability')">Disability</button>
+<button onclick="switchTab('mainTabs','mp','mp-mental')">Mental Health</button>
+<button onclick="switchTab('mainTabs','mp','mp-preg')">Pregnancy & Newborns</button>
+<button onclick="switchTab('mainTabs','mp','mp-pets')">Pets & Animals</button>
+</div>
+
+<!-- ═══ MEDICAL DEPENDENCIES ═══ -->
+<div class="spanel show" id="mp-med">
+<div class="gl">
+<h2>💊 Chronic Medical Condition Planning</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:14px">When pharmacies close and supply chains break, medication-dependent individuals face life-threatening crises within days to weeks. Planning now is non-negotiable.</p>
+<div id="medAcc"></div>
+</div>
+<div class="gl">
+<h2>Medication Stockpiling Strategy</h2>
+<div id="stockAcc"></div>
+</div>
+<div class="gl">
+<h2>Medical Device Dependencies</h2>
+<div style="overflow-x:auto"><table id="deviceTable"></table></div>
+</div>
+</div>
+
+<!-- ═══ ELDERLY ═══ -->
+<div class="spanel" id="mp-elderly">
+<div class="gl">
+<h2>👴 Elderly Care in Collapse Scenarios</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:12px">Elderly members are both valuable (wisdom, experience, childcare) and vulnerable (mobility, medication, temperature sensitivity). Planning prevents the impossible choice between survival and compassion.</p>
+<div id="elderlyAcc"></div>
+</div>
+<div class="gl">
+<h2>Elderly-Specific Evacuation Protocol</h2>
+<div style="overflow-x:auto"><table id="elderlyTable"></table></div>
+</div>
+</div>
+
+<!-- ═══ CHILDREN ═══ -->
+<div class="spanel" id="mp-children">
+<div class="gl">
+<h2>👶 Children & Infant Preparedness</h2>
+<div class="stab" id="kidTabs">
+<button class="on" onclick="switchTab('kidTabs','kt','kt-infant')">Infants (0–2)</button>
+<button onclick="switchTab('kidTabs','kt','kt-toddler')">Toddlers (2–5)</button>
+<button onclick="switchTab('kidTabs','kt','kt-school')">School Age (6–12)</button>
+<button onclick="switchTab('kidTabs','kt','kt-teen')">Teens (13–17)</button>
+</div>
+<div id="kt-infant" class="spanel show"></div>
+<div id="kt-toddler" class="spanel"></div>
+<div id="kt-school" class="spanel"></div>
+<div id="kt-teen" class="spanel"></div>
+</div>
+</div>
+
+<!-- ═══ DISABILITY ═══ -->
+<div class="spanel" id="mp-disability">
+<div class="gl">
+<h2>♿ Disability Accommodation Planning</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:12px">Individuals with disabilities bring unique strengths AND have specific needs. Effective planning includes both.</p>
+<div id="disabilityAcc"></div>
+</div>
+</div>
+
+<!-- ═══ MENTAL HEALTH ═══ -->
+<div class="spanel" id="mp-mental">
+<div class="gl">
+<h2>🧠 Mental Health in Crisis</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:12px">Psychological resilience is as critical as physical preparedness. Collapse-level stress will trigger or worsen mental health conditions in every community member.</p>
+<div id="mentalAcc"></div>
+</div>
+<div class="gl">
+<h2>Psychiatric Medication Continuity</h2>
+<div style="overflow-x:auto"><table id="psychMedTable"></table></div>
+</div>
+</div>
+
+<!-- ═══ PREGNANCY ═══ -->
+<div class="spanel" id="mp-preg">
+<div class="gl">
+<h2>🤰 Pregnancy, Birth & Newborn Care</h2>
+<div id="pregAcc"></div>
+</div>
+<div class="gl">
+<h2>Birth Kit — Essential Supplies</h2>
+<div style="overflow-x:auto"><table id="birthTable"></table></div>
+</div>
+</div>
+
+<!-- ═══ PETS ═══ -->
+<div class="spanel" id="mp-pets">
+<div class="gl">
+<h2>🐕 Pet & Animal Planning</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:12px">Pets provide security, morale, pest control, and companionship. They also require resources. Plan for both roles.</p>
+<div id="petAcc"></div>
+</div>
+<div class="gl">
+<h2>Animal Resource Requirements</h2>
+<div style="overflow-x:auto"><table id="animalTable"></table></div>
+</div>
+</div>
+
+<div class="ref">Ark Collective v3 § 15 · Special Needs Considerations · Not medical advice — consult healthcare professionals · Collapse Bible integration · All medication information is general guidance only</div>
+</div>
+
+<script>
+/* ═══ DATA ═══ */
+const D={
+med:[
+{name:"Diabetes (Type 1 & 2)",icon:"💉",severity:"Life-threatening without insulin (Type 1)",
+detail:"Type 1: Insulin is non-negotiable — death occurs within days to weeks without it. Strategy: 12-month refrigerated stockpile + Frio cooling wallets for travel (no electricity needed). Humalog/NovoRapid viable 28 days unrefrigerated. NPH insulin more heat-stable than analogs. Learn to manage with Regular + NPH (available OTC in some states/countries). Backup: strict low-carb diet reduces insulin needs 30–50% in Type 2. Metformin stockpile (stable 3–5 years) for Type 2. Glucose meter + 500 test strips minimum. Glucagon emergency kit ×3.",
+alt:"Herbal adjuncts (berberine, cinnamon, bitter melon) may assist Type 2 but NEVER replace insulin in Type 1. Research pancreatic extract (historical pre-synthetic insulin source).",
+evac:"Insulin in insulated bag with ice packs. Carry in hand luggage ALWAYS. Backup supply in separate vehicle/person. Medical ID bracelet."},
+{name:"Cardiovascular / Hypertension",icon:"❤️",severity:"Stroke/heart attack risk without medication",
+detail:"Stockpile: ACE inhibitors, beta-blockers, statins, aspirin — most are stable 2–5 years past expiration. Blood pressure monitor (manual/aneroid preferred — no batteries). Nitroglycerin tablets (replace every 6 months — unstable). Low-sodium diet preparation. Stress management critical. Cardiac event protocol: aspirin 325mg immediately, position, CPR training for all community members.",
+alt:"Hawthorn berry (evidence for mild BP reduction). Garlic extract. Magnesium supplementation. Meditation/breathing exercises for BP management. NEVER substitute for critical cardiac medications without medical supervision.",
+evac:"All medications in go-bag. Manual BP cuff. Aspirin. Medical records with current prescriptions. Cardiologist's emergency contact."},
+{name:"Respiratory (Asthma / COPD)",icon:"🫁",severity:"Fatal without bronchodilators in severe cases",
+detail:"Stockpile: Albuterol inhalers ×12+ (expire slowly, still effective 1–2 years past). Prednisone oral (emergency burst packs ×6). Nebulizer + solution (requires power — solar/battery backup). Spacer device. Peak flow meter. Avoid smoke/dust exposure — critical in wildfire or conflict scenarios. Allergy medications (antihistamines) as adjunct.",
+alt:"Breathing exercises (Buteyko method). Caffeine provides mild bronchodilation (2 strong coffees ≈ mild albuterol). Steam inhalation with eucalyptus. Ephedra (Ma Huang) — traditional bronchodilator, use cautiously.",
+evac:"Inhalers in EVERY bag (go-bag, car, pockets). Nebulizer if power available. Face mask/N95 for smoke/dust."},
+{name:"Epilepsy / Seizure Disorders",icon:"⚡",severity:"Potentially fatal — status epilepticus without medication",
+detail:"Stockpile: 12–24 months of current anticonvulsant (levetiracetam, valproate, lamotrigine — stability varies). Rectal diazepam for emergency seizure termination (5 doses minimum). Midazolam nasal spray. Seizure action plan posted and trained for all community members. Avoid triggers: sleep deprivation (critical in crisis), alcohol withdrawal, dehydration, extreme stress. NEVER stop anticonvulsants abruptly — taper over weeks.",
+alt:"Ketogenic diet has evidence for seizure reduction (50% of patients achieve 50%+ seizure reduction). CBD oil (limited evidence). Vagus nerve stimulation devices (battery-powered). No reliable herbal substitutes — medication continuity is paramount.",
+evac:"Medications divided across go-bags + body. Rectal diazepam accessible without searching. Medical ID bracelet. Seizure first-aid training card."},
+{name:"Immunosuppression (Transplant / Autoimmune)",icon:"🛡️",severity:"Organ rejection / disease flare without medication",
+detail:"Transplant recipients: tacrolimus, cyclosporine, mycophenolate — rejection begins within days of stopping. Strategy: maximum possible stockpile (6–12 months). Track multiple pharmacies/suppliers. Arrange with transplant center for emergency supply letters. Autoimmune (RA, lupus, MS): biologics require cold chain — stockpile difficult. Transition plan to older, more stable alternatives (methotrexate, prednisone) with physician pre-crisis.",
+alt:"No viable alternatives for transplant anti-rejection drugs. For autoimmune: anti-inflammatory diet, stress reduction, low-dose naltrexone (emerging evidence). Prednisone as universal fallback (stable 5+ years stored properly).",
+evac:"Insulated medication bag. Transplant medical records. Blood type card. Contact info for transplant centers in destination countries."},
+{name:"Thyroid Disorders",icon:"🦋",severity:"Myxedema coma (hypo) or thyroid storm (hyper) without treatment",
+detail:"Hypothyroid: Levothyroxine is cheap, stable (5+ years), and widely available. Stockpile 24+ months easily. Store cool and dry. Hyperthyroid: Methimazole stockpile 12 months. Propranolol for symptom control. In true emergency, radioactive iodine thyroid ablation + lifelong levothyroxine (simpler to manage long-term). TSH testing: home test kits limited; clinical assessment by trained medic.",
+alt:"Desiccated thyroid (Armour Thyroid) — historical alternative, derived from pig thyroid. Sea vegetables (iodine source) for mild deficiency only. No substitute for levothyroxine in significant hypothyroidism.",
+evac:"Medication in go-bag (lightweight, stable). Medical records. Extra 6-month supply in safe zone cache."}
+],
+
+stockpile:[
+{name:"Rotation Strategy",desc:"FIFO (first-in, first-out). Track all expiration dates in spreadsheet/ledger. Most medications effective 1–5 years past printed expiration (SLEP study: 88% of medications maintained potency 5+ years past expiration when stored properly). Store in cool (<25°C), dry, dark conditions. Desiccant packets prevent moisture degradation. Never freeze insulin or biologics. Annual inventory audit mandatory."},
+{name:"Acquisition Methods",desc:"Multiple prescribers: PCP, specialists, urgent care can each write prescriptions. '90-day supply' prescriptions from mail-order pharmacies (then fill again at 60 days for rolling surplus). Travel prescriptions (many physicians will write extra for international travel). GoodRx/cost-comparison for cash-pay duplicates. Veterinary equivalents for some antibiotics (same compound, different labeling — verify with pharmacist). International pharmacies (Mexico, India, Thailand) for non-controlled medications."},
+{name:"Critical Stockpile List",desc:"Antibiotics: Amoxicillin, Ciprofloxacin, Metronidazole, Doxycycline (stable 5+ yr). Pain: Ibuprofen (bulk), Acetaminophen, Tramadol if available. Allergy: Diphenhydramine, Epinephrine auto-injectors ×4+. GI: Loperamide, Oral Rehydration Salts (100+ packets), Omeprazole. Topical: Triple antibiotic, Hydrocortisone, Antifungal. Wound: Suture kits, Skin stapler, Steri-Strips, Hemostatic gauze. Dental: Clove oil (eugenol), Temporary filling material, Extraction forceps if trained."},
+{name:"Storage Conditions",desc:"Temperature: 15–25°C ideal (below 30°C acceptable for most). Humidity: <60% — use desiccant (silica gel) in all containers. Light: Opaque containers, avoid direct sunlight. EMP: Electronics-free storage (no risk). Sealed containers: Mylar bags with oxygen absorbers for long-term. Label everything: drug name, dose, expiration, quantity, date stored. Separate controlled substances securely — dual-lock access."}
+],
+
+devices:[
+{device:"CPAP / BiPAP",condition:"Sleep Apnea",power:"60–100W",backup:"12V battery pack (8 hrs); solar + battery; oral appliance as non-powered alternative",stock:"Spare mask, hose, filters (24 mo), 12V DC adapter",emp:"Moderate — store spare in Faraday cage"},
+{device:"Insulin Pump",condition:"Diabetes Type 1",power:"Battery (AAA or rechargeable)",backup:"Manual injection + syringes (indefinite backup); pump batteries 12+ months stock",stock:"Infusion sets ×50, reservoirs ×50, batteries ×100, backup insulin pens",emp:"Low risk (battery powered) — spare in Faraday bag"},
+{device:"Oxygen Concentrator",condition:"COPD / Respiratory",power:"300–600W",backup:"Portable unit + solar/battery; oxygen cylinders (limited); pursed-lip breathing technique",stock:"Spare nasal cannulas, tubing, filters; portable O2 cylinders as bridge",emp:"High risk — spare portable unit in Faraday cage essential"},
+{device:"Dialysis Machine",condition:"Kidney Failure",power:"1,500W+",backup:"Peritoneal dialysis (lower power, portable); EXTREMELY difficult off-grid. Pre-crisis relocation to area with medical infrastructure priority.",stock:"PD solution (6-month supply = massive volume/weight); tubing sets; antiseptics",emp:"Critical — relocate to functioning medical infrastructure"},
+{device:"Nebulizer",condition:"Asthma / COPD",power:"50–100W",backup:"12V portable + solar; metered-dose inhaler as primary backup; manual suction",stock:"Spare masks, tubing, solution ×100 vials",emp:"Low–Moderate — store spare in Faraday bag"},
+{device:"Blood Glucose Monitor",condition:"Diabetes",power:"Battery (coin cell)",backup:"Multiple meters (cheap); urine glucose strips (less accurate but no power needed)",stock:"Meters ×3, test strips ×500, lancets ×500, control solution",emp:"Very low risk — battery powered, Faraday bag for spares"}
+],
+
+elderly:[
+{name:"Mobility & Evacuation",desc:"Pre-plan evacuation for limited-mobility members. Vehicle modifications: step stools, grab bars, reclinable seating. Walking aids: sturdy walker, hiking poles, lightweight wheelchair. Route planning: avoid stairs, steep terrain, narrow passages. Buddy system: assigned mobile partner at all times during evacuation. Carry chair for emergency building evacuation. Overnight stops must have ground-level sleeping arrangements."},
+{name:"Temperature Vulnerability",desc:"Elderly thermoregulation is impaired — both hypothermia and heat stroke risk increased. Winter: ensure heated sleeping space, extra insulation layers, warm liquids constantly available. Summer: shade, hydration station, ventilation, cooling cloths. Medication interactions: some BP medications impair sweating. Target: living quarters maintained at 18–24°C. Priority access to heating fuel and cooling resources."},
+{name:"Cognitive Considerations",desc:"Dementia/Alzheimer's patients need consistent routines even in crisis. ID bracelet with name, condition, and contact info. Wandering prevention: door alarms, fenced safe areas. Simplified communication: short sentences, visual cues, familiar faces. Maintain familiar objects (photos, favorite items) to reduce distress. Caregiver training for behavioral management. Wandering risk dramatically increases during relocation — never leave unattended."},
+{name:"Nutritional Needs",desc:"Soft foods for dental issues: soups, stews, porridge, mashed foods. Protein critical to prevent muscle wasting (sarcopenia) — prioritize eggs, dairy, soft-cooked meats. Hydration monitoring: elderly often don't feel thirst — schedule water intake. Fiber for digestion (common issue in stress). Vitamin D supplementation (limited sun exposure in shelter situations). Calcium for bone health. Smaller, more frequent meals preferred."},
+{name:"Medication Complexity",desc:"Average elderly person takes 5–7 medications — polypharmacy management critical. Pill organizers with 4-week supply pre-filled. Written schedule with photos of each medication. Trained backup person who knows the entire medication regimen. Drug interaction awareness (many crisis medications interact with maintenance drugs). Simplification: work with physician pre-crisis to reduce medications to essentials only."},
+{name:"Value & Roles",desc:"Elderly members are NOT liabilities — they are assets. Knowledge: decades of practical experience, historical perspective, problem-solving wisdom. Childcare: grandparent childminding frees working-age adults. Teaching: skills transfer to younger members. Morale: emotional stability and perspective during crisis. Conflict resolution: respected elder mediators. Assign meaningful roles that match physical capabilities."}
+],
+
+elderlyEvac:[
+{phase:"Pre-Departure (24 hr)",actions:"Verify 30-day medication supply packed · Mobility aids loaded · Warm/cool clothing layered · Medical records in waterproof bag · ID bracelet confirmed · Assigned partner briefed · Favorite comfort item packed · Continence supplies if needed",priority:"Critical"},
+{phase:"Travel",actions:"Frequent stops (every 2 hrs) for movement/hydration · Medication schedule maintained · Temperature monitoring · Pressure point padding for seats · Fall prevention during stops · Familiar music or conversation for cognitive comfort",priority:"High"},
+{phase:"Arrival Setup",actions:"Ground-level accommodation · Familiar item placement · Bathroom accessibility · Medication station established · Caregiver schedule posted · Orientation walk (safe boundaries) · Introduce to key community members",priority:"High"},
+{phase:"Ongoing",actions:"Daily health check (BP, glucose if relevant, mood) · Meaningful role assignment · Social integration activities · Regular exercise (walking, gentle movement) · Cognitive stimulation (puzzles, storytelling, teaching) · Monitoring for depression/withdrawal",priority:"Moderate"}
+],
+
+children:{
+infant:[
+{name:"Feeding",desc:"Breastfeeding: absolute best option — no supplies needed, immune-boosting, always correct temperature. Protect and support breastfeeding mothers with nutrition (extra 500 kcal/day), hydration, rest, and stress reduction. Formula backup: stockpile 120-day supply (rotate by expiration). Formula requires clean water + sterilization (boiling 1 min). Alternative: wet-nursing arrangements with other lactating mothers (historical norm). Goat milk + supplementation as emergency substitute (consult pediatric guidance). NEVER dilute formula to stretch supply — fatal electrolyte imbalances."},
+{name:"Diapers & Hygiene",desc:"Cloth diapers: 24–36 needed per baby. Wash daily in hot water + soap. Flat-fold style most versatile. Diaper covers (waterproof): 6–8 needed. Diaper cream stockpile (zinc oxide — generic, stable). Wipes alternative: cut flannel squares + water. Bathing: sponge bath with warm water daily, full bath 2–3 times/week. Baby-safe soap minimal — plain warm water usually sufficient. Umbilical care for newborns: clean and dry, alcohol swab if available."},
+{name:"Temperature & Shelter",desc:"Infants cannot regulate body temperature effectively. Target: 18–22°C sleeping environment. Layering: onesie + sleep sack (no loose blankets — suffocation risk). Cold weather: skin-to-skin contact (kangaroo care) is most effective warming method. Heat: shade, light clothing, frequent breastfeeding for hydration. Co-sleeping for warmth with safe sleep practices. Never leave infant in direct sun or unheated space."},
+{name:"Medical Priorities",desc:"Oral rehydration salts (ORS): #1 lifesaver for infant diarrhea — stockpile 50+ packets. Infant Tylenol (acetaminophen): stockpile 12 months. Saline nasal drops. Thermometer (non-battery: glass/alcohol). Dehydration recognition training for all caregivers: fontanelle depression, reduced wet diapers, listlessness. Vaccination records preserved. If no pediatric care available, adult medical personnel trained in infant assessment."}
+],
+toddler:[
+{name:"Nutrition & Hydration",desc:"Transition to solid foods by 6–12 months. Prioritize calorie-dense, soft foods: mashed sweet potato, avocado, banana, eggs, yogurt (if available). 1,000–1,400 kcal/day (age 1–3). Small frequent meals — toddlers cannot eat large portions. Constipation common in stress + dietary change — fiber + water. Picky eating worsens with stress — maintain familiar foods when possible. Multivitamin if dietary variety limited."},
+{name:"Safety in Crisis Environment",desc:"Toddlers explore EVERYTHING — crisis environments are exceptionally dangerous. Childproofing safe zone: secure chemicals, weapons, tools, water sources, fire. Boundary establishment: physical barriers (gates, fencing). Constant supervision — buddy system with adults. Teach simple safety rules through repetition. ID bracelet with parent's name and blood type. Bright-colored clothing for visibility. Whistle on lanyard for emergency."},
+{name:"Emotional Security",desc:"Routine is everything. Maintain meal times, nap times, bedtime rituals even in crisis. Comfort objects (blanket, toy): pack one per child — worth the weight. Parent proximity: separation anxiety peaks at 18–24 months — avoid separation during evacuation. Simple honest explanations appropriate to age: 'We're going on a long camping trip.' Avoid adult anxiety conversations near toddlers — they absorb emotional tone even without understanding words."},
+{name:"Evacuation Specifics",desc:"Car seat: essential for vehicle evacuation — install pre-crisis. Baby carrier (Ergo/woven wrap) for on-foot evacuation — frees both hands. Pace: toddlers walk ~1 km/hr max — plan for carry or stroller on terrain-appropriate routes. Snacks continuously available to prevent meltdowns. Favorite songs, stories for distraction during stressful moments. Noise reduction: ear protection for loud environments (gunfire, engines)."}
+],
+school:[
+{name:"Education Continuity",desc:"Children 6–12 need structure and mental engagement. Pack: workbooks, reading books, pencils, paper. Core subjects: reading, math, practical science, nature study. Assign learning tasks that are also useful: measuring for building, reading maps, identifying plants. Older children (10+) can learn genuine survival skills: fire-starting, water purification, basic first aid, radio operation. This is their education now — adapt curriculum to reality."},
+{name:"Psychological Resilience",desc:"Children are more resilient than adults assume IF they feel safe and informed. Age-appropriate honesty about the situation — never lie (they'll find out and trust erodes). Assign meaningful responsibilities (age-appropriate chores = sense of control). Art supplies for emotional processing — drawing, journaling. Physical activity daily (essential for sleep and emotional regulation). Peer group maintenance: if possible, ensure multiple children for social development."},
+{name:"Roles & Contribution",desc:"Children 8+ can contribute meaningfully: garden watering, chicken feeding, message carrying, younger child supervision, water fetching, fire tending (supervised). 10+: basic radio operation, first aid assistant, food preparation helper, sentry observation (daytime only, with adult partner). 12+: many historical societies treated this age as young adult — graduated responsibilities. Building competence builds confidence. Never assign guard duty or weapon handling to under-14s."},
+{name:"Health Considerations",desc:"Growth requires consistent nutrition — prioritize children for protein/fat rations if food is limited. Dental care: limit sugar, maintain brushing, dental sealants pre-crisis. Vision: spare glasses essential. Immunization records preserved. Common childhood illnesses (ear infections, strep): antibiotic stockpile includes pediatric amoxicillin suspension. Activity needs: 60+ min physical play daily — non-negotiable for development and sleep quality."}
+],
+teen:[
+{name:"Agency & Responsibility",desc:"Teens (13–17) are capable of significant contribution. Treat as junior adults with graduated responsibilities. Full training in: communications (radio operation), first aid, perimeter observation, food production, mechanical repair, navigation. Leadership roles in youth teams. Decision-making participation in community meetings (observer → contributor). Suppressing teen agency breeds resentment and rebellion — channel energy productively."},
+{name:"Mental Health Risks",desc:"Adolescent mental health is particularly vulnerable during collapse. Loss of peer networks, social media, school structure — massive identity disruption. Risk: depression, anxiety, substance experimentation, romantic entanglements creating group tension. Mitigation: meaningful work, peer groups, mentorship from trusted adults (not just parents), physical activity, creative outlets. Watch for withdrawal, sleep changes, risk-taking behaviors. Normalize discussing feelings."},
+{name:"Education & Skill Building",desc:"Formal education may be irrelevant — but LEARNING is critical. Focus: practical skills (medical, agricultural, mechanical, communications, self-defense), critical thinking, problem-solving, history (learning from past collapses). Apprenticeship model: pair with skilled adults for 2–4 hrs daily. Reading program: maintain literacy and analytical thinking. Science: practical chemistry, biology, physics through real-world application. Language learning if multi-cultural community."},
+{name:"Reproductive Health",desc:"Teens are biologically fertile — in crisis communities with limited birth control, this is a significant planning issue. Stockpile: contraception (condoms, oral contraceptives). Education: age-appropriate sex education is harm reduction, not encouragement. Menstrual supplies for teen girls: reusable menstrual cups (10-year lifespan, minimal water), cloth pads, disposable stockpile. Private hygiene facilities for dignity and safety."}
+]
+},
+
+disability:[
+{name:"Mobility Impairments",desc:"Wheelchair users: terrain assessment of safe zone property — gravel/dirt paths may need hardening. Manual wheelchair as backup (no battery). Ramps at all entrances (8% grade max). Accessible sleeping and bathroom facilities on ground level. Evacuation plan: assigned carries for stairs/rough terrain. All-terrain wheelchair or beach wheelchair for rural properties. Upper body strength = enormous asset for many tasks (repair, radio operation, teaching, planning, oversight roles)."},
+{name:"Visual Impairment",desc:"Tactile markers on critical paths and equipment. Guide rope/rail systems between key buildings at safe zone. Audio-based communications training (radio operator is excellent role). Braille labels on medications and supplies if Braille-literate. White cane or guide dog accommodation. Night operations: blind individuals have advantage — superior navigation without light. Stockpile: spare glasses (3+ pairs), contact lens solution (12 mo), magnifying aids."},
+{name:"Hearing Impairment",desc:"Visual alerting systems for emergencies (flashing lights, flag signals). Sign language training for community (basic signs: danger, come, stop, water, food, help). Written communication boards at stations. Vibrating alarm systems. Hearing aid batteries: stockpile 24+ months. Cochlear implant: battery backup + spare processor in Faraday cage. Assign visual-signal role in communications (semaphore, signal flags — historical deaf military roles were critical)."},
+{name:"Intellectual / Developmental Disabilities",desc:"Routine maintenance is paramount — predictable schedule posted visually (picture schedule). Assigned buddy/caregiver who understands individual's specific needs and communication style. Sensory management: quiet space available for overstimulation. Clear, simple, consistent instructions for assigned tasks. Many individuals with developmental disabilities excel at repetitive, detail-oriented tasks (sorting, cleaning, counting, monitoring). Medication continuity planning per medical section. Behavioral crisis plan pre-established."},
+{name:"Chronic Pain Conditions",desc:"Pain management without consistent pharmaceutical access is a major challenge. Stockpile: NSAIDs (ibuprofen bulk), acetaminophen, topical analgesics (lidocaine, capsaicin), muscle relaxants. Non-pharmaceutical: TENS unit (battery-powered), heat/cold packs, massage, acupuncture if skilled practitioner available, CBD if legal/available. Physical therapy exercises documented. Adaptive equipment for daily tasks. Pace work assignments to pain cycles. Pain diary to track triggers."}
+],
+
+mental:[
+{name:"PTSD & Trauma Responses",desc:"Pre-existing PTSD will be activated by collapse stimuli (loud noises, authority figures, displacement, violence). Strategy: pre-crisis trauma therapy completion if possible. Grounding techniques training (5-4-3-2-1 sensory method). Trigger mapping — identify and communicate personal triggers to trusted community members. Safe space: designated quiet area at safe zone. Peer support training for community — basic psychological first aid. Trauma-informed community protocols: avoid re-traumatizing triggers in daily operations."},
+{name:"Anxiety Disorders",desc:"Crisis amplifies anxiety exponentially. Structured routines reduce anxiety: predictable schedule, defined roles, clear expectations. Breathing exercises (box breathing: 4-4-4-4). Physical exercise (proven anxiolytic). Limit information overload — designated 'news time' rather than constant monitoring. Medication: SSRIs/SNRIs stockpile 12–24 months. Benzodiazepines for acute crises ONLY (dependency risk + limited supply). Buspirone as non-addictive alternative. Cognitive behavioral techniques training."},
+{name:"Depression & Grief",desc:"Loss of normal life, home, community, loved ones — grief is universal in collapse. Validate emotions — suppression leads to worse outcomes. Meaningful work is the strongest antidepressant in crisis contexts. Social connection: meal-sharing, storytelling, music, shared activities. Physical activity daily. Light exposure (SAD risk in sheltered living). Suicidal ideation monitoring: trained peer supporters, firearms access restriction during episodes. Crisis intervention plan established pre-collapse."},
+{name:"Substance Dependency",desc:"Collapse cuts supply of alcohol, tobacco, and illicit substances — withdrawal can be life-threatening. Alcohol: delirium tremens mortality 5–15% without treatment. Stockpile: benzodiazepines for alcohol withdrawal management (physician-supervised taper protocol). Tobacco: nicotine patches/gum stockpile for gradual cessation. Opioid dependency: buprenorphine (Suboxone) stockpile if prescribed — prevents dangerous withdrawal. Community alcohol production for controlled taper if pharmaceutical unavailable."},
+{name:"Psychotic Disorders (Schizophrenia, Bipolar)",desc:"Medication discontinuation causes relapse in 60–80% within 6 months. Antipsychotics: stockpile maximum possible (olanzapine, risperidone — 24 months target). Long-acting injectable forms (if available) reduce daily compliance burden. Lithium for bipolar: blood level monitoring ideally, but continuation is better than discontinuation even without labs. Behavioral management plan pre-established. De-escalation training for community. Never restrain without trained protocol. Safety plan for acute episodes."},
+{name:"Community Mental Health Protocols",desc:"Weekly group check-in (optional attendance, no pressure). Mental health first aid training for 3+ community members minimum. Rotating 'day off' — everyone needs rest from survival mode. Children's play and creative activities (protects developing brains). Memorial/ritual for losses. Spiritual/mindfulness space. Physical affection (hugs, hand-holding) — human touch is a primary psychological need. Laughter: intentionally cultivate humor — communities that laugh together survive together."}
+],
+
+psychMeds:[
+{class:"SSRIs (Sertraline, Fluoxetine)",stability:"3–5 yr past exp",withdrawal:"Moderate (taper over 2–4 weeks minimum)",notes:"Fluoxetine longest half-life = easiest to taper. Stockpile 24 months."},
+{class:"SNRIs (Venlafaxine, Duloxetine)",stability:"3–5 yr past exp",withdrawal:"Severe (brain zaps, nausea) — MUST taper slowly",notes:"Venlafaxine has worst withdrawal. Switch to fluoxetine for easier taper if supply limited."},
+{class:"Antipsychotics (Olanzapine, Risperidone)",stability:"3–5 yr past exp",withdrawal:"Moderate — relapse risk high",notes:"Priority stockpile for schizophrenia. Olanzapine also manages acute agitation. IM form for emergencies."},
+{class:"Lithium",stability:"5+ yr (stable)",withdrawal:"Moderate — bipolar relapse 50% within 6 mo",notes:"Requires hydration. Monitor for toxicity (tremor, confusion). Better than nothing even without blood levels."},
+{class:"Benzodiazepines (Diazepam, Lorazepam)",stability:"5+ yr",withdrawal:"Potentially fatal — NEVER stop abruptly",notes:"Reserve for acute panic, seizures, alcohol withdrawal. Dependency develops in 2–4 weeks of daily use. STRICT inventory control."},
+{class:"Stimulants (ADHD medications)",stability:"3–5 yr",withdrawal:"Minimal (fatigue, appetite increase)",notes:"Lower priority for stockpiling. Behavioral strategies for ADHD management. Caffeine as mild substitute."},
+{class:"Anticonvulsants (mood stabilizers)",stability:"3–5 yr",withdrawal:"Moderate — seizure risk if also anticonvulsant",notes:"Valproate, lamotrigine, carbamazepine. Dual-use: mood + seizure prevention. Stockpile 24 months."}
+],
+
+pregnancy:[
+{name:"Prenatal Planning",desc:"Pre-crisis: complete all vaccinations, dental work, and obtain comprehensive prenatal records. Stockpile: prenatal vitamins (12 months), iron supplements, folate, calcium. Pregnancy test kits (20+). Midwifery textbook: 'Where There Is No Doctor' and 'A Book for Midwives' by Hesperian — ESSENTIAL references. If possible, recruit trained midwife or OB nurse to community. Track menstrual cycles for fertility awareness (prevention or planning)."},
+{name:"Nutrition in Pregnancy",desc:"Extra 300 kcal/day (2nd/3rd trimester). Protein priority: 75–100g/day (eggs, dairy, meat, beans). Iron: red meat, leafy greens, cooking in cast iron. Folate: leafy greens, beans, fortified foods. Calcium: dairy, bone broth, eggshell calcium (grind clean eggshells to powder). Avoid: raw meat, unpasteurized dairy (listeria risk increased without refrigeration). Hydration: 3+ liters/day. Iodine: sea salt or kelp supplement. Nausea management: ginger, small frequent meals."},
+{name:"Birth Preparation",desc:"90% of births are uncomplicated and can be managed by trained birth attendant. Critical training: clean technique, monitoring labor progress, newborn assessment, emergency hemorrhage management, neonatal resuscitation basics. Birth location: warm, clean, private room. Water supply: 20+ liters of clean water. Lighting: headlamp/lantern. All surfaces cleanable. Two trained attendants minimum. Emergency transport plan if complications arise (ideally to facility with surgical capability)."},
+{name:"Postpartum & Newborn",desc:"First 6 hours: monitor for hemorrhage (#1 killer). Uterine massage technique — all attendants trained. Misoprostol or oxytocin if available (prevents/treats postpartum hemorrhage). Breastfeeding initiation within 1 hour (colostrum = critical). Skin-to-skin contact for temperature regulation. Monitor for infection (fever, foul discharge). Newborn: eye prophylaxis (erythromycin or 1% silver nitrate), vitamin K injection if available, cord care (clean cutting, dry care). Jaundice monitoring: sunlight exposure through window."},
+{name:"Contraception Post-Collapse",desc:"Unplanned pregnancy in crisis diverts resources and increases medical risk. Copper IUD: lasts 10–12 years, no supplies needed after insertion, most effective LARC. Insert pre-crisis. Condoms: stockpile 500+ (also STI prevention). Oral contraceptives: stockpile 24 months. Depo-Provera: quarterly injection, stockpile vials. Natural family planning: fertility awareness methods (effectiveness varies, requires training). Emergency contraception: Plan B stockpile (5+ doses). Community education: reproductive planning is survival planning."}
+],
+
+birthKit:[
+{item:"Clean gloves (sterile) ×20 pairs",cat:"Essential",note:"Prevent infection to mother and attendant"},
+{item:"Sterile cord clamp / ties ×5",cat:"Essential",note:"Secure umbilical cord after cutting"},
+{item:"Sterile scissors / blade",cat:"Essential",note:"Clean cord cutting (can use new razor blade)"},
+{item:"Clean towels / cloth ×10",cat:"Essential",note:"Drying baby, swaddling, absorbing fluids"},
+{item:"Bulb syringe for suction",cat:"Essential",note:"Clear newborn airway of mucus"},
+{item:"Misoprostol 600mcg ×3 doses",cat:"Critical",note:"Prevents/treats postpartum hemorrhage"},
+{item:"Oxytocin 10 IU ×5 (if cold chain)",cat:"Critical",note:"First-line PPH treatment; requires refrigeration"},
+{item:"Sterile gauze / pads",cat:"Essential",note:"Wound care, perineal repair if needed"},
+{item:"Suture kit (chromic gut)",cat:"Important",note:"Perineal laceration repair (requires training)"},
+{item:"Blood pressure cuff + stethoscope",cat:"Important",note:"Monitor for preeclampsia"},
+{item:"Doppler / Pinard horn",cat:"Important",note:"Fetal heart monitoring during labor"},
+{item:"Plastic sheet / tarp",cat:"Essential",note:"Protect bedding/surface during delivery"},
+{item:"Newborn hat + blankets",cat:"Essential",note:"Thermoregulation — prevent hypothermia"},
+{item:"Erythromycin eye ointment",cat:"Important",note:"Neonatal eye prophylaxis (GC/chlamydia)"},
+{item:"Vitamin K injection (neonatal)",cat:"Important",note:"Prevent hemorrhagic disease of newborn"},
+{item:"Headlamp (hands-free lighting)",cat:"Essential",note:"Night delivery capability"}
+],
+
+pets:[
+{name:"Dogs — Working & Companion",desc:"Working dogs: Perimeter alert, livestock guarding, hunting assistance, tracking. Breeds: German Shepherd, Belgian Malinois, Livestock Guardian Dogs. Companion dogs provide morale benefit that is hard to overstate in crisis. Food: 1,000–2,000 kcal/day (medium–large dog). Stockpile: 6-month commercial food + transition to scraps/raw diet. Veterinary: dewormers, flea/tick prevention, basic wound care, antibiotics (many are same as human). Training: obedience essential — untrained dogs become dangerous in crisis."},
+{name:"Cats — Pest Control",desc:"Functional role: rodent and vermin control (critical for food storage areas). Self-sufficient hunters require minimal supplemental feeding. Low caloric demand: 200–300 kcal/day. Health: dewormers, flea treatment stockpile. Cats are the most resource-efficient working animal for pest management. Indoor/outdoor cats adapt well to rural safe zones. Multiple cats for effective rodent suppression. Breeding control: spay/neuter pre-crisis to prevent colony explosion."},
+{name:"Evacuation with Pets",desc:"Carrier/crate pre-loaded in vehicle. Pet go-bag: 2 weeks food, medications, vaccination records, photos (for identification if separated), leash/harness, water bowl, familiar blanket. Microchip up to date. Some evacuation routes/shelters refuse animals — scout pet-friendly options. International relocation: research destination country pet import requirements (vaccination, quarantine, microchip standards) well in advance — some countries require 6+ months preparation. Sedation protocol for anxiety-prone animals during transport."},
+{name:"Difficult Decisions",desc:"Hard truth: if food runs critically short, pets compete with humans for calories. Pre-plan: at what point do you cease feeding a non-working pet? Working animals (guard dogs, mousing cats, livestock guardian dogs) earn their calories. Sentimental attachment vs survival — discuss with family now, not during crisis. Some communities may not accept pets — negotiate before arrival. Never abandon animals — euthanasia is more humane than abandonment to starvation."}
+],
+
+animalReq:[
+{animal:"Dog (medium, 20 kg)",food:"800–1,200 kcal/day",water:"1–2 L/day",space:"Shelter + exercise area",med:"Deworm 3 mo, vax annual, flea/tick monthly",evac:"Crate + leash + 14-day food + meds"},
+{animal:"Dog (large, 40 kg)",food:"1,500–2,000 kcal/day",water:"2–4 L/day",space:"Shelter + large exercise area",med:"Same as medium + joint supplements",evac:"Large crate/tether + 14-day supplies"},
+{animal:"Cat",food:"200–300 kcal/day",water:"0.3–0.5 L/day",space:"Indoor/outdoor access",med:"Deworm 3 mo, vax annual, flea monthly",evac:"Carrier + 14-day food + litter"},
+{animal:"Chicken (per bird)",food:"120g feed/day or forage",water:"0.5 L/day",space:"Coop + run (1m²/bird indoor, 3m² outdoor)",med:"Deworm 2x/yr, coccidiosis prevention",evac:"Transport crate; often not evacuated — establish new flock at destination"},
+{animal:"Goat",food:"2–3 kg hay/forage/day",water:"4–8 L/day",space:"Pasture (500m²/goat) + shelter",med:"Deworm monthly, hoof trim 6 wk, vax annual",evac:"Trailer/vehicle; challenging — pre-position at safe zone if possible"},
+{animal:"Rabbit (breeding doe)",food:"120–180g pellets/forage",water:"0.5–1 L/day",space:"Cage 0.5m² + exercise",med:"Minimal — check teeth, parasites",evac:"Compact cage; relatively easy to transport"}
+]
+};
+
+/* ═══ INTERACTIONS ═══ */
+function switchTab(barId,prefix,target){
+const bar=document.getElementById(barId);
+bar.querySelectorAll('button').forEach((b,i)=>{
+const panels=document.querySelectorAll(`[id^="${prefix}-"]`);
+if(panels[i]&&panels[i].id===target){b.classList.add('on');panels[i].classList.add('show')}
+else if(panels[i]){b.classList.remove('on');panels[i].classList.remove('show')}
+});
+}
+function toggleAcc(el){
+const b=el.nextElementSibling;const o=b.classList.contains('open');
+el.parentElement.querySelectorAll('.acc-b').forEach(x=>x.classList.remove('open'));
+el.parentElement.querySelectorAll('.acc-h').forEach(x=>x.classList.remove('open'));
+if(!o){b.classList.add('open');el.classList.add('open')}
+}
+
+/* ═══ RENDER ═══ */
+
+// Medical conditions
+(function(){
+const c=document.getElementById('medAcc');
+D.med.forEach(m=>{
+const sc=m.severity.includes('Life')?'badge-d':m.severity.includes('Fatal')?'badge-d':'badge-o';
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>${m.icon} ${m.name} <span class="badge ${sc}">${m.severity}</span></span><span class="arrow">▼</span></div>
+<div class="acc-b">
+<h3>Core Strategy</h3><p style="font-size:.84rem;margin-bottom:10px">${m.detail}</p>
+<h3 style="color:var(--warn)">Alternatives When Supply Runs Out</h3><p style="font-size:.84rem;margin-bottom:10px">${m.alt}</p>
+<h3 style="color:var(--acc3)">Evacuation Protocol</h3><p style="font-size:.84rem">${m.evac}</p>
+</div>`;
+});
+})();
+
+// Stockpile
+(function(){
+const c=document.getElementById('stockAcc');
+D.stockpile.forEach(s=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>💊 ${s.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${s.desc}</p></div>`;
+});
+})();
+
+// Device table
+(function(){
+const t=document.getElementById('deviceTable');
+let h='<thead><tr><th>Device</th><th>Condition</th><th>Power</th><th>Off-Grid Backup</th><th>Stockpile</th><th>EMP Risk</th></tr></thead><tbody>';
+D.devices.forEach(d=>{
+const ec=d.emp.startsWith('Critical')?'badge-d':d.emp.startsWith('High')?'badge-o':d.emp.startsWith('Moderate')?'badge-w':'badge-g';
+h+=`<tr><td style="font-weight:600">${d.device}</td><td>${d.condition}</td><td>${d.power}</td><td style="font-size:.78rem">${d.backup}</td><td style="font-size:.78rem;color:var(--txt2)">${d.stock}</td><td><span class="badge ${ec}">${d.emp}</span></td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// Elderly
+(function(){
+const c=document.getElementById('elderlyAcc');
+D.elderly.forEach(e=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>👴 ${e.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${e.desc}</p></div>`;
+});
+const t=document.getElementById('elderlyTable');
+let h='<thead><tr><th>Phase</th><th>Actions</th><th>Priority</th></tr></thead><tbody>';
+D.elderlyEvac.forEach(e=>{
+const pc=e.priority==='Critical'?'badge-d':'badge-o';
+h+=`<tr><td style="font-weight:600;color:var(--acc2);white-space:nowrap">${e.phase}</td><td style="font-size:.82rem">${e.actions}</td><td><span class="badge ${pc}">${e.priority}</span></td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// Children sub-panels
+(function(){
+['infant','toddler','school','teen'].forEach(age=>{
+const el=document.getElementById('kt-'+age);
+let html='';
+D.children[age].forEach(c=>{
+html+=`<div class="acc-h" onclick="toggleAcc(this)"><span>👶 ${c.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${c.desc}</p></div>`;
+});
+el.innerHTML=html;
+});
+})();
+
+// Disability
+(function(){
+const c=document.getElementById('disabilityAcc');
+D.disability.forEach(d=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>♿ ${d.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${d.desc}</p></div>`;
+});
+})();
+
+// Mental health
+(function(){
+const c=document.getElementById('mentalAcc');
+D.mental.forEach(m=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>🧠 ${m.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${m.desc}</p></div>`;
+});
+const t=document.getElementById('psychMedTable');
+let h='<thead><tr><th>Class</th><th>Stability</th><th>Withdrawal</th><th>Notes</th></tr></thead><tbody>';
+D.psychMeds.forEach(m=>{
+const wc=m.withdrawal.startsWith('Severe')||m.withdrawal.startsWith('Potentially')?'badge-d':m.withdrawal.startsWith('Moderate')?'badge-w':'badge-g';
+h+=`<tr><td style="font-weight:600">${m.class}</td><td>${m.stability}</td><td><span class="badge ${wc}">${m.withdrawal.split('—')[0].trim()}</span></td><td style="font-size:.78rem;color:var(--txt2)">${m.notes}</td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// Pregnancy
+(function(){
+const c=document.getElementById('pregAcc');
+D.pregnancy.forEach(p=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>🤰 ${p.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${p.desc}</p></div>`;
+});
+const t=document.getElementById('birthTable');
+let h='<thead><tr><th>Item</th><th>Category</th><th>Notes</th></tr></thead><tbody>';
+D.birthKit.forEach(b=>{
+const cc=b.cat==='Critical'?'badge-d':b.cat==='Essential'?'badge-o':'badge-w';
+h+=`<tr><td style="font-weight:600">${b.item}</td><td><span class="badge ${cc}">${b.cat}</span></td><td style="font-size:.78rem;color:var(--txt2)">${b.note}</td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// Pets
+(function(){
+const c=document.getElementById('petAcc');
+D.pets.forEach(p=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>🐕 ${p.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${p.desc}</p></div>`;
+});
+const t=document.getElementById('animalTable');
+let h='<thead><tr><th>Animal</th><th>Food</th><th>Water</th><th>Space</th><th>Medical</th><th>Evacuation</th></tr></thead><tbody>';
+D.animalReq.forEach(a=>{
+h+=`<tr><td style="font-weight:600">${a.animal}</td><td style="font-size:.78rem">${a.food}</td><td>${a.water}</td><td style="font-size:.78rem">${a.space}</td><td style="font-size:.78rem;color:var(--txt2)">${a.med}</td><td style="font-size:.78rem;color:var(--txt2)">${a.evac}</td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+</script>
+</body>
+</html>

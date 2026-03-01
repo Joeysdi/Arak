@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>05 — Modern Collapse Case Studies | Ark v3</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+:root{
+  --gold:#d4a017;--gold-light:#f5d676;--gold-dark:#a67c00;
+  --bg:#0a0a0f;--card-bg:rgba(212,160,23,0.04);
+  --glass:rgba(255,255,255,0.04);--glass-border:rgba(212,160,23,0.18);
+  --text:#e8e0d0;--muted:#8a8070;--accent:#56c1ff;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 25% 25%,rgba(212,160,23,0.05) 0%,transparent 50%),radial-gradient(ellipse at 75% 75%,rgba(86,193,255,0.03) 0%,transparent 50%);z-index:0;pointer-events:none}
+
+.container{max-width:1300px;margin:0 auto;padding:20px;position:relative;z-index:1}
+header{text-align:center;padding:50px 20px 30px}
+.badge{display:inline-block;background:linear-gradient(135deg,rgba(212,160,23,0.15),rgba(212,160,23,0.05));border:1px solid rgba(212,160,23,0.3);border-radius:50px;padding:6px 20px;font-size:0.75rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:18px}
+h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;background:linear-gradient(135deg,var(--gold-dark),var(--gold-light),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1;margin-bottom:12px}
+.subtitle{color:var(--muted);font-size:1rem;max-width:680px;margin:0 auto;line-height:1.6}
+
+/* Tabs */
+.tab-bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:35px 0 30px}
+.tab-btn{background:var(--glass);border:1px solid var(--glass-border);color:var(--muted);padding:9px 20px;border-radius:50px;cursor:pointer;font-size:0.8rem;transition:all 0.3s;font-family:inherit;white-space:nowrap}
+.tab-btn:hover,.tab-btn.active{background:rgba(212,160,23,0.12);color:var(--gold-light);border-color:var(--gold)}
+
+/* Timeline connector */
+.timeline{position:relative;padding-left:40px}
+.timeline::before{content:'';position:absolute;left:14px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--gold),rgba(212,160,23,0.1))}
+
+/* Case Card */
+.case-card{position:relative;margin-bottom:30px;background:var(--glass);backdrop-filter:blur(24px);border:1px solid var(--glass-border);border-radius:20px;overflow:hidden;transition:all 0.4s}
+.case-card:hover{border-color:var(--gold);box-shadow:0 15px 50px rgba(212,160,23,0.06)}
+.case-card.hidden{display:none}
+
+.timeline-dot{position:absolute;left:-33px;top:28px;width:16px;height:16px;border-radius:50%;background:var(--gold);border:3px solid var(--bg);z-index:2}
+.case-card.economic .timeline-dot{background:#ff6b6b}
+.case-card.conflict .timeline-dot{background:#ff8c00}
+.case-card.climate .timeline-dot{background:#44cc88}
+.case-card.pandemic .timeline-dot{background:#aa66ff}
+.case-card.political .timeline-dot{background:#56c1ff}
+
+.case-top{display:flex;justify-content:space-between;align-items:flex-start;padding:22px 24px 0;cursor:pointer}
+.case-top .left{flex:1}
+.case-year{font-size:0.65rem;color:var(--gold-dark);letter-spacing:3px;font-weight:700}
+.case-title{font-size:1.2rem;font-weight:700;color:#fff;margin:4px 0}
+.case-loc{font-size:0.82rem;color:var(--muted)}
+.type-badge{font-size:0.6rem;padding:5px 12px;border-radius:50px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;white-space:nowrap;height:fit-content}
+.type-badge.economic{background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.25);color:#ff8888}
+.type-badge.conflict{background:rgba(255,140,0,0.12);border:1px solid rgba(255,140,0,0.25);color:#ffaa44}
+.type-badge.climate{background:rgba(68,204,136,0.12);border:1px solid rgba(68,204,136,0.25);color:#66ddaa}
+.type-badge.pandemic{background:rgba(170,102,255,0.12);border:1px solid rgba(170,102,255,0.25);color:#cc99ff}
+.type-badge.political{background:rgba(86,193,255,0.12);border:1px solid rgba(86,193,255,0.25);color:#88ccff}
+
+.case-summary{padding:12px 24px;font-size:0.88rem;line-height:1.6;color:var(--muted)}
+
+.case-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;padding:0 24px 15px}
+.cm{text-align:center;padding:10px;background:rgba(255,255,255,0.02);border-radius:10px}
+.cm .v{font-size:1.1rem;font-weight:700;color:var(--gold-light)}
+.cm .l{font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+/* Expandable Section */
+.case-expand{max-height:0;overflow:hidden;transition:max-height 0.5s ease}
+.case-card.open .case-expand{max-height:800px}
+.expand-inner{padding:0 24px 20px}
+.exp-section{margin-bottom:14px}
+.exp-section h4{font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:6px}
+.exp-section p{font-size:0.85rem;line-height:1.7;color:var(--muted)}
+.exp-section strong{color:var(--gold-light)}
+
+.case-footer{display:flex;justify-content:space-between;align-items:center;padding:0 24px 18px}
+.learn-btn{background:none;border:1px solid var(--glass-border);color:var(--gold);padding:6px 16px;border-radius:50px;cursor:pointer;font-size:0.7rem;letter-spacing:1px;transition:all 0.3s;font-family:inherit}
+.learn-btn:hover{background:rgba(212,160,23,0.1);border-color:var(--gold)}
+.lesson-tag{font-size:0.65rem;padding:4px 12px;border-radius:50px;background:rgba(86,193,255,0.08);border:1px solid rgba(86,193,255,0.15);color:var(--accent)}
+
+/* Collapse Speed Meter */
+.speed-bar{padding:8px 24px 14px;display:flex;align-items:center;gap:10px}
+.speed-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);white-space:nowrap}
+.speed-track{flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:10px;overflow:hidden;position:relative}
+.speed-fill{height:100%;border-radius:10px;transition:width 1s ease}
+.speed-val{font-size:0.7rem;font-weight:700;color:var(--gold-light);white-space:nowrap}
+
+/* Quiz Modal */
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);z-index:999;display:none;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:rgba(15,15,25,0.95);backdrop-filter:blur(30px);border:1px solid var(--glass-border);border-radius:24px;padding:35px;max-width:600px;width:90%;max-height:85vh;overflow-y:auto;position:relative}
+.modal h2{font-size:1.4rem;color:var(--gold-light);margin-bottom:8px}
+.modal-close{position:absolute;top:15px;right:20px;background:none;border:none;color:var(--muted);font-size:1.5rem;cursor:pointer}
+.quiz-q{font-size:1rem;color:var(--text);margin:18px 0 15px;line-height:1.5}
+.quiz-opt{display:block;width:100%;text-align:left;background:var(--glass);border:1px solid var(--glass-border);color:var(--text);padding:12px 16px;border-radius:12px;cursor:pointer;font-size:0.9rem;margin-bottom:8px;transition:all 0.3s;font-family:inherit}
+.quiz-opt:hover{border-color:var(--gold);background:rgba(212,160,23,0.08)}
+.quiz-opt.correct{border-color:#44cc88;background:rgba(68,204,136,0.1);color:#66ddaa}
+.quiz-opt.wrong{border-color:#ff4444;background:rgba(255,68,68,0.1);color:#ff6666}
+.quiz-result{margin-top:15px;padding:15px;border-radius:12px;font-size:0.9rem;line-height:1.6;display:none}
+
+/* Bottom CTA */
+.bottom-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;padding:30px 0 50px}
+.act-btn{background:linear-gradient(135deg,var(--gold-dark),var(--gold));color:#0a0a0f;padding:12px 30px;border-radius:50px;font-weight:700;font-size:0.85rem;border:none;cursor:pointer;font-family:inherit;transition:all 0.3s}
+.act-btn:hover{transform:scale(1.05);box-shadow:0 8px 30px rgba(212,160,23,0.3)}
+.act-btn.secondary{background:var(--glass);border:1px solid var(--glass-border);color:var(--gold)}
+
+@media(max-width:768px){.timeline{padding-left:30px}.timeline-dot{left:-23px}.case-metrics{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="container">
+<header>
+  <div class="badge">📖 Case Study Archives</div>
+  <h1>Modern Collapse Case Studies</h1>
+  <p class="subtitle">10 real-world collapses from the last 30 years. Each one left warnings. Each one was ignored. Study the pattern — don't repeat it.</p>
+</header>
+
+<div class="tab-bar" id="tabBar">
+  <button class="tab-btn active" data-type="all">All Cases (10)</button>
+  <button class="tab-btn" data-type="economic">💸 Economic</button>
+  <button class="tab-btn" data-type="conflict">⚔ Conflict</button>
+  <button class="tab-btn" data-type="climate">🌍 Climate</button>
+  <button class="tab-btn" data-type="pandemic">🦠 Pandemic</button>
+  <button class="tab-btn" data-type="political">🏛 Political</button>
+</div>
+
+<div class="timeline" id="timeline"></div>
+
+<div class="bottom-actions">
+  <button class="act-btn" onclick="openQuiz()">🧠 Test Your Knowledge</button>
+  <button class="act-btn secondary" onclick="expandAll()">↓ Expand All Briefings</button>
+  <button class="act-btn secondary" onclick="collapseAll()">↑ Collapse All</button>
+</div>
+</div>
+
+<!-- Quiz Modal -->
+<div class="modal-overlay" id="quizModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeQuiz()">✕</button>
+    <h2>🧠 Collapse Pattern Quiz</h2>
+    <p style="color:var(--muted);font-size:0.85rem">Test what you've learned from these case studies</p>
+    <div id="quizArea"></div>
+    <div id="quizScore" style="text-align:center;margin-top:20px;display:none">
+      <div style="font-size:2rem;font-weight:900;color:var(--gold-light)" id="scoreNum"></div>
+      <div style="color:var(--muted);font-size:0.85rem">Questions Correct</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const cases = [
+  {
+    id:1,year:"2001",title:"Argentina's Economic Meltdown",loc:"Argentina",type:"economic",speed:75,
+    summary:"Overnight bank freezes (corralito) trapped citizens' savings. GDP fell 28% in 3 years. Five presidents in two weeks.",
+    metrics:{deaths:"40+",displaced:"N/A",gdpLoss:"-28%",recovery:"5 years",warning:"18 months"},
+    timeline:"Currency peg broke → bank run → government froze all accounts → middle class wiped out overnight.",
+    lesson:"Bank deposits are not safe. Diversify across jurisdictions.",
+    detail:"The 1:1 peso-dollar peg created a debt spiral. When the IMF pulled funding, the government imposed the <strong>corralito</strong> — freezing all bank withdrawals. Citizens with $100K in savings woke up unable to access $1. Street protests toppled the government. <strong>The middle class was destroyed in 72 hours.</strong>",
+    keyTakeaway:"Never keep 100% of wealth in one banking system."
+  },
+  {
+    id:2,year:"2006–Present",title:"Syria's Total State Collapse",loc:"Syria",type:"conflict",speed:60,
+    summary:"Drought → protest → civil war → ISIS → chemical weapons → 13M displaced. Infrastructure erased.",
+    metrics:{deaths:"500K+",displaced:"13M+",gdpLoss:"-90%",recovery:"Unknown",warning:"3 years"},
+    timeline:"Drought migration → urban tension → protests → military crackdown → full civil war.",
+    lesson:"Climate stress + authoritarian response = explosive collapse.",
+    detail:"A 4-year drought drove 1.5M farmers to cities. <strong>Regime responded to protests with military force</strong>, triggering a decade-long civil war involving 8+ foreign powers, chemical weapons, and the rise of ISIS. 90% of GDP destroyed. Entire cities leveled. Recovery timeline: generational.",
+    keyTakeaway:"Climate + authoritarianism is the deadliest combination."
+  },
+  {
+    id:3,year:"2008",title:"Global Financial Crisis",loc:"Global",type:"economic",speed:90,
+    summary:"Subprime mortgage collapse triggered worldwide banking crisis. $22T in wealth erased. Bailouts saved banks, not people.",
+    metrics:{deaths:"10K+ (suicides)",displaced:"10M+ (foreclosures)",gdpLoss:"-4.3% global",recovery:"7+ years",warning:"2 years"},
+    timeline:"Housing bubble → bank failures → credit freeze → global recession → austerity.",
+    lesson:"Systemic risks are invisible until they cascade.",
+    detail:"Toxic mortgage-backed securities infected the global banking system. <strong>Lehman Brothers collapsed in 48 hours.</strong> Governments chose to bail out banks while 10M+ Americans lost homes. The crisis exposed that 'too big to fail' meant ordinary people absorb the losses.",
+    keyTakeaway:"When banks fail, they take your savings first."
+  },
+  {
+    id:4,year:"2010–2012",title:"Arab Spring Chain Collapse",loc:"Tunisia, Egypt, Libya, Syria, Yemen",type:"political",speed:95,
+    summary:"One vendor's self-immolation toppled 4 governments. Social media accelerated revolution faster than institutions could adapt.",
+    metrics:{deaths:"250K+",displaced:"15M+",gdpLoss:"Varied",recovery:"Ongoing",warning:"6 months"},
+    timeline:"Tunisia vendor protest → Egypt's Tahrir Square → Libya intervention → Syria war → Yemen collapse.",
+    lesson:"Social contagion can topple seemingly stable states in weeks.",
+    detail:"Mohamed Bouazizi's act in Tunisia created a <strong>cascade that no intelligence agency predicted</strong>. Egypt's Mubarak fell in 18 days. Libya's Gaddafi in 8 months. But aftermath showed that removing regimes without governance plans creates vacuums filled by extremists.",
+    keyTakeaway:"Revolution is easy. What follows is the danger."
+  },
+  {
+    id:5,year:"2014–Present",title:"Venezuela's Hyperinflation Spiral",loc:"Venezuela",type:"economic",speed:50,
+    summary:"Oil-dependent economy collapsed when prices dropped. 7.7M fled. 1,000,000%+ inflation. Healthcare system destroyed.",
+    metrics:{deaths:"Tens of thousands",displaced:"7.7M+",gdpLoss:"-75%",recovery:"None",warning:"5 years"},
+    timeline:"Oil crash → currency collapse → hyperinflation → food shortage → mass exodus.",
+    lesson:"Single-commodity economies are collapse accelerators.",
+    detail:"Venezuela went from Latin America's wealthiest nation to its greatest refugee crisis. <strong>Inflation exceeded 1,000,000% in 2018.</strong> Hospitals ran out of medicine. Zoos were raided for food. The educated middle class fled to Colombia, Peru, and Chile. Those who stayed face malnutrition and cartel governance.",
+    keyTakeaway:"Resource wealth without diversification is a trap."
+  },
+  {
+    id:6,year:"2019–Present",title:"Lebanon's Multi-System Failure",loc:"Lebanon",type:"economic",speed:70,
+    summary:"Banking collapse, port explosion, political paralysis. Currency lost 98% of value. Middle class erased.",
+    metrics:{deaths:"220 (blast) + thousands",displaced:"400K+",gdpLoss:"-60%",recovery:"None",warning:"2 years"},
+    timeline:"Banking Ponzi exposed → capital controls → port explosion → government collapse → hyperinflation.",
+    lesson:"When all systems fail simultaneously, there is no safety net.",
+    detail:"Lebanese banks operated a <strong>de facto Ponzi scheme for 30 years</strong>. When deposits ran out, banks froze accounts. Then the Beirut port explosion destroyed 300,000 homes. Currency dropped 98%. Hospitals went dark. Politicians fled. The middle class — once the most educated in the region — was annihilated.",
+    keyTakeaway:"Institutional trust, once broken, cannot be rebuilt fast enough."
+  },
+  {
+    id:7,year:"2020–2021",title:"COVID-19 Pandemic Cascade",loc:"Global",type:"pandemic",speed:85,
+    summary:"A virus exposed every fragility in global systems — supply chains, healthcare, governance, mental health, and social trust.",
+    metrics:{deaths:"7M+ official",displaced:"N/A",gdpLoss:"-3.1% global",recovery:"Uneven",warning:"2 months"},
+    timeline:"Wuhan outbreak → denial phase → lockdowns → supply chaos → vaccine inequality → long-term damage.",
+    lesson:"Pandemics don't just kill — they fracture every system simultaneously.",
+    detail:"COVID revealed that <strong>just-in-time supply chains have zero resilience</strong>. Hospitals in wealthy nations ran out of masks. Governments printed trillions, fueling inflation. Trust in institutions cratered. Mental health crisis ongoing. The pandemic proved that 'it can't happen here' is the most dangerous belief.",
+    keyTakeaway:"Resilience requires redundancy — in supplies, income, and community."
+  },
+  {
+    id:8,year:"2021",title:"Afghanistan's 11-Day Collapse",loc:"Afghanistan",type:"political",speed:99,
+    summary:"A 20-year, $2T nation-building project collapsed in 11 days. The Taliban took Kabul faster than analysts thought possible.",
+    metrics:{deaths:"170+ (evacuation)",displaced:"3.5M+",gdpLoss:"-30%",recovery:"None",warning:"6 months"},
+    timeline:"US withdrawal announced → provincial capitals fell → Kabul fell → airport chaos → Taliban government.",
+    lesson:"Externally-propped states collapse at the speed of confidence, not military defeat.",
+    detail:"The Afghan military — 300K trained soldiers with air support — <strong>dissolved in 11 days</strong>. Soldiers hadn't been paid in months. Commanders cut deals with Taliban. The Ghani government fled. Kabul airport became a scene of desperation. $2 trillion and 20 years of 'progress' evaporated overnight.",
+    keyTakeaway:"Artificial stability is no stability at all."
+  },
+  {
+    id:9,year:"2022",title:"Sri Lanka's Sovereign Default",loc:"Sri Lanka",type:"economic",speed:80,
+    summary:"Organic farming ban + debt trap + fuel crisis = president fled as citizens stormed the palace.",
+    metrics:{deaths:"Dozens",displaced:"Internal displacement",gdpLoss:"-8%",recovery:"IMF program",warning:"1 year"},
+    timeline:"Organic-only policy → crop failure → forex crisis → fuel shortage → protests → president fled.",
+    lesson:"Single bad policy decisions can cascade into total state failure.",
+    detail:"The government banned chemical fertilizers overnight, <strong>destroying 40% of crop yields</strong>. Combined with Chinese debt obligations and COVID tourism losses, Sri Lanka ran out of foreign currency. No fuel. No medicine. No cooking gas. Citizens stormed the presidential palace and swam in the pool while the president fled by military jet.",
+    keyTakeaway:"Ideological governance without pragmatism kills nations."
+  },
+  {
+    id:10,year:"2023–Present",title:"Sudan's Rapid Descent",loc:"Sudan",type:"conflict",speed:88,
+    summary:"Two generals' power struggle turned Khartoum into a war zone overnight. 10M+ displaced in under a year.",
+    metrics:{deaths:"15K+",displaced:"10M+",gdpLoss:"-40%+",recovery:"Unknown",warning:"3 months"},
+    timeline:"Military coup → power struggle between army factions → urban warfare → humanitarian catastrophe.",
+    lesson:"Military-led transitions are collapses waiting to happen.",
+    detail:"After overthrowing the civilian government, <strong>two rival generals turned on each other</strong>. The RSF and SAF turned Khartoum — a city of 6M — into an active battlefield. Hospitals bombed. Markets looted. Women weaponized. The world barely noticed. Now the largest displacement crisis on Earth.",
+    keyTakeaway:"When strongmen fight, civilians are the battlefield."
+  }
+];
+
+const tl = document.getElementById('timeline');
+
+function renderCases(type='all'){
+  tl.innerHTML='';
+  const filtered = type==='all' ? cases : cases.filter(c=>c.type===type);
+  filtered.forEach(c=>{
+    const el = document.createElement('div');
+    el.className=`case-card ${c.type}`;
+    el.setAttribute('data-id',c.id);
+    const speedColor = c.speed>85?'#ff4444':c.speed>65?'#ff8c00':'#ffd700';
+    el.innerHTML=`
+      <div class="timeline-dot"></div>
+      <div class="case-top" onclick="toggleCase(${c.id})">
+        <div class="left">
+          <div class="case-year">${c.year}</div>
+          <div class="case-title">${c.title}</div>
+          <div class="case-loc">${c.loc}</div>
+        </div>
+        <span class="type-badge ${c.type}">${c.type}</span>
+      </div>
+      <div class="case-summary">${c.summary}</div>
+      <div class="speed-bar">
+        <span class="speed-label">Collapse Speed</span>
+        <div class="speed-track"><div class="speed-fill" style="width:${c.speed}%;background:${speedColor}"></div></div>
+        <span class="speed-val">${c.speed}%</span>
+      </div>
+      <div class="case-metrics">
+        <div class="cm"><div class="v">${c.metrics.deaths}</div><div class="l">Deaths</div></div>
+        <div class="cm"><div class="v">${c.metrics.displaced}</div><div class="l">Displaced</div></div>
+        <div class="cm"><div class="v">${c.metrics.gdpLoss}</div><div class="l">GDP Loss</div></div>
+        <div class="cm"><div class="v">${c.metrics.recovery}</div><div class="l">Recovery</div></div>
+        <div class="cm"><div class="v">${c.metrics.warning}</div><div class="l">Warning Time</div></div>
+      </div>
+      <div class="case-expand">
+        <div class="expand-inner">
+          <div class="exp-section"><h4>Cascade Timeline</h4><p>${c.timeline}</p></div>
+          <div class="exp-section"><h4>Deep Analysis</h4><p>${c.detail}</p></div>
+          <div class="exp-section"><h4>🔑 Key Takeaway</h4><p style="color:var(--gold-light);font-weight:600;font-size:1rem">"${c.keyTakeaway}"</p></div>
+        </div>
+      </div>
+      <div class="case-footer">
+        <button class="learn-btn" onclick="event.stopPropagation();toggleCase(${c.id})">↓ Full Briefing</button>
+        <span class="lesson-tag">📌 ${c.lesson.split('.')[0]}</span>
+      </div>`;
+    tl.appendChild(el);
+  });
+  // Animate speed bars
+  setTimeout(()=>{
+    document.querySelectorAll('.speed-fill').forEach(b=>{
+      const w=b.style.width; b.style.width='0%';
+      setTimeout(()=>{b.style.width=w},100);
+    });
+  },50);
+}
+
+function toggleCase(id){
+  const card = document.querySelector(`.case-card[data-id="${id}"]`);
+  const isOpen = card.classList.toggle('open');
+  const btn = card.querySelector('.learn-btn');
+  btn.textContent = isOpen ? '↑ Close Briefing' : '↓ Full Briefing';
+}
+
+function expandAll(){document.querySelectorAll('.case-card').forEach(c=>{c.classList.add('open');c.querySelector('.learn-btn').textContent='↑ Close Briefing'})}
+function collapseAll(){document.querySelectorAll('.case-card').forEach(c=>{c.classList.remove('open');c.querySelector('.learn-btn').textContent='↓ Full Briefing'})}
+
+// Tabs
+document.getElementById('tabBar').addEventListener('click',e=>{
+  if(!e.target.classList.contains('tab-btn')) return;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  renderCases(e.target.dataset.type);
+});
+
+// Quiz
+const quizQuestions = [
+  {q:"How fast did the Afghan military collapse after US withdrawal?",opts:["6 months","11 days","3 weeks","90 days"],correct:1,explain:"The 300K-strong Afghan military dissolved in just 11 days, faster than any analyst predicted."},
+  {q:"What policy triggered Sri Lanka's 2022 crisis?",opts:["Crypto adoption","Organic farming mandate","Oil nationalization","Border closure"],correct:1,explain:"Banning chemical fertilizers overnight destroyed 40% of crop yields, triggering a cascade."},
+  {q:"Argentina's 'corralito' in 2001 did what?",opts:["Closed borders","Froze bank accounts","Banned cash","Seized property"],correct:1,explain:"The government froze all bank withdrawals. Citizens couldn't access their own money."},
+  {q:"What was Lebanon's currency loss by 2023?",opts:["50%","75%","90%","98%"],correct:3,explain:"The Lebanese pound lost 98% of its value, erasing middle-class wealth entirely."},
+  {q:"What initially triggered the Syrian civil war?",opts:["Foreign invasion","Religious conflict","Drought + migration","Oil dispute"],correct:2,explain:"A 4-year drought displaced 1.5M farmers to cities, creating tension that exploded into protest and war."}
+];
+let qIdx=0, score=0;
+
+function openQuiz(){
+  qIdx=0;score=0;
+  document.getElementById('quizScore').style.display='none';
+  showQuestion();
+  document.getElementById('quizModal').classList.add('show');
+}
+function closeQuiz(){document.getElementById('quizModal').classList.remove('show')}
+
+function showQuestion(){
+  if(qIdx>=quizQuestions.length){
+    document.getElementById('quizArea').innerHTML='';
+    document.getElementById('quizScore').style.display='block';
+    document.getElementById('scoreNum').textContent=`${score}/${quizQuestions.length}`;
+    return;
+  }
+  const q=quizQuestions[qIdx];
+  document.getElementById('quizArea').innerHTML=`
+    <div class="quiz-q"><strong>Q${qIdx+1}.</strong> ${q.q}</div>
+    ${q.opts.map((o,i)=>`<button class="quiz-opt" onclick="answer(${i})">${o}</button>`).join('')}
+    <div class="quiz-result" id="qResult"></div>`;
+}
+
+function answer(i){
+  const q=quizQuestions[qIdx];
+  const btns=document.querySelectorAll('.quiz-opt');
+  btns.forEach((b,idx)=>{
+    b.disabled=true;
+    if(idx===q.correct) b.classList.add('correct');
+    if(idx===i && i!==q.correct) b.classList.add('wrong');
+  });
+  if(i===q.correct) score++;
+  const res=document.getElementById('qResult');
+  res.style.display='block';
+  res.style.background=i===q.correct?'rgba(68,204,136,0.1)':'rgba(255,68,68,0.1)';
+  res.style.border=`1px solid ${i===q.correct?'rgba(68,204,136,0.2)':'rgba(255,68,68,0.2)'}`;
+  res.style.color=i===q.correct?'#66ddaa':'#ff8888';
+  res.innerHTML=`${i===q.correct?'✅ Correct!':'❌ Wrong.'} ${q.explain}`;
+  setTimeout(()=>{qIdx++;showQuestion()},2500);
+}
+
+// Init
+renderCases();
+
+// Close modals on overlay
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m) m.classList.remove('show')});
+});
+</script>
+</body>
+</html>

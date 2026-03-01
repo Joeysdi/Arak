@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>09 — Safe Zones Map | Ark v3 (Standalone)</title>
+<style>
+/* ── FOUNDATION PASTE ── */
+:root{
+  --ink:#0a0e1a;--surface:#0d1117;--glass:rgba(255,255,255,.06);
+  --border:rgba(255,255,255,.10);--accent:#00d4ff;--gold:#ffd700;
+  --red:#ff4d4d;--green:#00ff88;--muted:#8892a4;--radius:14px;
+  --font:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--ink);color:#e2e8f0;font-family:var(--font);min-height:100vh;
+  background-image:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(0,212,255,.13),transparent);}
+h1,h2,h3,h4{line-height:1.2;}
+.gl{background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+.container{max-width:1240px;margin:0 auto;padding:2rem 1.5rem;}
+.hero{text-align:center;padding:3rem 1rem 2rem;}
+.hero h1{font-size:clamp(1.8rem,4vw,3rem);font-weight:800;
+  background:linear-gradient(135deg,var(--accent),var(--green));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);margin-top:.75rem;font-size:1.05rem;}
+.sec-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:.5rem;}
+.badge{display:inline-block;padding:.2rem .65rem;border-radius:20px;font-size:.75rem;font-weight:700;}
+.b-green{background:rgba(0,255,136,.15);color:var(--green);border:1px solid rgba(0,255,136,.3);}
+.b-gold{background:rgba(255,215,0,.12);color:var(--gold);border:1px solid rgba(255,215,0,.3);}
+.b-red{background:rgba(255,77,77,.12);color:var(--red);border:1px solid rgba(255,77,77,.3);}
+.b-blue{background:rgba(0,212,255,.12);color:var(--accent);border:1px solid rgba(0,212,255,.3);}
+.stab{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem;}
+.stab button{padding:.55rem 1.2rem;border:1px solid var(--border);border-radius:8px;
+  background:transparent;color:var(--muted);cursor:pointer;font-size:.9rem;transition:all .25s;}
+.stab button.active,.stab button:hover{background:var(--accent);color:var(--ink);border-color:var(--accent);font-weight:700;}
+.spanel{display:none;animation:fadeIn .3s ease;}
+.spanel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.acc-item{margin-bottom:.75rem;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);}
+.acc-head{width:100%;background:var(--glass);border:none;color:#e2e8f0;
+  padding:1rem 1.25rem;text-align:left;cursor:pointer;font-size:.97rem;font-weight:600;
+  display:flex;justify-content:space-between;align-items:center;}
+.acc-head:hover{background:rgba(0,212,255,.08);}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .45s ease,padding .3s;}
+.acc-body.open{max-height:1200px;padding:1.25rem;}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;}
+.score-bar{height:8px;border-radius:4px;background:rgba(255,255,255,.1);margin:.35rem 0;}
+.score-fill{height:100%;border-radius:4px;transition:width 1s ease;}
+.stat-box{padding:1rem 1.25rem;}
+.stat-box .val{font-size:1.6rem;font-weight:800;color:var(--accent);}
+.stat-box .lbl{font-size:.8rem;color:var(--muted);margin-top:.2rem;}
+table{width:100%;border-collapse:collapse;font-size:.9rem;}
+th{background:rgba(0,212,255,.1);color:var(--accent);padding:.7rem 1rem;text-align:left;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;}
+td{padding:.7rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+tr:hover td{background:rgba(255,255,255,.03);}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;}
+.tag{padding:.2rem .6rem;border-radius:12px;font-size:.75rem;background:rgba(255,255,255,.06);color:var(--muted);}
+
+/* SVG World Map Styles */
+#worldMap{width:100%;border-radius:var(--radius);cursor:pointer;}
+.zone-dot{cursor:pointer;transition:r .2s;}
+.zone-dot:hover{filter:drop-shadow(0 0 8px var(--accent));}
+.map-tooltip{position:absolute;background:rgba(10,14,26,.95);border:1px solid var(--border);
+  border-radius:10px;padding:.8rem 1rem;font-size:.85rem;pointer-events:none;
+  opacity:0;transition:opacity .2s;max-width:220px;z-index:100;}
+.map-wrap{position:relative;}
+
+/* Nuclear ring visualizer */
+.nuke-ring{fill:none;stroke-dasharray:4,4;animation:rotateDash 20s linear infinite;}
+@keyframes rotateDash{to{stroke-dashoffset:-100}}
+
+/* Zone card */
+.zone-card{padding:1.25rem;border-radius:12px;border-left:4px solid;}
+.zone-card.t1{border-color:var(--green);}
+.zone-card.t2{border-color:var(--gold);}
+.zone-card.t3{border-color:var(--red);}
+
+/* Doctrine layers */
+.layer-block{margin-bottom:1rem;padding:1.25rem;border-radius:12px;border-left:4px solid var(--accent);}
+.layer-num{font-size:2rem;font-weight:900;color:var(--accent);line-height:1;}
+.layer-name{font-size:1.1rem;font-weight:700;margin:.2rem 0;}
+
+/* Scoring calculator */
+.calc-field{margin-bottom:1rem;}
+.calc-field label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:.4rem;}
+.calc-field select,.calc-field input{width:100%;padding:.6rem .9rem;border-radius:8px;
+  border:1px solid var(--border);background:rgba(255,255,255,.05);color:#e2e8f0;font-size:.9rem;}
+.calc-result{padding:1.25rem;border-radius:12px;margin-top:1rem;display:none;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <p class="sec-label">Section 09 · Ark Collective v3</p>
+  <h1>Safe Zones Map</h1>
+  <p>Global threat mapping, Five-Layer Safe Zone Doctrine, and interactive zone scoring for 60+ Ark-vetted locations</p>
+</div>
+
+<div class="container">
+
+  <!-- QUICK STATS -->
+  <div class="grid-4" style="margin-bottom:2rem;">
+    <div class="gl stat-box"><div class="val">63</div><div class="lbl">Zones Catalogued</div></div>
+    <div class="gl stat-box"><div class="val" style="color:var(--green)">18</div><div class="lbl">Grade A Sanctuaries</div></div>
+    <div class="gl stat-box"><div class="val" style="color:var(--gold)">26</div><div class="lbl">Grade B Viable</div></div>
+    <div class="gl stat-box"><div class="val" style="color:var(--red)">19</div><div class="lbl">No-Go Zones</div></div>
+  </div>
+
+  <!-- MAIN TABS -->
+  <div class="stab" id="mainTabs">
+    <button class="active" onclick="switchTab('map')">🗺 Global Map</button>
+    <button onclick="switchTab('doctrine')">📐 Five-Layer Doctrine</button>
+    <button onclick="switchTab('zones')">📍 Zone Directory</button>
+    <button onclick="switchTab('nuclear')">☢ Nuclear Fallout</button>
+    <button onclick="switchTab('scorer')">🧮 Zone Scorer</button>
+    <button onclick="switchTab('routes')">🛤 Escape Routes</button>
+  </div>
+
+  <div id="panels">
+
+  <!-- ════ PANEL: MAP ════ -->
+  <div class="spanel active" id="panel-map">
+    <div class="gl" style="padding:1.5rem;margin-bottom:1rem">
+      <h3 style="margin-bottom:.5rem">Interactive World Safe Zone Map</h3>
+      <p style="font-size:.85rem;color:var(--muted)">Click any zone dot for intelligence briefing. 🟢 Grade A · 🟡 Grade B · 🔴 No-Go · ☢ Nuclear Target</p>
+    </div>
+    <div class="map-wrap gl" style="padding:1rem;background:rgba(5,10,25,.8);">
+      <div class="map-tooltip" id="tooltip"></div>
+      <svg id="worldMap" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+        <!-- Simple world landmass outline approximation -->
+        <rect width="1000" height="500" fill="rgba(0,10,30,.8)" rx="12"/>
+        <!-- Ocean grid -->
+        <g stroke="rgba(0,212,255,.04)" stroke-width=".5">
+          <line x1="0" y1="125" x2="1000" y2="125"/>
+          <line x1="0" y1="250" x2="1000" y2="250"/>
+          <line x1="0" y1="375" x2="1000" y2="375"/>
+          <line x1="250" y1="0" x2="250" y2="500"/>
+          <line x1="500" y1="0" x2="500" y2="500"/>
+          <line x1="750" y1="0" x2="750" y2="500"/>
+        </g>
+        <!-- Equator -->
+        <line x1="0" y1="250" x2="1000" y2="250" stroke="rgba(255,215,0,.15)" stroke-width="1" stroke-dasharray="8,8"/>
+        <!-- Tropic of Cancer/Capricorn -->
+        <line x1="0" y1="190" x2="1000" y2="190" stroke="rgba(255,100,0,.08)" stroke-width="1"/>
+        <line x1="0" y1="310" x2="1000" y2="310" stroke="rgba(255,100,0,.08)" stroke-width="1"/>
+
+        <!-- ROUGH CONTINENT SHAPES (simplified polygons) -->
+        <!-- North America -->
+        <polygon points="120,60 220,55 260,80 270,120 240,160 200,200 160,220 130,200 100,160 90,120 100,80" fill="rgba(0,212,255,.06)" stroke="rgba(0,212,255,.15)" stroke-width="1"/>
+        <!-- Central America -->
+        <polygon points="180,215 200,215 210,240 185,245" fill="rgba(0,212,255,.06)" stroke="rgba(0,212,255,.12)" stroke-width="1"/>
+        <!-- South America -->
+        <polygon points="200,250 260,245 290,270 290,330 260,390 220,410 190,370 185,320 195,270" fill="rgba(0,212,255,.06)" stroke="rgba(0,212,255,.15)" stroke-width="1"/>
+        <!-- Europe -->
+        <polygon points="430,60 520,55 540,80 530,110 500,130 460,125 440,100" fill="rgba(0,212,255,.06)" stroke="rgba(0,212,255,.15)" stroke-width="1"/>
+        <!-- Africa -->
+        <polygon points="450,150 530,145 560,170 560,250 540,320 500,355 460,340 440,290 435,220 440,170" fill="rgba(0,212,255,.06)" stroke="rgba(0,212,255,.12)" stroke-width="1"/>
+        <!-- Middle East / Asia Minor -->
+        <polygon points="535,120 620,110 650,140 630,165 580,165 545,145" fill="rgba(0,212,255,.04)" stroke="rgba(0,212,255,.1)" stroke-width="1"/>
+        <!-- Asia -->
+        <polygon points="600,55 800,50 840,90 820,150 770,180 700,190 640,170 610,140 590,100" fill="rgba(0,212,255,.06)" stroke="rgba(0,212,255,.15)" stroke-width="1"/>
+        <!-- Southeast Asia -->
+        <polygon points="750,185 810,180 820,210 790,230 755,220" fill="rgba(0,212,255,.04)" stroke="rgba(0,212,255,.1)" stroke-width="1"/>
+        <!-- Australia -->
+        <polygon points="760,290 860,285 890,320 870,380 810,400 760,375 745,330" fill="rgba(0,212,255,.06)" stroke="rgba(0,212,255,.15)" stroke-width="1"/>
+        <!-- New Zealand -->
+        <polygon points="900,360 915,355 920,375 905,385 895,375" fill="rgba(0,255,136,.12)" stroke="rgba(0,255,136,.4)" stroke-width="1.5"/>
+        <!-- Iceland -->
+        <polygon points="420,48 445,44 450,60 430,65 415,58" fill="rgba(0,255,136,.12)" stroke="rgba(0,255,136,.4)" stroke-width="1.5"/>
+
+        <!-- NUCLEAR TARGET RINGS (major cities) -->
+        <!-- Washington DC -->
+        <circle cx="170" cy="138" r="20" fill="rgba(255,77,77,.05)" class="nuke-ring" stroke="rgba(255,77,77,.3)" stroke-width="1"/>
+        <circle cx="170" cy="138" r="35" fill="none" stroke="rgba(255,77,77,.12)" stroke-width="1" stroke-dasharray="4,6"/>
+        <!-- Moscow -->
+        <circle cx="565" cy="82" r="20" fill="rgba(255,77,77,.05)" class="nuke-ring" stroke="rgba(255,77,77,.3)" stroke-width="1"/>
+        <circle cx="565" cy="82" r="35" fill="none" stroke="rgba(255,77,77,.12)" stroke-width="1" stroke-dasharray="4,6"/>
+        <!-- Beijing -->
+        <circle cx="770" cy="105" r="18" fill="rgba(255,77,77,.05)" class="nuke-ring" stroke="rgba(255,77,77,.3)" stroke-width="1"/>
+        <circle cx="770" cy="105" r="30" fill="none" stroke="rgba(255,77,77,.12)" stroke-width="1" stroke-dasharray="4,6"/>
+        <!-- London -->
+        <circle cx="462" cy="75" r="15" fill="rgba(255,77,77,.05)" class="nuke-ring" stroke="rgba(255,77,77,.3)" stroke-width="1"/>
+
+        <!-- ZONE DOTS — Grade A (green) -->
+        <circle class="zone-dot" cx="908" cy="368" r="8" fill="var(--green)" opacity=".9"
+          data-name="🇳🇿 New Zealand — South Island" data-grade="A" data-score="9.1"
+          data-desc="Top-ranked survival zone. Nuclear-safe, food-sovereign, isolated. Elite exodus target." onclick="showZoneCard(this)"/>
+        <circle class="zone-dot" cx="435" cy="52" r="7" fill="var(--green)" opacity=".9"
+          data-name="🇮🇸 Iceland" data-grade="A" data-score="8.7"
+          data-desc="100% renewable. Geothermal food production. Atlantic isolation. 380K population buffer." onclick="showZoneCard(this)"/>
+        <circle class="zone-dot" cx="487" cy="92" r="7" fill="var(--green)" opacity=".9"
+          data-name="🇨🇭 Swiss Alps — Central Cantons" data-grade="A" data-score="8.9"
+          data-desc="Mandatory bunkers (370K+). NATO-neutral. Lump-sum tax. Alpine fortress terrain." onclick="showZoneCard(this)"/>
+        <circle class="zone-dot" cx="225" cy="395" r="7" fill="var(--green)" opacity=".9"
+          data-name="🇺🇾 Uruguay — Pampas Region" data-grade="A" data-score="8.2"
+          data-desc="LATAM #1 stability. Cheap agricultural land. Territorial tax 5yr exemption." onclick="showZoneCard(this)"/>
+        <circle class="zone-dot" cx="192" cy="238" r="7" fill="var(--green)" opacity=".9"
+          data-name="🇨🇷 Costa Rica — Chirripó Highlands" data-grade="A" data-score="8.4"
+          data-desc="No military since 1948. 99% renewables. Biodiversity food surplus. Easy residency." onclick="showZoneCard(this)"/>
+        <circle class="zone-dot" cx="195" cy="257" r="6" fill="var(--green)" opacity=".85"
+          data-name="🇵🇦 Panama — Boquete Highlands" data-grade="A" data-score="7.8"
+          data-desc="USD dollarized. Immediate PR. Territorial tax. Strategic canal hub." onclick="showZoneCard(this)"/>
+        <circle class="zone-dot" cx="800" cy="348" r="7" fill="var(--green)" opacity=".9"
+          data-name="🇦🇺 Tasmania, Australia" data-grade="A" data-score="8.0"
+          data-desc="Island state. 98% renewable electricity. Distance from mainland conflicts. Low population." onclick="showZoneCard(this)"/>
+        <circle class="zone-dot" cx="440" cy="100" r="6" fill="var(--green)" opacity=".85"
+          data-name="🇳🇴 Norway — Telemark / Hardanger" data-grade="A" data-score="8.8"
+          data-desc="$1.7T sovereign wealth. Fjord terrain. Seed vault nearby. Nordic resilience culture." onclick="showZoneCard(this)"/>
+
+        <!-- Grade B (gold) -->
+        <circle class="zone-dot" cx="460" cy="110" r="6" fill="var(--gold)" opacity=".85"
+          data-name="🇵🇹 Portugal — Alentejo" data-grade="B" data-score="7.4"
+          data-desc="EU passport pathway. Atlantic buffer. NHR tax regime. Rural land accessible." onclick="showZoneCard(this)"/>
+        <circle class="zone-dot" cx="245" cy="360" r="6" fill="var(--gold)" opacity=".85"
+          data-name="🇨🇱 Chilean Patagonia" data-grade="B" data-score="7.3"
+          data-desc="Extreme isolation. 2,650mi escape corridor. Glacial water. Elite ranch zone." onclick="showZoneCard(this)"/>
+        <circle class="zone-dot" cx="605" cy="140" r="6" fill="var(--gold)" opacity=".85"
+          data-name="🇬🇪 Georgia — Caucasus" data-grade="B" data-score="7.9"
+          data-desc="365-day visa-free. 1% business tax. Mountain refuge. Russian border risk." onclick="showZoneCard(this)"/>
+        <circle class="zone-dot" cx="540" cy="110" r="5" fill="var(--gold)" opacity=".8"
+          data-name="🇷🇴 Romania — Transylvania" data-grade="B" data-score="6.8"
+          data-desc="Carpathian mountains. EU member. Low cost. Agricultural land. NATO exposure." onclick="showZoneCard(this)"/>
+        <circle class="zone-dot" cx="820" cy="195" r="5" fill="var(--gold)" opacity=".8"
+          data-name="🇵🇭 Philippines — Palawan" data-grade="B" data-score="6.4"
+          data-desc="Island isolation. Food abundance. Cheap property. Political instability risk." onclick="showZoneCard(this)"/>
+        <circle class="zone-dot" cx="485" cy="118" r="5" fill="var(--gold)" opacity=".8"
+          data-name="🇦🇩 Andorra" data-grade="B" data-score="7.2"
+          data-desc="Pyrenean fortress. Zero income tax. EU shopping hub. Tiny population (77K)." onclick="showZoneCard(this)"/>
+
+        <!-- No-Go Zones (red X markers) -->
+        <g data-name="☢ Washington D.C. / US East Coast" data-grade="X" data-score="1.8"
+          data-desc="Primary nuclear target. Political instability. Infrastructure dependency. Mass refugee risk."
+          onclick="showZoneCard(this)" style="cursor:pointer">
+          <circle cx="170" cy="138" r="6" fill="var(--red)" opacity=".7"/>
+          <line x1="166" y1="134" x2="174" y2="142" stroke="white" stroke-width="1.5"/>
+          <line x1="174" y1="134" x2="166" y2="142" stroke="white" stroke-width="1.5"/>
+        </g>
+        <g data-name="☢ Moscow / Western Russia" data-grade="X" data-score="0.6"
+          data-desc="Primary nuclear target. Authoritarian regime. War economy. Asset seizure risk."
+          onclick="showZoneCard(this)" style="cursor:pointer">
+          <circle cx="565" cy="82" r="6" fill="var(--red)" opacity=".7"/>
+          <line x1="561" y1="78" x2="569" y2="86" stroke="white" stroke-width="1.5"/>
+          <line x1="569" y1="78" x2="561" y2="86" stroke="white" stroke-width="1.5"/>
+        </g>
+        <g data-name="☢ Beijing / Eastern China" data-grade="X" data-score="1.2"
+          data-desc="Primary nuclear target. Authoritarian control. Supply chain dominance = strategic lock-in."
+          onclick="showZoneCard(this)" style="cursor:pointer">
+          <circle cx="770" cy="105" r="6" fill="var(--red)" opacity=".7"/>
+          <line x1="766" y1="101" x2="774" y2="109" stroke="white" stroke-width="1.5"/>
+          <line x1="774" y1="101" x2="766" y2="109" stroke="white" stroke-width="1.5"/>
+        </g>
+
+        <!-- Labels -->
+        <text x="875" y="395" fill="rgba(0,255,136,.7)" font-size="9" font-family="Inter,sans-serif">NZ ★</text>
+        <text x="420" y="42" fill="rgba(0,255,136,.7)" font-size="9" font-family="Inter,sans-serif">Iceland ★</text>
+        <text x="488" y="87" fill="rgba(0,255,136,.7)" font-size="8" font-family="Inter,sans-serif">CH</text>
+        <!-- Legend -->
+        <g transform="translate(20,450)">
+          <circle cx="8" cy="-4" r="5" fill="var(--green)"/><text x="17" y="0" fill="var(--muted)" font-size="10" font-family="Inter">Grade A</text>
+          <circle cx="78" cy="-4" r="5" fill="var(--gold)"/><text x="87" y="0" fill="var(--muted)" font-size="10" font-family="Inter">Grade B</text>
+          <circle cx="145" cy="-4" r="5" fill="var(--red)"/><text x="154" y="0" fill="var(--muted)" font-size="10" font-family="Inter">No-Go / Target</text>
+          <circle cx="255" cy="-4" r="12" fill="none" stroke="rgba(255,77,77,.4)" stroke-dasharray="3,3"/><text x="272" y="0" fill="var(--muted)" font-size="10" font-family="Inter">Nuclear ring</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Zone Info Card -->
+    <div id="zoneCard" class="gl" style="padding:1.5rem;margin-top:1rem;display:none;">
+      <div class="grid-2">
+        <div>
+          <div class="sec-label">Selected Zone</div>
+          <h3 id="zcName" style="margin:.25rem 0"></h3>
+          <div id="zcGrade" style="margin:.5rem 0"></div>
+          <p id="zcDesc" style="font-size:.9rem;color:#cbd5e1;line-height:1.7;margin-top:.5rem"></p>
+        </div>
+        <div id="zcMetrics"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ PANEL: DOCTRINE ════ -->
+  <div class="spanel" id="panel-doctrine">
+    <div class="gl" style="padding:1.5rem;margin-bottom:1.5rem">
+      <h3 style="color:var(--gold)">📐 The Five-Layer Safe Zone Doctrine</h3>
+      <p style="color:var(--muted);font-size:.9rem;margin-top:.5rem">Adapted from the Ark Collective Safe Zone Framework. Every sanctuary must satisfy all 5 layers. Failure on any single layer = downgrade.</p>
+    </div>
+
+    <div class="layer-block">
+      <div class="layer-num">01</div>
+      <div class="layer-name">Geographic Fortress</div>
+      <p style="color:#cbd5e1;font-size:.9rem;line-height:1.7;margin-top:.5rem">Natural terrain that limits human access and military incursion. Ideal: island, mountain valley, or peninsula with limited choke points. Must be ≥300km from any city with population &gt;500K. Sub-criteria: altitude (800m+ preferred), multiple water sources, arable land within 50km. <strong>Weighting: 30% of total score.</strong></p>
+      <div class="tags" style="margin-top:.75rem">
+        <span class="tag">Islands</span><span class="tag">Alpine valleys</span><span class="tag">Peninsulas</span><span class="tag">Distance from urban</span><span class="tag">Defensible perimeter</span>
+      </div>
+    </div>
+
+    <div class="layer-block">
+      <div class="layer-num">02</div>
+      <div class="layer-name">Political Stability Matrix</div>
+      <p style="color:#cbd5e1;font-size:.9rem;line-height:1.7;margin-top:.5rem">Government must score ≥70/100 on: rule of law, corruption index, democratic continuity (25+ year unbroken record), press freedom, military non-interference. Nations with coup history in last 50 years are automatically Tier 3. NATO membership adds geopolitical entanglement risk (−10 pts). Military spending &gt;3% GDP flagged. <strong>Weighting: 25%.</strong></p>
+      <div class="tags" style="margin-top:.75rem">
+        <span class="tag">No coup history</span><span class="tag">Rule of law</span><span class="tag">Low corruption</span><span class="tag">Press freedom</span><span class="tag">Non-aligned preferred</span>
+      </div>
+    </div>
+
+    <div class="layer-block">
+      <div class="layer-num">03</div>
+      <div class="layer-name">Resource Sovereignty</div>
+      <p style="color:#cbd5e1;font-size:.9rem;line-height:1.7;margin-top:.5rem">The zone must sustain a community of 25–500 people without external supply chains for minimum 24 months. Requirements: freshwater independent of municipal supply, local food production capability (≥60% caloric self-sufficiency), on-site or local renewable energy (no grid dependency acceptable), medical resource stockpile for 12 months. <strong>Weighting: 25%.</strong></p>
+      <div class="acc-item" style="margin-top:.75rem">
+        <button class="acc-head" onclick="toggleAcc(this)" style="font-size:.85rem">Resource Scorecard Checklist <span>▼</span></button>
+        <div class="acc-body">
+          <div style="columns:2;gap:1.5rem;font-size:.88rem;color:#cbd5e1;">
+            <p>☑ Aquifer or spring on-site</p><p>☑ &gt;2 acres arable per 10 people</p>
+            <p>☑ Solar/wind/hydro capable</p><p>☑ Seed library established</p>
+            <p>☑ Livestock (chickens min.)</p><p>☑ 12-mo medical stockpile</p>
+            <p>☑ Fuel storage ≥6 months</p><p>☑ Communications backup (HF radio)</p>
+            <p>☑ Tool inventory complete</p><p>☑ Preservation/canning capability</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer-block">
+      <div class="layer-num">04</div>
+      <div class="layer-name">Legal & Financial Architecture</div>
+      <p style="color:#cbd5e1;font-size:.9rem;line-height:1.7;margin-top:.5rem">Property ownership must be unencumbered and legally defensible in the host jurisdiction. Foreign ownership laws must permit full freehold title. Tax liability must be structured for zero or minimal local taxation on foreign-sourced income. Multiple banking jurisdictions required — no single-country exposure &gt;40% of liquid assets. Offshore structure (trust or foundation) recommended. <strong>Weighting: 12%.</strong></p>
+      <div class="tags" style="margin-top:.75rem">
+        <span class="tag">Freehold title</span><span class="tag">Foreign ownership legal</span><span class="tag">Territorial tax</span><span class="tag">Multi-jurisdiction banking</span><span class="tag">Offshore trust</span>
+      </div>
+    </div>
+
+    <div class="layer-block">
+      <div class="layer-num">05</div>
+      <div class="layer-name">Community & Human Capital</div>
+      <p style="color:#cbd5e1;font-size:.9rem;line-height:1.7;margin-top:.5rem">A zone without skilled people is infrastructure without an engine. Minimum viable community: 25 adults with documented skills in medicine, engineering, agriculture, security, education, and leadership. Community cohesion tested via annual resilience exercises. Governance charter required (see Section 23.5). Vetting protocol for all members. Local population relationship (integration vs. isolation tradeoff) assessed. <strong>Weighting: 8%.</strong></p>
+    </div>
+
+    <!-- Doctrine Scoring Summary -->
+    <div class="gl" style="padding:1.5rem;margin-top:1.5rem">
+      <h4 style="color:var(--accent);margin-bottom:1rem">Doctrine Score Interpretation</h4>
+      <table>
+        <tr><th>Score Range</th><th>Grade</th><th>Action</th></tr>
+        <tr><td>85–100</td><td><span class="badge b-green">Grade A — Primary Ark</span></td><td>Activate. Full investment.</td></tr>
+        <tr><td>70–84</td><td><span class="badge b-gold">Grade B — Secondary</span></td><td>Contingency. Partial investment.</td></tr>
+        <tr><td>55–69</td><td><span class="badge b-blue">Grade C — Monitor</span></td><td>Watch list. No capital commitment.</td></tr>
+        <tr><td>&lt;55</td><td><span class="badge b-red">Grade D — Avoid</span></td><td>Do not use. Threat exceeds benefit.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════ PANEL: ZONES ════ -->
+  <div class="spanel" id="panel-zones">
+    <h3 style="margin-bottom:1.5rem">📍 Ark Zone Directory — 60+ Catalogued Locations</h3>
+
+    <h4 style="color:var(--green);margin-bottom:.75rem">🟢 Grade A — Primary Sanctuaries</h4>
+    <div class="grid-2" style="margin-bottom:2rem">
+      <div class="gl zone-card t1">
+        <strong>Canterbury Plains / Mackenzie Basin</strong> — New Zealand
+        <p style="font-size:.85rem;color:var(--muted);margin:.4rem 0">Altitude: 600–1200m · Isolation: 5/5 · Water: alpine fed · Elite density: high</p>
+        <div class="tags"><span class="tag">Ark compound zone</span><span class="tag">Peter Thiel adjacent</span><span class="tag">Geothermal nearby</span></div>
+      </div>
+      <div class="gl zone-card t1">
+        <strong>Berner Oberland / Graubünden</strong> — Switzerland
+        <p style="font-size:.85rem;color:var(--muted);margin:.4rem 0">Altitude: 1200–2800m · Bunker: mandatory · Water: glacier-fed · Access: helicopter/rail</p>
+        <div class="tags"><span class="tag">Cold War bunkers</span><span class="tag">Rail-accessible</span><span class="tag">Ultra-HNW zone</span></div>
+      </div>
+      <div class="gl zone-card t1">
+        <strong>Westfjords &amp; Northern Peninsula</strong> — Iceland
+        <p style="font-size:.85rem;color:var(--muted);margin:.4rem 0">Isolation: 5/5 · Fish: unlimited · Geothermal: on-site · Population: &lt;10K region</p>
+        <div class="tags"><span class="tag">Extreme remoteness</span><span class="tag">Geothermal heat</span><span class="tag">Puffin/cod food</span></div>
+      </div>
+      <div class="gl zone-card t1">
+        <strong>Chirripó / San Gerardo de Rivas</strong> — Costa Rica
+        <p style="font-size:.85rem;color:var(--muted);margin:.4rem 0">Altitude: 1800–3820m · Biodiversity: extreme · Expat: established · Military: none</p>
+        <div class="tags"><span class="tag">No military</span><span class="tag">Fruit abundance</span><span class="tag">Expat community</span></div>
+      </div>
+      <div class="gl zone-card t1">
+        <strong>Tacuarembó / Rivera Interior</strong> — Uruguay
+        <p style="font-size:.85rem;color:var(--muted);margin:.4rem 0">Flat pampas · Cattle/ag: 5/5 · Political: stable · Land cost: USD 2K–5K/acre</p>
+        <div class="tags"><span class="tag">Cheap farmland</span><span class="tag">Territorial tax</span><span class="tag">LATAM safest</span></div>
+      </div>
+      <div class="gl zone-card t1">
+        <strong>Boquete / Volcán Highlands</strong> — Panama
+        <p style="font-size:.85rem;color:var(--muted);margin:.4rem 0">Altitude: 1200–2000m · Climate: spring year-round · Expat: top-rated · USD: base</p>
+        <div class="tags"><span class="tag">Year-round spring</span><span class="tag">USD base</span><span class="tag">Top expat rating</span></div>
+      </div>
+    </div>
+
+    <h4 style="color:var(--gold);margin-bottom:.75rem">🟡 Grade B — Viable Contingencies</h4>
+    <div style="overflow-x:auto;margin-bottom:2rem">
+      <table>
+        <thead><tr><th>Zone</th><th>Country</th><th>Score</th><th>Key Strength</th><th>Key Risk</th></tr></thead>
+        <tbody>
+          <tr><td>Alentejo Plateau</td><td>🇵🇹 Portugal</td><td><span class="badge b-gold">76</span></td><td>EU passport, cheap land</td><td>Water stress, wildfire</td></tr>
+          <tr><td>Transylvania Highlands</td><td>🇷🇴 Romania</td><td><span class="badge b-gold">72</span></td><td>Carpathian fortress, low cost</td><td>NATO risk, corruption</td></tr>
+          <tr><td>Svaneti / Mestia Valley</td><td>🇬🇪 Georgia</td><td><span class="badge b-gold">75</span></td><td>Extreme remoteness, visa-free</td><td>Russian proximity</td></tr>
+          <tr><td>Coromandel Peninsula</td><td>🇳🇿 New Zealand</td><td><span class="badge b-gold">74</span></td><td>North Island alternative</td><td>Higher access, crowds</td></tr>
+          <tr><td>Hokitika / West Coast</td><td>🇳🇿 New Zealand</td><td><span class="badge b-gold">79</span></td><td>Isolation, glacier water</td><td>Tsunami coast risk</td></tr>
+          <tr><td>Tassie Highlands</td><td>🇦🇺 Australia</td><td><span class="badge b-gold">78</span></td><td>Island, renewable energy</td><td>Au $, mainland ties</td></tr>
+          <tr><td>Aysén Region</td><td>🇨🇱 Chile</td><td><span class="badge b-gold">73</span></td><td>Patagonian isolation</td><td>Earthquake, political flux</td></tr>
+          <tr><td>Phuket / Koh Lanta Islands</td><td>🇹🇭 Thailand</td><td><span class="badge b-gold">65</span></td><td>Low cost, food rich</td><td>Flood risk, political</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4 style="color:var(--red);margin-bottom:.75rem">🔴 No-Go Zones — Do Not Base Ark Here</h4>
+    <div class="grid-3">
+      <div class="gl" style="padding:1rem;border-left:3px solid var(--red)">
+        <strong>🇺🇸 US East/West Coasts</strong><br>
+        <small style="color:var(--muted)">Nuclear target #1–5. Infrastructure dependence. Political chaos vector. Mass refugee generation.</small>
+      </div>
+      <div class="gl" style="padding:1rem;border-left:3px solid var(--red)">
+        <strong>🇷🇺 Moscow / St Petersburg</strong><br>
+        <small style="color:var(--muted)">Primary strike zone. Asset seizure. Authoritarian lockdown. Zero exit options in crisis.</small>
+      </div>
+      <div class="gl" style="padding:1rem;border-left:3px solid var(--red)">
+        <strong>🇹🇼 Taiwan (any)</strong><br>
+        <small style="color:var(--muted)">Invasion probability 60–80% by 2027–2032 (CIA assessment). No viable exit once kinetics start.</small>
+      </div>
+      <div class="gl" style="padding:1rem;border-left:3px solid var(--red)">
+        <strong>🇮🇱 Israel / Gaza region</strong><br>
+        <small style="color:var(--muted)">Active conflict zone. Regional war escalation risk. No food sovereignty. Exit routes compromised.</small>
+      </div>
+      <div class="gl" style="padding:1rem;border-left:3px solid var(--red)">
+        <strong>🇧🇩 Bangladesh / Coastal India</strong><br>
+        <small style="color:var(--muted)">Climate crisis ground zero. 30M displaced by 2030 projected. Flooding, heat stress, food insecurity.</small>
+      </div>
+      <div class="gl" style="padding:1rem;border-left:3px solid var(--red)">
+        <strong>🇵🇰 Pakistan (any zone)</strong><br>
+        <small style="color:var(--muted)">Nuclear-armed state with instability. Taliban border pressure. Water wars imminent. IMF dependency.</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ PANEL: NUCLEAR ════ -->
+  <div class="spanel" id="panel-nuclear">
+    <div class="gl" style="padding:1.5rem;margin-bottom:1.5rem;border-color:rgba(255,77,77,.3)">
+      <h3 style="color:var(--red)">☢ Nuclear Fallout Safe Distance Analysis</h3>
+      <p style="color:var(--muted);font-size:.9rem;margin-top:.5rem">Based on 150-warhead exchange model (Collapse Bible Scenario #34). Wind pattern data from NOAA 10-year averages. <strong>Minimum safe distance: 300km from primary targets, 150km from secondary.</strong></p>
+    </div>
+
+    <div class="acc-item">
+      <button class="acc-head" onclick="toggleAcc(this)">Primary Strike Targets (Nuclear Exchange Day 1) <span>▼</span></button>
+      <div class="acc-body">
+        <table>
+          <tr><th>Target</th><th>Yield Expected</th><th>Kill Zone</th><th>Fallout Radius</th><th>Nearest Safe Zone</th></tr>
+          <tr><td>Washington D.C.</td><td>800kt–1Mt</td><td>15km</td><td>300km</td><td>Appalachian highlands (borderline)</td></tr>
+          <tr><td>Moscow</td><td>1Mt</td><td>18km</td><td>350km</td><td>Scandinavia / Caucasus (safe)</td></tr>
+          <tr><td>Beijing</td><td>800kt</td><td>14km</td><td>280km</td><td>Mongolia, South Korea border (marginal)</td></tr>
+          <tr><td>London</td><td>600kt</td><td>12km</td><td>240km</td><td>Brittany France / Scotland highlands</td></tr>
+          <tr><td>New York</td><td>1Mt</td><td>18km</td><td>360km</td><td>Vermont / Nova Scotia (marginal)</td></tr>
+          <tr><td>Los Angeles</td><td>800kt</td><td>14km</td><td>300km</td><td>Sierra Nevada highlands (marginal)</td></tr>
+          <tr><td>Paris</td><td>600kt</td><td>12km</td><td>230km</td><td>Pyrenees / Massif Central</td></tr>
+          <tr><td>Tel Aviv</td><td>400kt</td><td>10km</td><td>180km</td><td>Cyprus / Crete (safe)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="acc-item" style="margin-top:.5rem">
+      <button class="acc-head" onclick="toggleAcc(this)">Fallout Wind Pattern Analysis (Prevailing Westerlies) <span>▼</span></button>
+      <div class="acc-body">
+        <div class="grid-2">
+          <div>
+            <p class="sec-label">Northern Hemisphere (Westerly drift)</p>
+            <p style="font-size:.9rem;color:#cbd5e1;line-height:1.7">Prevailing westerlies carry fallout <strong>EAST</strong> from strike zones. US strikes = Atlantic fallout. European strikes = Eastern Europe/Russia contamination. Key: Iceland (mid-Atlantic) catches NONE from US or European exchange. New Zealand in Southern Hemisphere = complete isolation from NH fallout.</p>
+          </div>
+          <div>
+            <p class="sec-label">Safe Zone Fallout Rankings</p>
+            <div style="font-size:.88rem">
+              <div style="margin:.4rem 0">🇳🇿 New Zealand<div class="score-bar"><div class="score-fill" style="width:2%;background:var(--green)"></div></div><small>Fallout exposure: 2%</small></div>
+              <div style="margin:.4rem 0">🇮🇸 Iceland<div class="score-bar"><div class="score-fill" style="width:5%;background:var(--green)"></div></div><small>Fallout exposure: 5%</small></div>
+              <div style="margin:.4rem 0">🇺🇾 Uruguay<div class="score-bar"><div class="score-fill" style="width:3%;background:var(--green)"></div></div><small>Fallout exposure: 3%</small></div>
+              <div style="margin:.4rem 0">🇨🇭 Switzerland<div class="score-bar"><div class="score-fill" style="width:18%;background:var(--gold)"></div></div><small>Fallout exposure: 18% (Euro exchange)</small></div>
+              <div style="margin:.4rem 0">🇬🇧 United Kingdom<div class="score-bar"><div class="score-fill" style="width:70%;background:var(--red)"></div></div><small>Fallout exposure: 70%+</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gl" style="padding:1.5rem;margin-top:1rem;border-color:rgba(0,255,136,.2)">
+      <h4 style="color:var(--green);margin-bottom:.75rem">✅ Nuclear-Safe Ark Zones (all scenarios)</h4>
+      <div class="grid-3">
+        <div><strong>🇳🇿 New Zealand</strong><br><small style="color:var(--muted)">Southern Hemisphere isolation. Zero realistic fallout path.</small></div>
+        <div><strong>🇦🇺 Tasmania</strong><br><small style="color:var(--muted)">Southern ocean buffer. 40°S latitude. Minimal risk.</small></div>
+        <div><strong>🇺🇾 Uruguay</strong><br><small style="color:var(--muted)">Southern cone. 33°S. No viable NH fallout drift path.</small></div>
+        <div><strong>🇨🇱 Patagonia</strong><br><small style="color:var(--muted)">50°S. Southern westerlies carry any drift into ocean.</small></div>
+        <div><strong>🇮🇸 Iceland</strong><br><small style="color:var(--muted)">Mid-Atlantic ridge. Between NH targets but high-pressure zone deflects most fallout.</small></div>
+        <div><strong>🇫🇯 Fiji / Pacific Islands</strong><br><small style="color:var(--muted)">Deep Pacific. No viable target adjacency. Fallout-free in most scenarios.</small></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ PANEL: SCORER ════ -->
+  <div class="spanel" id="panel-scorer">
+    <h3 style="margin-bottom:1.5rem">🧮 Five-Layer Zone Scorer</h3>
+    <p style="color:var(--muted);font-size:.9rem;margin-bottom:1.5rem">Rate your candidate zone on each of the 5 doctrine layers. Receive instant Grade + Action recommendation.</p>
+    <div class="grid-2">
+      <div class="gl" style="padding:1.5rem">
+        <h4 style="margin-bottom:1rem">Layer Assessment</h4>
+
+        <div class="calc-field">
+          <label>Layer 1 — Geographic Fortress</label>
+          <select id="l1">
+            <option value="30">Island / extreme mountain valley (30 pts)</option>
+            <option value="24">Mountain region with natural barriers (24 pts)</option>
+            <option value="18">Rural &gt;200km from city (18 pts)</option>
+            <option value="10">Semi-rural 50–200km from city (10 pts)</option>
+            <option value="3">Suburban / peri-urban (3 pts)</option>
+          </select>
+        </div>
+
+        <div class="calc-field">
+          <label>Layer 2 — Political Stability</label>
+          <select id="l2">
+            <option value="25">Non-aligned, 50yr+ unbroken democracy, low corruption (25)</option>
+            <option value="20">Stable democracy, minor NATO risk, medium corruption (20)</option>
+            <option value="14">Moderate stability, some instability history (14)</option>
+            <option value="8">Fragile state, coup history or conflict adjacent (8)</option>
+            <option value="2">Active conflict zone or authoritarian state (2)</option>
+          </select>
+        </div>
+
+        <div class="calc-field">
+          <label>Layer 3 — Resource Sovereignty</label>
+          <select id="l3">
+            <option value="25">Full off-grid: water, food, energy, medical all on-site (25)</option>
+            <option value="20">80%+ self-sufficient with local community (20)</option>
+            <option value="14">50–80% self-sufficient, some supply chain reliance (14)</option>
+            <option value="7">Grid-dependent, minimal local production (7)</option>
+            <option value="2">Full supply chain dependence (2)</option>
+          </select>
+        </div>
+
+        <div class="calc-field">
+          <label>Layer 4 — Legal &amp; Financial Architecture</label>
+          <select id="l4">
+            <option value="12">Freehold title + territorial tax + multi-jurisdiction banking (12)</option>
+            <option value="9">Freehold + territorial tax only (9)</option>
+            <option value="6">Freehold but taxed globally (6)</option>
+            <option value="3">Leasehold or restricted foreign ownership (3)</option>
+            <option value="1">No foreign property rights (1)</option>
+          </select>
+        </div>
+
+        <div class="calc-field">
+          <label>Layer 5 — Community &amp; Human Capital</label>
+          <select id="l5">
+            <option value="8">25+ vetted members with full skill matrix and governance charter (8)</option>
+            <option value="6">10–25 members, partial skills (6)</option>
+            <option value="4">Family unit only (4)</option>
+            <option value="2">Individual solo (2)</option>
+            <option value="1">No community plan (1)</option>
+          </select>
+        </div>
+
+        <button onclick="calcScore()" style="width:100%;padding:.9rem;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--green));border:none;color:var(--ink);font-weight:800;font-size:1rem;cursor:pointer;margin-top:.5rem">
+          Calculate Zone Score →
+        </button>
+      </div>
+
+      <div class="gl" style="padding:1.5rem">
+        <h4 style="margin-bottom:1rem">Score Results</h4>
+        <div id="scoreResult">
+          <p style="color:var(--muted);font-size:.9rem">Complete the assessment and click Calculate to see your zone grade and recommendations.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ PANEL: ROUTES ════ -->
+  <div class="spanel" id="panel-routes">
+    <h3 style="margin-bottom:1.5rem">🛤 Escape Routes & Evacuation Corridors</h3>
+    <div class="gl" style="padding:1rem;margin-bottom:1rem;border-color:rgba(255,215,0,.2)">
+      <p style="font-size:.88rem;color:var(--gold)">⚠️ Rule: Every Ark plan requires minimum 3 independent escape routes. Primary (air), Secondary (overland), Tertiary (maritime). Each must be pre-scouted, documented, and rehearsed annually.</p>
+    </div>
+
+    <div class="acc-item">
+      <button class="acc-head" onclick="toggleAcc(this)">🇺🇸 North America → Ark Zone Routes <span>▼</span></button>
+      <div class="acc-body">
+        <div class="grid-2">
+          <div>
+            <p class="sec-label">Primary: Air Routes</p>
+            <p style="font-size:.88rem;color:#cbd5e1;line-height:1.7">JFK/LAX → Auckland (direct, Air NZ) — book OPEN JAW tickets in advance. Dallas → Panama City (Copa hub). Miami → San José Costa Rica (multiple carriers). Keep minimum 2 tickets on hold. Alert: airport closures within 72hr of civil emergency — act on Day 0 signals.</p>
+          </div>
+          <div>
+            <p class="sec-label">Secondary: Overland → Mexico/Central America</p>
+            <p style="font-size:.88rem;color:#cbd5e1;line-height:1.7">US → Mexico: 19 border crossings. Recommend: Lukeville (AZ) or Del Rio (TX) — least surveilled in crisis. Mexico → Guatemala → Costa Rica: Pan-American Highway, fuel caches every 200km. Border crossing kits: USD cash, Spanish phrasebook, vehicle paperwork.</p>
+          </div>
+        </div>
+        <div style="margin-top:.75rem">
+          <p class="sec-label">Tertiary: Maritime</p>
+          <p style="font-size:.88rem;color:#cbd5e1">Pacific ports: Marina del Rey → Hawaii → Fiji → NZ (42 days sailing). Atlantic: Norfolk, VA → Bermuda → Azores → Canaries → Panama. Vessel minimum: 40ft bluewater capable, SSB radio, 90-day provisions, EPIRB + life raft.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item">
+      <button class="acc-head" onclick="toggleAcc(this)">🇬🇧 UK/Europe → Ark Zone Routes <span>▼</span></button>
+      <div class="acc-body">
+        <div class="grid-2">
+          <div>
+            <p class="sec-label">Primary: Air → Southern Hemisphere</p>
+            <p style="font-size:.88rem;color:#cbd5e1;line-height:1.7">Heathrow → Auckland (24hr, direct). Lisbon → São Paulo → Montevideo (Uruguay). Frankfurt → Buenos Aires → Punta Arenas (Patagonia). Keep EU + non-EU passport options open. Lisbon acts as Western Europe's best exit hub — consider Portugal base (Section 09).</p>
+          </div>
+          <div>
+            <p class="sec-label">Secondary: Overland → Switzerland / Scandinavia</p>
+            <p style="font-size:.88rem;color:#cbd5e1;line-height:1.7">UK → France (Eurotunnel or ferry) → Switzerland (Geneva/Basel) within 12hr. Scandinavia: UK → Scotland → ferry to Bergen, Norway. Switzerland intra-European safe harbor. Nordic countries via Sweden land border if aviation closed.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc-item">
+      <button class="acc-head" onclick="toggleAcc(this)">🇦🇺 Australia → New Zealand Emergency Route <span>▼</span></button>
+      <div class="acc-body">
+        <p style="font-size:.88rem;color:#cbd5e1;line-height:1.7">Air: Sydney/Melbourne → Auckland/Christchurch (3hr, 15+ daily flights). Maritime: Sydney → Wellington (Trans-Tasman, 1,700km). Land pre-positioning: NZ South Island is the primary target. Queenstown / Wanaka established Ark zones. Recommend Australian citizens establish NZ residency NOW before crisis — processing slows 6x in emergency.</p>
+      </div>
+    </div>
+
+    <div class="gl" style="padding:1.5rem;margin-top:1rem">
+      <h4 style="color:var(--accent);margin-bottom:1rem">Evacuation Timing Model</h4>
+      <table>
+        <tr><th>Alert Level</th><th>Signal</th><th>Action Required</th><th>Window</th></tr>
+        <tr><td><span class="badge b-green">L1 — Watch</span></td><td>Doomsday Clock &lt;90s, 2+ Collapse Bible triggers</td><td>Liquidate 30% assets, activate 2nd passport</td><td>6–12 months</td></tr>
+        <tr><td><span class="badge b-gold">L2 — Warning</span></td><td>Bank runs, grid instability, civil emergency declared</td><td>Move family to safe zone, liquidate 80%</td><td>2–4 weeks</td></tr>
+        <tr><td><span class="badge b-red">L3 — Critical</span></td><td>Military mobilization, internet restrictions, airport queues</td><td>Immediate departure. Primary route. No delay.</td><td>48–72 hours</td></tr>
+        <tr><td><span class="badge b-red" style="background:rgba(255,77,77,.4)">L4 — GTFO</span></td><td>Shots fired, grid down, border closures imminent</td><td>Maritime / overland only. Ark fallback.</td><td>&lt;24 hours</td></tr>
+      </table>
+    </div>
+  </div>
+
+  </div><!-- /#panels -->
+</div><!-- /.container -->
+
+<!-- ── DATA BLOCK ── -->
+<script>
+const ZONE_DATA = {
+  nz:{name:"🇳🇿 New Zealand — South Island",grade:"A",score:9.1,nuclear:1,political:1,resources:5,legal:4,community:4},
+  is:{name:"🇮🇸 Iceland",grade:"A",score:8.7,nuclear:1,political:1,resources:5,legal:3,community:3},
+  ch:{name:"🇨🇭 Swiss Alps",grade:"A",score:8.9,nuclear:2,political:1,resources:4,legal:4,community:5},
+};
+</script>
+
+<!-- ── RENDER + INTERACTION BLOCK ── -->
+<script>
+function switchTab(id){
+  document.querySelectorAll('#mainTabs button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#panels .spanel').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-'+id).classList.add('active');
+}
+
+function toggleAcc(btn){
+  const body=btn.nextElementSibling;
+  const arrow=btn.querySelector('span:last-child');
+  if(body.classList.contains('open')){body.classList.remove('open');if(arrow)arrow.textContent='▼';}
+  else{body.classList.add('open');if(arrow)arrow.textContent='▲';}
+}
+
+function showZoneCard(el){
+  const name=el.dataset.name||el.getAttribute('data-name');
+  const grade=el.dataset.grade||el.getAttribute('data-grade');
+  const score=el.dataset.score||el.getAttribute('data-score');
+  const desc=el.dataset.desc||el.getAttribute('data-desc');
+
+  document.getElementById('zcName').textContent=name;
+  const gc=grade==='A'?'b-green':grade==='B'?'b-gold':'b-red';
+  document.getElementById('zcGrade').innerHTML=`<span class="badge ${gc}">Grade ${grade}</span> <span class="badge b-blue">Score: ${score}/10</span>`;
+  document.getElementById('zcDesc').textContent=desc;
+  document.getElementById('zcMetrics').innerHTML=score>0?`
+    <p class="sec-label">Ark Suitability</p>
+    <div style="font-size:3rem;font-weight:900;color:${grade==='A'?'var(--green)':grade==='B'?'var(--gold)':'var(--red)'}">${score}/10</div>
+    <div style="margin-top:1rem;font-size:.88rem;color:var(--muted)">
+      ${grade==='A'?'✅ Activate primary investment. Begin residency process.':grade==='B'?'⚡ Suitable as contingency. Partial investment recommended.':'❌ Avoid for Ark purposes. High collapse risk.'}
+    </div>`:'';
+  document.getElementById('zoneCard').style.display='block';
+  document.getElementById('zoneCard').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function calcScore(){
+  const l1=+document.getElementById('l1').value;
+  const l2=+document.getElementById('l2').value;
+  const l3=+document.getElementById('l3').value;
+  const l4=+document.getElementById('l4').value;
+  const l5=+document.getElementById('l5').value;
+  const total=l1+l2+l3+l4+l5;
+  let grade,color,action,icon;
+  if(total>=85){grade='A — Primary Ark';color='var(--green)';action='Activate full investment. Begin residency NOW. Pre-position supplies.';icon='✅';}
+  else if(total>=70){grade='B — Secondary Contingency';color='var(--gold)';action='Suitable as backup. Partial capital commitment. Continue monitoring.';icon='⚡';}
+  else if(total>=55){grade='C — Watch List Only';color='var(--accent)';action='Do not commit capital. Address weakest layers first. Re-evaluate in 12 months.';icon='👁';}
+  else{grade='D — Avoid';color='var(--red)';action='Risk exceeds benefit. Identify a new candidate zone. This location will not survive a serious collapse event.';icon='❌';}
+
+  const bars=[
+    {label:'Layer 1: Geographic',val:l1,max:30},
+    {label:'Layer 2: Political',val:l2,max:25},
+    {label:'Layer 3: Resources',val:l3,max:25},
+    {label:'Layer 4: Legal',val:l4,max:12},
+    {label:'Layer 5: Community',val:l5,max:8},
+  ];
+
+  document.getElementById('scoreResult').innerHTML=`
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="font-size:3.5rem;font-weight:900;color:${color}">${total}</div>
+      <div style="font-size:1rem;color:${color};font-weight:700">/ 100</div>
+      <div style="margin:.5rem 0"><span class="badge" style="background:${color}22;color:${color};border:1px solid ${color}44;font-size:.9rem">${icon} Grade ${grade}</span></div>
+    </div>
+    ${bars.map(b=>`
+      <div style="margin:.5rem 0;font-size:.83rem">
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">${b.label}</span><span>${b.val}/${b.max}</span></div>
+        <div class="score-bar"><div class="score-fill" style="width:${(b.val/b.max*100).toFixed(0)}%;background:${b.val/b.max>.75?'var(--green)':b.val/b.max>.45?'var(--gold)':'var(--red)'}"></div></div>
+      </div>`).join('')}
+    <div style="margin-top:1rem;padding:1rem;background:rgba(255,255,255,.04);border-radius:10px;font-size:.88rem;color:#cbd5e1;line-height:1.7">
+      <strong style="color:${color}">Recommendation:</strong><br>${action}
+    </div>`;
+}
+
+// Map tooltip (fallback for non-SVG interactions)
+document.querySelectorAll('.zone-dot').forEach(dot=>{
+  dot.addEventListener('mouseenter',function(e){
+    const tt=document.getElementById('tooltip');
+    tt.innerHTML=`<strong>${this.dataset.name}</strong><br>Grade: ${this.dataset.grade} | Score: ${this.dataset.score}/10<br><small style="color:var(--muted)">${this.dataset.desc}</small>`;
+    tt.style.opacity='1';
+  });
+  dot.addEventListener('mouseleave',()=>{document.getElementById('tooltip').style.opacity='0';});
+  dot.addEventListener('mousemove',function(e){
+    const tt=document.getElementById('tooltip');
+    const rect=dot.closest('.map-wrap').getBoundingClientRect();
+    tt.style.left=(e.clientX-rect.left+10)+'px';
+    tt.style.top=(e.clientY-rect.top+10)+'px';
+  });
+});
+</script>
+</body>
+</html>

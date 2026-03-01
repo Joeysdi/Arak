@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>08 — Danger Zones | Ark v3</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+:root{
+  --gold:#d4a017;--gold-light:#f5d676;--gold-dark:#a67c00;
+  --bg:#0a0a0f;--card-bg:rgba(212,160,23,0.06);
+  --glass:rgba(255,255,255,0.04);--glass-border:rgba(212,160,23,0.18);
+  --red:#ff4444;--orange:#ff8c00;--yellow:#ffd700;--text:#e8e0d0;--muted:#8a8070;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 20%,rgba(212,160,23,0.06) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(255,68,68,0.04) 0%,transparent 50%);z-index:0;pointer-events:none}
+
+.container{max-width:1300px;margin:0 auto;padding:20px;position:relative;z-index:1}
+header{text-align:center;padding:50px 20px 30px}
+.badge{display:inline-block;background:linear-gradient(135deg,rgba(255,68,68,0.15),rgba(255,68,68,0.05));border:1px solid rgba(255,68,68,0.3);border-radius:50px;padding:6px 20px;font-size:0.75rem;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:18px}
+h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;background:linear-gradient(135deg,var(--red),var(--orange),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1;margin-bottom:12px}
+.subtitle{color:var(--muted);font-size:1rem;max-width:650px;margin:0 auto;line-height:1.6}
+
+/* Filter Bar */
+.filter-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:35px 0 25px}
+.filter-btn{background:var(--glass);border:1px solid var(--glass-border);color:var(--muted);padding:8px 18px;border-radius:50px;cursor:pointer;font-size:0.8rem;transition:all 0.3s;font-family:inherit}
+.filter-btn:hover,.filter-btn.active{background:rgba(212,160,23,0.12);color:var(--gold-light);border-color:var(--gold)}
+
+/* Stats Strip */
+.stats-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:40px}
+.stat-box{background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:16px;padding:20px;text-align:center}
+.stat-box .num{font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--red),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-box .label{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-top:4px}
+
+/* Card Grid */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:22px;margin-bottom:50px}
+
+.zone-card{background:var(--glass);backdrop-filter:blur(24px);border:1px solid var(--glass-border);border-radius:20px;padding:0;overflow:hidden;transition:all 0.4s cubic-bezier(0.25,0.46,0.45,0.94);cursor:pointer;position:relative}
+.zone-card:hover{transform:translateY(-6px);border-color:var(--gold);box-shadow:0 20px 60px rgba(212,160,23,0.08),0 0 30px rgba(255,68,68,0.05)}
+.zone-card.hidden{display:none}
+
+.card-header{padding:22px 24px 14px;display:flex;justify-content:space-between;align-items:flex-start}
+.card-header .left{flex:1}
+.zone-num{font-size:0.65rem;color:var(--gold-dark);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px}
+.zone-name{font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:4px}
+.zone-region{font-size:0.8rem;color:var(--muted)}
+
+.threat-badge{display:flex;flex-direction:column;align-items:center;gap:3px}
+.threat-level{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;color:#fff}
+.threat-level.critical{background:linear-gradient(135deg,#ff2222,#cc0000);box-shadow:0 4px 20px rgba(255,34,34,0.3)}
+.threat-level.extreme{background:linear-gradient(135deg,#ff6600,#cc4400);box-shadow:0 4px 20px rgba(255,102,0,0.3)}
+.threat-level.high{background:linear-gradient(135deg,#ffaa00,#cc8800);box-shadow:0 4px 20px rgba(255,170,0,0.3)}
+.threat-label{font-size:0.55rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted)}
+
+.card-body{padding:0 24px 10px}
+.risk-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.risk-tag{font-size:0.65rem;padding:4px 10px;border-radius:50px;background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.15);color:#ff8888}
+
+.metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.metric{text-align:center}
+.metric .val{font-size:0.95rem;font-weight:700;color:var(--gold-light)}
+.metric .lbl{font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+
+.card-expand{padding:0 24px;max-height:0;overflow:hidden;transition:max-height 0.5s ease}
+.zone-card.open .card-expand{max-height:500px}
+.expand-content{padding-bottom:20px;border-top:1px solid var(--glass-border);padding-top:14px;font-size:0.85rem;line-height:1.7;color:var(--muted)}
+.expand-content strong{color:var(--gold-light)}
+
+.card-footer{padding:10px 24px 18px;display:flex;justify-content:space-between;align-items:center}
+.expand-btn{background:none;border:1px solid var(--glass-border);color:var(--gold);padding:6px 16px;border-radius:50px;cursor:pointer;font-size:0.7rem;letter-spacing:1px;transition:all 0.3s;font-family:inherit}
+.expand-btn:hover{background:rgba(212,160,23,0.1);border-color:var(--gold)}
+.evac-flag{font-size:0.65rem;padding:4px 12px;border-radius:50px;background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.2);color:#ff6666}
+
+/* Comparison Modal */
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);z-index:999;display:none;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:rgba(15,15,25,0.95);backdrop-filter:blur(30px);border:1px solid var(--glass-border);border-radius:24px;padding:35px;max-width:800px;width:90%;max-height:85vh;overflow-y:auto;position:relative}
+.modal h2{font-size:1.4rem;color:var(--gold-light);margin-bottom:20px}
+.modal-close{position:absolute;top:15px;right:20px;background:none;border:none;color:var(--muted);font-size:1.5rem;cursor:pointer}
+.compare-table{width:100%;border-collapse:collapse}
+.compare-table th{text-align:left;padding:10px;font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);border-bottom:1px solid var(--glass-border)}
+.compare-table td{padding:10px;font-size:0.85rem;border-bottom:1px solid rgba(255,255,255,0.03);color:var(--text)}
+
+/* Bottom CTA */
+.bottom-cta{text-align:center;padding:40px 20px 50px}
+.cta-btn{display:inline-block;background:linear-gradient(135deg,var(--gold-dark),var(--gold));color:#0a0a0f;padding:14px 40px;border-radius:50px;font-weight:700;font-size:0.95rem;text-decoration:none;border:none;cursor:pointer;font-family:inherit;transition:all 0.3s}
+.cta-btn:hover{transform:scale(1.05);box-shadow:0 8px 30px rgba(212,160,23,0.3)}
+
+.pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+@media(max-width:768px){.card-grid{grid-template-columns:1fr}.stats-strip{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="container">
+<header>
+  <div class="badge">⚠ High-Risk Intelligence</div>
+  <h1>Danger Zones</h1>
+  <p class="subtitle">10 regions where societal infrastructure, governance, and safety nets have critically degraded. Know where <em>not</em> to be when systems buckle.</p>
+</header>
+
+<div class="stats-strip" id="statsStrip">
+  <div class="stat-box"><div class="num">10</div><div class="label">Danger Zones</div></div>
+  <div class="stat-box"><div class="num">1.4B+</div><div class="label">People At Risk</div></div>
+  <div class="stat-box"><div class="num">7</div><div class="label">Active Conflicts</div></div>
+  <div class="stat-box"><div class="num pulse" id="liveScore">87</div><div class="label">Avg Threat Score</div></div>
+</div>
+
+<div class="filter-bar" id="filterBar">
+  <button class="filter-btn active" data-filter="all">All Zones</button>
+  <button class="filter-btn" data-filter="critical">🔴 Critical</button>
+  <button class="filter-btn" data-filter="extreme">🟠 Extreme</button>
+  <button class="filter-btn" data-filter="high">🟡 High</button>
+  <button class="filter-btn" data-filter="conflict">Armed Conflict</button>
+  <button class="filter-btn" data-filter="economic">Economic Collapse</button>
+  <button class="filter-btn" data-filter="climate">Climate Crisis</button>
+  <button class="compare-btn filter-btn" onclick="openCompare()" style="border-color:var(--gold);color:var(--gold)">⚖ Compare All</button>
+</div>
+
+<div class="card-grid" id="cardGrid"></div>
+
+<div class="bottom-cta">
+  <button class="cta-btn" onclick="randomDrill()">🎲 Random Danger Drill</button>
+  <p style="color:var(--muted);font-size:0.8rem;margin-top:12px">Click to simulate a random zone crisis briefing</p>
+</div>
+</div>
+
+<!-- Compare Modal -->
+<div class="modal-overlay" id="compareModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeCompare()">✕</button>
+    <h2>⚖ Danger Zone Comparison Matrix</h2>
+    <table class="compare-table" id="compareTable"></table>
+  </div>
+</div>
+
+<!-- Drill Modal -->
+<div class="modal-overlay" id="drillModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeDrill()">✕</button>
+    <h2 id="drillTitle">🚨 Crisis Drill</h2>
+    <div id="drillContent" style="line-height:1.8;color:var(--muted)"></div>
+    <button class="cta-btn" style="margin-top:20px" onclick="closeDrill()">Acknowledged</button>
+  </div>
+</div>
+
+<script>
+const zones = [
+  {
+    id:1,name:"Eastern Ukraine / Donbas",region:"Eastern Europe",level:"critical",score:96,
+    tags:["conflict","economic"],risks:["Active Warfare","Nuclear Proximity","Infrastructure Destroyed","Landmines"],
+    pop:"6.5M displaced",infra:"12%",stability:"Failed",
+    detail:"Ongoing kinetic war zone with daily shelling, destroyed hospitals, severed supply chains, and nuclear escalation risk from nearby Zaporizhzhia plant. <strong>No safe corridor guaranteed.</strong> Mass displacement continues."
+  },
+  {
+    id:2,name:"Haiti",region:"Caribbean",level:"critical",score:94,
+    tags:["conflict","economic","climate"],risks:["Gang Rule","No Government","Famine","Earthquake Zone"],
+    pop:"11.7M",infra:"8%",stability:"Collapsed",
+    detail:"Port-au-Prince controlled by armed gangs. <strong>No functioning government since 2021.</strong> Hospitals looted, airports seized, cholera resurgent. Climate disasters compound yearly. Aid convoys hijacked routinely."
+  },
+  {
+    id:3,name:"Yemen",region:"Middle East",level:"critical",score:93,
+    tags:["conflict","economic","climate"],risks:["Civil War","Famine","Cholera","Blockade"],
+    pop:"33M",infra:"15%",stability:"Failed",
+    detail:"A decade of civil war created the <strong>world's worst humanitarian crisis</strong>. 21M need aid. Naval blockade restricts food/fuel. Water infrastructure destroyed. Houthi-controlled areas face near-total collapse."
+  },
+  {
+    id:4,name:"Myanmar (Burma)",region:"Southeast Asia",level:"critical",score:91,
+    tags:["conflict","economic"],risks:["Military Junta","Civil War","Ethnic Cleansing","Banking Collapse"],
+    pop:"54M",infra:"22%",stability:"Junta State",
+    detail:"Post-coup civil war across 7+ fronts. Military junta deploys airstrikes against civilians. <strong>Banking system non-functional in resistance zones.</strong> Rohingya genocide ongoing. Internet blackouts widespread."
+  },
+  {
+    id:5,name:"Afghanistan",region:"Central Asia",level:"extreme",score:89,
+    tags:["conflict","economic"],risks:["Taliban Rule","Women's Erasure","Economic Freeze","ISIS-K"],
+    pop:"41M",infra:"18%",stability:"Authoritarian",
+    detail:"Taliban governance eliminated women from public life. <strong>$9B in frozen reserves</strong> crippled the economy. ISIS-K attacks persist. Drought and earthquake risk compound fragility. NGOs expelled."
+  },
+  {
+    id:6,name:"Somalia / Horn of Africa",region:"East Africa",level:"extreme",score:88,
+    tags:["conflict","climate","economic"],risks:["Al-Shabaab","Mega-Drought","Clan Warfare","Piracy"],
+    pop:"18M",infra:"11%",stability:"Fragmented",
+    detail:"Al-Shabaab controls vast rural areas. <strong>Worst drought in 40 years</strong> displaced 3M+. Government authority limited to Mogadishu perimeter. Climate projections show accelerating desertification through 2030."
+  },
+  {
+    id:7,name:"Venezuela",region:"South America",level:"extreme",score:85,
+    tags:["economic","conflict"],risks:["Hyperinflation","Mass Exodus","Cartel Control","Grid Failure"],
+    pop:"28M remaining",infra:"30%",stability:"Authoritarian",
+    detail:"7.7M+ fled since 2015 — <strong>largest displacement in Western Hemisphere history</strong>. Hyperinflation destroyed savings. Power grid fails weekly. Cartel groups fill governance vacuum in border regions."
+  },
+  {
+    id:8,name:"North Korea",region:"East Asia",level:"extreme",score:84,
+    tags:["conflict","economic"],risks:["Nuclear State","Totalitarian","Famine Risk","Zero Exit"],
+    pop:"26M (sealed)",infra:"25%",stability:"Totalitarian",
+    detail:"Hermetically sealed nuclear state. <strong>Zero legal exit pathway for citizens.</strong> Chronic food insecurity affects 40%+ of population. Information blackout absolute. Any conflict triggers regional nuclear escalation."
+  },
+  {
+    id:9,name:"Libya",region:"North Africa",level:"high",score:80,
+    tags:["conflict","economic"],risks:["Dual Government","Militias","Oil Theft","Migrant Trafficking"],
+    pop:"7M",infra:"35%",stability:"Divided",
+    detail:"Split between rival governments in Tripoli and Benghazi. <strong>150+ militias control territory.</strong> Major migrant trafficking hub. Oil infrastructure constantly contested. No unified security force."
+  },
+  {
+    id:10,name:"Sahel Belt (Mali, Burkina Faso, Niger)",region:"West Africa",level:"high",score:78,
+    tags:["conflict","climate","economic"],risks:["Jihadist Expansion","Coups","Desertification","Displacement"],
+    pop:"70M+",infra:"20%",stability:"Coup Belt",
+    detail:"Three military coups since 2020. <strong>Jihadist groups control more territory than governments.</strong> French/UN forces expelled. Desertification accelerating. 4M+ displaced. Climate models predict near-uninhabitable conditions by 2040."
+  }
+];
+
+const grid = document.getElementById('cardGrid');
+
+function renderCards(filter='all'){
+  grid.innerHTML='';
+  zones.forEach(z=>{
+    let show = filter==='all' || z.level===filter || z.tags.includes(filter);
+    if(!show) return;
+    const card = document.createElement('div');
+    card.className='zone-card';
+    card.setAttribute('data-id',z.id);
+    card.innerHTML=`
+      <div class="card-header">
+        <div class="left">
+          <div class="zone-num">Zone ${String(z.id).padStart(2,'0')}</div>
+          <div class="zone-name">${z.name}</div>
+          <div class="zone-region">${z.region}</div>
+        </div>
+        <div class="threat-badge">
+          <div class="threat-level ${z.level}">${z.score}</div>
+          <div class="threat-label">${z.level}</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="risk-tags">${z.risks.map(r=>`<span class="risk-tag">${r}</span>`).join('')}</div>
+        <div class="metrics">
+          <div class="metric"><div class="val">${z.pop}</div><div class="lbl">Population</div></div>
+          <div class="metric"><div class="val">${z.infra}</div><div class="lbl">Infra Intact</div></div>
+          <div class="metric"><div class="val">${z.stability}</div><div class="lbl">Stability</div></div>
+        </div>
+      </div>
+      <div class="card-expand"><div class="expand-content">${z.detail}</div></div>
+      <div class="card-footer">
+        <button class="expand-btn" onclick="toggleCard(event,${z.id})">↓ Intel Brief</button>
+        <span class="evac-flag">⛔ Do Not Relocate</span>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function toggleCard(e,id){
+  e.stopPropagation();
+  const card = document.querySelector(`.zone-card[data-id="${id}"]`);
+  const isOpen = card.classList.toggle('open');
+  const btn = card.querySelector('.expand-btn');
+  btn.textContent = isOpen ? '↑ Close Brief' : '↓ Intel Brief';
+}
+
+// Filters
+document.getElementById('filterBar').addEventListener('click',e=>{
+  if(!e.target.classList.contains('filter-btn') || e.target.classList.contains('compare-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  renderCards(e.target.dataset.filter);
+});
+
+// Compare
+function openCompare(){
+  const t = document.getElementById('compareTable');
+  t.innerHTML=`<tr><th>Zone</th><th>Threat</th><th>Level</th><th>Pop.</th><th>Infra</th><th>Stability</th><th>Top Risk</th></tr>`;
+  zones.sort((a,b)=>b.score-a.score).forEach(z=>{
+    t.innerHTML+=`<tr><td>${z.name}</td><td style="font-weight:700;color:${z.level==='critical'?'#ff4444':z.level==='extreme'?'#ff8c00':'#ffd700'}">${z.score}</td><td>${z.level.toUpperCase()}</td><td>${z.pop}</td><td>${z.infra}</td><td>${z.stability}</td><td>${z.risks[0]}</td></tr>`;
+  });
+  document.getElementById('compareModal').classList.add('show');
+}
+function closeCompare(){document.getElementById('compareModal').classList.remove('show')}
+
+// Random Drill
+function randomDrill(){
+  const z = zones[Math.floor(Math.random()*zones.length)];
+  const scenarios = [
+    `FLASH ALERT: ${z.name} — Total communication blackout reported. All cell towers offline. Satellite imagery shows mass movement toward borders. Your extraction window is <strong>48 hours</strong>.`,
+    `CRITICAL: ${z.name} — Supply chain severed. Last food shipment was 9 days ago. Water treatment plant offline. Disease outbreak imminent. <strong>Evacuate or shelter in place?</strong>`,
+    `URGENT: ${z.name} — Armed faction seized control of main airport and port. Foreign nationals ordered to report to checkpoints. Embassy advises shelter-in-place. <strong>All exit routes compromised.</strong>`,
+    `SITREP: ${z.name} — Grid collapsed 72 hours ago. Hospitals on last generator fuel. Temperature extremes forecast. Looting reported in 3 districts. <strong>Local authority dissolved.</strong>`
+  ];
+  document.getElementById('drillTitle').innerHTML=`🚨 Crisis Drill — ${z.name}`;
+  document.getElementById('drillContent').innerHTML=`
+    <p style="margin-bottom:15px;color:var(--red);font-weight:600">SCENARIO ${Math.floor(Math.random()*9000)+1000}</p>
+    <p style="margin-bottom:20px">${scenarios[Math.floor(Math.random()*scenarios.length)]}</p>
+    <p><strong style="color:var(--gold-light)">Threat Score:</strong> ${z.score}/100</p>
+    <p><strong style="color:var(--gold-light)">Primary Risks:</strong> ${z.risks.join(', ')}</p>
+    <p><strong style="color:var(--gold-light)">Infrastructure Remaining:</strong> ${z.infra}</p>
+    <p style="margin-top:15px;color:var(--muted);font-style:italic">This drill tests your situational awareness. Would your prep plan survive this scenario?</p>`;
+  document.getElementById('drillModal').classList.add('show');
+}
+function closeDrill(){document.getElementById('drillModal').classList.remove('show')}
+
+// Live threat score flicker
+setInterval(()=>{
+  const el=document.getElementById('liveScore');
+  el.textContent=85+Math.floor(Math.random()*6);
+},3000);
+
+// Init
+renderCards();
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m){m.classList.remove('show')}});
+});
+</script>
+</body>
+</html>

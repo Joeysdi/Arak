@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>23 — Criticism & Alternatives | Ark v3 (Standalone)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=Fira+Code:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #06080c;
+    --bg2: #0b0f15;
+    --glass: rgba(255,255,255,0.03);
+    --glass2: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --accent: #00ffa3;
+    --accent2: #00c8ff;
+    --danger: #ff4a6b;
+    --warn: #ffb347;
+    --purple: #c080ff;
+    --orange2: #ff8c42;
+    --text: #dbe2ec;
+    --muted: #546070;
+    --dim: rgba(255,255,255,0.035);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Fira Code', monospace; min-height: 100vh; overflow-x: hidden; }
+
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 700px 500px at -10% 60%, rgba(255,74,107,0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 600px 400px at 110% 30%, rgba(0,200,255,0.04) 0%, transparent 70%);
+  }
+
+  /* ── NAV ── */
+  .ark-foundation {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(6,8,12,0.96); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 36px;
+  }
+  .ark-logo { font-family: 'Syne', sans-serif; font-weight: 900; font-size: 1rem; letter-spacing: 0.2em; color: var(--accent); text-decoration: none; }
+  .ark-nav { display: flex; gap: 24px; }
+  .ark-nav a { font-size: 0.65rem; color: var(--muted); text-decoration: none; letter-spacing: 0.12em; transition: color .2s; }
+  .ark-nav a:hover { color: var(--accent); }
+  .ark-badge { background: var(--accent); color: #000; font-size: 0.58rem; font-weight: 700; padding: 4px 12px; letter-spacing: 0.12em; border-radius: 2px; }
+
+  /* ── LAYOUT ── */
+  .page { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 100px 32px 100px; }
+
+  /* ── TYPE ── */
+  .stag { font-size: 0.6rem; letter-spacing: 0.22em; color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; font-family: 'Syne', sans-serif; }
+  .stag::before { content: ''; display: inline-block; width: 28px; height: 1px; background: var(--accent); }
+  h1 { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 5vw, 3.8rem); font-weight: 900; line-height: 1; margin-bottom: 14px; }
+  h1 em { font-style: normal; color: var(--danger); }
+  h2 { font-family: 'Syne', sans-serif; font-size: clamp(1.3rem, 2.5vw, 1.9rem); font-weight: 800; margin-bottom: 12px; line-height: 1.1; }
+  .sub { color: var(--muted); font-size: 0.8rem; line-height: 1.8; max-width: 640px; margin-bottom: 40px; }
+
+  /* ── GLASS ── */
+  .gl { background: var(--glass); border: 1px solid var(--border); border-radius: 12px; backdrop-filter: blur(12px); }
+
+  /* ── BTN ── */
+  .btn { padding: 9px 20px; border-radius: 6px; font-family: 'Syne', sans-serif; font-size: 0.7rem; font-weight: 700; cursor: pointer; border: none; letter-spacing: 0.1em; transition: all .2s; }
+  .btn-a { background: var(--accent); color: #000; }
+  .btn-a:hover { background: #00e090; transform: translateY(-1px); }
+  .btn-g { background: transparent; color: var(--muted); border: 1px solid var(--border2); }
+  .btn-g:hover { color: var(--text); border-color: var(--accent2); }
+
+  /* ── PILL ── */
+  .pill { display: inline-block; padding: 2px 9px; border-radius: 30px; font-size: 0.58rem; letter-spacing: 0.08em; font-weight: 600; }
+  .p-g { background: rgba(0,255,163,0.1); color: var(--accent); border: 1px solid rgba(0,255,163,0.2); }
+  .p-r { background: rgba(255,74,107,0.1); color: var(--danger); border: 1px solid rgba(255,74,107,0.2); }
+  .p-o { background: rgba(255,179,71,0.1); color: var(--warn); border: 1px solid rgba(255,179,71,0.2); }
+  .p-b { background: rgba(0,200,255,0.1); color: var(--accent2); border: 1px solid rgba(0,200,255,0.2); }
+  .p-p { background: rgba(192,128,255,0.1); color: var(--purple); border: 1px solid rgba(192,128,255,0.2); }
+
+  /* ── TABS ── */
+  .stab { display: flex; gap: 2px; background: rgba(255,255,255,0.025); border: 1px solid var(--border); border-radius: 8px; padding: 4px; width: fit-content; margin-bottom: 28px; flex-wrap: wrap; }
+  .stab-btn { padding: 8px 16px; border-radius: 5px; font-family: 'Syne', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; cursor: pointer; border: none; background: none; color: var(--muted); transition: all .2s; }
+  .stab-btn.active { background: var(--accent); color: #000; }
+  .spanel { display: none; }
+  .spanel.active { display: block; }
+
+  /* ── ACCORDION ── */
+  .acc-item { border-bottom: 1px solid var(--border); }
+  .acc-item:last-child { border-bottom: none; }
+  .acc-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; cursor: pointer; transition: background .15s; }
+  .acc-head:hover { background: var(--glass2); }
+  .acc-left { display: flex; align-items: flex-start; gap: 14px; flex: 1; }
+  .acc-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .acc-title-block {}
+  .acc-cat { font-size: 0.57rem; color: var(--muted); letter-spacing: 0.12em; margin-bottom: 4px; }
+  .acc-name { font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 700; }
+  .acc-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; margin-left: 14px; }
+  .acc-chevron { color: var(--muted); transition: transform .25s; }
+  .acc-item.open .acc-chevron { transform: rotate(180deg); color: var(--accent); }
+  .acc-body { display: none; padding: 0 22px 20px; }
+  .acc-item.open .acc-body { display: block; }
+
+  .debate-card { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .debate-side { border-radius: 10px; padding: 18px 20px; }
+  .debate-side.crit { background: rgba(255,74,107,0.04); border: 1px solid rgba(255,74,107,0.12); }
+  .debate-side.resp { background: rgba(0,255,163,0.04); border: 1px solid rgba(0,255,163,0.1); }
+  .debate-label { font-size: 0.6rem; letter-spacing: 0.12em; font-weight: 700; margin-bottom: 10px; }
+  .debate-label.crit { color: var(--danger); }
+  .debate-label.resp { color: var(--accent); }
+  .debate-text { font-size: 0.75rem; color: var(--muted); line-height: 1.8; }
+  .verdict { margin-top: 14px; padding: 12px 16px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); }
+  .verdict-label { font-size: 0.57rem; color: var(--accent2); letter-spacing: 0.1em; margin-bottom: 4px; }
+  .verdict-text { font-size: 0.72rem; color: var(--text); line-height: 1.7; }
+
+  /* ── ALTERNATIVES TABLE ── */
+  .alt-grid { display: flex; flex-direction: column; gap: 12px; }
+  .alt-row {
+    display: grid; grid-template-columns: 220px 1fr 140px 140px;
+    gap: 0; border-radius: 10px; overflow: hidden;
+    background: var(--glass); border: 1px solid var(--border);
+    transition: border-color .2s;
+  }
+  .alt-row:hover { border-color: var(--border2); }
+  .alt-col { padding: 18px 20px; border-right: 1px solid var(--border); }
+  .alt-col:last-child { border-right: none; }
+  .alt-strategy { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; margin-bottom: 4px; }
+  .alt-type { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; }
+  .alt-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.7; }
+  .alt-score-wrap { display: flex; flex-direction: column; justify-content: center; }
+  .alt-score-label { font-size: 0.55rem; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 4px; }
+  .alt-score-val { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 900; }
+  .score-bar-mini { height: 3px; border-radius: 2px; margin-top: 6px; }
+
+  /* ── SPECTRUM BAR ── */
+  .spectrum { position: relative; height: 40px; border-radius: 8px; overflow: hidden; margin: 28px 0; background: linear-gradient(90deg, rgba(255,74,107,0.3) 0%, rgba(255,179,71,0.3) 40%, rgba(0,255,163,0.3) 100%); border: 1px solid var(--border2); }
+  .spectrum-label { position: absolute; font-family: 'Syne', sans-serif; font-size: 0.65rem; font-weight: 700; top: 50%; transform: translateY(-50%); }
+  .spectrum-label.left { left: 14px; color: var(--danger); }
+  .spectrum-label.mid { left: 50%; transform: translate(-50%,-50%); color: var(--warn); }
+  .spectrum-label.right { right: 14px; color: var(--accent); }
+  .spectrum-marker {
+    position: absolute; top: 0; bottom: 0; width: 3px; background: #fff; opacity: 0.9;
+    transform: translateX(-50%); transition: left .5s;
+  }
+  .spectrum-marker-label {
+    position: absolute; top: -22px; transform: translateX(-50%);
+    font-size: 0.58rem; white-space: nowrap; color: #fff;
+    background: rgba(0,0,0,0.7); padding: 2px 6px; border-radius: 3px;
+  }
+
+  /* ── HONEST ASSESSMENT ── */
+  .honest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .honest-card { padding: 24px; border-radius: 12px; }
+  .honest-card.good { background: rgba(0,255,163,0.04); border: 1px solid rgba(0,255,163,0.12); }
+  .honest-card.bad { background: rgba(255,74,107,0.04); border: 1px solid rgba(255,74,107,0.12); }
+  .honest-title { font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 800; margin-bottom: 12px; }
+  .honest-title.good { color: var(--accent); }
+  .honest-title.bad { color: var(--danger); }
+  .honest-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .honest-list li { font-size: 0.75rem; color: var(--muted); line-height: 1.65; padding-left: 16px; position: relative; }
+  .honest-list.good li::before { content: '✓'; position: absolute; left: 0; color: var(--accent); }
+  .honest-list.bad li::before { content: '✗'; position: absolute; left: 0; color: var(--danger); }
+
+  /* ── INTERACTIVE DEBATE ── */
+  .debate-toggle { display: flex; gap: 10px; margin-bottom: 20px; }
+  .dv-btn { padding: 8px 16px; border-radius: 6px; font-family: 'Syne', sans-serif; font-size: 0.65rem; font-weight: 700; cursor: pointer; border: none; transition: all .2s; }
+  .dv-btn.crit-btn { background: rgba(255,74,107,0.1); color: var(--danger); border: 1px solid rgba(255,74,107,0.2); }
+  .dv-btn.resp-btn { background: rgba(0,255,163,0.1); color: var(--accent); border: 1px solid rgba(0,255,163,0.18); }
+  .dv-btn.active.crit-btn { background: var(--danger); color: #fff; }
+  .dv-btn.active.resp-btn { background: var(--accent); color: #000; }
+
+  /* ── SECTION GAP ── */
+  .section { margin-bottom: 64px; }
+
+  @media (max-width: 800px) {
+    .debate-card { grid-template-columns: 1fr; }
+    .alt-row { grid-template-columns: 1fr; }
+    .alt-col { border-right: none; border-bottom: 1px solid var(--border); }
+    .alt-col:last-child { border-bottom: none; }
+    .honest-grid { grid-template-columns: 1fr; }
+    .ark-nav { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="ark-foundation">
+  <a class="ark-logo" href="#">◈ ARK COLLECTIVE</a>
+  <div class="ark-nav">
+    <a href="#risk">RISK CALC</a>
+    <a href="#historical">HISTORICAL</a>
+    <a href="#strategies">STRATEGIES</a>
+    <a href="#governance">GOVERNANCE</a>
+    <a href="#30-day">SPRINT</a>
+  </div>
+  <span class="ark-badge">v3 LIVE</span>
+</nav>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="section">
+    <div class="stag">MODULE 23 — CRITICAL ANALYSIS</div>
+    <h1>Criticism &amp;<br><em>Alternatives</em></h1>
+    <p class="sub">The Ark framework demands honest self-criticism. This module gives the strongest possible versions of the major criticisms — and responds to each directly. It also maps every viable alternative approach and scores them honestly against the Ark model.</p>
+  </div>
+
+  <!-- TABS -->
+  <div class="stab">
+    <button class="stab-btn active" onclick="switchTab(this,'tCritics')">CRITICISMS & REBUTTALS</button>
+    <button class="stab-btn" onclick="switchTab(this,'tAlts')">ALTERNATIVE STRATEGIES</button>
+    <button class="stab-btn" onclick="switchTab(this,'tHonest')">HONEST ASSESSMENT</button>
+    <button class="stab-btn" onclick="switchTab(this,'tWhoShouldnt')">WHO SHOULDN'T BUILD AN ARK</button>
+  </div>
+
+  <!-- CRITICISMS -->
+  <div class="spanel active" id="tCritics">
+    <div class="stag">THE 10 STRONGEST CRITICISMS — STEELMANNED</div>
+    <h2>We Give Every Critic Their Best Argument</h2>
+    <p class="sub">These are not strawman criticisms. Each is the strongest possible version of the objection, followed by the most direct honest response. Where the critics are correct, we say so.</p>
+    <div class="gl" id="critContainer"></div>
+  </div>
+
+  <!-- ALTERNATIVES -->
+  <div class="spanel" id="tAlts">
+    <div class="stag">ALTERNATIVE RESILIENCE STRATEGIES</div>
+    <h2>Everything Else You Could Do Instead</h2>
+    <p class="sub">The Ark is not the only response to civilisational risk. These are the 8 most serious alternatives, scored on effectiveness, accessibility, cost, and long-term viability across a range of collapse scenarios.</p>
+
+    <div class="spectrum">
+      <span class="spectrum-label left">MINIMAL</span>
+      <span class="spectrum-label mid">MODERATE</span>
+      <span class="spectrum-label right">COMPREHENSIVE</span>
+    </div>
+
+    <div class="alt-grid" id="altGrid"></div>
+  </div>
+
+  <!-- HONEST ASSESSMENT -->
+  <div class="spanel" id="tHonest">
+    <div class="stag">INTERNAL HONEST ASSESSMENT</div>
+    <h2>What the Ark Does Well — and Doesn't</h2>
+    <p class="sub">The Ark Collective commissioned an internal red-team analysis in 2024. These are the unfiltered conclusions. We present them here because intellectual honesty is a core Ark value.</p>
+    <div class="honest-grid" id="honestGrid"></div>
+
+    <div style="margin-top:40px">
+      <div class="stag">INDEPENDENT SCORING BY SCENARIO TYPE</div>
+      <h2>How Well Does the Ark Framework Perform?</h2>
+      <p class="sub">Ark effectiveness varies significantly by collapse type. This matrix scores Ark preparedness against each of the 8 primary collapse scenario categories.</p>
+      <div class="gl" style="padding:0 8px 8px;margin-top:20px">
+        <div style="overflow-x:auto">
+          <table style="min-width:600px;border-collapse:collapse;width:100%">
+            <thead>
+              <tr>
+                <th style="font-size:0.6rem;letter-spacing:.12em;color:var(--muted);text-align:left;padding:12px 16px;border-bottom:1px solid var(--border)">SCENARIO TYPE</th>
+                <th style="font-size:0.6rem;letter-spacing:.12em;color:var(--muted);text-align:left;padding:12px 16px;border-bottom:1px solid var(--border)">ARK EFFECTIVENESS</th>
+                <th style="font-size:0.6rem;letter-spacing:.12em;color:var(--muted);text-align:left;padding:12px 16px;border-bottom:1px solid var(--border)">KEY LIMITATION</th>
+                <th style="font-size:0.6rem;letter-spacing:.12em;color:var(--muted);text-align:left;padding:12px 16px;border-bottom:1px solid var(--border)">VERDICT</th>
+              </tr>
+            </thead>
+            <tbody id="scenarioTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHO SHOULDN'T -->
+  <div class="spanel" id="tWhoShouldnt">
+    <div class="stag">DISQUALIFYING PROFILES</div>
+    <h2>Who Should NOT Build an Ark</h2>
+    <p class="sub">The Ark framework is not appropriate for everyone. Building an Ark with the wrong motivation, wrong community, or wrong mindset is worse than not building one. These are the profiles that should stop and reconsider.</p>
+    <div class="gl" id="whoContainer"></div>
+  </div>
+
+</div>
+
+<!-- DATA BLOCK -->
+<script>
+const CRITICISMS = [
+  {
+    icon:"💸", cat:"ETHICAL / JUSTICE", name:"The Rich Abandoning Society",
+    crit:"The Ark is a mechanism for wealthy elites to extract themselves from the social contract at the moment it is most needed. It is fundamentally selfish — the moral equivalent of boarding up your mansion while your neighbourhood floods. The resources spent on an Ark could fund meaningful societal solutions instead.",
+    response:"This is the strongest criticism and it deserves a direct answer. It conflates two questions: (1) Is it ethical to prepare for your family's survival? (2) Is building an Ark instead of donating to social solutions the right choice? Most Ark members also donate, vote, and advocate. The Ark is not a substitute for civic engagement — it is insurance. The same logic would condemn anyone who buys home insurance rather than donating the premium to fire prevention.",
+    verdict:"Partially valid. Ark members should actively engage in societal solutions, not just retreat. We acknowledge this tension and do not pretend it doesn't exist.",
+    verdictColor:"warn"
+  },
+  {
+    icon:"🎭", cat:"PSYCHOLOGICAL", name:"Survivorship Bias & Motivated Reasoning",
+    crit:"Preppers consistently overestimate collapse probability because it validates their identity and investments. The human brain is wired for novelty and threat-salience — it systematically overweights dramatic tail risks vs. boring base rates. The billionaire Ark wave is a social contagion, not evidence.",
+    response:"This is a real cognitive risk and Ark builders should audit themselves against it. However, the correction is not to assume the opposite — that collapse is impossible. The data on nuclear risk, climate tipping points, and pandemic preparedness is not generated by preppers. It comes from the IPCC, Bulletin of Atomic Scientists, and WHO. The base rate critique also ignores that asymmetric risk management makes sense even with low probabilities.",
+    verdict:"Valid warning. Every Ark builder should interrogate their risk estimates annually. But motivated reasoning cuts both ways — dismissing collapse risk can also reflect motivated normalcy bias.",
+    verdictColor:"warn"
+  },
+  {
+    icon:"🌐", cat:"PRACTICAL", name:"Collapse Would Make Arks Non-Functional",
+    crit:"Real civilisational collapse would not spare small communities. Historical precedent (Pol Pot, Rwandan genocide, Serbian conflict) shows that self-sufficient communities in remote areas were systematically targeted, not protected. Your Ark's food makes you a target, not a refuge.",
+    response:"This is a strong historical argument for specific collapse types — particularly warlordism and state-sponsored violence. The Ark framework addresses this via location selection (jurisdictions with stable rule of law), community size (large enough to defend, small enough to be invisible), and the Five-Layer Safe Zone Doctrine which includes threat-specific threat modelling. No strategy is 100% effective; the Ark improves survival probability, it does not guarantee it.",
+    verdict:"Valid for specific scenarios. The Ark is not optimised for warlord-state collapse scenarios in politically unstable regions. Location selection is the primary mitigation.",
+    verdictColor:"warn"
+  },
+  {
+    icon:"🤝", cat:"SOCIAL", name:"Human Psychology Breaks Down Communities",
+    crit:"Historical intentional community research is damning: 90%+ fail within 5 years. Even the best-designed communities fracture under sustained stress, resource scarcity, or leadership conflicts. The history of communes, kibbutzim, and survivalist communities is a history of idealistic plans destroyed by human nature.",
+    response:"This is empirically correct and we don't dispute the failure rate. The Ark framework incorporates this data directly — the governance module, vetting protocol, and conflict resolution framework were designed specifically to address documented failure modes. The failure rate of unstructured intentional communities does not determine the failure rate of well-governed, properly vetted, legally structured Ark communities.",
+    verdict:"Strong data. The 23.5 Governance module exists precisely because of this evidence. Community design is the highest-leverage intervention.",
+    verdictColor:"warn"
+  },
+  {
+    icon:"🔮", cat:"EPISTEMIC", name:"Nobody Can Predict Collapse",
+    crit:"The Ark framework assumes we can identify which collapse scenarios will materialise and plan accordingly. But black swan events by definition defy prediction. The Ark you build for pandemic X fails during nuclear event Y. You're optimising for scenarios that may never arrive and miss the one that does.",
+    response:"The Ark framework does not bet on specific scenarios — it is designed for broad resilience across scenario types. Water sovereignty, food production, location diversification, and community cohesion are valuable across virtually every collapse scenario. The one failure mode this argument identifies — extreme specificity — is exactly what the 150-scenario Collapse Bible is designed to prevent.",
+    verdict:"Partially valid for overly specific preparation. The Ark's generalist resilience approach directly addresses this critique.",
+    verdictColor:"accent"
+  },
+  {
+    icon:"💰", cat:"FINANCIAL", name:"Sunk Cost: It Will Never Be Needed",
+    crit:"The most likely outcome is that you spend $1–5 million building an Ark that you never use, while your peers who invested that capital in diversified assets significantly outperform you. The expected value of the Ark is negative when you include the opportunity cost of capital and the probability of needing it.",
+    response:"This depends entirely on what probability you assign to needing it. At Toby Ord's 60% civilisational risk estimate over 100 years, the EV is substantially positive. Even at 5% over your lifetime, the asymmetric payoff (survival vs. death) creates a compelling actuarial case. The Ark is also not purely a cost — it is real estate in desirable locations with productive agricultural capacity, which has standalone investment value.",
+    verdict:"Valid framing. Every Ark builder should run this EV calculation with their own probability estimates. The Ark pays off at lower probabilities than most people assume.",
+    verdictColor:"accent"
+  },
+  {
+    icon:"🏥", cat:"PRACTICAL", name:"Medical Reality Makes Self-Sufficiency Impossible",
+    crit:"Modern medical dependency is almost universal in the population most likely to build Arks. Insulin, cancer treatments, psychiatric medication, cardiac devices — these supply chains cannot be replicated in a compound. An Ark that cannot handle a Type 1 diabetic teenager is not a real Ark.",
+    response:"This is an important honest limitation that the Ark framework acknowledges. The medical vetting criteria exist for this reason. The framework also includes: stockpiling medication (3–5 year supply), recruiting medical professionals, and selecting locations with reasonable helicopter/access to trauma centres. Medical self-sufficiency is asymptotic — you improve significantly without achieving 100%.",
+    verdict:"Valid and acknowledged. Medical dependency is the hardest constraint in Ark design. No honest Ark framework claims full medical self-sufficiency.",
+    verdictColor:"warn"
+  },
+  {
+    icon:"🧠", cat:"PSYCHOLOGICAL", name:"Living in an Ark Would Be Psychologically Damaging",
+    crit:"The psychological toll of isolated compound living under constant threat perception would cause depression, paranoia, relationship breakdown, and in extreme cases, violence. Studies of long-duration isolation (Antarctic stations, submarines, ISS) all show severe psychological deterioration even in highly selected populations.",
+    response:"This is a valid risk that the Ark framework takes seriously. The mitigation strategy is: (a) the Ark is not a bunker — it is a functioning farm community with normal social rhythms, (b) location selection prioritises good climate and aesthetics, (c) the community is sized for social diversity, (d) members maintain normal lives and use the Ark as a secondary residence until activated. Isolation risk is dramatically lower for a farm community of 20 than an Antarctic research station of 8.",
+    verdict:"Valid for bunker-model Arks. Less valid for the Ark Collective's community farm model. Community size and design are the key variables.",
+    verdictColor:"accent"
+  },
+  {
+    icon:"👶", cat:"ETHICAL", name:"Children Don't Consent to Ark Life",
+    crit:"Children raised in isolated Ark compounds are denied normal social development, educational diversity, exposure to different worldviews, and the ability to chart their own path. This is a form of indoctrination that prioritises the parents' fears over the child's developmental needs.",
+    response:"This is a genuine ethical tension and not one we dismiss. The Ark framework addresses it through: (a) maintaining children in mainstream education, (b) treating the Ark as a secondary not primary residence pre-activation, (c) succession planning that explicitly grants children autonomy on reaching adulthood. However, we acknowledge that some Ark families will overweight isolation in ways that harm children. This is an individual family decision that requires active ethical attention.",
+    verdict:"Significant ethical concern. The Ark framework recommends against full-time compound isolation for families with children pre-activation.",
+    verdictColor:"warn"
+  },
+  {
+    icon:"📊", cat:"EPISTEMIC", name:"The 60% Collapse Probability Is Fabricated",
+    crit:"Toby Ord's 60% figure is philosophy, not science. It is a single Oxford philosopher's personal estimate with enormous uncertainty bands. The actual scientific consensus on near-term civilisational collapse risk is much lower. Building a strategy on this number is building on sand.",
+    response:"This is factually correct. Ord's figure is an informed estimate, not a scientific measurement. The Ark framework uses it as an upper bound, not a single-point estimate. More conservatively: even if you use a 10% civilisational disruption risk over 30 years, the asymmetric value of an Ark — which also functions as a productive estate and community — remains positive. The framework does not depend on accepting any specific probability figure.",
+    verdict:"Valid statistical critique. Ark builders should use their own probability estimates. The framework is robust to much lower risk estimates than Ord's 60%.",
+    verdictColor:"accent"
+  },
+];
+
+const ALTERNATIVES = [
+  { strategy:"Urban Resilience Network", type:"COMMUNITY", desc:"Build relationships with neighbours, local food networks, community emergency response teams, and urban supply alternatives. Invest in local infrastructure rather than escape.", prep:35, cost:3, crit:"Fails in urban collapse scenarios. Density creates competition for resources. Cannot survive prolonged grid failure.", score:42, color:"var(--warn)" },
+  { strategy:"Financial Diversification + Citizenship", type:"FINANCIAL/LEGAL", desc:"Multiple citizenships, offshore accounts, precious metals, crypto, diversified real estate across jurisdictions. Financial resilience without physical Ark.", prep:65, cost:7, crit:"Money loses value in true collapse. Citizenship only helps if you can travel. No food/water/energy sovereignty.", score:61, color:"var(--warn)" },
+  { strategy:"Suburban Homestead", type:"SEMI-RURAL", desc:"Purchase a large suburban or peri-urban property with garden, solar, rainwater, and storage. 'Bugging in' rather than 'bugging out'.", prep:55, cost:5, crit:"Proximity to urban populations makes defense and resource security very difficult in acute collapse.", score:58, color:"var(--warn)" },
+  { strategy:"Seasteading / Maritime", type:"MARITIME", desc:"Live aboard or own a blue-water vessel capable of ocean passage. Maritime mobility as escape mechanism.", prep:50, cost:6, crit:"Mechanical dependency, weather exposure, fuel requirements, and medical vulnerability make this unsustainable long-term.", score:52, color:"var(--warn)" },
+  { strategy:"Remote Rural Retreat (Solo/Family)", type:"SOLO ARK", desc:"Individual or single-family remote property with full off-grid capability. No community element.", prep:72, cost:7, crit:"Labor requirements for real self-sufficiency exceed individual family capacity. No specialist redundancy.", score:68, color:"var(--accent2)" },
+  { strategy:"Political / Societal Engagement", type:"SYSTEM CHANGE", desc:"Invest time and capital in political change, institutional reform, and global risk mitigation. Address root causes.", prep:20, cost:2, crit:"Low individual probability of impact on systemic risks. Not mutually exclusive with Ark — but insufficient alone.", score:30, color:"var(--danger)" },
+  { strategy:"Religious / Intentional Community", type:"COMMUNITY", desc:"Join an existing intentional community (religious or secular) that emphasises self-sufficiency and community resilience.", prep:60, cost:4, crit:"Governance failures common. Ideological cohesion creates brittleness. Most lack systematic risk analysis.", score:55, color:"var(--warn)" },
+  { strategy:"ARK COLLECTIVE MODEL", type:"FULL ARK", desc:"Multi-family governed community with Five-Layer Doctrine, professional vetting, legal structure, and systematic collapse preparedness across 150+ scenarios.", prep:92, cost:9, crit:"High capital requirement. Governance complexity. Requires sustained commitment.", score:85, color:"var(--accent)" },
+];
+
+const HONEST_GOOD = [
+  "The Five-Layer Doctrine is the most systematic location assessment framework available publicly",
+  "The governance module addresses the #1 documented failure mode of intentional communities",
+  "The 150-scenario Collapse Bible prevents dangerous over-specificity in scenario planning",
+  "The vetting protocol is more rigorous than any published alternative framework",
+  "NZ/Tasmania/Patagonia location targeting is well-supported by independent analysis (Cirillo, Ord)",
+  "The property database approach enables comparison that solo builders cannot achieve",
+  "The modular framework allows members to engage at different commitment levels",
+  "Financial and legal strategy integration (citizenship, tax structures) is unique in the sector",
+];
+
+const HONEST_BAD = [
+  "The framework is inaccessible to 95%+ of the global population — it is wealthy-class preparedness",
+  "Medical self-sufficiency claims are overstated — dependency on external supply chains is real",
+  "Community governance has never been tested under actual collapse conditions",
+  "The 60% collapse probability framing is misleading to people who don't read the uncertainty bands",
+  "The framework does not adequately address warlord-state and targeted violence scenarios",
+  "We have no peer-reviewed validation of the Five-Layer scoring system",
+  "The children-in-communities ethical question is not fully resolved",
+  "The framework assumes financial capital as the primary entry mechanism, excluding skilled-only contributions",
+];
+
+const SCENARIO_TABLE = [
+  { type:"Pandemic / Biological", eff:88, limit:"Compound may need quarantine protocols", verdict:"EXCELLENT" },
+  { type:"Financial Collapse / Hyperinflation", eff:82, limit:"Real assets + food production buffer monetary failure", verdict:"VERY GOOD" },
+  { type:"Grid Failure / EMP", eff:90, limit:"Off-grid systems provide high independence", verdict:"EXCELLENT" },
+  { type:"Climate Displacement", eff:85, limit:"Safe zone selection directly addresses climate risk", verdict:"EXCELLENT" },
+  { type:"Nuclear Exchange (Regional)", eff:72, limit:"Location selection is key; no full nuclear shelter", verdict:"GOOD" },
+  { type:"AI/Tech Social Disruption", eff:65, limit:"Community resilience is main mitigation", verdict:"GOOD" },
+  { type:"Targeted State Violence / Warlordism", eff:45, limit:"No Ark fully defeats organised state violence", verdict:"MODERATE" },
+  { type:"Full Extinction-Level Event", eff:18, limit:"Nothing survives a genuine ELE", verdict:"POOR" },
+];
+
+const WHO_SHOULDNT = [
+  { icon:"😨", type:"The Doomsday Obsessive", desc:"If you are primarily motivated by fear, catastrophising, or anxiety rather than rational risk management, the Ark framework will amplify your psychological distress rather than reduce it. Seek therapeutic support before capital investment.", action:"PAUSE — SEEK SUPPORT FIRST" },
+  { icon:"💰", type:"The Capital-Only Participant", desc:"If your only contribution is money and you have no intention of developing skills, building community relationships, or making the physical Ark your secondary home, you are a passenger, not a member. The community needs contributors, not shareholders.", action:"DEVELOP SKILLS FIRST" },
+  { icon:"🔫", type:"The Conflict-Seeking Personality", desc:"Some people are attracted to Ark communities because they want permission to exercise power, weapons, or authority over others. These individuals represent the greatest internal risk to any Ark community. Rigorous vetting specifically screens for this.", action:"DISQUALIFIED — DO NOT ADMIT" },
+  { icon:"🚩", type:"The Anti-Authority Personality", desc:"The Ark framework requires acceptance of community governance, rules, and majority decisions. Highly libertarian personalities who expect to renegotiate rules after joining will fracture any community they enter.", action:"DISQUALIFIED — INCOMPATIBLE" },
+  { icon:"⛪", type:"The Ideological Purity Seeker", desc:"If you are looking for a community that shares 100% of your political, religious, or social views, the Ark is not it. Diversity of perspective is a feature, not a bug. Ideological monocultures create catastrophic blind spots.", action:"REALIGN EXPECTATIONS" },
+  { icon:"🏃", type:"The Emergency-Only Joiner", desc:"If you plan to show up only when collapse actually happens without having invested in community building, skills, infrastructure, or relationships, you will not be admitted. The Ark is not a shelter you book in a crisis — it is a community you build over years.", action:"LONG-TERM COMMITMENT REQUIRED" },
+];
+</script>
+
+<!-- RENDER + INTERACTION BLOCK -->
+<script>
+function switchTab(btn, id) {
+  btn.closest('.stab').querySelectorAll('.stab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.spanel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function toggleAcc(el) {
+  const item = el.closest('.acc-item');
+  const wasOpen = item.classList.contains('open');
+  item.closest('.gl').querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) item.classList.add('open');
+}
+
+function scColor(v) {
+  if (v >= 80) return 'var(--accent)';
+  if (v >= 60) return 'var(--accent2)';
+  if (v >= 45) return 'var(--warn)';
+  return 'var(--danger)';
+}
+
+// ── CRITICISMS ──
+document.getElementById('critContainer').innerHTML = `<div>${
+  CRITICISMS.map((c, i) => `
+    <div class="acc-item">
+      <div class="acc-head" onclick="toggleAcc(this)">
+        <div class="acc-left">
+          <span class="acc-icon">${c.icon}</span>
+          <div class="acc-title-block">
+            <div class="acc-cat">${c.cat}</div>
+            <div class="acc-name">${c.name}</div>
+          </div>
+        </div>
+        <div class="acc-right">
+          <span class="pill ${c.verdictColor==='warn'?'p-o':c.verdictColor==='accent'?'p-g':'p-r'}" style="font-size:0.55rem">
+            ${c.verdictColor==='warn'?'PARTIAL':'REBUTTED'}
+          </span>
+        </div>
+        <div class="acc-chevron" style="margin-left:12px">▼</div>
+      </div>
+      <div class="acc-body">
+        <div class="debate-card">
+          <div class="debate-side crit">
+            <div class="debate-label crit">✕ THE CRITICISM</div>
+            <div class="debate-text">${c.crit}</div>
+          </div>
+          <div class="debate-side resp">
+            <div class="debate-label resp">✓ THE RESPONSE</div>
+            <div class="debate-text">${c.response}</div>
+          </div>
+        </div>
+        <div class="verdict">
+          <div class="verdict-label">ARK VERDICT</div>
+          <div class="verdict-text">${c.verdict}</div>
+        </div>
+      </div>
+    </div>`).join('')}
+</div>`;
+
+// ── ALTERNATIVES ──
+function altScoreColor(s) {
+  if (s >= 80) return 'var(--accent)';
+  if (s >= 60) return 'var(--accent2)';
+  if (s >= 45) return 'var(--warn)';
+  return 'var(--danger)';
+}
+document.getElementById('altGrid').innerHTML = ALTERNATIVES.map(a => `
+  <div class="alt-row">
+    <div class="alt-col">
+      <div class="alt-strategy">${a.strategy}</div>
+      <div class="alt-type">${a.type}</div>
+    </div>
+    <div class="alt-col">
+      <div class="alt-desc">${a.desc}</div>
+      <div style="margin-top:10px;font-size:0.65rem;color:var(--danger)">LIMITATION: ${a.crit}</div>
+    </div>
+    <div class="alt-col alt-score-wrap">
+      <div class="alt-score-label">PREP DEPTH</div>
+      <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;margin-top:6px">
+        <div style="height:100%;width:${a.prep}%;background:${a.color};border-radius:2px"></div>
+      </div>
+      <div style="font-size:0.65rem;color:var(--muted);margin-top:4px">${a.prep}/100</div>
+    </div>
+    <div class="alt-col alt-score-wrap">
+      <div class="alt-score-label">OVERALL SCORE</div>
+      <div class="alt-score-val" style="color:${altScoreColor(a.score)}">${a.score}</div>
+    </div>
+  </div>`).join('');
+
+// ── HONEST ASSESSMENT ──
+document.getElementById('honestGrid').innerHTML = `
+  <div class="honest-card good">
+    <div class="honest-title good">WHAT THE ARK DOES WELL</div>
+    <ul class="honest-list good">${HONEST_GOOD.map(x=>`<li>${x}</li>`).join('')}</ul>
+  </div>
+  <div class="honest-card bad">
+    <div class="honest-title bad">WHERE THE ARK FALLS SHORT</div>
+    <ul class="honest-list bad">${HONEST_BAD.map(x=>`<li>${x}</li>`).join('')}</ul>
+  </div>`;
+
+// Scenario table
+document.getElementById('scenarioTable').innerHTML = SCENARIO_TABLE.map(r => {
+  const col = r.eff >= 80 ? 'var(--accent)' : r.eff >= 65 ? 'var(--accent2)' : r.eff >= 45 ? 'var(--warn)' : 'var(--danger)';
+  const vCol = r.verdict === 'EXCELLENT' ? 'p-g' : r.verdict === 'VERY GOOD' ? 'p-g' : r.verdict === 'GOOD' ? 'p-b' : r.verdict === 'MODERATE' ? 'p-o' : 'p-r';
+  return `<tr>
+    <td style="font-weight:600;font-size:0.75rem">${r.type}</td>
+    <td>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;min-width:80px">
+          <div style="height:100%;width:${r.eff}%;background:${col};border-radius:2px"></div>
+        </div>
+        <span style="font-size:0.68rem;font-weight:600;color:${col}">${r.eff}%</span>
+      </div>
+    </td>
+    <td style="font-size:0.68rem;color:var(--muted)">${r.limit}</td>
+    <td><span class="pill ${vCol}">${r.verdict}</span></td>
+  </tr>`;
+}).join('');
+
+// ── WHO SHOULDN'T ──
+document.getElementById('whoContainer').innerHTML = `<div class="rules-list">${
+  WHO_SHOULDNT.map(w => `
+    <div class="rule-item" style="grid-template-columns:40px 1fr auto">
+      <span style="font-size:1.4rem">${w.icon}</span>
+      <div>
+        <div class="rule-title">${w.type}</div>
+        <div class="rule-desc">${w.desc}</div>
+      </div>
+      <div style="flex-shrink:0">
+        <span class="pill ${w.action.includes('DISQUALIFIED')?'p-r':w.action.includes('PAUSE')?'p-o':'p-b'}" style="white-space:nowrap">${w.action}</span>
+      </div>
+    </div>`).join('')}
+</div>`;
+</script>
+</body>
+</html>

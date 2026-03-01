@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11 — Evacuation Strategies | Ark v3 (Standalone)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #050608;
+    --glass-bg: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.08);
+    --glass-hover: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold-bright: #f0c96e;
+    --gold-dim: #6b5520;
+    --amber: #e8832a;
+    --red: #c94040;
+    --green: #3dba7e;
+    --cyan: #2ab8c9;
+    --purple: #9b6fd4;
+    --text: #d8dae0;
+    --text-dim: #7a7f8e;
+    --text-bright: #f0f2f8;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Rajdhani',sans-serif; background:var(--void); color:var(--text); min-height:100vh; overflow-x:hidden; }
+  body::before {
+    content:''; position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse 80% 50% at 25% 20%, rgba(201,64,64,0.06) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(201,168,76,0.05) 0%, transparent 50%),
+      repeating-linear-gradient(0deg, transparent, transparent 80px, rgba(255,255,255,0.008) 80px, rgba(255,255,255,0.008) 81px);
+    pointer-events:none; z-index:0;
+  }
+  .container { max-width:1200px; margin:0 auto; padding:0 24px; position:relative; z-index:1; }
+
+  /* Header */
+  .site-header { border-bottom:1px solid var(--glass-border); padding:16px 0; position:sticky; top:0; background:rgba(5,6,8,.92); backdrop-filter:blur(20px); z-index:100; }
+  .header-inner { display:flex; align-items:center; justify-content:space-between; }
+  .logo { font-family:'Cinzel',serif; font-size:13px; font-weight:900; letter-spacing:4px; color:var(--gold); }
+  .section-id { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); letter-spacing:2px; }
+
+  /* Hero */
+  .hero { padding:70px 0 50px; text-align:center; }
+  .hero-eyebrow { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:6px; color:var(--red); text-transform:uppercase; margin-bottom:18px; opacity:.9; }
+  .hero h1 { font-family:'Cinzel',serif; font-size:clamp(28px,5vw,58px); font-weight:900; color:var(--text-bright); line-height:1.1; margin-bottom:14px; text-shadow:0 0 60px rgba(201,64,64,.2); }
+  .hero h1 span { color:var(--red); }
+  .hero-sub { font-size:16px; color:var(--text-dim); max-width:620px; margin:0 auto 32px; line-height:1.6; }
+  .alert-band { display:inline-flex; align-items:center; gap:10px; background:rgba(201,64,64,.1); border:1px solid rgba(201,64,64,.3); border-radius:4px; padding:10px 20px; font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--red); letter-spacing:1px; }
+
+  /* Glass */
+  .gl { background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:8px; backdrop-filter:blur(12px); transition:border-color .3s,background .3s; }
+  .gl:hover { border-color:rgba(201,168,76,.2); background:var(--glass-hover); }
+
+  /* Sec title */
+  .sec-title { font-family:'Cinzel',serif; font-size:11px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:var(--gold); margin-bottom:28px; display:flex; align-items:center; gap:16px; }
+  .sec-title::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,var(--gold-dim),transparent); }
+  .sec-title.red { color:var(--red); }
+  .sec-title.red::after { background:linear-gradient(90deg,rgba(201,64,64,.4),transparent); }
+
+  .content-section { padding:50px 0; border-top:1px solid var(--glass-border); }
+
+  /* Tabs */
+  .stab-bar { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:24px; background:rgba(0,0,0,.3); padding:4px; border-radius:6px; border:1px solid var(--glass-border); }
+  .stab { flex:1; min-width:100px; padding:10px 16px; background:transparent; border:none; border-radius:4px; cursor:pointer; font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:600; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; transition:all .2s; text-align:center; }
+  .stab:hover { color:var(--text); background:rgba(255,255,255,.04); }
+  .stab.active { background:rgba(201,168,76,.15); color:var(--gold-bright); border-bottom:2px solid var(--gold); }
+  .spanel { display:none; }
+  .spanel.active { display:block; animation:fadeIn .3s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  /* Accordion */
+  .acc-item { border-bottom:1px solid var(--glass-border); }
+  .acc-trigger { width:100%; background:transparent; border:none; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; text-align:left; gap:12px; }
+  .acc-trigger:hover { background:rgba(255,255,255,.03); }
+  .acc-label { font-family:'Rajdhani',sans-serif; font-size:15px; font-weight:600; color:var(--text); }
+  .acc-meta { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text-dim); }
+  .acc-arrow { font-size:16px; color:var(--gold); transition:transform .3s; flex-shrink:0; }
+  .acc-item.open .acc-arrow { transform:rotate(180deg); }
+  .acc-body { display:none; padding:0 20px 22px; }
+  .acc-item.open .acc-body { display:block; animation:fadeIn .3s ease; }
+
+  /* Tier badges */
+  .tier { display:inline-block; padding:3px 9px; border-radius:3px; font-family:'Share Tech Mono',monospace; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; }
+  .tier-1 { background:rgba(61,186,126,.15); color:var(--green); border:1px solid rgba(61,186,126,.3); }
+  .tier-2 { background:rgba(201,168,76,.15); color:var(--gold); border:1px solid rgba(201,168,76,.3); }
+  .tier-3 { background:rgba(232,131,42,.15); color:var(--amber); border:1px solid rgba(232,131,42,.3); }
+  .tier-x { background:rgba(201,64,64,.15); color:var(--red); border:1px solid rgba(201,64,64,.3); }
+
+  /* Timeline */
+  .timeline { position:relative; padding-left:36px; }
+  .timeline::before { content:''; position:absolute; left:8px; top:0; bottom:0; width:1px; background:linear-gradient(180deg,var(--red),rgba(201,64,64,.1)); }
+  .tl-item { position:relative; padding-bottom:28px; }
+  .tl-item:last-child { padding-bottom:0; }
+  .tl-dot { position:absolute; left:-30px; top:3px; width:10px; height:10px; border-radius:50%; background:var(--red); box-shadow:0 0 12px rgba(201,64,64,.5); }
+  .tl-phase { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--red); letter-spacing:2px; margin-bottom:3px; }
+  .tl-title { font-size:16px; font-weight:700; color:var(--text-bright); margin-bottom:6px; }
+  .tl-body { font-size:13px; color:var(--text-dim); line-height:1.7; }
+
+  /* Route cards */
+  .route-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:18px; margin-bottom:28px; }
+  .route-card { padding:22px; }
+  .rc-num { font-family:'Cinzel',serif; font-size:32px; font-weight:900; color:var(--gold-dim); opacity:.5; line-height:1; margin-bottom:8px; }
+  .rc-title { font-size:16px; font-weight:700; color:var(--text-bright); margin-bottom:6px; }
+  .rc-mode { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--cyan); letter-spacing:2px; margin-bottom:8px; }
+  .rc-body { font-size:13px; color:var(--text-dim); line-height:1.6; margin-bottom:12px; }
+  .rc-tags { display:flex; flex-wrap:wrap; gap:5px; }
+  .tag { display:inline-block; padding:2px 8px; border-radius:3px; font-size:10px; font-family:'Share Tech Mono',monospace; }
+  .tag-green { background:rgba(61,186,126,.1); color:var(--green); border:1px solid rgba(61,186,126,.2); }
+  .tag-red { background:rgba(201,64,64,.1); color:var(--red); border:1px solid rgba(201,64,64,.2); }
+  .tag-gold { background:rgba(201,168,76,.1); color:var(--gold); border:1px solid rgba(201,168,76,.2); }
+  .tag-cyan { background:rgba(42,184,201,.1); color:var(--cyan); border:1px solid rgba(42,184,201,.2); }
+
+  /* Bag checklist */
+  .bag-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; }
+  .bag-section { padding:18px; }
+  .bag-title { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--gold); letter-spacing:3px; margin-bottom:12px; }
+  .bag-item { display:flex; align-items:flex-start; gap:10px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,.04); font-size:13px; color:var(--text-dim); cursor:pointer; transition:color .2s; }
+  .bag-item:last-child { border-bottom:none; }
+  .bag-item:hover { color:var(--text); }
+  .bag-check { width:14px; height:14px; border:1px solid var(--glass-border); border-radius:3px; flex-shrink:0; display:flex; align-items:center; justify-content:center; margin-top:1px; transition:all .2s; }
+  .bag-item.checked .bag-check { background:var(--green); border-color:var(--green); }
+  .bag-item.checked .bag-check::after { content:'✓'; font-size:9px; color:var(--void); font-weight:900; }
+  .bag-item.checked { color:var(--green); text-decoration:line-through; opacity:.6; }
+
+  /* Progress bar */
+  .pbar-wrap { margin:16px 0; }
+  .pbar-label { font-size:12px; color:var(--text-dim); display:flex; justify-content:space-between; margin-bottom:5px; }
+  .pbar { height:5px; background:rgba(255,255,255,.06); border-radius:3px; overflow:hidden; }
+  .pbar-fill { height:100%; border-radius:3px; transition:width .5s ease; }
+  .fill-green { background:linear-gradient(90deg,var(--green),rgba(61,186,126,.4)); }
+  .fill-gold { background:linear-gradient(90deg,var(--gold),rgba(201,168,76,.4)); }
+  .fill-amber { background:linear-gradient(90deg,var(--amber),rgba(232,131,42,.4)); }
+  .fill-red { background:linear-gradient(90deg,var(--red),rgba(201,64,64,.4)); }
+
+  /* Table */
+  .ctable-wrap { overflow-x:auto; }
+  .ctable { width:100%; border-collapse:collapse; font-size:13px; }
+  .ctable th { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); padding:12px 14px; text-align:left; border-bottom:1px solid var(--gold-dim); background:rgba(201,168,76,.04); white-space:nowrap; }
+  .ctable td { padding:11px 14px; border-bottom:1px solid var(--glass-border); color:var(--text); vertical-align:top; }
+  .ctable tr:hover td { background:rgba(255,255,255,.02); }
+  .ctable td:first-child { font-weight:600; color:var(--text-bright); }
+
+  /* Warning / info */
+  .warn-box { background:rgba(201,64,64,.07); border:1px solid rgba(201,64,64,.22); border-left:3px solid var(--red); border-radius:4px; padding:14px 18px; margin-bottom:18px; }
+  .warn-title { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--red); letter-spacing:2px; margin-bottom:5px; }
+  .info-box { background:rgba(42,184,201,.06); border:1px solid rgba(42,184,201,.18); border-left:3px solid var(--cyan); border-radius:4px; padding:14px 18px; margin-bottom:18px; }
+  .info-title { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--cyan); letter-spacing:2px; margin-bottom:5px; }
+  p.prose { font-size:13px; color:var(--text-dim); line-height:1.7; }
+  p.prose + p.prose { margin-top:10px; }
+
+  /* Stat cards */
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; margin-bottom:32px; }
+  .stat-card { padding:18px; text-align:center; }
+  .stat-label { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text-dim); letter-spacing:2px; margin-bottom:6px; }
+  .stat-val { font-family:'Cinzel',serif; font-size:28px; font-weight:900; color:var(--gold-bright); line-height:1; margin-bottom:3px; }
+  .stat-sub { font-size:11px; color:var(--text-dim); }
+
+  /* Doc matrix */
+  .doc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+  .doc-card { padding:18px; }
+  .doc-icon { font-size:22px; margin-bottom:8px; }
+  .doc-name { font-size:14px; font-weight:700; color:var(--text-bright); margin-bottom:4px; }
+  .doc-copies { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--cyan); margin-bottom:6px; }
+  .doc-note { font-size:12px; color:var(--text-dim); line-height:1.5; }
+
+  /* Footer */
+  .site-footer { border-top:1px solid var(--glass-border); padding:36px 0; text-align:center; }
+  .footer-logo { font-family:'Cinzel',serif; font-size:14px; font-weight:900; letter-spacing:4px; color:var(--gold); margin-bottom:10px; }
+  .footer-text { font-size:12px; color:var(--text-dim); line-height:1.6; max-width:580px; margin:0 auto; }
+  .footer-links { display:flex; justify-content:center; gap:22px; margin-top:18px; flex-wrap:wrap; }
+  .footer-links a { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); text-decoration:none; letter-spacing:1px; }
+  .footer-links a:hover { color:var(--gold); }
+
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:var(--void); }
+  ::-webkit-scrollbar-thumb { background:var(--gold-dim); border-radius:2px; }
+
+  @media(max-width:640px) { .route-grid,.bag-grid,.doc-grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<header class="site-header" id="top">
+  <div class="container header-inner">
+    <div class="logo">☽ ARK COLLECTIVE v3</div>
+    <div class="section-id">SECTION 11 · EVACUATION STRATEGIES</div>
+  </div>
+</header>
+
+<!-- DATA BLOCK -->
+<script>
+const EVAC_DATA = {
+
+  triggers: [
+    { name:"Level 1 — Watch", color:"var(--gold)", desc:"Elevated threat signals. Begin monitoring. Do not act yet — false positives are costly. Review go-bag and document readiness.", examples:["Unusual military mobilization", "Bank withdrawal limits introduced", "Sudden government rhetoric shift", "Major supply disruptions"], action:"Monitor daily. Verify comms. Review exit routes." },
+    { name:"Level 2 — Alert", color:"var(--amber)", desc:"Credible collapse indicators from multiple independent sources. Begin quiet preparations. Do not announce publicly. Subtle liquidation of non-essential assets.", examples:["ATM queues / bank runs beginning", "Civil unrest in capital cities", "Border crossing delays reported", "Internet or comms restrictions"], action:"Pack go-bags. Notify Ark network. Book refundable travel. Move funds offshore." },
+    { name:"Level 3 — Prepare", color:"var(--red)", desc:"Collapse trajectory confirmed. Begin staged withdrawal. Move most liquid assets. Position family. First-wave assets to safe zone.", examples:["Banks shut or restricted", "Martial law declared", "Mass civilian displacement", "Critical infrastructure failing"], action:"Activate primary exit route. Move family to pre-positioned refuge. Transfer all portable assets." },
+    { name:"Level 4 — Execute", color:"var(--red)", desc:"Immediate threat to life, liberty, or assets. Execute evacuation now. Speed over comfort. Destination already pre-set.", examples:["Active conflict or civil war", "Direct government targeting", "Forced population movement", "Total infrastructure collapse"], action:"Execute exit protocol. Primary route or immediate fallback. No delay." },
+  ],
+
+  routes: [
+    { mode:"Air", title:"Commercial Flight", window:"12–72 hours", pros:["Fastest international movement","Large luggage allowance","Family + pets possible"], cons:["Airports close early in crises","Price-gouging during panic","Identity tracked"], bestFor:"Level 2–3 evacuations. Book refundable tickets in advance.", tip:"Maintain 2 pre-booked refundable tickets to top destinations at all times." },
+    { mode:"Air", title:"Private Charter / FBO", window:"2–24 hours", pros:["No commercial schedule","Private FBOs stay open longer","Cargo flexibility"], cons:["$15K–$80K per flight","Requires advance relationship with operator"], bestFor:"Level 3–4. When commercial is closed.", tip:"Identify 2 charter operators near your location. Pre-negotiate priority access agreement." },
+    { mode:"Land", title:"Primary Road Route", window:"0–24 hours", pros:["Most flexible","No identity tracking if cash","Can carry significant supplies"], cons:["Traffic collapse at borders","Fuel shortage risk","Checkpoint seizures"], bestFor:"Level 1–3 domestic bugout to rural refuge.", tip:"Drive non-peak hours. Keep tank >75% always. 20L jerry cans pre-positioned." },
+    { mode:"Land", title:"Overland Secondary Route", window:"0–48 hours", pros:["Avoids major checkpoints","Rural crossing options","Less monitored"], cons:["Requires local knowledge","Rough terrain possible","Longer journey"], bestFor:"When primary routes are congested or blocked.", tip:"Physically drive all secondary routes in non-crisis times. Note fuel stops, rest points." },
+    { mode:"Sea", title:"Sailboat / Private Vessel", window:"12–96 hours", pros:["Cannot be stopped mid-ocean","Carries significant cargo","Fuel self-sufficient with wind"], cons:["Weather dependent","Requires nautical skills","High upfront cost"], bestFor:"Island or coastal Ark locations. Ultimate freedom of movement.", tip:"40ft+ bluewater-capable vessel. 60-day provisions. SSB radio + satellite comms." },
+    { mode:"Sea", title:"Ferry / Commercial Maritime", window:"6–48 hours", pros:["Vehicle transport possible","Cheaper than charter","Operational when air closed"], cons:["Fixed routes","Slower","Subject to port closures"], bestFor:"European/Mediterranean coastal evacuation.", tip:"Identify 3 maritime routes from your location. Carry cash for ticket purchase." },
+  ],
+
+  bagCategories: [
+    {
+      title:"IDENTITY & DOCUMENTS", icon:"📋",
+      items:["Passports (all family members)","Birth certificates (originals + certified copies)","Marriage certificates","Property deeds / title documents","USB: encrypted document backup","Emergency cash: $3,000–$10,000 USD","Gold coins: 5–10 x 1oz","Crypto hardware wallet (loaded, tested)","Second passport / residency card","Power of attorney (pre-signed)"]
+    },
+    {
+      title:"COMMUNICATIONS", icon:"📡",
+      items:["Satellite communicator (Garmin inReach or Starlink Mini)","Encrypted smartphone (GrapheneOS)","Shortwave radio receiver","Handheld VHF/UHF radio ×2","Signal-ready contacts list (printed)","Offline maps (downloaded: all routes)","Power bank ×2 (30,000mAh each)","Solar charger panel","Faraday bag for electronics","Paper contact list (no digital dependency)"]
+    },
+    {
+      title:"MEDICAL & SAFETY", icon:"💊",
+      items:["72-hour prescription medication supply","Trauma kit (tourniquet, chest seal, QuikClot)","Broad-spectrum antibiotics (prescribed)","Water purification tablets + LifeStraw","N95/P100 respirators ×10","Nitrile gloves ×50 pairs","Burn gel + wound dressings","Anti-diarrheal + rehydration salts","Eyeglasses backup + contacts","Blood type cards (all family members)"]
+    },
+    {
+      title:"SURVIVAL GEAR", icon:"🔦",
+      items:["72-hour food supply (calorie-dense)","Water: 4L per person per day minimum","Tactical flashlight + headlamp","Multi-tool (Leatherman)","Fixed-blade survival knife","Emergency mylar blankets ×4","Rope: 50ft paracord","Duct tape","Waterproof matches + lighters ×3","Emergency whistle + signal mirror"]
+    },
+    {
+      title:"TRANSPORT & TOOLS", icon:"🔧",
+      items:["Vehicle full tank + 20L jerry can reserve","Tire repair kit","Basic tool kit","Tow strap","Jump starter (lithium)","Fuel stabilizer (for stored fuel)","Paper road atlas (no GPS dependency)","Vehicle registration + insurance docs","Extra vehicle key (hidden)","Bike + lock (urban exit option)"]
+    },
+    {
+      title:"CLOTHING & SHELTER", icon:"🧥",
+      items:["3-day clothing per person (neutral colors)","Rain gear (waterproof jacket)","Sturdy boots (broken in)","Wool or merino base layers","Hat, gloves, warm socks","Portable tent (4-season)","Sleeping bag (rated -10°C)","Emergency tarp ×2","N95 masks (dual-use: air quality + bio)","Work gloves"]
+    },
+  ],
+
+  docMatrix: [
+    { icon:"🛂", name:"Passports", copies:"3 copies + original", note:"Certified photo copies + digital encrypted backup. Stored separately from originals." },
+    { icon:"📜", name:"Birth Certificates", copies:"2 certified copies each", note:"Required for visa applications, school enrollment, emergency consular assistance." },
+    { icon:"🏠", name:"Property Documents", copies:"2 copies + digital", note:"Title deeds, rental agreements, insurance policies for all properties." },
+    { icon:"💰", name:"Financial Records", copies:"Digital encrypted", note:"Bank account numbers, crypto seed phrases (encrypted), investment account details." },
+    { icon:"⚕️", name:"Medical Records", copies:"Digital + printed summary", note:"Vaccination records, prescription details, blood type, known allergies." },
+    { icon:"🔑", name:"Power of Attorney", copies:"2 notarized originals", note:"Grants trusted person authority to act on your behalf. Pre-sign before crisis." },
+    { icon:"📋", name:"Insurance Policies", copies:"Digital + summary card", note:"Health, property, vehicle, travel. Know claim procedures in advance." },
+    { icon:"🎓", name:"Credentials & Degrees", copies:"2 certified copies", note:"Professional licenses, degrees. Needed for employment in destination country." },
+    { icon:"💍", name:"Marriage Certificate", copies:"2 certified copies", note:"Required for spousal visa applications and joint asset management." },
+    { icon:"🌐", name:"Residency Documents", copies:"Original + 2 copies", note:"Second residency card, CBI citizenship certificate, any foreign visas." },
+  ],
+
+  routes_by_scenario: [
+    { scenario:"Financial Collapse", priority:"Air (commercial) → Land (overland)", timing:"Level 2 trigger — before banks freeze", note:"Move assets offshore FIRST. Then relocate family. Currency collapse happens fast." },
+    { scenario:"Political Authoritarianism", priority:"Land (secondary routes) → Sea (if coastal)", timing:"Level 2–3 — before border restrictions", note:"Government will prioritize airport and main border control. Secondary land routes critical." },
+    { scenario:"Nuclear / WMD Threat", priority:"Air (immediate) → Land (distance from target)", timing:"Level 3–4 — immediate execution", note:"Downwind distance is survival. Air evacuation to Southern Hemisphere if time permits." },
+    { scenario:"Pandemic / Bio Event", priority:"Private vehicle only → Pre-positioned refuge", timing:"Level 2 — before quarantine zones", note:"Do not use commercial transport. Quarantine zones can trap you. Reach refuge before lockdown." },
+    { scenario:"Grid / Cyber Collapse", priority:"Land (primary road) → Rural refuge", timing:"Level 1–2 — early mover advantage", note:"Fuel pumps fail without power. Move before fuel scarcity. 200-mile radius bugout." },
+    { scenario:"Natural Disaster / Climate", priority:"Land (away from hazard) → Shelter-in-place", timing:"24–72hr warning window", note:"Lateral evacuation perpendicular to hazard direction. Vertical if flood." },
+  ],
+
+  prePositioning: [
+    { phase:"NOW", title:"Document Readiness", tasks:["All documents apostilled and certified","Encrypted digital backup on hardware (offline)","Emergency cash in fireproof safe","Second passport or residency active"] },
+    { phase:"30 DAYS", title:"Financial Pre-Positioning", tasks:["Offshore bank account open and funded","Crypto hardware wallet tested","$10K+ cash accessible at home","Property at destination identified"] },
+    { phase:"60 DAYS", title:"Physical Pre-Positioning", tasks:["Go-bags packed for all family members","Vehicle serviced and stocked","72-hour food and water at home","Secondary bugout location identified"] },
+    { phase:"90 DAYS", title:"Network Activation", tasks:["Ark network contacts confirmed","Communication protocols agreed","Rendezvous points established","Family briefed on all triggers and routes"] },
+  ],
+};
+</script>
+
+<!-- RENDER BLOCK -->
+<main>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-eyebrow">⚠ Ark Collective v3 · Section 11 · Critical Protocol</div>
+      <h1>Evacuation <span>Strategies</span></h1>
+      <p class="hero-sub">Operational evacuation doctrine for the Ark Collective. Trigger levels, route matrices, go-bag protocols, document pre-positioning, and scenario-specific extraction playbooks.</p>
+      <div class="alert-band">⚡ CORE RULE: The time to plan your exit is before the crisis. Every decision made during an evacuation is too late.</div>
+    </div>
+  </section>
+
+  <!-- Key Stats -->
+  <section class="content-section" id="evac-stats">
+    <div class="container">
+      <div class="sec-title red">Evacuation Intelligence · Key Metrics</div>
+      <div class="stat-grid">
+        <div class="stat-card gl"><div class="stat-label">Decision Window</div><div class="stat-val" style="color:var(--red);">72h</div><div class="stat-sub">Average window before routes close in crisis</div></div>
+        <div class="stat-card gl"><div class="stat-label">Go-Bag Weight Target</div><div class="stat-val">20kg</div><div class="stat-sub">Per adult. 10kg per child. Non-negotiable.</div></div>
+        <div class="stat-card gl"><div class="stat-label">Routes Required</div><div class="stat-val">3+</div><div class="stat-sub">Primary + 2 fallbacks per destination pair</div></div>
+        <div class="stat-card gl"><div class="stat-label">Cash Reserve</div><div class="stat-val">$10K</div><div class="stat-sub">Minimum USD liquid at home, always</div></div>
+        <div class="stat-card gl"><div class="stat-label">Fuel Pre-Position</div><div class="stat-val">80L</div><div class="stat-sub">Vehicle + 2× 20L jerry cans minimum</div></div>
+        <div class="stat-card gl"><div class="stat-label">Collapse Scenarios</div><div class="stat-val">150</div><div class="stat-sub">Cross-mapped to evacuation protocols</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trigger Level System -->
+  <section class="content-section" id="triggers">
+    <div class="container">
+      <div class="sec-title red">Threat Trigger Level System</div>
+      <div class="warn-box">
+        <div class="warn-title">Critical Doctrine</div>
+        <p class="prose">Most evacuees wait until Level 4 to act. By that point, airports are closed, borders are locked, banks are frozen, and fuel is unavailable. The Ark Collective acts at Level 2. That is the entire advantage.</p>
+      </div>
+      <div class="gl" style="overflow:hidden;" id="trigger-acc"></div>
+    </div>
+  </section>
+
+  <!-- Main Tabs -->
+  <section class="content-section" id="main-content">
+    <div class="container">
+      <div class="sec-title">Evacuation Operations Framework</div>
+      <div class="stab-bar" id="main-tabs">
+        <button class="stab active" onclick="switchTab('main-tabs','main-panels','tab-routes')">Exit Routes</button>
+        <button class="stab" onclick="switchTab('main-tabs','main-panels','tab-gobag')">Go-Bag Protocol</button>
+        <button class="stab" onclick="switchTab('main-tabs','main-panels','tab-docs')">Document Matrix</button>
+        <button class="stab" onclick="switchTab('main-tabs','main-panels','tab-scenarios')">By Scenario</button>
+        <button class="stab" onclick="switchTab('main-tabs','main-panels','tab-prepos')">Pre-Positioning</button>
+      </div>
+
+      <div id="main-panels">
+
+        <!-- Routes -->
+        <div class="spanel active" id="tab-routes">
+          <div class="info-box">
+            <div class="info-title">Route Redundancy Doctrine</div>
+            <p class="prose">Every Ark member must maintain a minimum of 3 viable exit routes from their primary residence: at least 1 air, 1 land, and 1 maritime (if coastal). Each route must be physically rehearsed. Maps downloaded offline. Fuel and toll cash pre-positioned.</p>
+          </div>
+          <div class="route-grid" id="routes-grid"></div>
+        </div>
+
+        <!-- Go-Bag -->
+        <div class="spanel" id="tab-gobag">
+          <div class="info-box">
+            <div class="info-title">Go-Bag Philosophy</div>
+            <p class="prose">A go-bag is not a camping kit. It is a 72-hour survival and identity package that allows you to function as a legal, communicating, self-sufficient person in a foreign country with zero infrastructure support. Check and rotate contents every 6 months.</p>
+          </div>
+          <div id="bag-progress-wrap" style="margin-bottom:20px;">
+            <div class="pbar-label"><span id="bag-progress-label">0 of 60 items packed</span><span id="bag-progress-pct">0%</span></div>
+            <div class="pbar"><div class="pbar-fill fill-green" id="bag-progress-bar" style="width:0%;"></div></div>
+          </div>
+          <div class="bag-grid" id="bag-grid"></div>
+        </div>
+
+        <!-- Documents -->
+        <div class="spanel" id="tab-docs">
+          <div class="warn-box">
+            <div class="warn-title">Documents = Identity = Freedom</div>
+            <p class="prose">Without documents, you cannot cross borders, access banking, enroll in schools, receive medical care, or prove residency. All documents must exist in original, certified copy, and encrypted digital format — stored in three physically separate locations.</p>
+          </div>
+          <div class="doc-grid" id="doc-grid"></div>
+        </div>
+
+        <!-- By Scenario -->
+        <div class="spanel" id="tab-scenarios">
+          <div class="ctable-wrap">
+            <table class="ctable" id="scenario-table">
+              <thead>
+                <tr>
+                  <th>Collapse Scenario</th>
+                  <th>Priority Route</th>
+                  <th>Trigger Level</th>
+                  <th>Operational Note</th>
+                </tr>
+              </thead>
+              <tbody id="scenario-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pre-Positioning -->
+        <div class="spanel" id="tab-prepos">
+          <div class="gl" style="padding:28px;">
+            <div class="timeline" id="prepos-timeline"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Evacuation Decision Timeline -->
+  <section class="content-section" id="decision-timeline">
+    <div class="container">
+      <div class="sec-title red">Hour-by-Hour Execution Timeline</div>
+      <div class="gl" style="padding:28px;">
+        <div class="timeline" id="exec-timeline"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ark Network Integration -->
+  <section class="content-section" id="network">
+    <div class="container">
+      <div class="sec-title">Ark Network · Evacuation Support Layer</div>
+      <div class="route-grid">
+        <div class="route-card gl">
+          <div class="rc-num">01</div>
+          <div class="rc-title">Buddy System Protocol</div>
+          <div class="rc-mode">COMMUNITY · MUTUAL AID</div>
+          <div class="rc-body">Every Ark member pairs with 2 nearby members. In evacuation, the first to move alerts the others. Shared vehicle capacity, fuel, and escort. Buddy pairs rehearse rendezvous points annually.</div>
+          <div class="rc-tags"><span class="tag tag-green">Mutual Aid</span><span class="tag tag-cyan">Rehearsed</span></div>
+        </div>
+        <div class="route-card gl">
+          <div class="rc-num">02</div>
+          <div class="rc-title">Safe House Network</div>
+          <div class="rc-mode">INFRASTRUCTURE · STAGING</div>
+          <div class="rc-body">Pre-negotiated temporary shelter at Ark member properties along each exit route. Maximum 48-hour stays. Reciprocal agreements. Coded communication for activation. No digital trail.</div>
+          <div class="rc-tags"><span class="tag tag-green">Pre-negotiated</span><span class="tag tag-red">Zero digital trail</span></div>
+        </div>
+        <div class="route-card gl">
+          <div class="rc-num">03</div>
+          <div class="rc-title">Comms Blackout Protocol</div>
+          <div class="rc-mode">SECURITY · OPERATIONS</div>
+          <div class="rc-body">When conventional comms fail: Garmin inReach for text, shortwave for broadcast monitoring, pre-set radio frequencies for local coordination. Family meeting points if phones are dead.</div>
+          <div class="rc-tags"><span class="tag tag-cyan">Satellite</span><span class="tag tag-gold">Shortwave</span><span class="tag tag-green">Pre-set freqs</span></div>
+        </div>
+        <div class="route-card gl">
+          <div class="rc-num">04</div>
+          <div class="rc-title">Children & Vulnerable Protocol</div>
+          <div class="rc-mode">FAMILY · PRIORITY</div>
+          <div class="rc-body">Children and elderly have dedicated evacuation bags (lighter). Each child carries their own ID document copy in a neck pouch. Pre-briefed on rendezvous points using simple code names. Never separated without comms.</div>
+          <div class="rc-tags"><span class="tag tag-gold">Child ID pouches</span><span class="tag tag-green">Code-named rally points</span></div>
+        </div>
+        <div class="route-card gl">
+          <div class="rc-num">05</div>
+          <div class="rc-title">Asset Extraction Priority</div>
+          <div class="rc-mode">FINANCIAL · OPERATIONS</div>
+          <div class="rc-body">Priority order: 1) Documents 2) Crypto hardware wallet 3) Gold coins 4) Cash 5) Electronics 6) Clothing 7) Food. Real estate, vehicles, and stored goods are losses. People and portable wealth are the mission.</div>
+          <div class="rc-tags"><span class="tag tag-gold">Portable wealth first</span><span class="tag tag-red">Property = sunk cost</span></div>
+        </div>
+        <div class="route-card gl">
+          <div class="rc-num">06</div>
+          <div class="rc-title">Animals & Livestock</div>
+          <div class="rc-mode">PLANNING · DECISION</div>
+          <div class="rc-body">Pets: plan for carrier, vaccinations on record, entry requirements for destination country. Livestock at rural properties: pre-arrange with trusted local to manage. Do not delay evacuation for livestock beyond 30 minutes.</div>
+          <div class="rc-tags"><span class="tag tag-cyan">Pre-plan pet entry</span><span class="tag tag-amber">30-min livestock limit</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-logo">☽ ARK COLLECTIVE v3</div>
+    <div class="footer-text">Section 11 — Evacuation Strategies. Cross-mapped to Collapse Bible 150 scenarios, Safe Zone Five-Layer Doctrine, and Ark Community Governance framework.</div>
+    <div class="footer-links">
+      <a href="#top">↑ Top</a>
+      <a href="#triggers">Triggers</a>
+      <a href="#main-content">Operations</a>
+      <a href="10.5-safe-zone-living-expenses.html">← 10.5 Living Expenses</a>
+      <a href="11.5-evacuation-simulator.html">→ 11.5 Simulator</a>
+    </div>
+  </div>
+</footer>
+
+<!-- INTERACTION BLOCK -->
+<script>
+/* ── Tab switcher ── */
+function switchTab(barId, panelContainerId, activeId) {
+  const bar = document.getElementById(barId);
+  const container = document.getElementById(panelContainerId);
+  const panels = container.querySelectorAll('.spanel');
+  const buttons = bar.querySelectorAll('.stab');
+  panels.forEach(p => p.classList.remove('active'));
+  buttons.forEach(b => b.classList.remove('active'));
+  const activePanel = document.getElementById(activeId);
+  if (activePanel) {
+    activePanel.classList.add('active');
+    const idx = Array.from(panels).indexOf(activePanel);
+    if (buttons[idx]) buttons[idx].classList.add('active');
+  }
+}
+
+/* ── Accordion ── */
+function toggleAcc(el) {
+  const item = el.closest('.acc-item');
+  const isOpen = item.classList.contains('open');
+  item.parentElement.querySelectorAll('.acc-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ── Trigger Level Accordion ── */
+function renderTriggerAcc() {
+  const container = document.getElementById('trigger-acc');
+  container.innerHTML = EVAC_DATA.triggers.map((t, i) => `
+    <div class="acc-item ${i===0?'open':''}">
+      <button class="acc-trigger" onclick="toggleAcc(this)">
+        <span class="acc-label" style="color:${t.color};">${t.name}</span>
+        <span style="display:flex;align-items:center;gap:10px;">
+          <span class="acc-meta">${t.action.split('.')[0]}</span>
+          <span class="acc-arrow" style="color:${t.color};">▾</span>
+        </span>
+      </button>
+      <div class="acc-body">
+        <p class="prose" style="margin-bottom:14px;">${t.desc}</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:2px;margin-bottom:8px;">TRIGGER EXAMPLES</div>
+            ${t.examples.map(e => `<div style="font-size:12px;color:var(--text-dim);padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);">▸ ${e}</div>`).join('')}
+          </div>
+          <div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;margin-bottom:8px;color:${t.color};">REQUIRED ACTION</div>
+            <p class="prose" style="color:var(--text);">${t.action}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Route Cards ── */
+function renderRouteCards() {
+  document.getElementById('routes-grid').innerHTML = EVAC_DATA.routes.map((r, i) => `
+    <div class="route-card gl">
+      <div class="rc-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="rc-title">${r.title}</div>
+      <div class="rc-mode">${r.mode} · ${r.window}</div>
+      <div class="rc-body">${r.bestFor}</div>
+      <div style="margin-bottom:10px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:1px;margin-bottom:5px;">ADVANTAGES</div>
+        ${r.pros.map(p => `<div style="font-size:12px;color:var(--text-dim);">+ ${p}</div>`).join('')}
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red);letter-spacing:1px;margin:8px 0 5px;">VULNERABILITIES</div>
+        ${r.cons.map(c => `<div style="font-size:12px;color:var(--text-dim);">- ${c}</div>`).join('')}
+      </div>
+      <div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.15);border-radius:4px;padding:10px;font-size:12px;color:var(--gold);">
+        ☽ ${r.tip}
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Go-Bag ── */
+let bagState = {};
+let totalItems = 0;
+
+function renderBagGrid() {
+  totalItems = EVAC_DATA.bagCategories.reduce((sum, cat) => sum + cat.items.length, 0);
+  document.getElementById('bag-grid').innerHTML = EVAC_DATA.bagCategories.map((cat, ci) => `
+    <div class="bag-section gl">
+      <div class="bag-title">${cat.icon} ${cat.title}</div>
+      ${cat.items.map((item, ii) => {
+        const key = `${ci}-${ii}`;
+        return `<div class="bag-item" id="bag-${key}" onclick="toggleBagItem('${key}')">
+          <div class="bag-check"></div>
+          <span>${item}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+  updateBagProgress();
+}
+
+function toggleBagItem(key) {
+  bagState[key] = !bagState[key];
+  const el = document.getElementById('bag-' + key);
+  if (el) el.classList.toggle('checked', bagState[key]);
+  updateBagProgress();
+}
+
+function updateBagProgress() {
+  const checked = Object.values(bagState).filter(Boolean).length;
+  const pct = Math.round((checked / totalItems) * 100);
+  document.getElementById('bag-progress-label').textContent = `${checked} of ${totalItems} items packed`;
+  document.getElementById('bag-progress-pct').textContent = pct + '%';
+  const bar = document.getElementById('bag-progress-bar');
+  if (bar) bar.style.width = pct + '%';
+}
+
+/* ── Document Grid ── */
+function renderDocGrid() {
+  document.getElementById('doc-grid').innerHTML = EVAC_DATA.docMatrix.map(d => `
+    <div class="doc-card gl">
+      <div class="doc-icon">${d.icon}</div>
+      <div class="doc-name">${d.name}</div>
+      <div class="doc-copies">${d.copies}</div>
+      <div class="doc-note">${d.note}</div>
+    </div>
+  `).join('');
+}
+
+/* ── Scenario Table ── */
+function renderScenarioTable() {
+  const levelColors = { '1': 'var(--gold)', '2': 'var(--gold)', '2–3': 'var(--amber)', '3': 'var(--amber)', '3–4': 'var(--red)', '4': 'var(--red)' };
+  document.getElementById('scenario-tbody').innerHTML = EVAC_DATA.routes_by_scenario.map(s => {
+    const lvl = s.timing.split(' ')[1];
+    const col = Object.entries(levelColors).find(([k]) => s.timing.includes(k));
+    const color = col ? col[1] : 'var(--amber)';
+    return `<tr>
+      <td>${s.scenario}</td>
+      <td style="font-size:12px;color:var(--cyan);font-family:'Share Tech Mono',monospace;">${s.priority}</td>
+      <td style="color:${color};font-family:'Share Tech Mono',monospace;font-size:12px;">${s.timing}</td>
+      <td style="font-size:12px;color:var(--text-dim);">${s.note}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Pre-positioning Timeline ── */
+function renderPreposTimeline() {
+  document.getElementById('prepos-timeline').innerHTML = EVAC_DATA.prePositioning.map(p => `
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-phase">${p.phase}</div>
+      <div class="tl-title">${p.title}</div>
+      <div class="tl-body">
+        ${p.tasks.map(t => `<div style="padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);">▸ ${t}</div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Execution Timeline ── */
+function renderExecTimeline() {
+  const execSteps = [
+    { h:"H+0", title:"Trigger Confirmed", body:"Level 4 declared. All family notified. Phones switched to encrypted messaging. No social media." },
+    { h:"H+1", title:"Documents & Assets Secured", body:"Go-bags loaded. Documents verified. Cash and crypto wallet in bag. Car fully fuelled." },
+    { h:"H+2", title:"Ark Network Alerted", body:"Buddy pair notified. Safe house chain activated. Radio check on pre-set frequencies. Offline maps loaded." },
+    { h:"H+3", title:"Departure — Primary Route", body:"Depart at non-peak hour if possible. Primary route only if clear. Do not announce departure publicly." },
+    { h:"H+6", title:"First Waypoint Check", body:"Fuel, food, water check. Family roll call. Route assessment: continue or switch to secondary route." },
+    { h:"H+12", title:"Border / Checkpoint", body:"Documents ready. Cash for facilitation if needed. Do not argue. Do not reveal full itinerary." },
+    { h:"H+24", title:"Refuge Arrival", body:"Secure accommodation confirmed. Document check of all family. Contact Ark destination member. Assess next 72 hours." },
+    { h:"H+48", title:"Stabilization", body:"Local bank / cash access confirmed. Communications upgraded. Long-term plan activated. Children enrolled in routine." },
+  ];
+
+  document.getElementById('exec-timeline').innerHTML = execSteps.map(s => `
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-phase">${s.h}</div>
+      <div class="tl-title">${s.title}</div>
+      <div class="tl-body">${s.body}</div>
+    </div>
+  `).join('');
+}
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+  renderTriggerAcc();
+  renderRouteCards();
+  renderBagGrid();
+  renderDocGrid();
+  renderScenarioTable();
+  renderPreposTimeline();
+  renderExecTimeline();
+});
+</script>
+</body>
+</html>

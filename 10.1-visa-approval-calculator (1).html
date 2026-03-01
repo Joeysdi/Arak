@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10.1 — Visa Approval Probability Calculator | Ark v3 (Standalone)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --obsidian: #0a0b0f;
+    --void: #050608;
+    --glass-bg: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.08);
+    --glass-hover: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold-bright: #f0c96e;
+    --gold-dim: #6b5520;
+    --amber: #e8832a;
+    --red: #c94040;
+    --green: #3dba7e;
+    --cyan: #2ab8c9;
+    --text: #d8dae0;
+    --text-dim: #7a7f8e;
+    --text-bright: #f0f2f8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--void);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 15% 15%, rgba(201,168,76,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 50% at 85% 85%, rgba(61,186,126,0.05) 0%, transparent 50%),
+      repeating-linear-gradient(0deg, transparent, transparent 100px, rgba(255,255,255,0.008) 100px, rgba(255,255,255,0.008) 101px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+  /* ── Header ── */
+  .site-header {
+    border-bottom: 1px solid var(--glass-border);
+    padding: 16px 0;
+    position: sticky; top: 0;
+    background: rgba(5,6,8,0.92);
+    backdrop-filter: blur(20px);
+    z-index: 100;
+  }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: 'Cinzel', serif; font-size: 13px; font-weight: 900; letter-spacing: 4px; color: var(--gold); }
+  .section-id { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-dim); letter-spacing: 2px; }
+
+  /* ── Hero ── */
+  .hero { padding: 70px 0 50px; text-align: center; }
+  .hero-eyebrow { font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 6px; color: var(--gold); text-transform: uppercase; margin-bottom: 18px; opacity: 0.8; }
+  .hero h1 { font-family: 'Cinzel', serif; font-size: clamp(28px, 5vw, 58px); font-weight: 900; color: var(--text-bright); line-height: 1.1; margin-bottom: 14px; text-shadow: 0 0 60px rgba(201,168,76,0.3); }
+  .hero h1 span { color: var(--gold); }
+  .hero-sub { font-size: 16px; color: var(--text-dim); max-width: 580px; margin: 0 auto 30px; line-height: 1.6; }
+
+  /* ── Glass card ── */
+  .gl {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    backdrop-filter: blur(12px);
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .gl:hover { border-color: rgba(201,168,76,0.2); background: var(--glass-hover); }
+
+  /* ── Section Title ── */
+  .sec-title {
+    font-family: 'Cinzel', serif; font-size: 11px; font-weight: 600; letter-spacing: 5px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 28px; display: flex; align-items: center; gap: 16px;
+  }
+  .sec-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--gold-dim), transparent); }
+
+  .content-section { padding: 50px 0; border-top: 1px solid var(--glass-border); }
+
+  /* ── Wizard Layout ── */
+  .wizard-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
+    align-items: start;
+  }
+  @media (max-width: 768px) { .wizard-layout { grid-template-columns: 1fr; } }
+
+  /* ── Step Progress ── */
+  .step-progress {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 32px;
+  }
+  .step-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Share Tech Mono', monospace; font-size: 12px; font-weight: 700;
+    border: 1px solid var(--glass-border);
+    color: var(--text-dim);
+    background: var(--glass-bg);
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .step-dot.active { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,0.1); box-shadow: 0 0 12px rgba(201,168,76,0.2); }
+  .step-dot.done { border-color: var(--green); color: var(--green); background: rgba(61,186,126,0.1); }
+  .step-line { flex: 1; height: 1px; background: var(--glass-border); transition: background 0.3s; }
+  .step-line.done { background: var(--gold-dim); }
+
+  /* ── Wizard Panel ── */
+  .wizard-panel { padding: 32px; }
+  .wizard-step { display: none; }
+  .wizard-step.active { display: block; animation: fadeInUp 0.3s ease; }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .step-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+  .step-title { font-family: 'Cinzel', serif; font-size: 20px; color: var(--text-bright); margin-bottom: 6px; }
+  .step-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 28px; }
+
+  /* ── Form Controls ── */
+  .form-group { margin-bottom: 20px; }
+  .form-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px; display: block; letter-spacing: 0.5px; }
+  .form-label span { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); font-weight: 400; margin-left: 8px; }
+  
+  select, input[type="range"] {
+    width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 4px;
+    color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 14px; padding: 10px 14px;
+    appearance: none; -webkit-appearance: none; outline: none; transition: border-color 0.2s;
+  }
+  select:focus { border-color: var(--gold); }
+  select option { background: #0f1014; color: var(--text); }
+
+  input[type="range"] {
+    padding: 0; height: 4px; cursor: pointer; border: none;
+    background: var(--glass-border);
+    accent-color: var(--gold);
+  }
+  .range-labels { display: flex; justify-content: space-between; font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); margin-top: 6px; }
+  .range-val { font-family: 'Share Tech Mono', monospace; font-size: 13px; color: var(--gold); font-weight: 700; margin-top: 4px; }
+
+  /* ── Radio Groups ── */
+  .radio-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .radio-group.cols3 { grid-template-columns: repeat(3, 1fr); }
+  .radio-opt { position: relative; }
+  .radio-opt input { position: absolute; opacity: 0; pointer-events: none; }
+  .radio-opt label {
+    display: block; padding: 10px 12px; border-radius: 4px; cursor: pointer;
+    border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2);
+    font-size: 13px; font-weight: 600; color: var(--text-dim); text-align: center;
+    transition: all 0.2s; line-height: 1.3;
+  }
+  .radio-opt label small { display: block; font-size: 10px; font-family: 'Share Tech Mono', monospace; margin-top: 2px; color: var(--text-dim); }
+  .radio-opt input:checked + label { border-color: var(--gold); color: var(--gold-bright); background: rgba(201,168,76,0.1); }
+  .radio-opt:hover label { border-color: rgba(201,168,76,0.3); }
+
+  /* ── Checkbox group ── */
+  .check-group { display: flex; flex-direction: column; gap: 8px; }
+  .check-opt { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; border-radius: 4px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); transition: all 0.2s; }
+  .check-opt:hover { border-color: rgba(201,168,76,0.25); }
+  .check-opt input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--gold); flex-shrink: 0; }
+  .check-opt label { font-size: 13px; color: var(--text); cursor: pointer; line-height: 1.4; }
+  .check-opt label small { display: block; font-size: 10px; font-family: 'Share Tech Mono', monospace; color: var(--text-dim); }
+
+  /* ── Wizard Buttons ── */
+  .wizard-btns { display: flex; gap: 12px; margin-top: 28px; }
+  .btn {
+    padding: 12px 24px; border-radius: 4px; font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border: none; transition: all 0.2s;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--gold), rgba(201,168,76,0.7)); color: var(--void); }
+  .btn-primary:hover { background: linear-gradient(135deg, var(--gold-bright), var(--gold)); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(201,168,76,0.3); }
+  .btn-ghost { background: transparent; border: 1px solid var(--glass-border); color: var(--text-dim); }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── Results Panel ── */
+  .results-panel { padding: 28px; }
+  .result-country {
+    border-bottom: 1px solid var(--glass-border);
+    padding: 16px 0;
+  }
+  .result-country:last-child { border-bottom: none; }
+  .rc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 12px; }
+  .rc-name { font-size: 16px; font-weight: 700; color: var(--text-bright); }
+  .rc-visa { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--cyan); letter-spacing: 1px; }
+  .rc-pct { font-family: 'Cinzel', serif; font-size: 24px; font-weight: 900; }
+  .pct-high { color: var(--green); }
+  .pct-med { color: var(--gold); }
+  .pct-low { color: var(--amber); }
+  .pct-vlow { color: var(--red); }
+
+  .pbar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+  .pbar-fill { height: 100%; border-radius: 3px; transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+  .fill-green { background: linear-gradient(90deg, var(--green), rgba(61,186,126,0.5)); }
+  .fill-gold { background: linear-gradient(90deg, var(--gold), rgba(201,168,76,0.5)); }
+  .fill-amber { background: linear-gradient(90deg, var(--amber), rgba(232,131,42,0.5)); }
+  .fill-red { background: linear-gradient(90deg, var(--red), rgba(201,64,64,0.5)); }
+
+  .rc-factors { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .rc-factor { font-size: 10px; font-family: 'Share Tech Mono', monospace; padding: 2px 8px; border-radius: 2px; }
+  .factor-pos { background: rgba(61,186,126,0.1); color: var(--green); border: 1px solid rgba(61,186,126,0.2); }
+  .factor-neg { background: rgba(201,64,64,0.1); color: var(--red); border: 1px solid rgba(201,64,64,0.2); }
+  .factor-neu { background: rgba(201,168,76,0.1); color: var(--gold); border: 1px solid rgba(201,168,76,0.2); }
+
+  /* ── Score Gauge ── */
+  .profile-score-wrap { text-align: center; padding: 20px 0; }
+  .gauge-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 12px; }
+  .gauge-val { font-family: 'Cinzel', serif; font-size: 52px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+  .gauge-desc { font-size: 13px; color: var(--text-dim); }
+  .gauge-ring {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+
+  /* ── Tier badge ── */
+  .tier { display: inline-block; padding: 3px 10px; border-radius: 3px; font-family: 'Share Tech Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+  .tier-1 { background: rgba(61,186,126,0.15); color: var(--green); border: 1px solid rgba(61,186,126,0.3); }
+  .tier-2 { background: rgba(201,168,76,0.15); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+  .tier-3 { background: rgba(232,131,42,0.15); color: var(--amber); border: 1px solid rgba(232,131,42,0.3); }
+  .tier-x { background: rgba(201,64,64,0.15); color: var(--red); border: 1px solid rgba(201,64,64,0.3); }
+
+  /* ── Sidebar sticky ── */
+  .sidebar-sticky { position: sticky; top: 88px; }
+
+  /* ── Result action card ── */
+  .action-card { padding: 20px; margin-bottom: 12px; }
+  .action-card-title { font-size: 14px; font-weight: 700; color: var(--text-bright); margin-bottom: 6px; }
+  .action-card-body { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+
+  /* ── Recommendation Banner ── */
+  .rec-banner { padding: 20px; margin-bottom: 20px; border-left: 3px solid var(--gold); background: rgba(201,168,76,0.06); }
+  .rec-banner-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--gold); letter-spacing: 3px; margin-bottom: 6px; }
+  .rec-banner-text { font-size: 14px; color: var(--text); line-height: 1.6; }
+
+  /* ── Placeholder state ── */
+  .placeholder-state { text-align: center; padding: 40px 20px; }
+  .placeholder-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+  .placeholder-text { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+
+  /* ── Footer ── */
+  .site-footer { border-top: 1px solid var(--glass-border); padding: 40px 0; text-align: center; }
+  .footer-logo { font-family: 'Cinzel', serif; font-size: 14px; font-weight: 900; letter-spacing: 4px; color: var(--gold); margin-bottom: 12px; }
+  .footer-text { font-size: 12px; color: var(--text-dim); line-height: 1.6; max-width: 600px; margin: 0 auto; }
+  .footer-links { display: flex; justify-content: center; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+  .footer-links a { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text-dim); text-decoration: none; letter-spacing: 1px; }
+  .footer-links a:hover { color: var(--gold); }
+
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--void); }
+  ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+
+  /* ── Disclaimer ── */
+  .disclaimer { font-size: 11px; color: var(--text-dim); line-height: 1.5; padding: 12px 16px; background: rgba(0,0,0,0.2); border-radius: 4px; margin-top: 16px; border: 1px solid var(--glass-border); }
+</style>
+</head>
+<body>
+
+<!-- ── FOUNDATION PASTE ── -->
+<header class="site-header" id="top">
+  <div class="container header-inner">
+    <div class="logo">☽ ARK COLLECTIVE v3</div>
+    <div class="section-id">SECTION 10.1 · VISA PROBABILITY CALCULATOR</div>
+  </div>
+</header>
+
+<!-- ── DATA BLOCK ── -->
+<script>
+// === VISA PROBABILITY ENGINE ===
+// Cross-referenced with Collapse Bible 150 scenarios + Safe Zone Doctrine
+
+const VISA_DATA = {
+  // Profile weights — each factor modifies base probability
+  factors: {
+    netWorth: {
+      label: "Net Worth (USD)",
+      bands: [
+        { max: 50000,    label: "< $50K",     score: -30, tag: "Low capital" },
+        { max: 150000,   label: "$50K–$150K", score: -15, tag: "Limited capital" },
+        { max: 500000,   label: "$150K–$500K",score: 0,   tag: "Threshold" },
+        { max: 1500000,  label: "$500K–$1.5M",score: 15,  tag: "Qualifying" },
+        { max: 5000000,  label: "$1.5M–$5M",  score: 25,  tag: "Strong" },
+        { max: Infinity, label: "$5M+",        score: 35,  tag: "Premium" },
+      ]
+    },
+    passportStrength: {
+      label: "Current Passport",
+      options: [
+        { value: "tier1", label: "Tier 1 (US/EU/UK/AUS/NZ/CA)", score: 20, tag: "+Visa-free access" },
+        { value: "tier2", label: "Tier 2 (GCC/Israel/Japan/S.Korea)", score: 10, tag: "+Moderate access" },
+        { value: "tier3", label: "Tier 3 (Latin Am/SEA/Balkans)", score: 0, tag: "Neutral" },
+        { value: "tier4", label: "Tier 4 (Africa/S.Asia/Middle East)", score: -10, tag: "−Restricted" },
+        { value: "tier5", label: "Tier 5 (Sanctioned/Failed State)", score: -25, tag: "−Severe restrictions" },
+      ]
+    },
+    age: {
+      label: "Age",
+      bands: [
+        { max: 30, label: "Under 30", score: 5, tag: "Youth premium" },
+        { max: 45, label: "30–45", score: 10, tag: "Prime window" },
+        { max: 60, label: "45–60", score: 5, tag: "Moderate" },
+        { max: 75, label: "60–75", score: 0, tag: "Standard" },
+        { max: Infinity, label: "75+", score: -5, tag: "Some restrictions" },
+      ]
+    },
+    criminalRecord: {
+      label: "Criminal Record",
+      options: [
+        { value: "none", label: "None", score: 10, tag: "+Clean record" },
+        { value: "minor", label: "Minor (traffic/civil)", score: 0, tag: "Neutral" },
+        { value: "expunged", label: "Expunged", score: -5, tag: "May surface" },
+        { value: "significant", label: "Significant", score: -40, tag: "−Likely disqualifying" },
+      ]
+    },
+    incomeProof: {
+      label: "Provable Monthly Income",
+      bands: [
+        { max: 1000, label: "< $1K/mo", score: -20, tag: "Insufficient" },
+        { max: 3000, label: "$1K–$3K/mo", score: 0, tag: "Minimum threshold" },
+        { max: 7000, label: "$3K–$7K/mo", score: 10, tag: "Comfortable" },
+        { max: 15000, label: "$7K–$15K/mo", score: 20, tag: "Strong" },
+        { max: Infinity, label: "$15K+/mo", score: 30, tag: "Premium" },
+      ]
+    },
+    languageSkill: {
+      label: "Host Country Language",
+      options: [
+        { value: "native", label: "Native/Fluent", score: 15, tag: "+Cultural integration" },
+        { value: "conversational", label: "Conversational", score: 8, tag: "+Good signal" },
+        { value: "basic", label: "Basic", score: 3, tag: "Minor credit" },
+        { value: "none", label: "None", score: 0, tag: "Neutral for most CBI" },
+      ]
+    },
+    profession: {
+      label: "Profession / Skills",
+      options: [
+        { value: "medical", label: "Medical/Healthcare", score: 20, tag: "+High demand" },
+        { value: "tech", label: "Tech/Engineering", score: 18, tag: "+Nomad eligible" },
+        { value: "finance", label: "Finance/Investment", score: 15, tag: "+Capital signal" },
+        { value: "business", label: "Business Owner/Entrepreneur", score: 12, tag: "+Economic contribution" },
+        { value: "retired", label: "Retired w/ pension", score: 10, tag: "+Passive income proof" },
+        { value: "other", label: "Other/General", score: 0, tag: "Neutral" },
+        { value: "unskilled", label: "Unskilled/Informal", score: -10, tag: "−Limited pathways" },
+      ]
+    },
+    priorVisaRefusals: {
+      label: "Prior Visa Refusals",
+      options: [
+        { value: "none", label: "None", score: 10, tag: "+Clean history" },
+        { value: "one", label: "1 refusal", score: -10, tag: "−Must explain" },
+        { value: "multiple", label: "2+ refusals", score: -25, tag: "−Significant barrier" },
+      ]
+    },
+    familyStatus: {
+      label: "Family Situation",
+      options: [
+        { value: "single", label: "Single, no deps.", score: 5, tag: "Simple application" },
+        { value: "couple", label: "Couple, no children", score: 8, tag: "Joint application" },
+        { value: "family_minor", label: "Family w/ minor children", score: 3, tag: "School enrollment required" },
+        { value: "family_adult", label: "Family w/ adult children", score: 5, tag: "Separate applications" },
+      ]
+    },
+    collapseUrgency: {
+      label: "Urgency Level",
+      options: [
+        { value: "planning", label: "Long-term planning", score: 10, tag: "Best outcome window" },
+        { value: "12mo", label: "Need residency within 12 mo", score: 5, tag: "Feasible for most" },
+        { value: "3mo", label: "Need within 3 months", score: -10, tag: "Limits options" },
+        { value: "immediate", label: "Immediate / Crisis", score: -30, tag: "Emergency pathways only" },
+      ]
+    }
+  },
+
+  // Country base probabilities + modifying factors
+  countries: [
+    {
+      id: "nz",
+      name: "New Zealand",
+      visaType: "Investor / Active Investor Plus",
+      basePct: 72,
+      minNetWorth: 5000000,
+      minIncome: 7000,
+      boostFactors: ["netWorth_high", "clean_record", "tier1_passport", "planning"],
+      penaltyFactors: ["criminal_record", "low_capital", "crisis_urgency"],
+      arkTier: "tier-1",
+      note: "Strongest geopolitical shelter. Strict due diligence. Minimum NZD 3M–5M investment.",
+      fastTrack: false
+    },
+    {
+      id: "uy",
+      name: "Uruguay",
+      visaType: "Rentista / Pensionado",
+      basePct: 84,
+      minNetWorth: 50000,
+      minIncome: 1500,
+      boostFactors: ["income_proof", "clean_record", "planning"],
+      penaltyFactors: ["criminal_record"],
+      arkTier: "tier-1",
+      note: "Highest approval rate in Tier A. Low threshold. Easiest path in South America.",
+      fastTrack: true
+    },
+    {
+      id: "pt",
+      name: "Portugal",
+      visaType: "D7 Passive Income / Golden Visa",
+      basePct: 75,
+      minNetWorth: 500000,
+      minIncome: 1500,
+      boostFactors: ["eu_passport", "income_proof", "language_skill", "planning"],
+      penaltyFactors: ["criminal_record", "tier4_passport", "refusals"],
+      arkTier: "tier-2",
+      note: "EU access. Schengen. Golden Visa real estate restrictions apply to Lisbon/Porto.",
+      fastTrack: false
+    },
+    {
+      id: "ge",
+      name: "Georgia",
+      visaType: "Remotely from Georgia / Business Residency",
+      basePct: 91,
+      minNetWorth: 10000,
+      minIncome: 0,
+      boostFactors: ["tech_profession", "planning", "clean_record"],
+      penaltyFactors: ["sanctioned_passport"],
+      arkTier: "tier-2",
+      note: "365-day visa on arrival for 90+ nationalities. Easiest EU-adjacent jurisdiction globally.",
+      fastTrack: true
+    },
+    {
+      id: "py",
+      name: "Paraguay",
+      visaType: "Permanent Residency",
+      basePct: 88,
+      minNetWorth: 10000,
+      minIncome: 0,
+      boostFactors: ["planning", "clean_record", "income_proof"],
+      penaltyFactors: ["criminal_record"],
+      arkTier: "tier-2",
+      note: "Cheapest permanent residency globally. $5,500 deposit. 3-year path to citizenship.",
+      fastTrack: true
+    },
+    {
+      id: "pa",
+      name: "Panama",
+      visaType: "Qualified Investor / Pensionado",
+      basePct: 82,
+      minNetWorth: 300000,
+      minIncome: 1000,
+      boostFactors: ["income_proof", "capital_mid", "planning", "clean_record"],
+      penaltyFactors: ["criminal_record", "refusals"],
+      arkTier: "tier-2",
+      note: "Dollarized economy. Fast processing. 5-year path to citizenship.",
+      fastTrack: true
+    },
+    {
+      id: "mt",
+      name: "Malta",
+      visaType: "Malta Permanent Residence Programme",
+      basePct: 65,
+      minNetWorth: 1500000,
+      minIncome: 5000,
+      boostFactors: ["netWorth_high", "tier1_passport", "clean_record", "planning"],
+      penaltyFactors: ["criminal_record", "low_capital", "refusals", "crisis_urgency"],
+      arkTier: "tier-2",
+      note: "Best EU passport. Extremely thorough due diligence. Minimum commitment €600K+.",
+      fastTrack: false
+    },
+    {
+      id: "vn",
+      name: "Vanuatu",
+      visaType: "Citizenship by Investment",
+      basePct: 78,
+      minNetWorth: 150000,
+      minIncome: 0,
+      boostFactors: ["capital_mid", "clean_record", "planning"],
+      penaltyFactors: ["criminal_record", "refusals", "tier5_passport"],
+      arkTier: "tier-2",
+      note: "Fastest CBI globally. 1–3 months. Pacific location. 96 visa-free countries.",
+      fastTrack: true
+    },
+    {
+      id: "cr",
+      name: "Costa Rica",
+      visaType: "Rentista / Pensionado",
+      basePct: 86,
+      minNetWorth: 50000,
+      minIncome: 2500,
+      boostFactors: ["income_proof", "clean_record", "planning", "medical_profession"],
+      penaltyFactors: ["criminal_record"],
+      arkTier: "tier-2",
+      note: "No military. High biodiversity. Eco-infrastructure. Excellent healthcare.",
+      fastTrack: true
+    },
+    {
+      id: "no",
+      name: "Norway",
+      visaType: "Self-Sufficient Residence",
+      basePct: 68,
+      minNetWorth: 200000,
+      minIncome: 3000,
+      boostFactors: ["tier1_passport", "income_proof", "planning", "language_skill"],
+      penaltyFactors: ["criminal_record", "tier4_passport", "tier5_passport", "refusals", "crisis_urgency"],
+      arkTier: "tier-1",
+      note: "Sovereign wealth fund nation. Energy independent. High living standards. Language barrier.",
+      fastTrack: false
+    },
+    {
+      id: "ch",
+      name: "Switzerland",
+      visaType: "Permit C / Lump Sum Tax",
+      basePct: 55,
+      minNetWorth: 5000000,
+      minIncome: 10000,
+      boostFactors: ["netWorth_high", "tier1_passport", "clean_record", "planning", "finance_profession"],
+      penaltyFactors: ["criminal_record", "tier4_passport", "low_capital", "refusals", "crisis_urgency"],
+      arkTier: "tier-1",
+      note: "Neutral status. Legendary banking. Alpine resilience. Very high barriers. Worth it.",
+      fastTrack: false
+    },
+    {
+      id: "ae",
+      name: "UAE / Dubai",
+      visaType: "Golden Visa",
+      basePct: 79,
+      minNetWorth: 500000,
+      minIncome: 5000,
+      boostFactors: ["capital_mid", "netWorth_high", "finance_profession", "tech_profession", "planning"],
+      penaltyFactors: ["criminal_record", "crisis_urgency"],
+      arkTier: "tier-3",
+      note: "Tax-free. Fast. Geopolitical exposure. Food/water import dependency. Good staging post.",
+      fastTrack: true
+    },
+  ],
+
+  // Collapse scenario weights
+  collapseScenarios: {
+    "Financial Collapse": ["uy", "pa", "py", "ge"],
+    "Political Authoritarianism": ["pt", "mt", "no"],
+    "Nuclear Threat": ["nz", "no", "ch"],
+    "Pandemic": ["nz", "no", "ge"],
+    "Climate Change": ["no", "ge", "py"],
+    "Cyber Collapse": ["ge", "py", "uy"],
+  }
+};
+
+// === Application State ===
+const state = {
+  currentStep: 1,
+  totalSteps: 5,
+  inputs: {
+    netWorth: 500000,
+    passportStrength: "tier1",
+    age: 40,
+    criminalRecord: "none",
+    incomePerMonth: 5000,
+    languageSkill: "none",
+    profession: "business",
+    priorVisaRefusals: "none",
+    familyStatus: "couple",
+    collapseUrgency: "planning",
+    targetCountries: [],
+    primaryThreat: "Financial Collapse",
+  },
+  scores: {},
+  results: []
+};
+</script>
+
+<!-- ── RENDER BLOCK ── -->
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-eyebrow">☽ Ark Collective v3 · Section 10.1</div>
+      <h1>Visa Approval <span>Probability</span></h1>
+      <p class="hero-sub">Personalized visa odds calculator. Input your profile — get probability scores, ranked pathways, and tactical advice cross-referenced with the Collapse Bible.</p>
+    </div>
+  </section>
+
+  <!-- Calculator -->
+  <section class="content-section" id="calculator">
+    <div class="container">
+      <div class="sec-title">Personalized Visa Intelligence Wizard</div>
+
+      <!-- Step Progress -->
+      <div class="step-progress" id="step-progress"></div>
+
+      <div class="wizard-layout">
+        <!-- Left: Wizard Steps -->
+        <div class="gl wizard-panel" id="wizard-panel">
+          <!-- Steps rendered by JS -->
+        </div>
+
+        <!-- Right: Live Results Sidebar -->
+        <div class="sidebar-sticky">
+          <div class="gl results-panel" id="live-results">
+            <div class="placeholder-state">
+              <div class="placeholder-icon">⚖️</div>
+              <div class="placeholder-text">Complete the wizard to see your personalized visa probability scores across all Ark-approved jurisdictions.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Methodology -->
+  <section class="content-section" id="methodology">
+    <div class="container">
+      <div class="sec-title">Calculation Methodology</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+        <div class="gl" style="padding:20px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:2px;margin-bottom:8px;">FACTOR WEIGHTING</div>
+          <p style="font-size:13px;color:var(--text-dim);line-height:1.6;">10 primary factors modify each country's base approval probability. Factors are weighted by real-world immigration attorney data and Ark Collective on-ground research across 14 jurisdictions.</p>
+        </div>
+        <div class="gl" style="padding:20px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:2px;margin-bottom:8px;">COLLAPSE SCENARIO ALIGNMENT</div>
+          <p style="font-size:13px;color:var(--text-dim);line-height:1.6;">Results are additionally filtered by your primary threat scenario, cross-referenced against the Collapse Bible 150-scenario database to surface highest-alignment destinations.</p>
+        </div>
+        <div class="gl" style="padding:20px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:2px;margin-bottom:8px;">DISCLAIMER</div>
+          <p style="font-size:13px;color:var(--text-dim);line-height:1.6;">Probabilities are educational estimates only. Always engage a licensed immigration attorney before submitting any application. Program terms change. This calculator is not legal advice.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-logo">☽ ARK COLLECTIVE v3</div>
+    <div class="footer-text">Section 10.1 — Visa Approval Probability Calculator. Cross-mapped to Collapse Bible 150 scenarios and Safe Zone Five-Layer Doctrine.</div>
+    <div class="footer-links">
+      <a href="#top">↑ Top</a>
+      <a href="#calculator">Calculator</a>
+      <a href="10-visas-immigration.html">← 10 Visas & Immigration</a>
+      <a href="#methodology">Methodology</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ── INTERACTION BLOCK ── -->
+<script>
+// ============================================
+// WIZARD STEP DEFINITIONS
+// ============================================
+const STEPS = [
+  {
+    id: 1,
+    label: "Step 1 of 5",
+    title: "Financial Profile",
+    desc: "Your capital and income determine which visa pathways are mathematically available to you. Be precise for best results.",
+    fields: [
+      {
+        type: "range-custom",
+        id: "netWorth",
+        label: "Net Worth (Liquid + Investable Assets)",
+        min: 0, max: 10000000, step: 50000,
+        format: (v) => "$" + Number(v).toLocaleString(),
+        rangeLabels: ["$0", "$10M+"],
+        defaultVal: 500000
+      },
+      {
+        type: "range-custom",
+        id: "incomePerMonth",
+        label: "Provable Monthly Income",
+        min: 0, max: 50000, step: 250,
+        format: (v) => "$" + Number(v).toLocaleString() + "/mo",
+        rangeLabels: ["$0", "$50K+"],
+        defaultVal: 5000
+      }
+    ]
+  },
+  {
+    id: 2,
+    label: "Step 2 of 5",
+    title: "Personal Profile",
+    desc: "Passport strength, age, criminal history, and prior visa refusals are cross-checked against host country requirements.",
+    fields: [
+      {
+        type: "radio",
+        id: "passportStrength",
+        label: "Current Passport Tier",
+        options: [
+          { value: "tier1", label: "Tier 1", small: "US/EU/UK/AUS/NZ" },
+          { value: "tier2", label: "Tier 2", small: "GCC/Japan/Korea" },
+          { value: "tier3", label: "Tier 3", small: "LatAm/SEA" },
+          { value: "tier4", label: "Tier 4", small: "Africa/S.Asia" },
+          { value: "tier5", label: "Tier 5", small: "Sanctioned states" },
+        ]
+      },
+      {
+        type: "range-custom",
+        id: "age",
+        label: "Your Age",
+        min: 18, max: 85, step: 1,
+        format: (v) => v + " years",
+        rangeLabels: ["18", "85+"],
+        defaultVal: 40
+      },
+      {
+        type: "radio",
+        id: "criminalRecord",
+        label: "Criminal Record",
+        options: [
+          { value: "none", label: "None", small: "Clean record" },
+          { value: "minor", label: "Minor", small: "Traffic/civil" },
+          { value: "expunged", label: "Expunged", small: "May surface" },
+          { value: "significant", label: "Significant", small: "May disqualify" },
+        ]
+      },
+      {
+        type: "radio",
+        id: "priorVisaRefusals",
+        label: "Prior Visa Refusals",
+        cols: 3,
+        options: [
+          { value: "none", label: "None", small: "" },
+          { value: "one", label: "1 Refusal", small: "" },
+          { value: "multiple", label: "2+ Refusals", small: "" },
+        ]
+      }
+    ]
+  },
+  {
+    id: 3,
+    label: "Step 3 of 5",
+    title: "Skills & Situation",
+    desc: "Your profession, language ability, and family situation affect both the visa type available and host country preference for your application.",
+    fields: [
+      {
+        type: "radio",
+        id: "profession",
+        label: "Profession / Primary Income Source",
+        options: [
+          { value: "medical", label: "Medical", small: "Healthcare" },
+          { value: "tech", label: "Tech / Eng", small: "Software/STEM" },
+          { value: "finance", label: "Finance", small: "Investing/Banking" },
+          { value: "business", label: "Business", small: "Entrepreneur" },
+          { value: "retired", label: "Retired", small: "Pension/passive" },
+          { value: "other", label: "Other", small: "General skills" },
+          { value: "unskilled", label: "Informal", small: "No formal record" },
+        ]
+      },
+      {
+        type: "radio",
+        id: "languageSkill",
+        label: "Host Country Language Proficiency (Best Case)",
+        options: [
+          { value: "native", label: "Fluent/Native", small: "" },
+          { value: "conversational", label: "Conversational", small: "" },
+          { value: "basic", label: "Basic", small: "" },
+          { value: "none", label: "None", small: "CBI route" },
+        ]
+      },
+      {
+        type: "radio",
+        id: "familyStatus",
+        label: "Family Situation",
+        options: [
+          { value: "single", label: "Single", small: "No dependents" },
+          { value: "couple", label: "Couple", small: "No children" },
+          { value: "family_minor", label: "Family", small: "Minor children" },
+          { value: "family_adult", label: "Family", small: "Adult children" },
+        ]
+      }
+    ]
+  },
+  {
+    id: 4,
+    label: "Step 4 of 5",
+    title: "Threat & Urgency",
+    desc: "Your primary collapse scenario and urgency level determines which destinations score highest in alignment with Safe Zone Doctrine.",
+    fields: [
+      {
+        type: "radio",
+        id: "primaryThreat",
+        label: "Primary Collapse Threat Scenario",
+        options: [
+          { value: "Financial Collapse", label: "Financial", small: "Hyperinflation/crash" },
+          { value: "Political Authoritarianism", label: "Political", small: "Authoritarianism" },
+          { value: "Nuclear Threat", label: "Nuclear/WMD", small: "Kinetic conflict" },
+          { value: "Pandemic", label: "Pandemic", small: "Biological threat" },
+          { value: "Climate Change", label: "Climate", small: "Environmental" },
+          { value: "Cyber Collapse", label: "Cyber/Grid", small: "Infrastructure" },
+        ]
+      },
+      {
+        type: "radio",
+        id: "collapseUrgency",
+        label: "Relocation Urgency",
+        options: [
+          { value: "planning", label: "Long-term", small: "3+ years" },
+          { value: "12mo", label: "12 months", small: "Within 1 year" },
+          { value: "3mo", label: "3 months", small: "Urgent" },
+          { value: "immediate", label: "Now", small: "Crisis mode" },
+        ]
+      }
+    ]
+  },
+  {
+    id: 5,
+    label: "Step 5 of 5",
+    title: "Target Countries",
+    desc: "Optionally select countries you're interested in. Leave all unchecked to see all Ark-approved jurisdictions ranked by your probability.",
+    fields: [
+      {
+        type: "checkboxes",
+        id: "targetCountries",
+        label: "Preferred Destinations (optional — select all that interest you)",
+        options: VISA_DATA.countries.map(c => ({ value: c.id, label: c.name, small: c.visaType }))
+      }
+    ]
+  }
+];
+
+// ============================================
+// SCORING ENGINE
+// ============================================
+function getFactorScore(factorId, value) {
+  const factor = VISA_DATA.factors[factorId];
+  if (!factor) return 0;
+
+  if (factor.bands) {
+    const nv = parseFloat(value);
+    for (const b of factor.bands) {
+      if (nv <= b.max) return b.score;
+    }
+    return factor.bands[factor.bands.length - 1].score;
+  }
+
+  if (factor.options) {
+    const opt = factor.options.find(o => o.value === value);
+    return opt ? opt.score : 0;
+  }
+  return 0;
+}
+
+function scoreNetWorth(nw) {
+  const bands = VISA_DATA.factors.netWorth.bands;
+  for (const b of bands) if (parseFloat(nw) <= b.max) return { score: b.score, tag: b.tag };
+  return { score: 35, tag: "Premium" };
+}
+
+function scoreIncome(inc) {
+  const bands = VISA_DATA.factors.incomeProof.bands;
+  for (const b of bands) if (parseFloat(inc) <= b.max) return { score: b.score, tag: b.tag };
+  return { score: 30, tag: "Premium" };
+}
+
+function scoreAge(age) {
+  const bands = VISA_DATA.factors.age.bands;
+  for (const b of bands) if (parseFloat(age) <= b.max) return { score: b.score, tag: b.tag };
+  return { score: -5, tag: "Some restrictions" };
+}
+
+function computeProfileScore() {
+  const s = state.inputs;
+  let score = 0;
+  score += scoreNetWorth(s.netWorth).score;
+  score += scoreIncome(s.incomePerMonth).score;
+  score += scoreAge(s.age).score;
+  score += getFactorScore('passportStrength', s.passportStrength);
+  score += getFactorScore('criminalRecord', s.criminalRecord);
+  score += getFactorScore('languageSkill', s.languageSkill);
+  score += getFactorScore('profession', s.profession);
+  score += getFactorScore('priorVisaRefusals', s.priorVisaRefusals);
+  score += getFactorScore('familyStatus', s.familyStatus);
+  score += getFactorScore('collapseUrgency', s.collapseUrgency);
+  return score; // Can range roughly -140 to +130
+}
+
+function computeCountryProbability(country) {
+  const s = state.inputs;
+  let pct = country.basePct;
+
+  // Net worth gate
+  const nwGate = country.minNetWorth || 0;
+  if (parseFloat(s.netWorth) < nwGate * 0.5) pct -= 30;
+  else if (parseFloat(s.netWorth) < nwGate) pct -= 15;
+  else if (parseFloat(s.netWorth) >= nwGate * 2) pct += 10;
+
+  // Income gate
+  const incGate = country.minIncome || 0;
+  if (parseFloat(s.incomePerMonth) < incGate * 0.5) pct -= 20;
+  else if (parseFloat(s.incomePerMonth) < incGate) pct -= 8;
+  else if (parseFloat(s.incomePerMonth) >= incGate * 2) pct += 5;
+
+  // Profile score contribution (normalized)
+  const profileScore = computeProfileScore();
+  pct += Math.round(profileScore * 0.15);
+
+  // Criminal record — hard penalty
+  if (s.criminalRecord === "significant") pct -= 45;
+  if (s.criminalRecord === "expunged") pct -= 10;
+
+  // Passport tier for EU/Schengen
+  if (["pt","no","mt","ch"].includes(country.id)) {
+    if (s.passportStrength === "tier4") pct -= 15;
+    if (s.passportStrength === "tier5") pct -= 30;
+    if (s.passportStrength === "tier1") pct += 8;
+  }
+
+  // Refusals
+  if (s.priorVisaRefusals === "one") pct -= 8;
+  if (s.priorVisaRefusals === "multiple") pct -= 20;
+
+  // Urgency
+  if (s.collapseUrgency === "immediate") pct -= 25;
+  if (s.collapseUrgency === "3mo") pct -= 10;
+  if (s.collapseUrgency === "planning") pct += 5;
+
+  // Collapse scenario alignment
+  const scenarioFit = (VISA_DATA.collapseScenarios[s.primaryThreat] || []).includes(country.id);
+  if (scenarioFit) pct += 8;
+
+  // Fast track bonus for urgency
+  if (country.fastTrack && ["3mo","12mo"].includes(s.collapseUrgency)) pct += 5;
+
+  // Clamp
+  pct = Math.max(2, Math.min(97, pct));
+  return Math.round(pct);
+}
+
+function buildFactors(country) {
+  const s = state.inputs;
+  const factors = [];
+
+  const nw = parseFloat(s.netWorth);
+  if (nw >= (country.minNetWorth || 0)) factors.push({ label: "Capital qualified", type: "pos" });
+  else factors.push({ label: "Capital gap", type: "neg" });
+
+  if (s.criminalRecord === "none") factors.push({ label: "Clean record", type: "pos" });
+  else if (s.criminalRecord === "significant") factors.push({ label: "Criminal record", type: "neg" });
+
+  if (s.passportStrength === "tier1") factors.push({ label: "Strong passport", type: "pos" });
+  else if (s.passportStrength === "tier5") factors.push({ label: "Weak passport", type: "neg" });
+
+  if (s.priorVisaRefusals !== "none") factors.push({ label: "Prior refusals", type: "neg" });
+
+  if (country.fastTrack) factors.push({ label: "Fast-track route", type: "pos" });
+
+  const scenarioFit = (VISA_DATA.collapseScenarios[s.primaryThreat] || []).includes(country.id);
+  if (scenarioFit) factors.push({ label: `${s.primaryThreat} aligned`, type: "pos" });
+
+  if (s.collapseUrgency === "planning") factors.push({ label: "Optimal timing", type: "pos" });
+  else if (s.collapseUrgency === "immediate") factors.push({ label: "Crisis urgency", type: "neg" });
+
+  if (["medical","tech","finance"].includes(s.profession)) factors.push({ label: "In-demand profession", type: "pos" });
+
+  return factors;
+}
+
+// ============================================
+// RESULTS COMPUTATION
+// ============================================
+function computeResults() {
+  let countries = VISA_DATA.countries;
+  const selected = state.inputs.targetCountries;
+  if (selected && selected.length > 0) {
+    countries = countries.filter(c => selected.includes(c.id));
+    // If none match, show all
+    if (countries.length === 0) countries = VISA_DATA.countries;
+  }
+
+  const results = countries.map(c => ({
+    ...c,
+    probability: computeCountryProbability(c),
+    factors: buildFactors(c)
+  }));
+
+  results.sort((a, b) => b.probability - a.probability);
+  return results;
+}
+
+// ============================================
+// RENDER FUNCTIONS
+// ============================================
+function renderStepProgress() {
+  const container = document.getElementById('step-progress');
+  let html = '';
+  for (let i = 1; i <= state.totalSteps; i++) {
+    const cls = i < state.currentStep ? 'done' : i === state.currentStep ? 'active' : '';
+    const icon = i < state.currentStep ? '✓' : i;
+    html += `<div class="step-dot ${cls}">${icon}</div>`;
+    if (i < state.totalSteps) {
+      const lineCls = i < state.currentStep ? 'done' : '';
+      html += `<div class="step-line ${lineCls}"></div>`;
+    }
+  }
+  container.innerHTML = html;
+}
+
+function renderWizardStep() {
+  const step = STEPS[state.currentStep - 1];
+  const panel = document.getElementById('wizard-panel');
+
+  let html = `
+    <div class="step-label">${step.label}</div>
+    <div class="step-title">${step.title}</div>
+    <div class="step-desc">${step.desc}</div>
+  `;
+
+  step.fields.forEach(field => {
+    html += `<div class="form-group">`;
+    html += `<label class="form-label" for="${field.id}">${field.label}</label>`;
+
+    if (field.type === "range-custom") {
+      const currVal = state.inputs[field.id] !== undefined ? state.inputs[field.id] : field.defaultVal;
+      html += `
+        <div class="range-val" id="${field.id}-display">${field.format(currVal)}</div>
+        <input type="range" id="${field.id}" min="${field.min}" max="${field.max}" step="${field.step}" value="${currVal}"
+          oninput="updateRange('${field.id}', this.value)" >
+        <div class="range-labels"><span>${field.rangeLabels[0]}</span><span>${field.rangeLabels[1]}</span></div>
+      `;
+    } else if (field.type === "radio") {
+      const cols = field.cols || (field.options.length >= 6 ? 3 : 2);
+      html += `<div class="radio-group ${cols === 3 ? 'cols3' : ''}">`;
+      field.options.forEach(opt => {
+        const checked = state.inputs[field.id] === opt.value;
+        html += `
+          <div class="radio-opt">
+            <input type="radio" name="${field.id}" id="${field.id}_${opt.value}" value="${opt.value}" ${checked ? 'checked' : ''}
+              onchange="updateInput('${field.id}', '${opt.value}')">
+            <label for="${field.id}_${opt.value}">
+              ${opt.label}
+              ${opt.small ? `<small>${opt.small}</small>` : ''}
+            </label>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    } else if (field.type === "checkboxes") {
+      html += `<div class="check-group">`;
+      field.options.forEach(opt => {
+        const checked = Array.isArray(state.inputs[field.id]) && state.inputs[field.id].includes(opt.value);
+        html += `
+          <div class="check-opt">
+            <input type="checkbox" id="${field.id}_${opt.value}" value="${opt.value}" ${checked ? 'checked' : ''}
+              onchange="updateCheckbox('${field.id}', '${opt.value}', this.checked)">
+            <label for="${field.id}_${opt.value}">
+              ${opt.label}
+              ${opt.small ? `<small>${opt.small}</small>` : ''}
+            </label>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    }
+
+    html += `</div>`;
+  });
+
+  // Buttons
+  html += `<div class="wizard-btns">`;
+  if (state.currentStep > 1) html += `<button class="btn btn-ghost" onclick="prevStep()">← Back</button>`;
+  if (state.currentStep < state.totalSteps) {
+    html += `<button class="btn btn-primary" onclick="nextStep()">Continue →</button>`;
+  } else {
+    html += `<button class="btn btn-primary" onclick="computeAndShow()">Calculate My Odds ⚡</button>`;
+  }
+  html += `</div>`;
+
+  panel.innerHTML = html;
+}
+
+function renderSidebarResults(results, profileScore) {
+  const container = document.getElementById('live-results');
+
+  if (!results || results.length === 0) {
+    container.innerHTML = `<div class="placeholder-state"><div class="placeholder-icon">⚖️</div><div class="placeholder-text">Complete the wizard to see your personalized results.</div></div>`;
+    return;
+  }
+
+  // Profile strength rating
+  const adjScore = Math.max(0, Math.min(100, 50 + profileScore));
+  const profileLabel = adjScore >= 75 ? "STRONG PROFILE" : adjScore >= 55 ? "MODERATE PROFILE" : adjScore >= 35 ? "WEAK PROFILE" : "VERY WEAK PROFILE";
+  const profileColor = adjScore >= 75 ? "var(--green)" : adjScore >= 55 ? "var(--gold)" : adjScore >= 35 ? "var(--amber)" : "var(--red)";
+
+  let html = `
+    <div style="border-bottom:1px solid var(--glass-border);padding-bottom:16px;margin-bottom:16px;text-align:center;">
+      <div class="gauge-label">IMMIGRATION PROFILE STRENGTH</div>
+      <div class="gauge-val" style="color:${profileColor};">${adjScore}</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:${profileColor};letter-spacing:2px;margin-bottom:8px;">${profileLabel}</div>
+      <div class="pbar"><div class="pbar-fill" style="width:${adjScore}%;background:${profileColor};"></div></div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:2px;margin-bottom:10px;">TOP PATHWAYS — RANKED</div>
+  `;
+
+  const topResults = results.slice(0, 8);
+  topResults.forEach(r => {
+    const pct = r.probability;
+    const color = pct >= 80 ? "pct-high" : pct >= 65 ? "pct-med" : pct >= 45 ? "pct-low" : "pct-vlow";
+    const barColor = pct >= 80 ? "fill-green" : pct >= 65 ? "fill-gold" : pct >= 45 ? "fill-amber" : "fill-red";
+    const tierCls = r.arkTier || 'tier-2';
+
+    html += `
+      <div class="result-country">
+        <div class="rc-header">
+          <div>
+            <div class="rc-name">${r.name}</div>
+            <div class="rc-visa">${r.visaType}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="rc-pct ${color}">${pct}%</div>
+            <span class="tier ${tierCls}" style="font-size:9px;">ARK ${tierCls.replace('tier-','T')}</span>
+          </div>
+        </div>
+        <div class="pbar"><div class="pbar-fill ${barColor}" style="width:${pct}%;"></div></div>
+        <div class="rc-factors">
+          ${r.factors.slice(0, 4).map(f => `<span class="rc-factor factor-${f.type}">${f.label}</span>`).join('')}
+        </div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:6px;line-height:1.5;">${r.note}</div>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+  html += `<div class="disclaimer">Educational estimates only. Not legal advice. Program terms change. Engage a licensed immigration attorney before any application.</div>`;
+
+  container.innerHTML = html;
+
+  // Animate bars
+  requestAnimationFrame(() => {
+    container.querySelectorAll('.pbar-fill').forEach(bar => {
+      const w = bar.style.width;
+      bar.style.width = '0';
+      requestAnimationFrame(() => { bar.style.width = w; });
+    });
+  });
+}
+
+// ============================================
+// INPUT HANDLERS
+// ============================================
+function updateRange(id, val) {
+  state.inputs[id] = parseFloat(val);
+  const field = STEPS.flatMap(s => s.fields).find(f => f.id === id);
+  if (field && typeof field.format === 'function') {
+    const display = document.getElementById(id + '-display');
+    if (display) display.textContent = field.format(val);
+  }
+  liveUpdate();
+}
+
+function updateInput(id, val) {
+  state.inputs[id] = val;
+  liveUpdate();
+}
+
+function updateCheckbox(id, val, checked) {
+  if (!Array.isArray(state.inputs[id])) state.inputs[id] = [];
+  if (checked) { if (!state.inputs[id].includes(val)) state.inputs[id].push(val); }
+  else { state.inputs[id] = state.inputs[id].filter(v => v !== val); }
+  liveUpdate();
+}
+
+function liveUpdate() {
+  if (state.currentStep >= 2) {
+    const results = computeResults();
+    const profileScore = computeProfileScore();
+    renderSidebarResults(results, profileScore);
+  }
+}
+
+// ============================================
+// NAVIGATION
+// ============================================
+function nextStep() {
+  if (state.currentStep < state.totalSteps) {
+    state.currentStep++;
+    renderStepProgress();
+    renderWizardStep();
+    if (state.currentStep >= 2) liveUpdate();
+  }
+}
+
+function prevStep() {
+  if (state.currentStep > 1) {
+    state.currentStep--;
+    renderStepProgress();
+    renderWizardStep();
+  }
+}
+
+function computeAndShow() {
+  const results = computeResults();
+  const profileScore = computeProfileScore();
+  renderSidebarResults(results, profileScore);
+
+  // Also expand the wizard panel to show full results
+  const panel = document.getElementById('wizard-panel');
+  const adjScore = Math.max(0, Math.min(100, 50 + profileScore));
+  const profileLabel = adjScore >= 75 ? "STRONG PROFILE" : adjScore >= 55 ? "MODERATE PROFILE" : adjScore >= 35 ? "WEAK PROFILE" : "VERY WEAK PROFILE";
+  const topDest = results[0];
+  const urgency = state.inputs.collapseUrgency;
+  const urgencyRec = { planning: "You are in the optimal window. Begin residency applications immediately while taking advantage of full program availability.", "12mo": "12-month window is tight but viable for fast-track programs. Prioritize Uruguay, Georgia, Panama, or Paraguay.", "3mo": "3-month urgency limits you to nomad visas and emergency entries. Parallel-process applications now.", immediate: "Emergency protocols only. Contact immigration attorney today. Target visa-on-arrival + emergency entry routes." };
+
+  let html = `
+    <div class="step-label">CALCULATION COMPLETE</div>
+    <div class="step-title" style="color:var(--green);">Results Ready</div>
+    <div class="step-desc">Your profile has been analyzed against ${VISA_DATA.countries.length} Ark-approved jurisdictions.</div>
+
+    <div class="rec-banner">
+      <div class="rec-banner-label">STRATEGIC RECOMMENDATION</div>
+      <div class="rec-banner-text">${urgencyRec[urgency] || urgencyRec.planning}</div>
+    </div>
+
+    ${topDest ? `
+    <div class="action-card gl">
+      <div class="action-card-title">🥇 Top Match: ${topDest.name} — ${topDest.probability}% approval likelihood</div>
+      <div class="action-card-body">${topDest.note}<br><br><strong style="color:var(--gold);">Visa Route:</strong> ${topDest.visaType}</div>
+    </div>` : ''}
+
+    <div class="action-card gl">
+      <div class="action-card-title">⚡ Immediate Next Steps</div>
+      <div class="action-card-body">
+        1. Gather apostilled documents (birth cert, financials, police clearance).<br>
+        2. Engage an immigration attorney in your top destination country.<br>
+        3. Open an offshore bank account in a neutral jurisdiction.<br>
+        4. Apply to your top-ranked fast-track program within 30 days.
+      </div>
+    </div>
+
+    <div class="wizard-btns">
+      <button class="btn btn-ghost" onclick="resetWizard()">↺ Recalculate</button>
+      <button class="btn btn-primary" onclick="window.location.href='10-visas-immigration.html'">→ Full Immigration Guide</button>
+    </div>
+
+    <div class="disclaimer" style="margin-top:16px;">Estimates are educational only. Not legal advice. Always consult a licensed immigration attorney.</div>
+  `;
+
+  panel.innerHTML = html;
+}
+
+function resetWizard() {
+  state.currentStep = 1;
+  state.inputs.targetCountries = [];
+  renderStepProgress();
+  renderWizardStep();
+  document.getElementById('live-results').innerHTML = `<div class="placeholder-state"><div class="placeholder-icon">⚖️</div><div class="placeholder-text">Complete the wizard to see your personalized visa probability scores.</div></div>`;
+}
+
+// ============================================
+// INIT
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+  renderStepProgress();
+  renderWizardStep();
+});
+</script>
+</body>
+</html>

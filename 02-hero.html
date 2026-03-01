@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>02 — Hero | Ark v3 (Standalone)</title>
+<style>
+  :root {
+    --ink: #0a0e1a;
+    --void: #060910;
+    --glass: rgba(255,255,255,0.04);
+    --glass-b: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.10);
+    --accent: #e8c84a;
+    --accent2: #ff6b35;
+    --text: #c8d4e8;
+    --muted: #5a6a8a;
+    --danger: #ff3b3b;
+    --safe: #2ecc71;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--void);color:var(--text);font-family:'Courier New',monospace;overflow-x:hidden;}
+
+  /* ── FOUNDATION PASTE ── */
+  .gl{background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:12px;}
+  .gl-b{background:var(--glass-b);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.15);border-radius:16px;}
+  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.05em;}
+  .pill-danger{background:rgba(255,59,59,.2);color:var(--danger);border:1px solid rgba(255,59,59,.3);}
+  .pill-warn{background:rgba(232,200,74,.15);color:var(--accent);border:1px solid rgba(232,200,74,.3);}
+  .pill-safe{background:rgba(46,204,113,.15);color:var(--safe);border:1px solid rgba(46,204,113,.3);}
+
+  /* ── HERO DATA ── */
+  .hero{
+    position:relative;min-height:100vh;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    padding:80px 24px 60px;
+    overflow:hidden;
+  }
+
+  /* Background atmosphere */
+  .hero-bg{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(232,200,74,.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 60%, rgba(255,107,53,.08) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 60% at 20% 80%, rgba(46,100,200,.08) 0%, transparent 50%),
+      linear-gradient(180deg, #060910 0%, #080d1a 50%, #060910 100%);
+  }
+
+  /* Grid overlay */
+  .hero-grid{
+    position:absolute;inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size:60px 60px;
+    mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 70%);
+  }
+
+  /* Radar rings */
+  .radar{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:800px;height:800px;
+    border-radius:50%;
+    border:1px solid rgba(232,200,74,.06);
+    animation:radiate 4s linear infinite;
+    pointer-events:none;
+  }
+  .radar:nth-child(2){width:600px;height:600px;animation-delay:-1.3s;border-color:rgba(232,200,74,.04);}
+  .radar:nth-child(3){width:400px;height:400px;animation-delay:-2.6s;border-color:rgba(232,200,74,.08);}
+  @keyframes radiate{
+    0%{box-shadow:0 0 0 0 rgba(232,200,74,.15);}
+    100%{box-shadow:0 0 0 60px rgba(232,200,74,0);}
+  }
+
+  /* Particle field */
+  .particles{position:absolute;inset:0;pointer-events:none;}
+  .p{
+    position:absolute;width:2px;height:2px;border-radius:50%;
+    background:var(--accent);opacity:0;
+    animation:float var(--dur) var(--delay) infinite;
+  }
+  @keyframes float{
+    0%{opacity:0;transform:translateY(0);}
+    20%{opacity:.6;}
+    80%{opacity:.2;}
+    100%{opacity:0;transform:translateY(-120px);}
+  }
+
+  /* ── RENDER BLOCK ── */
+  .hero-content{
+    position:relative;z-index:2;
+    max-width:900px;width:100%;
+    text-align:center;
+  }
+
+  /* Badge */
+  .hero-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 14px;border-radius:30px;margin-bottom:32px;
+    background:rgba(232,200,74,.08);
+    border:1px solid rgba(232,200,74,.25);
+    font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;
+    color:var(--accent);
+    animation:fadeInDown .6s ease both;
+  }
+  .badge-dot{width:6px;height:6px;border-radius:50%;background:var(--danger);animation:blink 1s infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+  /* Headline */
+  .hero-headline{
+    font-size:clamp(40px,8vw,96px);
+    font-weight:900;
+    line-height:.95;
+    letter-spacing:-.04em;
+    color:#fff;
+    margin-bottom:8px;
+    animation:fadeInUp .7s .1s ease both;
+  }
+  .hero-headline .accent{
+    background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    display:inline-block;
+  }
+  .hero-headline .stroke{
+    -webkit-text-stroke:1px rgba(255,255,255,.3);
+    color:transparent;
+  }
+
+  /* Subhead */
+  .hero-sub{
+    font-size:clamp(14px,2vw,18px);
+    color:var(--muted);
+    max-width:600px;margin:20px auto 0;
+    line-height:1.7;
+    animation:fadeInUp .7s .2s ease both;
+  }
+  .hero-sub strong{color:var(--text);}
+
+  /* Clock display */
+  .hero-clock{
+    display:inline-flex;align-items:center;gap:16px;
+    margin:40px auto;
+    padding:20px 32px;
+    border-radius:16px;
+    background:rgba(255,59,59,.06);
+    border:1px solid rgba(255,59,59,.2);
+    animation:fadeInUp .7s .3s ease both;
+  }
+  .clock-time{
+    font-size:clamp(28px,5vw,56px);
+    font-weight:900;
+    color:var(--danger);
+    font-variant-numeric:tabular-nums;
+    letter-spacing:-.02em;
+    font-family:'Courier New',monospace;
+    text-shadow:0 0 30px rgba(255,59,59,.5);
+  }
+  .clock-label{text-align:left;}
+  .clock-label-top{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+  .clock-label-bot{font-size:12px;color:var(--danger);font-weight:700;letter-spacing:.06em;}
+  .clock-divider{width:1px;height:48px;background:rgba(255,59,59,.2);}
+
+  /* Stats bar */
+  .hero-stats{
+    display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:40px;
+    animation:fadeInUp .7s .35s ease both;
+  }
+  .stat-item{
+    padding:12px 20px;border-radius:10px;
+    background:var(--glass);border:1px solid var(--border);
+    text-align:center;min-width:120px;
+  }
+  .stat-val{font-size:22px;font-weight:900;color:#fff;}
+  .stat-lab{font-size:9px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+  .stat-item.hot .stat-val{color:var(--danger);}
+  .stat-item.warm .stat-val{color:var(--accent);}
+  .stat-item.cool .stat-val{color:var(--safe);}
+
+  /* CTA row */
+  .hero-ctas{
+    display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+    animation:fadeInUp .7s .4s ease both;
+  }
+  .btn-primary{
+    padding:14px 32px;border-radius:10px;font-family:inherit;font-size:13px;
+    font-weight:700;letter-spacing:.08em;cursor:pointer;border:none;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:var(--ink);text-transform:uppercase;
+    transition:all .25s;box-shadow:0 8px 32px rgba(232,200,74,.3);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(232,200,74,.45);}
+  .btn-secondary{
+    padding:14px 32px;border-radius:10px;font-family:inherit;font-size:13px;
+    font-weight:700;letter-spacing:.08em;cursor:pointer;
+    background:transparent;color:var(--text);
+    border:1px solid var(--border);text-transform:uppercase;
+    transition:all .25s;
+  }
+  .btn-secondary:hover{border-color:rgba(255,255,255,.3);color:#fff;background:var(--glass);}
+
+  /* Scroll hint */
+  .scroll-hint{
+    position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    opacity:.4;animation:fadeInUp 1s .8s ease both;
+  }
+  .scroll-hint span{font-size:9px;letter-spacing:.14em;text-transform:uppercase;}
+  .scroll-arrow{width:1px;height:32px;background:linear-gradient(var(--accent),transparent);animation:scrollDrop 1.5s infinite;}
+  @keyframes scrollDrop{0%{opacity:0;transform:scaleY(0);transform-origin:top;}50%{opacity:1;}100%{opacity:0;transform:scaleY(1);}}
+
+  /* Tier badge row */
+  .tier-row{
+    display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+    margin-top:32px;
+    animation:fadeInUp .7s .5s ease both;
+  }
+  .tier-badge{
+    padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.08em;
+    border:1px solid;cursor:pointer;transition:all .2s;
+  }
+  .tier-badge:hover{transform:scale(1.05);}
+  .t-obs{color:#7a8a9a;border-color:#2a3a4a;background:rgba(122,138,154,.08);}
+  .t-pre{color:#4ab3f4;border-color:rgba(74,179,244,.3);background:rgba(74,179,244,.08);}
+  .t-mem{color:var(--accent);border-color:rgba(232,200,74,.3);background:rgba(232,200,74,.08);}
+  .t-par{color:var(--accent2);border-color:rgba(255,107,53,.3);background:rgba(255,107,53,.08);}
+  .t-fou{color:#a855f7;border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.08);}
+
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes fadeInDown{from{opacity:0;transform:translateY(-16px);}to{opacity:1;transform:translateY(0);}}
+
+  @media(max-width:600px){
+    .hero-clock{flex-direction:column;gap:8px;text-align:center;}
+    .clock-divider{width:80%;height:1px;}
+    .hero-stats{gap:8px;}
+    .stat-item{min-width:90px;padding:10px 14px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ── DATA BLOCK ── -->
+<script>
+const HERO_DATA = {
+  doomsdayClock: { seconds: 90, label: "Doomsday Clock", sublabel: "Seconds to Midnight" },
+  stats: [
+    { val: "150", label: "Collapse Scenarios", class: "hot" },
+    { val: "38", label: "Protocol Modules", class: "warm" },
+    { val: "2,847", label: "Ark Members", class: "cool" },
+    { val: "12", label: "Safe Zone Nations", class: "cool" },
+    { val: "72HR", label: "Evac Readiness", class: "warm" },
+    { val: "2027", label: "Watch Year", class: "hot" }
+  ],
+  tiers: [
+    { label: "Observer", cls: "t-obs", href: "20-ark-tiers.html" },
+    { label: "Prepared", cls: "t-pre", href: "20-ark-tiers.html" },
+    { label: "Member", cls: "t-mem", href: "20-ark-tiers.html" },
+    { label: "Partner", cls: "t-par", href: "20-ark-tiers.html" },
+    { label: "Founder", cls: "t-fou", href: "20-ark-tiers.html" }
+  ],
+  particles: 30
+};
+</script>
+
+<!-- ── RENDER BLOCK ── -->
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="particles" id="particle-field"></div>
+  <div class="radar"></div>
+  <div class="radar"></div>
+  <div class="radar"></div>
+
+  <div class="hero-content">
+
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      LIVE THREAT PROTOCOL · ARK COLLECTIVE v3 · EST. 2024
+    </div>
+
+    <h1 class="hero-headline">
+      WHEN SYSTEMS<br>
+      <span class="accent">COLLAPSE</span><br>
+      <span class="stroke">YOU DON'T</span>
+    </h1>
+
+    <p class="hero-sub">
+      The <strong>world's most comprehensive continuity intelligence platform</strong>.<br>
+      150 collapse scenarios. 38 protocol modules. One objective: <strong>your family survives</strong>.
+    </p>
+
+    <!-- Doomsday Clock -->
+    <div class="hero-clock">
+      <div class="clock-label">
+        <div class="clock-label-top">Doomsday Clock</div>
+        <div class="clock-label-bot">THREAT LEVEL: CRITICAL</div>
+      </div>
+      <div class="clock-divider"></div>
+      <div class="clock-time" id="clock-num">90</div>
+      <div class="clock-label">
+        <div class="clock-label-top">Seconds</div>
+        <div class="clock-label-bot">TO MIDNIGHT</div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="hero-stats" id="stats-row"></div>
+
+    <!-- CTAs -->
+    <div class="hero-ctas">
+      <button class="btn-primary" onclick="location.href='04.5-risk-calculator.html'">
+        ⚡ CALCULATE MY RISK
+      </button>
+      <button class="btn-secondary" onclick="location.href='05-collapse-scenarios.html'">
+        📖 EXPLORE SCENARIOS
+      </button>
+      <button class="btn-secondary" onclick="location.href='26.1-30day-sprint.html'">
+        🗓 START 30-DAY SPRINT
+      </button>
+    </div>
+
+    <!-- Tiers -->
+    <div class="tier-row" id="tier-row"></div>
+
+  </div>
+
+  <div class="scroll-hint">
+    <span>Scroll to explore</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- ── INTERACTION BLOCK ── -->
+<script>
+// ── Render stats ──
+const statsEl = document.getElementById('stats-row');
+HERO_DATA.stats.forEach(s=>{
+  const d = document.createElement('div');
+  d.className = `stat-item gl ${s.class}`;
+  d.innerHTML = `<div class="stat-val">${s.val}</div><div class="stat-lab">${s.label}</div>`;
+  statsEl.appendChild(d);
+});
+
+// ── Render tiers ──
+const tierEl = document.getElementById('tier-row');
+HERO_DATA.tiers.forEach(t=>{
+  const a = document.createElement('a');
+  a.className = `tier-badge ${t.cls}`;
+  a.href = t.href;
+  a.textContent = t.label;
+  tierEl.appendChild(a);
+});
+
+// ── Doomsday clock counter-up ──
+let current = 0;
+const target = HERO_DATA.doomsdayClock.seconds;
+const clockEl = document.getElementById('clock-num');
+const interval = setInterval(()=>{
+  current = Math.min(current + 2, target);
+  clockEl.textContent = current;
+  if(current >= target){
+    clearInterval(interval);
+    // pulse on finish
+    clockEl.style.animation = 'none';
+    setTimeout(()=>{
+      clockEl.style.textShadow = '0 0 60px rgba(255,59,59,.9)';
+    }, 100);
+  }
+}, 20);
+
+// ── Particle field ──
+const pField = document.getElementById('particle-field');
+for(let i=0;i<HERO_DATA.particles;i++){
+  const p = document.createElement('div');
+  p.className = 'p';
+  p.style.cssText = `
+    left:${Math.random()*100}%;
+    top:${20+Math.random()*60}%;
+    --dur:${3+Math.random()*4}s;
+    --delay:-${Math.random()*7}s;
+    opacity:${Math.random()*.5};
+    width:${Math.random()<0.3?3:2}px;
+    height:${Math.random()<0.3?3:2}px;
+    background:${Math.random()<0.7?'var(--accent)':'var(--accent2)'};
+  `;
+  pField.appendChild(p);
+}
+
+// ── Parallax on mouse ──
+document.addEventListener('mousemove', e=>{
+  const x = (e.clientX / window.innerWidth - .5) * 20;
+  const y = (e.clientY / window.innerHeight - .5) * 20;
+  document.querySelector('.hero-bg').style.transform = `translate(${x*.3}px, ${y*.3}px)`;
+  document.querySelector('.hero-grid').style.transform = `translate(${x*.5}px, ${y*.5}px)`;
+});
+
+// ── Stats counter animation ──
+function animateCounters(){
+  document.querySelectorAll('.stat-val').forEach(el=>{
+    const raw = el.textContent;
+    const num = parseInt(raw.replace(/\D/g,''));
+    if(isNaN(num)||num===0) return;
+    const suffix = raw.replace(/[\d]/g,'');
+    let start = 0;
+    const step = num / 40;
+    const t = setInterval(()=>{
+      start = Math.min(start+step, num);
+      el.textContent = Math.round(start) + suffix;
+      if(start>=num) clearInterval(t);
+    }, 30);
+  });
+}
+// Animate when in view
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ animateCounters(); obs.disconnect(); } });
+},{threshold:.3});
+obs.observe(document.getElementById('stats-row'));
+</script>
+</body>
+</html>

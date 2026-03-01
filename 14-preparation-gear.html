@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>14 — Preparation Gear | Ark v3 (Standalone)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #050608;
+    --glass-bg: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.08);
+    --glass-hover: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold-bright: #f0c96e;
+    --gold-dim: #6b5520;
+    --amber: #e8832a;
+    --red: #c94040;
+    --green: #3dba7e;
+    --cyan: #2ab8c9;
+    --purple: #9b6fd4;
+    --text: #d8dae0;
+    --text-dim: #7a7f8e;
+    --text-bright: #f0f2f8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Rajdhani',sans-serif;background:var(--void);color:var(--text);min-height:100vh;overflow-x:hidden;}
+  body::before{
+    content:'';position:fixed;inset:0;
+    background:
+      radial-gradient(ellipse 65% 50% at 20% 30%,rgba(61,186,126,0.05) 0%,transparent 55%),
+      radial-gradient(ellipse 55% 40% at 80% 70%,rgba(42,184,201,0.04) 0%,transparent 50%),
+      repeating-linear-gradient(0deg,transparent,transparent 80px,rgba(255,255,255,0.007) 80px,rgba(255,255,255,0.007) 81px);
+    pointer-events:none;z-index:0;
+  }
+  .container{max-width:1200px;margin:0 auto;padding:0 24px;position:relative;z-index:1;}
+
+  /* Header */
+  .site-header{border-bottom:1px solid var(--glass-border);padding:16px 0;position:sticky;top:0;background:rgba(5,6,8,.93);backdrop-filter:blur(20px);z-index:100;}
+  .header-inner{display:flex;align-items:center;justify-content:space-between;}
+  .logo{font-family:'Cinzel',serif;font-size:13px;font-weight:900;letter-spacing:4px;color:var(--gold);}
+  .section-id{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:2px;}
+
+  /* Hero */
+  .hero{padding:70px 0 50px;text-align:center;}
+  .hero-eyebrow{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:6px;color:var(--green);text-transform:uppercase;margin-bottom:18px;opacity:.9;}
+  .hero h1{font-family:'Cinzel',serif;font-size:clamp(28px,5vw,58px);font-weight:900;color:var(--text-bright);line-height:1.1;margin-bottom:14px;text-shadow:0 0 60px rgba(61,186,126,.15);}
+  .hero h1 span{color:var(--gold);}
+  .hero-sub{font-size:16px;color:var(--text-dim);max-width:620px;margin:0 auto 32px;line-height:1.6;}
+
+  /* Glass */
+  .gl{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;backdrop-filter:blur(12px);transition:border-color .3s,background .3s;}
+  .gl:hover{border-color:rgba(201,168,76,.2);background:var(--glass-hover);}
+
+  /* Sec title */
+  .sec-title{font-family:'Cinzel',serif;font-size:11px;font-weight:600;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:28px;display:flex;align-items:center;gap:16px;}
+  .sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--gold-dim),transparent);}
+
+  .content-section{padding:50px 0;border-top:1px solid var(--glass-border);}
+
+  /* Tabs */
+  .stab-bar{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:24px;background:rgba(0,0,0,.3);padding:4px;border-radius:6px;border:1px solid var(--glass-border);}
+  .stab{flex:1;min-width:90px;padding:10px 14px;background:transparent;border:none;border-radius:4px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase;transition:all .2s;text-align:center;}
+  .stab:hover{color:var(--text);background:rgba(255,255,255,.04);}
+  .stab.active{background:rgba(201,168,76,.15);color:var(--gold-bright);border-bottom:2px solid var(--gold);}
+  .spanel{display:none;}
+  .spanel.active{display:block;animation:fadeIn .3s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Accordion */
+  .acc-item{border-bottom:1px solid var(--glass-border);}
+  .acc-trigger{width:100%;background:transparent;border:none;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;text-align:left;gap:12px;}
+  .acc-trigger:hover{background:rgba(255,255,255,.03);}
+  .acc-label{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;color:var(--text);}
+  .acc-arrow{font-size:16px;color:var(--gold);transition:transform .3s;flex-shrink:0;}
+  .acc-item.open .acc-arrow{transform:rotate(180deg);}
+  .acc-body{display:none;padding:0 20px 22px;}
+  .acc-item.open .acc-body{display:block;animation:fadeIn .3s ease;}
+
+  /* Filter bar */
+  .filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;}
+  .filter-btn{padding:7px 16px;background:transparent;border:1px solid var(--glass-border);border-radius:4px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase;transition:all .2s;}
+  .filter-btn:hover{border-color:rgba(201,168,76,.3);color:var(--text);}
+  .filter-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.1);}
+
+  /* Gear grid */
+  .gear-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+  .gear-card{padding:20px;cursor:pointer;transition:all .25s;}
+  .gear-card:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.3);}
+  .gear-card.hidden{display:none;}
+  .gc-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:8px;}
+  .gc-icon{font-size:24px;flex-shrink:0;}
+  .gc-name{font-size:15px;font-weight:700;color:var(--text-bright);line-height:1.3;}
+  .gc-brand{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);margin-top:2px;letter-spacing:1px;}
+  .gc-price{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--gold);white-space:nowrap;}
+  .gc-desc{font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:12px;}
+  .gc-tags{display:flex;flex-wrap:wrap;gap:5px;}
+  .gc-tag{display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-family:'Share Tech Mono',monospace;}
+  .tag-tier1{background:rgba(61,186,126,.1);color:var(--green);border:1px solid rgba(61,186,126,.2);}
+  .tag-tier2{background:rgba(201,168,76,.1);color:var(--gold);border:1px solid rgba(201,168,76,.2);}
+  .tag-tier3{background:rgba(232,131,42,.1);color:var(--amber);border:1px solid rgba(232,131,42,.2);}
+  .tag-tier4{background:rgba(155,111,212,.1);color:var(--purple);border:1px solid rgba(155,111,212,.2);}
+  .tag-cat{background:rgba(42,184,201,.1);color:var(--cyan);border:1px solid rgba(42,184,201,.2);}
+  .tag-crit{background:rgba(201,64,64,.1);color:var(--red);border:1px solid rgba(201,64,64,.2);}
+
+  /* Rating stars */
+  .gc-rating{display:flex;align-items:center;gap:4px;margin-bottom:8px;}
+  .star{font-size:11px;color:var(--gold-dim);}
+  .star.on{color:var(--gold);}
+  .rating-val{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);margin-left:2px;}
+
+  /* Tier badges */
+  .tier{display:inline-block;padding:3px 9px;border-radius:3px;font-family:'Share Tech Mono',monospace;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+  .tier-1{background:rgba(61,186,126,.15);color:var(--green);border:1px solid rgba(61,186,126,.3);}
+  .tier-2{background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3);}
+  .tier-3{background:rgba(232,131,42,.15);color:var(--amber);border:1px solid rgba(232,131,42,.3);}
+  .tier-x{background:rgba(201,64,64,.15);color:var(--red);border:1px solid rgba(201,64,64,.3);}
+  .tier-p{background:rgba(155,111,212,.15);color:var(--purple);border:1px solid rgba(155,111,212,.3);}
+
+  /* Build list */
+  .build-layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
+  @media(max-width:768px){.build-layout{grid-template-columns:1fr;}}
+  .build-list-panel{padding:24px;}
+  .bl-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--glass-border);cursor:pointer;}
+  .bl-item:last-child{border-bottom:none;}
+  .bl-item:hover{background:rgba(255,255,255,.02);}
+  .bl-check{width:16px;height:16px;border:1px solid var(--glass-border);border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .2s;}
+  .bl-item.checked .bl-check{background:var(--green);border-color:var(--green);}
+  .bl-item.checked .bl-check::after{content:'✓';font-size:10px;color:var(--void);font-weight:900;}
+  .bl-item.checked .bl-name{text-decoration:line-through;color:var(--text-dim);opacity:.6;}
+  .bl-name{font-size:14px;font-weight:600;color:var(--text-bright);}
+  .bl-price{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gold);margin-top:2px;}
+  .bl-note{font-size:11px;color:var(--text-dim);margin-top:2px;line-height:1.4;}
+
+  /* Budget sidebar */
+  .budget-sidebar{padding:22px;position:sticky;top:88px;}
+  .bs-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:3px;margin-bottom:14px;}
+  .bs-total{font-family:'Cinzel',serif;font-size:36px;font-weight:900;color:var(--gold-bright);line-height:1;margin-bottom:4px;}
+  .bs-sub{font-size:12px;color:var(--text-dim);margin-bottom:16px;}
+  .pbar{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin-bottom:16px;}
+  .pbar-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+  .fill-green{background:linear-gradient(90deg,var(--green),rgba(61,186,126,.4));}
+  .fill-gold{background:linear-gradient(90deg,var(--gold),rgba(201,168,76,.4));}
+  .fill-amber{background:linear-gradient(90deg,var(--amber),rgba(232,131,42,.4));}
+  .fill-red{background:linear-gradient(90deg,var(--red),rgba(201,64,64,.4));}
+  .bs-item{display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+  .bs-item:last-child{border-bottom:none;}
+  .bs-item-name{color:var(--text-dim);}
+  .bs-item-val{font-family:'Share Tech Mono',monospace;color:var(--green);}
+
+  /* Solar calculator */
+  .solar-layout{display:grid;grid-template-columns:1fr 300px;gap:24px;}
+  @media(max-width:768px){.solar-layout{grid-template-columns:1fr;}}
+  .solar-panel{padding:26px;}
+  .form-group{margin-bottom:18px;}
+  .form-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;display:flex;justify-content:space-between;}
+  .form-label-val{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);}
+  input[type=range]{width:100%;height:4px;accent-color:var(--gold);cursor:pointer;background:var(--glass-border);border:none;outline:none;border-radius:2px;}
+  select{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--glass-border);border-radius:4px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:10px 14px;appearance:none;outline:none;transition:border-color .2s;}
+  select:focus{border-color:var(--gold);}
+  select option{background:#0f1014;}
+  .range-labels{display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:4px;}
+  .solar-result{padding:22px;position:sticky;top:88px;}
+  .sr-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:3px;margin-bottom:14px;}
+  .sr-val{font-family:'Cinzel',serif;font-size:28px;font-weight:900;color:var(--gold-bright);line-height:1;margin-bottom:4px;}
+  .sr-sub{font-size:12px;color:var(--text-dim);margin-bottom:14px;}
+  .sr-line{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+  .sr-line:last-child{border-bottom:none;}
+  .sr-line-label{color:var(--text-dim);}
+  .sr-line-val{font-family:'Share Tech Mono',monospace;color:var(--text);}
+
+  /* Info/warn */
+  .info-box{background:rgba(42,184,201,.06);border:1px solid rgba(42,184,201,.18);border-left:3px solid var(--cyan);border-radius:4px;padding:14px 18px;margin-bottom:18px;}
+  .info-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:2px;margin-bottom:5px;}
+  .warn-box{background:rgba(201,64,64,.07);border:1px solid rgba(201,64,64,.22);border-left:3px solid var(--red);border-radius:4px;padding:14px 18px;margin-bottom:18px;}
+  .warn-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red);letter-spacing:2px;margin-bottom:5px;}
+  p.prose{font-size:13px;color:var(--text-dim);line-height:1.7;}
+
+  /* Stat grid */
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:32px;}
+  .stat-card{padding:16px;text-align:center;}
+  .stat-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:2px;margin-bottom:6px;}
+  .stat-val{font-family:'Cinzel',serif;font-size:26px;font-weight:900;color:var(--gold-bright);line-height:1;margin-bottom:3px;}
+  .stat-sub{font-size:11px;color:var(--text-dim);}
+
+  /* Count display */
+  #gear-count{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);margin-bottom:16px;}
+
+  /* Footer */
+  .site-footer{border-top:1px solid var(--glass-border);padding:36px 0;text-align:center;}
+  .footer-logo{font-family:'Cinzel',serif;font-size:14px;font-weight:900;letter-spacing:4px;color:var(--gold);margin-bottom:10px;}
+  .footer-text{font-size:12px;color:var(--text-dim);line-height:1.6;max-width:580px;margin:0 auto;}
+  .footer-links{display:flex;justify-content:center;gap:22px;margin-top:18px;flex-wrap:wrap;}
+  .footer-links a{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;}
+  .footer-links a:hover{color:var(--gold);}
+
+  ::-webkit-scrollbar{width:4px;height:4px;}
+  ::-webkit-scrollbar-track{background:var(--void);}
+  ::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:2px;}
+  @media(max-width:640px){.gear-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<header class="site-header" id="top">
+  <div class="container header-inner">
+    <div class="logo">☽ ARK COLLECTIVE v3</div>
+    <div class="section-id">SECTION 14 · PREPARATION GEAR</div>
+  </div>
+</header>
+
+<!-- DATA BLOCK -->
+<script>
+const GEAR_DATA = {
+
+  categories: ["All","Water","Food","Energy","Medical","Communications","Security","Mobility","Shelter","Tools"],
+
+  items: [
+    /* ── WATER ── */
+    { id:"g001", name:"Berkey Big Berkey Filtration System", brand:"Berkey", icon:"💧", cat:"Water", tier:1, price:"$280", priceNum:280, rating:5, desc:"2.25-gallon gravity filter. Removes 99.9999% bacteria, viruses, heavy metals. No power required. The single most important water investment.", critical:true, buildList:true, buildNote:"Core item. Buy first." },
+    { id:"g002", name:"Sawyer Squeeze Water Filter", brand:"Sawyer", icon:"💧", cat:"Water", tier:1, price:"$35", priceNum:35, rating:5, desc:"Ultralight squeeze filter. Filters 100,000 gallons lifetime. Go-bag essential. Backup to Berkey.", critical:true, buildList:true, buildNote:"Go-bag essential." },
+    { id:"g003", name:"Aquatabs Water Purification Tablets", brand:"Aquatabs", icon:"💧", cat:"Water", tier:1, price:"$15", priceNum:15, rating:4, desc:"50-tablet pack. 30-min purification time. Lightweight emergency backup. No filter replacements.", critical:false, buildList:true, buildNote:"Pack 4 boxes." },
+    { id:"g004", name:"WaterBOB Bathtub Emergency Reservoir", brand:"WaterBOB", icon:"💧", cat:"Water", tier:1, price:"$30", priceNum:30, rating:4, desc:"100-gallon food-grade bathtub liner. Fill in 20 min when warning issued. Stores 2 weeks for family.", critical:false, buildList:false },
+    { id:"g005", name:"Rainwater Collection Barrel System", brand:"Enviro World", icon:"💧", cat:"Water", tier:2, price:"$120–$400", priceNum:260, rating:4, desc:"50–100 gallon barrel with diverter. Attach to downspout. Passive water collection. Tier 2 property essential.", critical:false, buildList:false },
+
+    /* ── FOOD ── */
+    { id:"g010", name:"Augason Farms 1-Year Emergency Food Supply", brand:"Augason Farms", icon:"🥫", cat:"Food", tier:2, price:"$2,800", priceNum:2800, rating:4, desc:"1 year supply for 1 adult. 30-year shelf life. 2,000+ calories/day. Freeze-dried + dehydrated variety.", critical:false, buildList:false },
+    { id:"g011", name:"Mountain House 3-Day Emergency Food Kit", brand:"Mountain House", icon:"🥫", cat:"Food", tier:1, price:"$65", priceNum:65, rating:5, desc:"3-day supply per person. 25-year shelf life. Just-add-water meals. Go-bag compatible.", critical:true, buildList:true, buildNote:"Buy 1 per person." },
+    { id:"g012", name:"Excalibur 9-Tray Food Dehydrator", brand:"Excalibur", icon:"🥫", cat:"Food", tier:2, price:"$320", priceNum:320, rating:5, desc:"9-tray, 15 sq ft drying area. 26-hour timer. Extends fresh food shelf life 10–25× at minimal cost.", critical:false, buildList:false },
+    { id:"g013", name:"Harvest Right Freeze Dryer (Medium)", brand:"Harvest Right", icon:"🥫", cat:"Food", tier:3, price:"$2,800–$4,500", priceNum:3650, rating:5, desc:"Home freeze-dryer. 25-year shelf life. Preserves nutritional value 97%+. 7–10 lbs per batch. Tier 3 essential.", critical:false, buildList:false },
+    { id:"g014", name:"Lodge 6qt Cast Iron Dutch Oven", brand:"Lodge", icon:"🥫", cat:"Food", tier:1, price:"$55", priceNum:55, rating:5, desc:"Indestructible cast iron. Works on open fire, wood stove, or any heat source. 100-year lifespan.", critical:false, buildList:true, buildNote:"Off-grid cooking staple." },
+    { id:"g015", name:"Camp Chef Outdoor Camp Stove", brand:"Camp Chef", icon:"🥫", cat:"Food", tier:1, price:"$120", priceNum:120, rating:4, desc:"Two-burner propane stove. 30,000 BTU output. Boils water in 3 min. Needs propane tank supply.", critical:false, buildList:true, buildNote:"Stock 6+ propane tanks." },
+
+    /* ── ENERGY ── */
+    { id:"g020", name:"EcoFlow DELTA Pro Portable Power Station", brand:"EcoFlow", icon:"⚡", cat:"Energy", tier:2, price:"$2,200", priceNum:2200, rating:5, desc:"3,600Wh capacity. 2,400W AC output. Charges from solar, grid, or car. Expandable to 25kWh. Tier 2 essential.", critical:false, buildList:false },
+    { id:"g021", name:"Jackery Explorer 1000 Plus", brand:"Jackery", icon:"⚡", cat:"Energy", tier:1, price:"$999", priceNum:999, rating:5, desc:"1,264Wh. Powers fridge (4h), CPAP (14h), phone (100+ charges). Fast 2-hour recharge. Go-to entry power station.", critical:false, buildList:false },
+    { id:"g022", name:"Renogy 400W Solar Panel Kit", brand:"Renogy", icon:"⚡", cat:"Energy", tier:2, price:"$580", priceNum:580, rating:5, desc:"4 × 100W monocrystalline panels + 40A controller. 1.6kWh per day in moderate sun. Start of off-grid solar.", critical:false, buildList:false },
+    { id:"g023", name:"Champion 3500W Dual-Fuel Generator", brand:"Champion", icon:"⚡", cat:"Energy", tier:2, price:"$580", priceNum:580, rating:4, desc:"Runs on gasoline or propane. 3,500W running / 4,000W surge. 7.5-hour run time. Reliable bridge power.", critical:false, buildList:false },
+    { id:"g024", name:"Goal Zero Nomad 100 Solar Panel", brand:"Goal Zero", icon:"⚡", cat:"Energy", tier:1, price:"$250", priceNum:250, rating:4, desc:"Foldable 100W panel. 10.8–30V output. Direct-charge or battery compatible. Go-bag deployable.", critical:false, buildList:true, buildNote:"Pair with Jackery 1000+." },
+    { id:"g025", name:"BioLite CampStove 2+", brand:"BioLite", icon:"⚡", cat:"Energy", tier:1, price:"$130", priceNum:130, rating:4, desc:"Wood-burning camp stove with USB charging. Converts waste heat to electricity. No fuel to store.", critical:false, buildList:false },
+
+    /* ── MEDICAL ── */
+    { id:"g030", name:"MyMedic MYFAK Advanced First Aid Kit", brand:"MyMedic", icon:"💊", cat:"Medical", tier:1, price:"$160", priceNum:160, rating:5, desc:"Comprehensive 150+ piece kit. Trauma supplies, wound care, medications. First-tier home medical kit.", critical:true, buildList:true, buildNote:"1 per household minimum." },
+    { id:"g031", name:"North American Rescue IFAK Trauma Kit", brand:"NAR", icon:"💊", cat:"Medical", tier:1, price:"$75", priceNum:75, rating:5, desc:"SOF-T Wide tourniquet, HyFin chest seal, trauma dressing, compressed gauze. Military-grade TCCC kit.", critical:true, buildList:true, buildNote:"1 per adult go-bag." },
+    { id:"g032", name:"QuikClot Combat Gauze (3-pack)", brand:"Z-Medica", icon:"💊", cat:"Medical", tier:1, price:"$75", priceNum:75, rating:5, desc:"Hemostatic gauze. Controls life-threatening bleeding in 3–5 minutes. Used by US military. 3-year shelf life.", critical:true, buildList:true, buildNote:"Keep 6+ in stock." },
+    { id:"g033", name:"Pulse Oximeter + Digital BP Monitor", brand:"Contec", icon:"💊", cat:"Medical", tier:1, price:"$60", priceNum:60, rating:4, desc:"Continuous vital sign monitoring. Battery operated. Critical for chronic disease management off-grid.", critical:false, buildList:true, buildNote:"With spare batteries." },
+    { id:"g034", name:"Merck Manual 19th Edition (Print)", brand:"Merck", icon:"💊", cat:"Medical", tier:2, price:"$50", priceNum:50, rating:5, desc:"The bible of medical reference. 3,500+ pages covering diagnosis, treatment, medications. Offline essential.", critical:false, buildList:true, buildNote:"Print version only." },
+    { id:"g035", name:"Sawyer Permethrin Spray (12oz)", brand:"Sawyer", icon:"💊", cat:"Medical", tier:1, price:"$18", priceNum:18, rating:4, desc:"Treats clothing and gear. Repels mosquitoes, ticks, mites. Critical in tropical Ark destinations.", critical:false, buildList:false },
+
+    /* ── COMMUNICATIONS ── */
+    { id:"g040", name:"Garmin inReach Mini 2", brand:"Garmin", icon:"📡", cat:"Communications", tier:1, price:"$350", priceNum:350, rating:5, desc:"Two-way satellite messaging anywhere on Earth. SOS, tracking, weather forecasts. No cell coverage required. The must-have go-bag comms device.", critical:true, buildList:true, buildNote:"1 per adult. Add satellite plan." },
+    { id:"g041", name:"Baofeng UV-5R Dual Band Radio", brand:"Baofeng", icon:"📡", cat:"Communications", tier:1, price:"$28", priceNum:28, rating:4, desc:"Dual-band VHF/UHF. Transmits and receives on 400+ frequencies. HAM, FRS, GMRS compatible. Buy 5–10.", critical:false, buildList:true, buildNote:"Buy in bulk. Pre-program channels." },
+    { id:"g042", name:"Midland ER310 Emergency Crank Radio", brand:"Midland", icon:"📡", cat:"Communications", tier:1, price:"$60", priceNum:60, rating:5, desc:"AM/FM/NOAA weather alerts. Hand-crank + solar + battery. Phone charging port. Go-bag essential.", critical:true, buildList:true, buildNote:"Core kit item." },
+    { id:"g043", name:"Kenwood TH-D74A HAM HT", brand:"Kenwood", icon:"📡", cat:"Communications", tier:2, price:"$600", priceNum:600, rating:5, desc:"Tri-band HAM handheld. APRS, D-STAR, analog. Digital and analog modes. For licensed HAM operators.", critical:false, buildList:false },
+    { id:"g044", name:"Starlink Mini Portable Satellite Internet", brand:"SpaceX Starlink", icon:"📡", cat:"Communications", tier:2, price:"$599+$150/mo", priceNum:599, rating:5, desc:"Portable 1kg dish. 100Mbps+ anywhere on Earth. Tier 2+ comms backbone. Powers Ark coordination.", critical:false, buildList:false },
+    { id:"g045", name:"Faraday Bag for Electronics (Large)", brand:"SLNT", icon:"📡", cat:"Communications", tier:1, price:"$30", priceNum:30, rating:4, desc:"EMP-proof storage for phones, radios, drives. Blocks all signals. Essential EMP/solar flare protection.", critical:false, buildList:true, buildNote:"Store backups in permanently." },
+
+    /* ── SECURITY ── */
+    { id:"g050", name:"Blackhawk! Titan Molle II Backpack", brand:"Blackhawk", icon:"🔒", cat:"Security", tier:1, price:"$80", priceNum:80, rating:4, desc:"Tactical 3-day pack. 2,600 cu in. MOLLE platform. Durable 600D poly. Low-profile for urban evac.", critical:false, buildList:false },
+    { id:"g051", name:"Streamlight ProTac HL-X Tactical Flashlight", brand:"Streamlight", icon:"🔒", cat:"Security", tier:1, price:"$60", priceNum:60, rating:5, desc:"1,000 lumens. 1.25-hour runtime. Rechargeable or CR123A batteries. Dual fuel. Go-bag standard.", critical:false, buildList:true, buildNote:"1 per adult." },
+    { id:"g052", name:"ARLO Pro 4 Wire-Free Security Camera System", brand:"Arlo", icon:"🔒", cat:"Security", tier:2, price:"$400", priceNum:400, rating:4, desc:"4-camera system. Local + cloud storage. Color night vision. Works on rechargeable batteries.", critical:false, buildList:false },
+    { id:"g053", name:"Gerber StrongArm Fixed Blade Knife", brand:"Gerber", icon:"🔒", cat:"Security", tier:1, price:"$80", priceNum:80, rating:5, desc:"420HC steel. Rubberized grip. Full tang. Multi-purpose: camp, survival, defence. Military standard.", critical:false, buildList:true, buildNote:"1 per adult." },
+
+    /* ── MOBILITY ── */
+    { id:"g060", name:"5-Gallon NATO Jerry Can (Steel)", brand:"Wavian", icon:"🚗", cat:"Mobility", tier:1, price:"$40", priceNum:40, rating:5, desc:"UN-certified steel jerry can. Airtight. Will not crack, leak, or explode. Buy 4–6. Always kept full.", critical:true, buildList:true, buildNote:"Buy 4. Rotate fuel quarterly." },
+    { id:"g061", name:"NOCO Genius Pro 50 Battery Charger", brand:"NOCO", icon:"🚗", cat:"Mobility", tier:1, price:"$190", priceNum:190, rating:5, desc:"Maintains, desulfates, and recovers dead 12V/24V batteries. Keeps vehicle and stored batteries healthy.", critical:false, buildList:true, buildNote:"Keep all vehicle batteries maintained." },
+    { id:"g062", name:"NOCO Boost Plus GB40 Jump Starter", brand:"NOCO", icon:"🚗", cat:"Mobility", tier:1, price:"$100", priceNum:100, rating:5, desc:"1,000A peak. Up to 6L gas / 3L diesel engines. Compact lithium. Phone charging included.", critical:true, buildList:true, buildNote:"Keep in every vehicle." },
+    { id:"g063", name:"Slime 40026 Flat Tire Repair Kit", brand:"Slime", icon:"🚗", cat:"Mobility", tier:1, price:"$30", priceNum:30, rating:4, desc:"Sealant + inflator combo. Repairs and inflates in under 15 minutes. No spare tyre required.", critical:false, buildList:true, buildNote:"1 per vehicle." },
+
+    /* ── SHELTER ── */
+    { id:"g070", name:"MSR Hubba Hubba NX 2P Tent", brand:"MSR", icon:"🏠", cat:"Shelter", tier:1, price:"$430", priceNum:430, rating:5, desc:"2-person, 4-season tent. 3.5lb. Freestanding. Wind and rain tested. 15-year product lifespan.", critical:false, buildList:true, buildNote:"Core shelter item." },
+    { id:"g071", name:"TETON Sports LEEF Sleeping Bag (-18°C)", brand:"TETON Sports", icon:"🏠", cat:"Shelter", tier:1, price:"$120", priceNum:120, rating:4, desc:"Rated to -18°C / 0°F. Compression sack. Works for extreme cold survivability.", critical:false, buildList:true, buildNote:"1 per person." },
+    { id:"g072", name:"Arcturus Heavy Duty Survival Blanket (5-pack)", brand:"Arcturus", icon:"🏠", cat:"Shelter", tier:1, price:"$25", priceNum:25, rating:5, desc:"Reusable mylar. Reflects 90% body heat. Waterproof. 5-pack. Go-bag and home kit essential.", critical:true, buildList:true, buildNote:"Pack 10+ total." },
+    { id:"g073", name:"Mr. Heater Big Buddy Portable Heater", brand:"Mr. Heater", icon:"🏠", cat:"Shelter", tier:1, price:"$130", priceNum:130, rating:5, desc:"18,000 BTU. Heats up to 400 sq ft. Propane-powered. ODS pilot for indoor safety. Grid-independent heat.", critical:false, buildList:true, buildNote:"Stock 10+ propane cylinders." },
+
+    /* ── TOOLS ── */
+    { id:"g080", name:"Leatherman Wave+ Multi-tool", brand:"Leatherman", icon:"🔧", cat:"Tools", tier:1, price:"$110", priceNum:110, rating:5, desc:"18 tools in one. Stainless steel. 25-year warranty. Standard in every go-bag and tool kit worldwide.", critical:true, buildList:true, buildNote:"1 per adult." },
+    { id:"g081", name:"Fiskars Splitting Axe (X27 Super Splitting)", brand:"Fiskars", icon:"🔧", cat:"Tools", tier:2, price:"$85", priceNum:85, rating:5, desc:"36-inch handle. Lifetime warranty. Splits most logs in one swing. Essential for wood heating.", critical:false, buildList:false },
+    { id:"g082", name:"Husqvarna 455 Rancher Chainsaw 20in", brand:"Husqvarna", icon:"🔧", cat:"Tools", tier:2, price:"$450", priceNum:450, rating:5, desc:"56cc engine. 20in bar. For timber clearing, firewood production, and property maintenance.", critical:false, buildList:false },
+    { id:"g083", name:"Gerber Gator Machete Pro", brand:"Gerber", icon:"🔧", cat:"Tools", tier:1, price:"$40", priceNum:40, rating:4, desc:"Full-tang. 11-inch blade. Clears brush, splits kindling, general camp tasks. Go-bag compatible.", critical:false, buildList:true, buildNote:"Core camp tool." },
+    { id:"g084", name:"BioLite HeadLamp 800 Pro", brand:"BioLite", icon:"🔧", cat:"Tools", tier:1, price:"$70", priceNum:70, rating:5, desc:"800 lumens. 150-hour runtime on low. Rechargeable. Moisture-proof. Hands-free. Go-bag essential.", critical:true, buildList:true, buildNote:"1 per person." },
+    { id:"g085", name:"Portawell Hand Pump Water Drill Kit", brand:"Simmons", icon:"🔧", cat:"Tools", tier:3, price:"$600", priceNum:600, rating:4, desc:"Hand-powered well pump. Reaches 250ft. Powers from muscle only. For properties with well access.", critical:false, buildList:false },
+  ],
+
+  /* Build lists by tier */
+  buildLists: {
+    "Tier 1 Essentials": {
+      desc: "Critical items every household needs. $500–$2,000. Buy these before anything else.",
+      color: "var(--amber)",
+      budget: 2000,
+    },
+    "Tier 2 Resilience": {
+      desc: "Extend to 6+ months self-sufficiency. $5,000–$25,000 total investment.",
+      color: "var(--gold)",
+      budget: 25000,
+    },
+  },
+
+  /* Solar sizing reference */
+  appliances: [
+    { name:"Refrigerator (medium)", watts:150, hours:24 },
+    { name:"LED Lighting (8 bulbs)", watts:80, hours:8 },
+    { name:"Water pump (submersible)", watts:300, hours:2 },
+    { name:"Laptop + router", watts:80, hours:10 },
+    { name:"Phone charging ×4", watts:60, hours:3 },
+    { name:"Medical device (CPAP)", watts:30, hours:8 },
+    { name:"Small chest freezer", watts:30, hours:24 },
+    { name:"Ham radio base station", watts:50, hours:4 },
+    { name:"Electric cooking (minimal)", watts:1500, hours:1 },
+    { name:"Water heater (small tank)", watts:1200, hours:2 },
+  ],
+};
+</script>
+
+<!-- RENDER BLOCK -->
+<main>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-eyebrow">☽ Ark Collective v3 · Section 14</div>
+      <h1>Preparation <span>Gear</span></h1>
+      <p class="hero-sub">The complete Ark-vetted gear database — filterable by category and tier. Includes interactive build lists, budget tracker, and a solar system sizing calculator.</p>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="content-section" id="gear-stats">
+    <div class="container">
+      <div class="sec-title">Gear Database · Overview</div>
+      <div class="stat-grid">
+        <div class="stat-card gl"><div class="stat-label">Total Items</div><div class="stat-val" id="stat-total">—</div><div class="stat-sub">Ark-vetted across 9 categories</div></div>
+        <div class="stat-card gl"><div class="stat-label">Critical Items</div><div class="stat-val" id="stat-critical">—</div><div class="stat-sub">Must-have for any scenario</div></div>
+        <div class="stat-card gl"><div class="stat-label">Min. T1 Budget</div><div class="stat-val">$500</div><div class="stat-sub">Core critical kit only</div></div>
+        <div class="stat-card gl"><div class="stat-label">Categories</div><div class="stat-val">9</div><div class="stat-sub">Water, food, energy, medical + 5</div></div>
+        <div class="stat-card gl"><div class="stat-label">Highest Rated</div><div class="stat-val">★5</div><div class="stat-sub">Ark field-tested top picks</div></div>
+        <div class="stat-card gl"><div class="stat-label">Collapse Scenarios</div><div class="stat-val">150</div><div class="stat-sub">Cross-mapped to gear requirements</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gear Database + Build List Tabs -->
+  <section class="content-section" id="gear-main">
+    <div class="container">
+      <div class="sec-title">Equipment Intelligence</div>
+      <div class="stab-bar" id="main-tabs">
+        <button class="stab active" onclick="switchTab('main-tabs','main-panels','tab-database')">Gear Database</button>
+        <button class="stab" onclick="switchTab('main-tabs','main-panels','tab-buildlist')">Build Lists</button>
+        <button class="stab" onclick="switchTab('main-tabs','main-panels','tab-solar')">Solar Calculator</button>
+        <button class="stab" onclick="switchTab('main-tabs','main-panels','tab-principles')">Gear Principles</button>
+      </div>
+
+      <div id="main-panels">
+
+        <!-- Gear Database -->
+        <div class="spanel active" id="tab-database">
+          <div class="filter-bar" id="cat-filters"></div>
+          <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+            <div class="filter-bar" id="tier-filters" style="margin-bottom:0;"></div>
+          </div>
+          <div id="gear-count"></div>
+          <div class="gear-grid" id="gear-grid"></div>
+        </div>
+
+        <!-- Build Lists -->
+        <div class="spanel" id="tab-buildlist">
+          <div class="info-box">
+            <div class="info-title">Build List Philosophy</div>
+            <p class="prose">Never buy gear out of order. These lists are sequenced by priority: critical life-safety items first, then resilience extensions. Check items as you acquire them and track your total spend in the sidebar.</p>
+          </div>
+
+          <div class="stab-bar" id="build-tabs" style="margin-bottom:20px;">
+            <button class="stab active" onclick="switchBuildTab('build-t1')">Tier 1 Essentials</button>
+            <button class="stab" onclick="switchBuildTab('build-t2')">Tier 2 Resilience</button>
+          </div>
+
+          <div id="build-t1" class="build-active">
+            <div class="build-layout">
+              <div class="gl build-list-panel" id="build-list-t1"></div>
+              <div class="gl budget-sidebar" id="budget-sidebar-t1">
+                <div class="bs-label">TIER 1 BUDGET</div>
+                <div class="bs-total" id="bs-total-t1">$0</div>
+                <div class="bs-sub" id="bs-sub-t1">of $2,000 recommended</div>
+                <div class="pbar"><div class="pbar-fill fill-gold" id="bs-bar-t1" style="width:0%;"></div></div>
+                <div id="bs-items-t1"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="build-t2" style="display:none;">
+            <div class="build-layout">
+              <div class="gl build-list-panel" id="build-list-t2"></div>
+              <div class="gl budget-sidebar" id="budget-sidebar-t2">
+                <div class="bs-label">TIER 2 BUDGET</div>
+                <div class="bs-total" id="bs-total-t2">$0</div>
+                <div class="bs-sub" id="bs-sub-t2">of $25,000 recommended</div>
+                <div class="pbar"><div class="pbar-fill fill-gold" id="bs-bar-t2" style="width:0%;"></div></div>
+                <div id="bs-items-t2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Solar Calculator -->
+        <div class="spanel" id="tab-solar">
+          <div class="info-box">
+            <div class="info-title">Off-Grid Solar Sizing Calculator</div>
+            <p class="prose">Adjust your daily appliance loads and location to calculate the solar panel capacity, battery bank, and inverter size needed for your Ark property. Cross-referenced with Section 14.5 Off-Grid Systems.</p>
+          </div>
+          <div class="solar-layout">
+            <div class="gl solar-panel">
+              <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:3px;margin-bottom:20px;">DAILY LOAD CONFIGURATION</div>
+
+              <div id="solar-appliances"></div>
+
+              <div class="form-group" style="margin-top:24px;">
+                <label class="form-label">Location / Sun Hours per Day
+                  <span class="form-label-val" id="sun-display">5 hours</span>
+                </label>
+                <input type="range" id="solar-sun" min="2" max="8" step="0.5" value="5" oninput="updateSunDisplay(this.value); calcSolar()">
+                <div class="range-labels"><span>2h (UK/Nordic)</span><span>8h (Tropics)</span></div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Days of Battery Autonomy
+                  <span class="form-label-val" id="days-display">3 days</span>
+                </label>
+                <input type="range" id="solar-days" min="1" max="10" step="1" value="3" oninput="updateDaysDisplay(this.value); calcSolar()">
+                <div class="range-labels"><span>1 day</span><span>10 days</span></div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Battery Type</label>
+                <select id="solar-battery" onchange="calcSolar()">
+                  <option value="0.5">Lead Acid (50% DoD — cheaper)</option>
+                  <option value="0.8" selected>LiFePO4 (80% DoD — recommended)</option>
+                  <option value="0.9">Premium LiFePO4 (90% DoD)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="gl solar-result" id="solar-results">
+              <div class="sr-label">SYSTEM SIZING RESULTS</div>
+              <div style="margin-bottom:16px;">
+                <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);margin-bottom:4px;">DAILY CONSUMPTION</div>
+                <div class="sr-val" id="sr-daily">—</div>
+                <div class="sr-sub">Watt-hours per day</div>
+              </div>
+              <div id="sr-lines"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gear Principles -->
+        <div class="spanel" id="tab-principles">
+          <div class="gl" style="overflow:hidden;" id="principles-acc"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-logo">☽ ARK COLLECTIVE v3</div>
+    <div class="footer-text">Section 14 — Preparation Gear. Cross-mapped to Collapse Bible 150 scenarios, Preparedness Tiers framework, and Off-Grid Systems doctrine.</div>
+    <div class="footer-links">
+      <a href="#top">↑ Top</a>
+      <a href="#gear-main">Gear Database</a>
+      <a href="13-preparedness-tiers.html">← 13 Prep Tiers</a>
+      <a href="14.5-off-grid-systems.html">→ 14.5 Off-Grid</a>
+    </div>
+  </div>
+</footer>
+
+<!-- INTERACTION BLOCK -->
+<script>
+/* ── Tab switchers ── */
+function switchTab(barId, panelContainerId, activeId) {
+  const bar = document.getElementById(barId);
+  const container = document.getElementById(panelContainerId);
+  const panels = container.querySelectorAll('.spanel');
+  const buttons = bar.querySelectorAll('.stab');
+  panels.forEach(p => p.classList.remove('active'));
+  buttons.forEach(b => b.classList.remove('active'));
+  const ap = document.getElementById(activeId);
+  if (ap) {
+    ap.classList.add('active');
+    const idx = Array.from(panels).indexOf(ap);
+    if (buttons[idx]) buttons[idx].classList.add('active');
+  }
+}
+
+function switchBuildTab(tabId) {
+  ['build-t1','build-t2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = id === tabId ? 'block' : 'none';
+  });
+  document.querySelectorAll('#build-tabs .stab').forEach((b,i) => {
+    b.classList.toggle('active', (i===0 && tabId==='build-t1') || (i===1 && tabId==='build-t2'));
+  });
+}
+
+function toggleAcc(el) {
+  const item = el.closest('.acc-item');
+  const isOpen = item.classList.contains('open');
+  item.parentElement.querySelectorAll('.acc-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ── Filter State ── */
+const filterState = { cat: 'All', tier: 'All' };
+
+function setCatFilter(cat) {
+  filterState.cat = cat;
+  document.querySelectorAll('#cat-filters .filter-btn').forEach(b => b.classList.toggle('active', b.dataset.val === cat));
+  applyFilters();
+}
+
+function setTierFilter(tier) {
+  filterState.tier = tier;
+  document.querySelectorAll('#tier-filters .filter-btn').forEach(b => b.classList.toggle('active', b.dataset.val === tier));
+  applyFilters();
+}
+
+function applyFilters() {
+  let visible = 0;
+  GEAR_DATA.items.forEach(item => {
+    const card = document.getElementById('gc-' + item.id);
+    if (!card) return;
+    const catMatch = filterState.cat === 'All' || item.cat === filterState.cat;
+    const tierMatch = filterState.tier === 'All' || String(item.tier) === String(filterState.tier);
+    const show = catMatch && tierMatch;
+    card.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+  const countEl = document.getElementById('gear-count');
+  if (countEl) countEl.textContent = `Showing ${visible} of ${GEAR_DATA.items.length} items`;
+}
+
+/* ── Render Category Filters ── */
+function renderFilters() {
+  const catBar = document.getElementById('cat-filters');
+  catBar.innerHTML = GEAR_DATA.categories.map(c => `
+    <button class="filter-btn ${c==='All'?'active':''}" data-val="${c}" onclick="setCatFilter('${c}')">${c}</button>
+  `).join('');
+
+  const tierBar = document.getElementById('tier-filters');
+  tierBar.innerHTML = ['All','1','2','3'].map((t,i) => {
+    const labels = { 'All':'All Tiers','1':'Tier 1','2':'Tier 2','3':'Tier 3' };
+    return `<button class="filter-btn ${t==='All'?'active':''}" data-val="${t}" onclick="setTierFilter('${t}')">${labels[t]||t}</button>`;
+  }).join('');
+}
+
+/* ── Render Gear Grid ── */
+function renderGearGrid() {
+  const grid = document.getElementById('gear-grid');
+  grid.innerHTML = GEAR_DATA.items.map(item => {
+    const stars = Array.from({length:5},(_,i) => `<span class="star ${i<item.rating?'on':''}">★</span>`).join('');
+    const tierTagClass = `tag-tier${item.tier}`;
+    const tierLabel = `Tier ${item.tier}`;
+    return `
+      <div class="gear-card gl" id="gc-${item.id}">
+        <div class="gc-header">
+          <div>
+            <div class="gc-name">${item.icon} ${item.name}</div>
+            <div class="gc-brand">${item.brand}</div>
+          </div>
+          <div class="gc-price">${item.price}</div>
+        </div>
+        <div class="gc-rating">${stars}<span class="rating-val">${item.rating}/5</span></div>
+        <div class="gc-desc">${item.desc}</div>
+        <div class="gc-tags">
+          <span class="gc-tag ${tierTagClass}">${tierLabel}</span>
+          <span class="gc-tag tag-cat">${item.cat}</span>
+          ${item.critical ? '<span class="gc-tag tag-crit">CRITICAL</span>' : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Update stats
+  document.getElementById('stat-total').textContent = GEAR_DATA.items.length;
+  document.getElementById('stat-critical').textContent = GEAR_DATA.items.filter(i=>i.critical).length;
+  document.getElementById('gear-count').textContent = `Showing ${GEAR_DATA.items.length} of ${GEAR_DATA.items.length} items`;
+}
+
+/* ── Build List ── */
+const buildState = { t1:{}, t2:{} };
+
+function renderBuildList(tier) {
+  const items = GEAR_DATA.items.filter(i => i.buildList && (tier===1 ? i.tier<=1 : i.tier<=2));
+  const container = document.getElementById(`build-list-t${tier}`);
+  const state = buildState[`t${tier}`];
+
+  container.innerHTML = `
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:3px;margin-bottom:16px;">
+      ${tier===1?'TIER 1 ESSENTIALS — BUY IN THIS ORDER':'TIER 2 RESILIENCE EXTENSIONS'}
+    </div>
+    ${items.map((item,i) => {
+      const key = item.id;
+      return `
+        <div class="bl-item ${state[key]?'checked':''}" id="bli-t${tier}-${key}" onclick="toggleBuildItem(${tier},'${key}')">
+          <div class="bl-check"></div>
+          <div>
+            <div class="bl-name">${item.icon} ${item.name}</div>
+            <div class="bl-price">${item.price}${item.buildNote?' · '+item.buildNote:''}</div>
+          </div>
+        </div>
+      `;
+    }).join('')}
+  `;
+
+  updateBuildBudget(tier);
+}
+
+function toggleBuildItem(tier, key) {
+  const state = buildState[`t${tier}`];
+  state[key] = !state[key];
+  const el = document.getElementById(`bli-t${tier}-${key}`);
+  if (el) el.classList.toggle('checked', state[key]);
+  updateBuildBudget(tier);
+}
+
+function updateBuildBudget(tier) {
+  const state = buildState[`t${tier}`];
+  const items = GEAR_DATA.items.filter(i => i.buildList && (tier===1 ? i.tier<=1 : i.tier<=2));
+  const budget = tier===1 ? 2000 : 25000;
+  let total = 0;
+  const checkedItems = [];
+
+  items.forEach(item => {
+    if (state[item.id]) {
+      total += item.priceNum;
+      checkedItems.push(item);
+    }
+  });
+
+  const pct = Math.min(100, Math.round((total/budget)*100));
+  const totalEl = document.getElementById(`bs-total-t${tier}`);
+  const subEl = document.getElementById(`bs-sub-t${tier}`);
+  const barEl = document.getElementById(`bs-bar-t${tier}`);
+  const itemsEl = document.getElementById(`bs-items-t${tier}`);
+
+  if (totalEl) totalEl.textContent = '$' + total.toLocaleString();
+  if (subEl) subEl.textContent = `of $${budget.toLocaleString()} recommended`;
+  if (barEl) { barEl.style.width = '0'; requestAnimationFrame(()=>{barEl.style.width=pct+'%';}); }
+  if (itemsEl) {
+    itemsEl.innerHTML = `
+      <div style="margin-top:12px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:2px;margin-bottom:8px;">ACQUIRED (${checkedItems.length})</div>
+      ${checkedItems.map(i=>`
+        <div class="bs-item">
+          <span class="bs-item-name">${i.icon} ${i.name}</span>
+          <span class="bs-item-val">${i.price}</span>
+        </div>
+      `).join('')}
+      ${checkedItems.length===0 ? '<div style="font-size:12px;color:var(--text-dim);">Check items above to track spend.</div>' : ''}
+    `;
+  }
+}
+
+/* ── Solar Calculator ── */
+const solarState = {};
+
+function renderSolarAppliances() {
+  const container = document.getElementById('solar-appliances');
+  container.innerHTML = GEAR_DATA.appliances.map((a, i) => {
+    solarState[i] = { enabled: i < 6, hours: a.hours, watts: a.watts };
+    return `
+      <div class="form-group" style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.05);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <input type="checkbox" id="app-${i}" ${i<6?'checked':''} style="accent-color:var(--gold);width:14px;height:14px;" onchange="solarState[${i}].enabled=this.checked;calcSolar()">
+          <label for="app-${i}" style="font-size:13px;font-weight:600;color:var(--text);cursor:pointer;">${a.name}</label>
+          <span style="margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);">${a.watts}W</span>
+        </div>
+        <div class="form-label" style="font-size:12px;">
+          Hours/day
+          <span class="form-label-val" id="app-hours-${i}">${a.hours}h</span>
+        </div>
+        <input type="range" min="0" max="24" step="0.5" value="${a.hours}" oninput="solarState[${i}].hours=parseFloat(this.value);document.getElementById('app-hours-${i}').textContent=this.value+'h';calcSolar()">
+      </div>
+    `;
+  }).join('');
+  calcSolar();
+}
+
+function updateSunDisplay(v) { document.getElementById('sun-display').textContent = v + ' hours'; }
+function updateDaysDisplay(v) { document.getElementById('days-display').textContent = v + ' days'; }
+
+function calcSolar() {
+  const sunHours = parseFloat(document.getElementById('solar-sun').value);
+  const days = parseFloat(document.getElementById('solar-days').value);
+  const dod = parseFloat(document.getElementById('solar-battery').value);
+
+  let totalWh = 0;
+  GEAR_DATA.appliances.forEach((a, i) => {
+    if (solarState[i] && solarState[i].enabled) {
+      totalWh += solarState[i].watts * solarState[i].hours;
+    }
+  });
+
+  const panelKW = Math.ceil((totalWh / sunHours / 0.75) / 100) * 100; // 75% system efficiency
+  const batteryWh = Math.ceil((totalWh * days / dod) / 100) * 100;
+  const inverterW = Math.ceil(Math.max(...GEAR_DATA.appliances.map((a,i) => solarState[i]?.enabled ? a.watts : 0)) * 1.25 / 100) * 100;
+  const costEst = Math.round(panelKW * 0.9 + batteryWh * 0.5 + inverterW * 0.3 + 500); // rough estimate
+
+  document.getElementById('sr-daily').textContent = totalWh.toLocaleString() + ' Wh';
+  document.getElementById('sr-lines').innerHTML = [
+    { label:'Solar Panels Required', val: (panelKW/1000).toFixed(1) + ' kW' },
+    { label:'Battery Bank Required', val: (batteryWh/1000).toFixed(1) + ' kWh' },
+    { label:'Inverter Minimum', val: (inverterW/1000).toFixed(1) + ' kW' },
+    { label:'Peak Sun Hours', val: sunHours + 'h / day' },
+    { label:'Battery Autonomy', val: days + ' days' },
+    { label:'Battery Type DoD', val: Math.round(dod*100) + '%' },
+    { label:'Rough Cost Estimate', val: '$' + costEst.toLocaleString() },
+    { label:'Payback vs Generator', val: Math.round(costEst/80) + ' months' },
+  ].map(l => `<div class="sr-line"><span class="sr-line-label">${l.label}</span><span class="sr-line-val">${l.val}</span></div>`).join('');
+}
+
+/* ── Gear Principles Accordion ── */
+function renderPrinciples() {
+  const principles = [
+    { title:"Buy Quality Once — The False Economy of Cheap Gear", body:"A $15 torch fails when you need it. A $60 Streamlight runs for a decade. In preparedness, gear must work the first time under stress with no warning. Budget for quality across all critical categories. The Ark vets every item for durability under genuine field conditions." },
+    { title:"Tier Your Purchases — Foundation Before Redundancy", body:"Resist the temptation to buy advanced gear before covering basics. A freeze dryer is useless without 3 months of food already stored. Solar panels are useless without water filtration already in place. Build each tier fully before extending to the next." },
+    { title:"Test Everything Before You Need It", body:"Every piece of gear must be tested, practised with, and understood before crisis. Filters should be run, radios programmed, stoves burned, solar charged. Untested gear is just expensive clutter." },
+    { title:"Rotation and Maintenance Protocols", body:"Stored food and fuel must rotate every 6–36 months depending on type. Batteries self-discharge. Medications expire. Build a quarterly audit checklist and rotate religiously. The Ark recommends a first-Sunday-of-quarter maintenance protocol." },
+    { title:"Redundancy in Critical Systems", body:"One is none, two is one. For any system where failure is life-threatening — water filtration, communications, fire-starting — you need at least two separate methods. No single points of failure in critical systems." },
+    { title:"Comfort Matters for Long-Term Scenarios", body:"For scenarios beyond 30 days, comfort items dramatically affect morale and decision quality. Books, games, musical instruments, familiar foods — allocate 5–10% of your budget to comfort. A team that is miserable makes poor decisions." },
+    { title:"Skills Over Gear", body:"A person with deep knowledge and a knife outperforms a gear-heavy novice every time. Prioritise skills training at every tier: first aid, navigation, food preservation, radio operation, security, mechanical repair. Gear supplements skills; it does not replace them." },
+    { title:"Community Gear Pooling", body:"At Tier 2+, significant gear can be shared across a community. A shared tractor, shared chainsaw, shared medical oxygen concentrator — communal ownership of expensive single-use items dramatically reduces per-household cost and increases overall community capability." },
+  ];
+
+  document.getElementById('principles-acc').innerHTML = principles.map(p => `
+    <div class="acc-item">
+      <button class="acc-trigger" onclick="toggleAcc(this)">
+        <span class="acc-label">${p.title}</span>
+        <span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body"><p class="prose">${p.body}</p></div>
+    </div>
+  `).join('');
+}
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+  renderFilters();
+  renderGearGrid();
+  renderBuildList(1);
+  renderBuildList(2);
+  renderSolarAppliances();
+  renderPrinciples();
+});
+</script>
+</body>
+</html>

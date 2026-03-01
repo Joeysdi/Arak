@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>05.4 — Historical Collapse Examples | Ark v3 (Standalone)</title>
+<style>
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;--bg4:#20203a;
+  --glass:rgba(255,255,255,0.05);--glass2:rgba(255,255,255,0.09);
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --primary:#00ff88;--danger:#ff4444;--warn:#ffaa00;--info:#00aaff;--purple:#bb44ff;--teal:#00ddcc;
+  --text:#e8e8f0;--muted:#888;--muted2:#aaa;
+  --r:12px;--r2:8px;--r3:6px;
+  --shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+
+/* ── GLASS ── */
+.gl{background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
+
+/* ── LAYOUT ── */
+.container{max-width:960px;margin:0 auto;padding:2rem 1rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem}
+@media(max-width:700px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+/* ── TYPE ── */
+h1{font-size:1.9rem;font-weight:700;letter-spacing:-.3px}
+h2{font-size:1.3rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
+.accent{color:var(--primary)}
+.muted{color:var(--muted)}
+.sm{font-size:.84rem}
+.xs{font-size:.73rem}
+.xxs{font-size:.65rem}
+
+/* ── TABS ── */
+.stab{display:flex;gap:.2rem;background:var(--bg3);border-radius:var(--r2);padding:.2rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.stab button{flex:1;min-width:70px;padding:.42rem .7rem;background:transparent;border:none;border-radius:5px;color:var(--muted);cursor:pointer;font-size:.78rem;font-weight:600;transition:all .2s;white-space:nowrap}
+.stab button.active{background:var(--glass2);color:var(--text);border:1px solid var(--border2)}
+.spanel{display:none}.spanel.active{display:block}
+
+/* ── BADGE / TAG ── */
+.badge{display:inline-flex;align-items:center;gap:.25rem;padding:.22rem .6rem;border-radius:20px;font-size:.7rem;font-weight:700}
+.b-crit{background:rgba(255,68,68,.15);color:var(--danger);border:1px solid rgba(255,68,68,.3)}
+.b-high{background:rgba(255,170,0,.15);color:var(--warn);border:1px solid rgba(255,170,0,.3)}
+.b-mod{background:rgba(0,170,255,.12);color:var(--info);border:1px solid rgba(0,170,255,.25)}
+.b-low{background:rgba(0,255,136,.1);color:var(--primary);border:1px solid rgba(0,255,136,.25)}
+.b-p{background:rgba(187,68,255,.12);color:var(--purple);border:1px solid rgba(187,68,255,.25)}
+.tag{display:inline-block;padding:.12rem .42rem;border-radius:3px;font-size:.68rem;font-weight:600;margin:.1rem}
+.tr{background:rgba(255,68,68,.12);color:var(--danger)}
+.ty{background:rgba(255,170,0,.12);color:var(--warn)}
+.tg{background:rgba(0,255,136,.1);color:var(--primary)}
+.tb{background:rgba(0,170,255,.1);color:var(--info)}
+.tp{background:rgba(187,68,255,.1);color:var(--purple)}
+.tt{background:rgba(0,220,200,.1);color:var(--teal)}
+
+/* ── ACCORDION ── */
+.acc-item{border:1px solid var(--border);border-radius:var(--r2);margin-bottom:.6rem;overflow:hidden;transition:border-color .2s}
+.acc-item.open{border-color:var(--border2)}
+.acc-header{display:flex;align-items:center;gap:.75rem;padding:.9rem 1.1rem;cursor:pointer;user-select:none;background:var(--glass);transition:background .2s}
+.acc-header:hover{background:var(--glass2)}
+.acc-chevron{margin-left:auto;font-size:.75rem;transition:transform .3s;color:var(--muted)}
+.acc-item.open .acc-chevron{transform:rotate(180deg)}
+.acc-body{display:none;padding:0 1.1rem 1.1rem;background:var(--bg2)}
+.acc-item.open .acc-body{display:block}
+
+/* ── TIMELINE DOT ── */
+.era-badge{display:inline-block;padding:.2rem .55rem;border-radius:4px;font-size:.68rem;font-weight:700;min-width:52px;text-align:center}
+
+/* ── DATA TABLE ── */
+.dtable{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:.75rem}
+.dtable th{padding:.35rem .6rem;background:var(--bg3);color:var(--muted2);font-weight:600;text-align:left;border-bottom:1px solid var(--border)}
+.dtable td{padding:.45rem .6rem;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5}
+.dtable tr:last-child td{border-bottom:none}
+.dtable tr:hover td{background:rgba(255,255,255,.02)}
+
+/* ── STAT CARD ── */
+.stat-c{background:var(--bg3);border-radius:var(--r3);padding:.75rem;text-align:center}
+.stat-v{font-size:1.4rem;font-weight:700;margin:.2rem 0}
+
+/* ── LESSON CARD ── */
+.lesson{background:var(--glass);border-left:3px solid var(--primary);border-radius:0 var(--r3) var(--r3) 0;padding:.6rem .8rem;margin-bottom:.4rem;font-size:.82rem;line-height:1.55}
+
+/* ── ARK MAPPING CARD ── */
+.ark-map{background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.15);border-radius:var(--r3);padding:.75rem;margin-top:.75rem}
+.ark-map h4{color:var(--primary);font-size:.82rem;font-weight:700;margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem}
+
+/* ── ELITE TACTIC ── */
+.elite-item{display:flex;gap:.6rem;align-items:flex-start;padding:.45rem 0;border-bottom:1px solid var(--border);font-size:.82rem}
+.elite-item:last-child{border-bottom:none}
+.elite-num{min-width:20px;color:var(--warn);font-weight:700;font-size:.8rem}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.1rem}
+.flt-btn{padding:.32rem .75rem;background:var(--glass);border:1px solid var(--border);border-radius:20px;color:var(--muted);cursor:pointer;font-size:.78rem;font-weight:600;transition:all .2s}
+.flt-btn:hover{border-color:var(--border2);color:var(--text)}
+.flt-btn.active{border-color:var(--primary);color:var(--primary);background:rgba(0,255,136,.06)}
+
+/* ── PBAR ── */
+.pbar{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:.3rem}
+.pbar-f{height:100%;border-radius:3px;transition:width .9s ease}
+
+/* ── TIMELINE ── */
+.timeline{position:relative;padding-left:28px}
+.timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:var(--border2)}
+.tl-item{position:relative;margin-bottom:.6rem}
+.tl-item::before{content:'';position:absolute;left:-22px;top:6px;width:10px;height:10px;border-radius:50%;border:2px solid var(--primary);background:var(--bg)}
+.tl-item.danger::before{border-color:var(--danger);background:rgba(255,68,68,.2)}
+.tl-item.warn::before{border-color:var(--warn);background:rgba(255,170,0,.2)}
+
+/* ── BUTTON ── */
+.btn{display:inline-flex;align-items:center;gap:.35rem;padding:.48rem 1rem;border:none;border-radius:var(--r2);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn-p{background:var(--primary);color:#000}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--glass2)}
+
+/* ── SUMMARY STATS ── */
+.summary-stat{background:var(--glass);border:1px solid var(--border);border-radius:var(--r2);padding:.85rem 1rem;text-align:center}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div style="margin-bottom:1.75rem">
+  <div style="display:flex;align-items:center;gap:.85rem;margin-bottom:.4rem">
+    <span style="font-size:2.2rem">🏛️</span>
+    <div>
+      <h1>Historical Collapse <span class="accent">Examples</span></h1>
+      <p class="muted sm">05.4 — Ark Collective v3 | 20 Precedents | Collapse Bible Mapping | Elite Tactics Decoded</p>
+    </div>
+  </div>
+  <p style="color:var(--muted2);max-width:700px;font-size:.88rem;line-height:1.65;margin-top:.5rem">
+    Every collapse in history shares a pattern: early signals ignored, middle class caught unprepared, elites protected. These 20 precedents are the empirical foundation of the Collapse Bible's 150 scenarios. Study the pattern. Apply the Ark mapping.
+  </p>
+</div>
+
+<!-- SUMMARY STATS -->
+<div class="g4" style="margin-bottom:1.5rem" id="summaryStats"></div>
+
+<!-- CONTROLS -->
+<div class="gl" style="padding:1.1rem 1.25rem;margin-bottom:1.25rem">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;margin-bottom:.85rem">
+    <h3>Filter by Collapse Class</h3>
+    <div style="display:flex;gap:.5rem">
+      <button class="btn btn-ghost" style="font-size:.75rem;padding:.35rem .7rem" onclick="expandAll()">Expand All</button>
+      <button class="btn btn-ghost" style="font-size:.75rem;padding:.35rem .7rem" onclick="collapseAll()">Collapse All</button>
+    </div>
+  </div>
+  <div class="filter-bar" id="filterBar"></div>
+</div>
+
+<!-- ACCORDION LIST -->
+<div id="accContainer"></div>
+
+<!-- PATTERN ANALYSIS -->
+<div class="gl" style="margin-top:1.5rem;padding:1.25rem">
+  <div class="stab" id="patternTabs">
+    <button class="active" onclick="switchTab('patternTabs','patternPanels','patterns')">📐 Collapse Patterns</button>
+    <button onclick="switchTab('patternTabs','patternPanels','elite')">🎯 Elite Tactics</button>
+    <button onclick="switchTab('patternTabs','patternPanels','signals')">📡 Early Warning Signals</button>
+    <button onclick="switchTab('patternTabs','patternPanels','doctrine')">🗺️ Ark Doctrine Links</button>
+  </div>
+  <div id="patternPanels">
+
+    <div class="spanel active" id="panel-patterns">
+      <p class="sm muted" style="margin-bottom:1rem">Recurring structural patterns extracted from all 20 historical collapses — the predictive fingerprint of civilisational failure.</p>
+      <div class="g2" id="patternCards"></div>
+    </div>
+
+    <div class="spanel" id="panel-elite">
+      <p class="sm muted" style="margin-bottom:1rem">What the ruling class did <em>before and during</em> every major collapse — tactics documented across all 20 events.</p>
+      <div id="eliteTactics"></div>
+    </div>
+
+    <div class="spanel" id="panel-signals">
+      <p class="sm muted" style="margin-bottom:1rem">Early warning signals that appeared 12–36 months before collapse in the majority of historical cases. Your Ark intelligence monitoring checklist.</p>
+      <div id="earlyWarnings"></div>
+    </div>
+
+    <div class="spanel" id="panel-doctrine">
+      <p class="sm muted" style="margin-bottom:1rem">How each historical collapse class maps to the Safe Zone Doctrine and Ark Collective preparation tiers.</p>
+      <div id="doctrineMappings"></div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+/* ════════════════════════════════════════
+   DATA BLOCK — 20 Historical Collapses
+════════════════════════════════════════ */
+const COLLAPSES=[
+  {
+    id:'RC',era:'Ancient',year:'376–476 CE',cls:'C',clsLabel:'Societal/Military',
+    title:'Roman Empire Collapse',flag:'🏛️',
+    severity:'TOTAL',deaths:'Millions (indirect)',duration:'~100 years',
+    summary:'The Western Roman Empire dissolved over a century through a cascade of military overextension, currency debasement, political instability (26 emperors in 50 years), mass migration pressure, and institutional collapse. The Eastern Empire (Byzantium) survived for another 1,000 years.',
+    triggers:['Currency debasement (silver content fell from 90% to <5%)', 'Military costs exceeded treasury capacity', 'Gothic migration pressure (Huns pushing western tribes)', '50+ political assassinations in 50 years', 'Bureaucratic corruption reaching provincial paralysis'],
+    eliteMoves:['Senate class moved wealth to eastern provinces (Constantinople)', 'Land aristocracy shifted to tax-exempt church structures', 'Eastern Roman military maintained discipline and borders', 'Wealthy families paid barbarian leaders for local protection', 'Church absorbed administrative functions and institutional knowledge'],
+    arkMapping:{
+      class:'Class C (Societal) + Class A (Financial)',
+      lesson:'Currency debasement is always the first domino. Hard assets (land, gold, religious institutions) survived; liquid currency became worthless. Geographic arbitrage — East vs West — was the elite survival mechanism.',
+      prep:['Hold physical gold/silver — not paper currency','Acquire productive land outside collapse epicentre','Build institutional relationships (legal, religious, community)','Multi-jurisdictional assets across stable regions','Community self-governance capability'],
+      parallel:'CBDC rollout / dollar debasement (QE) / US institutional collapse risk'
+    },
+    lessons:['Empires rarely collapse overnight — watch the velocity of institutional degradation','Currency debasement always precedes political collapse by 20–50 years','Peripheral regions survive best — avoid the imperial core during collapse','Military loyalty follows money — when pay fails, protection fails','Migration pressure amplifies every other collapse vector simultaneously']
+  },
+  {
+    id:'WH',era:'Modern',year:'1921–1923',cls:'A',clsLabel:'Financial/Hyperinflation',
+    title:'Weimar Germany Hyperinflation',flag:'💸',
+    severity:'SEVERE',deaths:'~100,000 (starvation/violence)',duration:'~2 years',
+    summary:'Post-WWI Germany\'s Weimar Republic printed money to pay war reparations, triggering the most documented hyperinflation in modern history. By November 1923, the exchange rate reached 4.2 trillion marks per dollar. A wheelbarrow of cash couldn\'t buy a loaf of bread.',
+    triggers:['War reparations denominated in gold (impossible to pay)', 'French/Belgian occupation of Ruhr industrial zone', 'Government ordered workers to "passive resistance" (paid to do nothing)', 'Central bank printed money to cover deficits', 'Loss of productive capacity while liabilities remained fixed'],
+    eliteMoves:['Industrial magnates (Stinnes, Krupp) borrowed in marks, repaid in marks — debts wiped out', 'Foreign currency holders (USD, GBP, CHF) bought assets for pennies', 'Real estate acquired at effectively zero real cost by those with hard currency', 'Farmers with food stocks became wealthy relative to city workers', 'Elite transferred assets to Switzerland, Netherlands, USA pre-collapse'],
+    arkMapping:{
+      class:'Class A (Financial) — Hyperinflation Variant',
+      lesson:'Hyperinflation destroys savings, pensions, and salaries simultaneously. The only protection: hard assets (property, gold, foreign currency, productive assets). The working class was annihilated; the indebted industrialist class emerged stronger.',
+      prep:['Maintain 10–20% in physical gold/silver minimum','Hold foreign currencies (CHF, SGD, AUD) outside home banking system','Own productive physical assets — farmland, equipment, tools','No cash savings in domestic currency during debasement phase','Food stocks = real purchasing power when currency fails'],
+      parallel:'Current USD debasement / MMT policies / potential BRICS currency disruption'
+    },
+    lessons:['Savings in fiat currency become worthless in 12–24 months of hyperinflation','Hard assets appreciate in real terms during currency collapse','Foreign currency and gold are the only reliable stores of value','Food security becomes the most important economic position','Middle class is destroyed first — working class riots follow']
+  },
+  {
+    id:'SU',era:'Modern',year:'1989–1991',cls:'C',clsLabel:'Political/Institutional',
+    title:'Soviet Union Collapse',flag:'☭',
+    severity:'TOTAL',deaths:'Disputed (100K+ in regional conflicts)',duration:'~3 years',
+    summary:'The Soviet Union dissolved from internal contradictions: economic stagnation, ethnic nationalism, Chernobyl delegitimisation, glasnost releasing suppressed grievances, and a final failed coup. 15 new nations emerged. The transition created the largest peacetime economic contraction of the 20th century.',
+    triggers:['Economic stagnation — GDP growth near zero 1979–1989', 'Chernobyl exposed systemic institutional dishonesty', 'Oil price collapse 1985–1986 — USSR budget relied on energy exports', 'Glasnost created information space for opposition', 'Military-industrial complex consuming 25% of GDP unsustainably'],
+    eliteMoves:['Nomenklatura converted state assets to personal property in 72 hours (overnight privatisation)', 'KGB and party officials became the first oligarchs', 'Swiss and offshore accounts pre-loaded with hard currency', 'Western contacts leveraged for asset protection and dual citizenship', 'State enterprise managers wrote themselves ownership stakes'],
+    arkMapping:{
+      class:'Class C (Societal/Political) + Class A (Economic Transition)',
+      lesson:'Institutional collapse transfers assets from public to well-connected private hands at extraordinary speed. The window for protection is 6–18 months before formal collapse. After collapse, the connected class wins; everyone else loses 50–80% of real wealth.',
+      prep:['Second citizenship/residency secured before collapse announcement','Offshore accounts in stable jurisdictions (CH, SG, AE)','Convertible hard currency holdings outside domestic banking','Network with institutional insiders — intelligence arbitrage','Bug-out location in politically stable region secured in advance'],
+      parallel:'US institutional trust collapse / Western democratic erosion / "great reset" risk'
+    },
+    lessons:['Institutional collapse is faster than any individual can react to without prior preparation','The connected class always survives institutional collapse — become the connected class or leave','Hard currency outside the collapsing system is the primary survival asset','Information advantage (knowing before the public) is worth more than any asset','Ethnic/regional nationalism is the political successor to failed centralism']
+  },
+  {
+    id:'ZW',era:'Modern',year:'2000–2009',cls:'A',clsLabel:'Financial/Hyperinflation',
+    title:'Zimbabwe Hyperinflation',flag:'🇿🇼',
+    severity:'CATASTROPHIC',deaths:'~80,000 (cholera, starvation)',duration:'~10 years',
+    summary:'Zimbabwe\'s inflation peaked at an estimated 89.7 sextillion percent in November 2008. The Mugabe government printed money to fund war veterans and land seizures, destroyed agricultural output through forced land redistribution, and eventually abandoned the Zimbabwe dollar entirely in 2009.',
+    triggers:['Land seizure programme destroyed commercial agriculture', 'Government printed money to fund budget deficit', 'Loss of IMF/World Bank support', 'Sanctions cutting off forex reserves', 'Destruction of institutional knowledge (white farmers expelled)'],
+    eliteMoves:['ZANU-PF elite received seized farms and government contracts', 'Connected businesspeople acquired hard currency (USD, GBP, ZAR)', 'South Africa and UK provided escape routes for skilled workers', 'Diaspora remittances became primary income for surviving families', 'Informal forex markets (parallel exchange) operated openly'],
+    arkMapping:{
+      class:'Class A (Hyperinflation) + Class E (Food Security)',
+      lesson:'Political mismanagement of a functioning agricultural economy can destroy food security within 5 years. The canary: when productive assets are redistributed for political reasons, collapse is 3–7 years away. Foreign currency = survival.',
+      prep:['Foreign currency income stream is existential in unstable nations','Agricultural knowledge and relationships are survival assets','Diaspora network is more valuable than any local asset','Exit before the middle class exodus — not after','USD, EUR, CHF in hand outside the banking system'],
+      parallel:'Venezuela parallel / any petro-state or commodity-dependent nation with political instability'
+    },
+    lessons:['Agricultural destruction always precedes famine — food system is civilisation\'s foundation','Currency collapse follows asset seizure policy with 2–4 year lag','Skilled professional diaspora exodus is an 18-month warning signal','Parallel economies (barter, forex) emerge automatically — join them early','Foreign passport = the most valuable asset in a collapsing state']
+  },
+  {
+    id:'VZ',era:'Modern',year:'2013–present',cls:'A',clsLabel:'Financial/Petro-Collapse',
+    title:'Venezuela Collapse',flag:'🇻🇪',
+    severity:'ONGOING',deaths:'~300,000 (excess mortality)',duration:'10+ years ongoing',
+    summary:'Venezuela, once Latin America\'s wealthiest nation per capita, collapsed after oil prices fell and Chavista policies created supply shortages, hyperinflation, and a 75% contraction in real GDP. 7.7 million people fled — the largest peacetime migration in Western Hemisphere history.',
+    triggers:['Oil price collapse (2014) destroyed 96% of export revenue', 'Nationalisation of productive industries destroyed output', 'Price controls created shortages of all goods', 'Corruption consumed remaining state capacity', 'USD reserves depleted by debt service'],
+    eliteMoves:['Chavista elite (boligarchs) accumulated USD billions in offshore accounts', 'Military controlled food distribution and extracted rents', 'Connected families obtained US/European visas/residency before crisis', 'Dollar-denominated salaries for regime loyalists maintained purchasing power', '7.7M regular citizens fled — elite stayed in gated compounds'],
+    arkMapping:{
+      class:'Class A (Economic) + Class C (Political)',
+      lesson:'The Venezuela collapse is the cleanest modern template for petro-state collapse: oil dependency → price shock → fiscal crisis → money printing → hyperinflation → shortages → mass emigration. The timeline is predictable; the preparation window is 3–5 years.',
+      prep:['Never be fully dependent on a single commodity economy','Second passport/citizenship is the ultimate survival tool','Crypto (BTC) was the most effective inflation hedge for Venezuelans','Skills that work globally (medical, engineering, coding) are portable assets','Exit when middle class begins to leave — not when the crisis is obvious'],
+      parallel:'Saudi Arabia (oil dependency) / Nigeria / any single-commodity state'
+    },
+    lessons:['Resource curse: commodity wealth creates institutional fragility','Political populism that destroys productive capacity is a 5–10 year collapse sentence','Bitcoin outperformed every other asset class during the Venezuelan hyperinflation','Mass emigration removes the tax base that might otherwise fund recovery','Medical system collapse follows economic collapse by 18–24 months']
+  },
+  {
+    id:'GD',era:'Modern',year:'1929–1939',cls:'A',clsLabel:'Financial/Depression',
+    title:'Great Depression',flag:'📉',
+    severity:'SEVERE',deaths:'~7 million (US alone, excess mortality)',duration:'~10 years',
+    summary:'The 1929 stock market crash triggered a cascading collapse: 9,000+ US bank failures, 25% unemployment, 30% GDP contraction, Dust Bowl agricultural collapse, and political destabilisation across the Western world. The depression was a primary enabling condition for WWII.',
+    triggers:['Speculative credit bubble burst (margin trading 10:1)', 'Smoot-Hawley Tariff Act destroyed international trade', 'Federal Reserve contracted money supply (catastrophic error)', '9,000+ bank failures wiped out savings', 'Agricultural collapse (Dust Bowl simultaneous)'],
+    eliteMoves:['JP Morgan organised bank support operations (briefly)', 'Rockefeller, Ford maintained hard assets (land, industry)', 'Gold hoarders saw purchasing power double (gold vs deflating prices)', 'Insiders sold before Black Thursday — short positions established', 'Roosevelt\'s gold confiscation (EO 6102) forced gold to government at $20.67/oz'],
+    arkMapping:{
+      class:'Class A (Financial) — Deflationary Variant',
+      lesson:'The Great Depression is the deflationary collapse template. Unlike hyperinflation, deflation destroys debtors while cash/gold holders prosper. The Great Depression also shows how government response (gold confiscation, EO 6102) can redistribute wealth under cover of emergency.',
+      prep:['Cash and gold are king in deflation — opposite of hyperinflation','Zero leverage/debt entering any crisis makes you a buyer not a seller','Government confiscation risk is real — offshore and physical gold critical','Agricultural self-sufficiency is existential in prolonged depression','Social network is the food bank — community resilience not individual hoarding'],
+      parallel:'2008 financial crisis / current derivative bubble / commercial real estate collapse'
+    },
+    lessons:['Bank runs are contagious — if one major bank fails, move cash immediately','Government confiscation of gold/assets is historically precedented and likely','Debt is the primary killer in deflationary collapses','Agricultural communities fare best in extended depressions','Psychological resilience is as important as financial preparation']
+  },
+  {
+    id:'BK',era:'Medieval',year:'1347–1353',cls:'D',clsLabel:'Biological/Pandemic',
+    title:'Black Death',flag:'☠️',
+    severity:'CATASTROPHIC',deaths:'~50 million (1/3 of Europe)',duration:'~6 years',
+    summary:'The bubonic plague killed 30–60% of Europe\'s population, decimating feudal labour systems, empowering surviving peasants with scarce labour leverage, destabilising the Catholic Church\'s authority, and ultimately accelerating the Renaissance and Reformation. The fastest societal reorganisation in European history.',
+    triggers:['Transmission via fleas on rats along Silk Road trade routes', 'Dense urban living conditions amplified spread', 'Malnutrition weakened immune response (famine preceded)', 'No germ theory — complete lack of effective medical response', 'International trade networks as disease vectors'],
+    eliteMoves:['Wealthy fled to country estates away from cities (the original "bug-out" move)', 'Pope Clement VI surrounded himself with fires at Avignon to purify air', 'Italian merchant families moved financial operations to safer cities', 'Flagellant movement used for social control by elites (scapegoating Jews)', 'Survivors inherited concentrated land — massive wealth transfer to survivors'],
+    arkMapping:{
+      class:'Class D (Medical/Pandemic)',
+      lesson:'The 700-year-old elite response to pandemic is identical to the modern Ark protocol: early geographic relocation, isolation, maintained supply chains, avoided mass gatherings. The difference today is the speed of spread and the sophistication of response available.',
+      prep:['6-month supply stockpile enables isolation without risk','Rural bug-out location is the pandemic gold standard','Avoid dense urban centres during initial pandemic phase','N95 masks + PPE stockpile — pre-pandemic not post-announcement','Network with medical professionals for early intelligence'],
+      parallel:'H5N1 avian influenza / next engineered pandemic / Collapse Bible Scenario D1'
+    },
+    lessons:['Urban density is the pandemic\'s primary amplifier','Early geographic separation from infection vectors is the only reliable protection','Institutional authority (church, state) delegitimised by inability to protect population','Survivors inherit — asset concentration to those who survive any systemic shock','Medical system collapse follows population collapse, not precedes it']
+  },
+  {
+    id:'YU',era:'Modern',year:'1991–1995',cls:'C',clsLabel:'Civil War/Ethnic',
+    title:'Yugoslav Civil War',flag:'🇾🇺',
+    severity:'CATASTROPHIC',deaths:'~140,000',duration:'~5 years',
+    summary:'The most violent conflict in Europe since WWII. Yugoslavia\'s socialist federation dissolved along ethnic lines after Tito\'s death removed the unifying authority. Neighbours became enemies within weeks. Sarajevo, a modern European city, endured the longest siege of any capital city in the history of modern warfare.',
+    triggers:['Tito\'s death (1980) removed authoritarian glue', 'Economic crisis (hyperinflation, unemployment) created desperation', 'Milosevic weaponised Serbian ethnic identity', 'Western recognition of Croatia/Slovenia accelerated fragmentation', 'Media manipulation: neighbour became enemy in 6 months'],
+    eliteMoves:['Wealthy urban Sarajevans fled before the siege (those who had visas or connections)', 'Criminal networks became the only functioning supply chains during conflict', 'UN "protected zones" became effective detention for those without exit options', 'Black market in DM (Deutsche Mark) was the only functioning economy', 'Diaspora communities facilitated exit — family connections were lifesaving'],
+    arkMapping:{
+      class:'Class C (Civil Conflict) + Class B (Infrastructure)',
+      lesson:'Yugoslavia is the definitive case study for rapid civilisational collapse in a modern, developed nation. Sarajevo\'s middle class went from "this can\'t happen here" to besieged with no food in 8 weeks. The timeline is brutally fast. The window to leave is measured in days.',
+      prep:['Passport/visa of neighbouring stable nation is existential','72-hour bug-out bags must be ready — Sarajevo residents had nothing','Do not wait for official confirmation of collapse — leave on rumour','Cash in hard foreign currency must be accessible within 30 minutes','Community trust networks — who to trust — must be pre-built'],
+      parallel:'US civil conflict scenarios / EU fragmentation / any multi-ethnic state under economic stress'
+    },
+    lessons:['Urban professionals are systematically unprepared for conflict collapse — "it can\'t happen here"','Ethnic scapegoating is the political mechanism deployed in every resource-stressed collapse','Criminal networks fill the governance vacuum — relationship with them is necessary, not optional','A valid passport of a stable country is worth more than any physical asset','Leave before the siege — not after. The window is 2–4 weeks maximum.']
+  },
+  {
+    id:'AR',era:'Modern',year:'2001–2002',cls:'A',clsLabel:'Financial/Sovereign Default',
+    title:'Argentina Default & Corralito',flag:'🇦🇷',
+    severity:'SEVERE',deaths:'~39 (protests)',duration:'~2 years acute',
+    summary:'Argentina defaulted on $100B in sovereign debt — the largest in history at the time. The "corralito" froze bank accounts, limiting withdrawals to $250/week. The peso was devalued 75% overnight. Middle class savers lost 70% of real wealth. Five presidents in two weeks.',
+    triggers:['Currency peg (convertibility) unsustainable against peso weakness', 'IMF structural adjustment removed fiscal flexibility', 'Dollar-denominated debt with peso-denominated revenue', 'Capital flight exhausted reserves', 'Political instability accelerated bank run'],
+    eliteMoves:['Capital flight of ~$20B before corralito announced — elites got money out first', 'Dollar accounts held offshore (Uruguay, Miami) preserved through corralito', 'Politically connected extracted full dollar value before freeze', 'Real estate bought in USD by connected buyers at post-devaluation lows', 'Foreign passport holders (Italian-Argentine, Spanish-Argentine) emigrated immediately'],
+    arkMapping:{
+      class:'Class A (Financial) — Bank Freeze Variant',
+      lesson:'The corralito is the template for what CBDCs make trivially easy: freezing financial accounts with no warning, limiting withdrawals, forcing conversion to devalued currency. Argentina shows it can happen overnight in a modern democracy with functional institutions. Cash and offshore accounts are essential.',
+      prep:['Never keep more than 3-months expenses in domestic bank','Offshore accounts in stable jurisdictions are non-negotiable','Physical cash in foreign currency at home (2–4 week supply)','Second citizenship removes account freeze risk entirely','Crypto (no banking intermediary) is Argentine survivors\' hindsight lesson'],
+      parallel:'CBDC rollout / potential G7 bank bail-in / any currency peg collapse'
+    },
+    lessons:['Bank account freezes can be implemented overnight in any country','Currency peg collapse is always preceded by capital flight — watch reserves','USD cash outside the banking system is the singular survival asset in bank freeze','Middle class is always the corralito\'s victim — elites extract before announcement','Second passport removes the trap: you can leave with your assets intact']
+  },
+  {
+    id:'LB',era:'Modern',year:'1975–1990',cls:'C',clsLabel:'Civil War',
+    title:'Lebanon Civil War',flag:'🇱🇧',
+    severity:'CATASTROPHIC',deaths:'~150,000',duration:'15 years',
+    summary:'The "Paris of the Middle East" became a byword for protracted urban civil war. Beirut was divided into militia-controlled sectarian zones. The state ceased to function. Private militias, foreign armies, and criminal networks replaced institutional governance for 15 years.',
+    triggers:['Palestinian refugee influx destabilised fragile sectarian balance', 'Cold War proxy conflict (US/Israel vs Syria/USSR)', 'Economic inequality between Christian and Muslim communities', 'Assassination of PM Rafik Hariri (in later 2005 iteration)', 'Weak state unable to maintain monopoly on legitimate force'],
+    eliteMoves:['Christian Maronite elite maintained West Beirut connections and wealth abroad', 'Banking sector remained partially functional — bank secrecy laws protected deposits', 'Armed militias provided protection services to their own communities', 'Wealthy families maintained multiple residences and passports', 'Hariri family used French and Saudi connections for physical and financial safety'],
+    arkMapping:{
+      class:'Class C (Civil Conflict) — Protracted Variant',
+      lesson:'Lebanon shows that civil conflict can last 15 years without resolution. Unlike rapid collapse, protracted conflict requires a different strategy: remain but fortify, or leave permanently. The banking system\'s survival (until 2019) shows hard assets within conflict zones remain possible with the right structure.',
+      prep:['Multi-sectarian network is a survival asset — don\'t isolate to one community','Armed community self-defence is non-negotiable in conflict zones','Multi-country residency — ability to leave on 24 hours notice','Bank deposits in Lebanese lira were destroyed; USD accounts partially survived','Community militias and warlord relationships are pragmatic necessities, not moral choices'],
+      parallel:'US sectarian/political conflict potential / any multi-ethnic democracy under stress'
+    },
+    lessons:['Protracted conflict creates adaptation — normal life continues in modified form','Sectarian affiliation becomes the primary social organisation system in civil conflict','The state\'s monopoly on violence breaks down before economic collapse, not after','Banking systems can function in partial collapse — but denomination matters crucially','Foreign passport + offshore accounts is the universal elite survival strategy']
+  },
+  {
+    id:'CB',era:'Ancient',year:'1177 BCE',cls:'F',clsLabel:'Multi-System/Existential',
+    title:'Late Bronze Age Collapse',flag:'⚔️',
+    severity:'TOTAL',deaths:'Millions (indirect)',duration:'~50 years',
+    summary:'The most dramatic systems collapse in ancient history. Within 50 years, every major palace civilisation of the Eastern Mediterranean (Mycenaean Greece, Hittites, Ugarit, Egypt weakened, Cyprus) collapsed simultaneously. The Bronze Age ended. Writing was lost in Greece for 400 years. The cause remains debated: invasion, climate, systems failure, or all three.',
+    triggers:['Highly interconnected trade networks created systemic fragility', 'Climate change: drought reduced agricultural output across region', '"Sea Peoples" invasions destabilised multiple centres simultaneously', 'Supply chain disruption (tin and copper from different distant regions)', 'Loss of elite political legitimacy — palace redistributive system failed'],
+    eliteMoves:['Egyptian pharaoh Ramesses III documented the collapse (he survived)', 'Egyptian military successfully repelled Sea Peoples invasions at Nile Delta', 'Cyprus maintained partial function as bronze trade intermediary', 'Phoenician city-states (Byblos, Sidon) survived as maritime networks adapted', 'Surviving elite concentrated in coastal defensive positions with water access'],
+    arkMapping:{
+      class:'Class F (Existential) — Multi-System Failure',
+      lesson:'The Bronze Age Collapse is the empirical case study for Collapse Bible Class F scenarios: when multiple systems fail simultaneously, the interconnected complexity that created prosperity becomes the mechanism of total destruction. Self-sufficient, geographically isolated communities with diverse food production survived.',
+      prep:['Zero single-point-of-failure — diversify across all systems','Food self-sufficiency is existential in Class F scenarios','Coastal/maritime communities with trade flexibility survived best','Writing and knowledge preservation is civilisational survival','Community size 50–150 (Dunbar\'s number) proved most resilient'],
+      parallel:'Current interconnected global supply chain fragility / multiple simultaneous crisis scenarios'
+    },
+    lessons:['High interconnectedness creates fragility — diversity and redundancy create resilience','Multi-system simultaneous failure is possible and has historical precedent','Self-sufficient communities with diversified food production survived total collapse','Knowledge preservation (writing, skills, trade routes) is civilisational resilience','Coastal and adaptable communities outsurvive landlocked, rigid ones']
+  },
+  {
+    id:'OE',era:'Historical',year:'1908–1922',cls:'C',clsLabel:'Political/Imperial',
+    title:'Ottoman Empire Collapse',flag:'🕌',
+    severity:'TOTAL',deaths:'~2.5 million (wars + genocide)',duration:'~15 years',
+    summary:'The "Sick Man of Europe" finally expired after WWI, leaving a power vacuum across the Middle East still felt today. The collapse produced genocide (Armenians, Assyrians, Greeks), massive population transfers, and redrew the map of three continents. Kemal Atatürk\'s Turkey emerged from the ruins.',
+    triggers:['Military defeats (Balkan Wars, WWI)', 'Pan-Arab nationalism undermining multi-ethnic legitimacy', 'Young Turk CUP using nationalism to scapegoat minorities', 'Financial insolvency from war debt to European powers', 'British/French Sykes-Picot carve-up of Middle East'],
+    eliteMoves:['CUP nationalist elite secured Anatolian heartland through ethnic cleansing', 'Kemal Atatürk leveraged military loyalty against occupying powers', 'Greek and Armenian merchant class wealth seized to fund nationalist war', 'British-aligned Arab leaders received territorial control (Hashemite kingdoms)', 'Dönme (crypto-Jewish converts) leveraged dual identity for survival'],
+    arkMapping:{
+      class:'Class C (Societal/Political) — Imperial Dissolution',
+      lesson:'Imperial collapse always produces ethnic scapegoating as the mechanism of wealth redistribution. Minority communities in declining empires face existential risk. The lesson: ethnic minority status in a destabilising multi-ethnic state is a Tier 3–4 risk factor requiring exit planning.',
+      prep:['Ethnic minority status in destabilising state → immediate Tier 3 prep','Second passport is existential for minority communities in ethnic conflict','Community wealth should not be visibly concentrated (makes target)','International diaspora network is the escape infrastructure','Exit before the nationalism peaks — not during or after'],
+      parallel:'Rise of ethnic nationalism in EU / minority communities in unstable states'
+    },
+    lessons:['Multi-ethnic empires always collapse along ethnic lines when under economic stress','Minority wealth concentration is always the political scapegoat in collapse','International diaspora networks are the primary survival infrastructure for minorities','Nationalist successor states use violence to homogenise — leave before this phase','The successor state always claims it\'s more legitimate — it\'s just more violent']
+  },
+  {
+    id:'KC',era:'Modern',year:'2005',cls:'B',clsLabel:'Infrastructure/Government Failure',
+    title:'Hurricane Katrina — Infrastructure Collapse',flag:'🌀',
+    severity:'SEVERE',deaths:'1,833 confirmed',duration:'~3 months acute',
+    summary:'Hurricane Katrina didn\'t just show natural disaster vulnerability — it exposed the total failure of every level of government to protect citizens. 80% of New Orleans flooded. Bodies floated for weeks. The Superdome became a humanitarian catastrophe. 1.2 million people displaced. $125B in damage.',
+    triggers:['Category 5 hurricane with known path ignored by unprepared city', 'Levee system known to be inadequate — not upgraded', 'FEMA gutted and deprioritised in post-9/11 budget', 'Evacuation order for poor residents without cars unenforceable', 'New Orleans below sea level in hurricane corridor — structural vulnerability'],
+    eliteMoves:['Wealthy residents with cars evacuated 24–48 hours before landfall', 'Hotels and high-rises sheltered paying guests with generators and security', 'Connected residents received National Guard protection before poor areas', 'Insurance-paying property owners received faster settlement (wealthy areas rebuilt faster)', 'Political class (state and federal) evacuated to functioning locations'],
+    arkMapping:{
+      class:'Class B (Infrastructure) + Class C (Government Failure)',
+      lesson:'Katrina is the proof that government will not save you in a Class B collapse. Your preparation window is 24–72 hours. After landfall, you are on your own for 3–10 days minimum. Bug-out vehicles, 72-hour bags, cash, and a destination are non-negotiable.',
+      prep:['72-hour bug-out window: act on Category 3+ warning, not at landfall','Never depend on government evacuation infrastructure — have your own vehicle','72-hour bags for every household member including pets','Cash — ATMs are offline post-disaster for 3–14 days','Pre-identified rally point outside disaster zone with family'],
+      parallel:'Direct template for any natural disaster / infrastructure failure scenario (Class B1–B6)'
+    },
+    lessons:['Government response time: 72–96 hours minimum, often worse','Wealth determines survival outcomes in disaster scenarios — this is not accidental','Pre-evacuation by 24–48 hours is the single most important decision','Physical cash is critical — digital payment infrastructure fails first','The poor are trapped; the prepared leave. Preparation is the equaliser.']
+  },
+  {
+    id:'IH',era:'Historical',year:'1918–1919',cls:'D',clsLabel:'Pandemic/Medical',
+    title:'1918 Spanish Flu Pandemic',flag:'🦠',
+    severity:'CATASTROPHIC',deaths:'50–100 million globally',duration:'~2 years',
+    summary:'The deadliest pandemic in modern history killed more people than WWI. Unusually lethal to young adults (20–40) via cytokine storm. Philadelphia held a Liberty Bond parade despite warnings — 12,000 dead within weeks. St. Louis cancelled all public events — deaths a fraction of Philadelphia\'s.',
+    triggers:['WWI troop movements created mass transmission vectors', 'Wartime censorship suppressed early reporting (except neutral Spain)', 'Three distinct waves with second wave most lethal (mutations)', 'Urban density and poor sanitation amplified spread', 'No effective treatment — no antibiotics (bacterial secondary infections killed majority)'],
+    eliteMoves:['Wealthy retreated to country estates away from population centres', 'Wilson administration suppressed information to maintain war morale', 'Medical profession advocated quarantine measures government overrode', 'Philadelphia vs St. Louis: political leaders who listened to scientists saved thousands', 'Pharmaceutical companies (aspirin manufacturers) profited from mass demand'],
+    arkMapping:{
+      class:'Class D (Medical/Pandemic)',
+      lesson:'The 1918 comparison is the most direct historical parallel to H5N1 risk. CFR 2–3% with cytokine storm signature. Social distancing worked in St. Louis. Early geographic isolation worked for isolated communities. The gap between knowing and acting determined everything.',
+      prep:['N95 masks + PPE: 6-month supply minimum','Isolate at first community transmission — not when WHO declares pandemic','Remote rural bug-out location for family pandemic shelter','Avoid public gatherings at any pandemic signal (before confirmation)','Antibiotic stockpile for bacterial secondary infections'],
+      parallel:'H5N1 avian influenza / Collapse Bible Scenario D1 (Novel Pandemic CFR >5%)'
+    },
+    lessons:['Speed of response determines outcomes — every week of delay multiplies deaths','Social distancing and isolation are effective even without vaccines','Political leaders who deny outbreaks for economic reasons cause mass casualties','Second wave is always more dangerous than the first','Cytokine storm kills the healthy and young — survival is not guaranteed by fitness']
+  },
+  {
+    id:'RW',era:'Modern',year:'1994',cls:'C',clsLabel:'Ethnic Genocide',
+    title:'Rwandan Genocide',flag:'🇷🇼',
+    severity:'CATASTROPHIC',deaths:'800,000–1,000,000 in 100 days',duration:'100 days',
+    summary:'The fastest genocide in recorded history. 800,000 Tutsi and moderate Hutu killed in 100 days using machetes and radio propaganda. The entire infrastructure of genocide was radio-based hate speech. RTLM radio station described Tutsi as "inyenzi" (cockroaches) for months before killings began.',
+    triggers:['Habyarimana assassination (trigger event)', 'Months of prior media dehumanisation (RTLM radio)', 'Interahamwe militia pre-trained and distributed machetes', 'UN peacekeepers ordered not to intervene (Romeo Dallaire)', 'Rwanda was one of the world\'s most densely populated countries'],
+    eliteMoves:['Hutu power elite had pre-compiled Tutsi target lists', 'Foreign nationals (French, Belgian) evacuated — Tutsi abandoned', 'UN ignored Dallaire\'s genocide warning fax in January 1994', 'RPF (Tutsi rebel force) ended genocide by military force, not diplomacy', 'International community held "emergency meetings" throughout the 100 days'],
+    arkMapping:{
+      class:'Class C (Civil Conflict) — Ethnic Genocide Variant',
+      lesson:'Rwanda is the extreme case of ethnic scapegoating as political mechanism. The pre-genocide signals (media dehumanisation, militia formation, weapons distribution) were visible 12+ months before April 1994. The lesson: when ethnic hate speech escalates to "cockroach" level dehumanisation, leave immediately.',
+      prep:['Media dehumanisation of ethnic group = 12-month departure trigger','Pre-built evacuation network to neighbouring stable country','Foreign passport is existential — stateless = trapped','International connections (NGO, church, embassy) = potential evacuation routes','Do not wait for official safety assurances — they failed completely in Rwanda'],
+      parallel:'Ethnic minority status in any destabilising multi-ethnic state'
+    },
+    lessons:['Genocide is organised, not spontaneous — the organisation is visible months in advance','Dehumanising language in state media is always the final precursor signal','International institutions will debate while people die — do not wait for rescue','Pre-built cross-border networks saved the people who survived','The UN peacekeeping failure is the model for every future international response']
+  },
+  {
+    id:'GR',era:'Modern',year:'2010–2018',cls:'A',clsLabel:'Financial/Sovereign Debt',
+    title:'Greek Debt Crisis',flag:'🇬🇷',
+    severity:'SEVERE',deaths:'~10,000 (austerity suicide increase)',duration:'~8 years',
+    summary:'Greece\'s sovereign debt crisis became the EU\'s existential test. GDP fell 25%, unemployment reached 27%, suicides increased 35%, hospitals ran out of medicine, and young professionals emigrated en masse. Austerity measures imposed by the Troika (IMF/ECB/EC) destroyed the social contract.',
+    triggers:['Goldman Sachs structured transactions hid debt level from EU entry criteria', 'Structural deficit financed by cheap euro borrowing', 'Global financial crisis 2008 exposed unsustainable debt', 'No monetary policy tools (euro) — only austerity available', 'German political consensus: moral hazard prevention > Greek survival'],
+    eliteMoves:['Wealthy Greeks moved billions to Swiss and UK accounts pre-crisis', 'Shipping magnates maintained offshore structures throughout (legal under Greek law)', 'Political class maintained property and connections outside Greece', 'Professional diaspora (doctors, engineers) emigrated to Germany, UK, Australia', 'Capital controls (July 2015) limited to €60/day — offshore accounts unrestricted'],
+    arkMapping:{
+      class:'Class A (Financial) — Austerity/Capital Control Variant',
+      lesson:'Greece demonstrates that capital controls can be imposed in any eurozone (or equivalent) country with 72 hours notice. €60/day was the government\'s ration. Offshore accounts, gold, and foreign currency were the only exemptions. The capital flight that preceded the crisis was the elite\'s self-protection.',
+      prep:['Offshore accounts in non-EU jurisdictions (CH, SG, AE) are essential','Physical gold outside banking system — unaffected by capital controls','Maximum 3 months operating expenses in domestic bank accounts','Foreign currency income stream removes capital control vulnerability','Second residency/citizenship enables asset mobility'],
+      parallel:'Direct template for CBDC account freezes / any EU member state debt crisis'
+    },
+    lessons:['Capital controls can be imposed in any democracy within 72 hours','Eurozone membership removes monetary policy tools — austerity is the only response','Youth emigration is the middle-class exodus signal — read it as the departure trigger','Austerity destroys healthcare first — stock medications pre-crisis','Goldman Sachs-style structured transactions hiding sovereign debt occur routinely today']
+  },
+  {
+    id:'SR',era:'Modern',year:'2022',cls:'A',clsLabel:'Financial/Political',
+    title:'Sri Lanka 2022 Collapse',flag:'🇱🇰',
+    severity:'SEVERE',deaths:'Multiple (protests)',duration:'~1 year acute',
+    summary:'Sri Lanka declared bankruptcy in April 2022 — the first developing nation to do so in 20 years. Fuel ran out, hospitals shut down, power outages hit 13 hours/day, and protesters stormed and swam in the presidential palace pool. President Rajapaksa fled on a military jet. The entire cabinet resigned.',
+    triggers:['COVID destroyed tourism (30% of GDP)', 'Organic farming ban destroyed agricultural output in 1 year', 'Tax cuts depleted reserves just before crisis', 'IMF bailout delayed by political denial', 'Forex reserves fell to $50M — unable to pay for fuel imports'],
+    eliteMoves:['Rajapaksa family fled to Maldives, then Singapore, then Thailand', 'Connected politicians converted rupees to USD months before collapse', 'Military maintained fuel access for essential operations', 'Business elite stockpiled fuel, food, and generators before public shortages', 'Diaspora (UK, Australia, Canada) provided remittances that kept families alive'],
+    arkMapping:{
+      class:'Class A (Financial) + Class B (Infrastructure)',
+      lesson:'Sri Lanka is the cleanest modern template for rapid state bankruptcy. The collapse accelerated from "challenging" to "presidential flight" in 8 weeks. The agricultural collapse from the organic farming ban shows that ideologically-driven policy destroying food production is a 12-18 month fuse.',
+      prep:['Any forex reserve fall below 3 months import cover = Tier 3 trigger','Fuel stockpile (30-day minimum) before infrastructure collapse','Generator + fuel storage for power outage resilience','USD cash outside banking system — rupee became toilet paper','Watch for policy-driven agricultural destruction (organic mandate, fertiliser ban)'],
+      parallel:'Direct parallel to multiple developing nations: Pakistan, Egypt, Ghana, Ethiopia'
+    },
+    lessons:['State bankruptcy can move from "concerning" to "complete" in 8 weeks','Policy-driven agricultural disruption is a 12-18 month collapse signal','Diaspora remittances are the most resilient economic transfer in collapse','Fuel is the master resource — whoever controls fuel controls everything','Presidential flight is not the end of collapse — it\'s the middle of it']
+  },
+  {
+    id:'DB',era:'Historical',year:'1930s',cls:'E',clsLabel:'Environmental/Agricultural',
+    title:'Dust Bowl / Great Plains Collapse',flag:'🌾',
+    severity:'SEVERE',deaths:'~7,000 (direct) + economic',duration:'~10 years',
+    summary:'A decade of over-farming stripped the topsoil of the US Great Plains. Combined with the Great Depression, 3.5 million "Okies" were displaced — the largest internal migration in US history. Black Sunday (April 14, 1935): a dust storm 1,500 miles wide blotted out the sun from Oklahoma to New York.',
+    triggers:['WWI demand incentivised ploughing 5.2M acres of natural prairie grass', 'Prairie grass removed — wind erosion of topsoil began', 'Drought cycle (1930s) dried exposed topsoil', 'Monoculture farming created structural fragility', 'Great Depression eliminated financial buffers for farmers'],
+    eliteMoves:['Absentee landowners in eastern cities unaffected by dust — collected rent during crisis', 'Corporate farming entities (not family farms) had capital to survive', 'Bank foreclosures transferred land from farmers to financial institutions', 'FDR\'s New Deal created government employment for displaced (benefit to political class)', 'Agribusiness model emerged post-Dust Bowl — replacing resilient small farm network'],
+    arkMapping:{
+      class:'Class E (Environmental) + Class A (Financial)',
+      lesson:'The Dust Bowl is the template for industrial monoculture agriculture collapse. Modern industrial farming is more fragile than 1930s farming — higher input dependency, less topsoil, more geographic concentration of key crops. Three breadbasket failures simultaneously would trigger Class E collapse within 12–18 months.',
+      prep:['Personal food growing capability — even container gardens','Diversified, non-monoculture local food network relationships','3–6 month food stockpile (not just freeze-dried: nutrition diversity)','Seed bank (heirloom, open-pollinated) as long-term food security','Geographic location outside monoculture agricultural risk zones'],
+      parallel:'Collapse Bible Scenario E1 (Breadbasket Mega-Drought) / E4 (Mass Crop Failure >30%)'
+    },
+    lessons:['Industrial monoculture creates agricultural fragility — the opposite of food security','Topsoil is the ultimate strategic resource — its loss is civilisational in scale','Internal migration is the economic collapse signal that precedes political collapse','Family farming is more resilient than corporate farming in genuine crisis','Land ownership without debt is the most secure long-term position in agricultural collapse']
+  },
+  {
+    id:'TC',era:'Modern',year:'2000–2001',cls:'A',clsLabel:'Financial/Speculative Bubble',
+    title:'Dot-Com Crash (Nasdaq Collapse)',flag:'💻',
+    severity:'MODERATE',deaths:'Minimal (financial trauma)',duration:'~3 years',
+    summary:'$5 trillion in market value evaporated. Nasdaq fell 78% from peak to trough. 1,000+ internet companies failed. Telecommunications companies lost 95%+ of value. The crash exposed the structural difference between speculation and productive value — a lesson the crypto and AI bubble era is relearning.',
+    triggers:['P/E ratios reaching 200–400× (vs historical 15–20×)', 'IPO frenzy funding companies with zero revenue', 'Y2K IT spending pulled forward demand', 'Federal Reserve raised rates 6 times (1999–2000)', 'Insider selling peaked in Q4 1999 — public buying peaked Q1 2000'],
+    eliteMoves:['Venture capitalists sold at or near peak into IPO public markets', 'Goldman Sachs, Morgan Stanley distributed overvalued stock to pension funds', 'Insiders (founders, early employees) sold during 1999 while public piled in', 'Amazon, Google founders bought real assets with pre-crash capital', 'Short sellers (Chanos et al.) made fortunes — had done fundamental analysis'],
+    arkMapping:{
+      class:'Class A (Financial) — Speculative Bubble Variant',
+      lesson:'Dot-com is not a collapse — it\'s a wealth transfer. The public holds the bag; the insiders take the wealth. Every speculative bubble follows this pattern. The signal: when insider selling peaks while mainstream media coverage is most enthusiastic, exit. AI/crypto bubble follows identical pattern.',
+      prep:['Exit speculative asset classes when fundamentals disconnect from price','Hold productive assets (cash flow, dividends, real property) through bubble markets','Insider selling = smart money exiting — public buying = distribution phase','Never hold more than 10% of net worth in any single speculative asset','Cash position allows buying at the bottom — maintain dry powder'],
+      parallel:'Current AI stock bubble / crypto cycles / any asset class with fundamental/price disconnection'
+    },
+    lessons:['Speculative bubbles are wealth transfer mechanisms from public to insiders','The signal to exit: fundamental analysis impossible due to "new paradigm" narrative','Every bubble ends — timing is difficult, but fundamental value always reasserts','Cash position at bubble peak enables generational wealth building at trough','Technology secular trends (internet, AI) survive the bubble — the companies mostly don\'t']
+  },
+  {
+    id:'CV',era:'Modern',year:'2020–2022',cls:'D',clsLabel:'Pandemic/Governmental',
+    title:'COVID-19 Pandemic Response Collapse',flag:'😷',
+    severity:'SEVERE',deaths:'~7 million (official) / 15–20M excess',duration:'~3 years',
+    summary:'COVID-19 exposed the catastrophic fragility of globalised supply chains, the failure of international health architecture, the weaponisation of information, and the unprecedented expansion of government emergency powers. The response created as much damage as the virus — and set the template for future emergency governance.',
+    triggers:['Globalised supply chains with single-source dependencies (PPE, pharma from China)', 'WHO declaration 3–5 months after clear evidence of pandemic', 'Political incentives misaligned with public health response', 'Social media amplified both accurate and disinformation simultaneously', 'Emergency powers expanded to cover economic and political control'],
+    eliteMoves:['Pharmaceutical companies received government indemnification before vaccine distribution', 'Remote workers (tech, finance) maintained income; service workers lost everything', 'Amazon, Zoom, Pfizer, Moderna market caps multiplied 3–5× during lockdowns', 'Governments used emergency powers beyond pandemic scope (Australia, Canada, EU)', 'Global elite continued unrestricted travel while restrictions applied to public'],
+    arkMapping:{
+      class:'Class D (Medical) + Class B (Institutional)',
+      lesson:'COVID is the most important recent case study for two reasons: (1) it proves supply chain fragility is total and real, and (2) it demonstrates government willingness to use emergency powers for economic and social control. The Ark protocol\'s 6-month supply and off-grid capability aren\'t paranoid — COVID proved them correct.',
+      prep:['6-month medical supply stockpile (medications, PPE, basic medical equipment)','N95 stockpile: 500 masks per adult household member minimum','Supply chain independence — don\'t rely on global logistics for survival needs','Off-grid capability — COVID lockdowns proved remote property value','Know your government\'s emergency powers legislation in advance'],
+      parallel:'Every future pandemic / the emergency powers template is now established globally'
+    },
+    lessons:['Supply chain fragility is not theoretical — COVID proved every dependency in 6 weeks','Emergency powers, once expanded, are never fully returned','Information weaponisation: both disinformation and true information can be suppressed','Remote/rural property + supply stockpile proved their value — not prepper fantasy','Inequality is amplified in every crisis: the prepared and connected survive better']
+  },
+];
+
+const COLLAPSE_PATTERNS=[
+  {icon:'💸',title:'Currency Debasement Precedes Political Collapse',detail:'In 17 of 20 cases, monetary debasement (inflation, printing, devaluation) preceded political collapse by 5–20 years. It is always the first domino.'},
+  {icon:'🏃',title:'Elite Capital Flight = 12-Month Warning',detail:'In every documented case, elite capital flight (offshore accounts, real estate abroad, foreign currency) preceded the public crisis by 12–18 months. Watch forex reserve drawdown.'},
+  {icon:'📢',title:'Scapegoating Signals Pre-Collapse Phase',detail:'Political scapegoating of minority groups (ethnic, economic, foreign) appears in 15/20 collapses in the 1–3 years before collapse peak. It is a political mechanism for pre-collapse wealth redistribution.'},
+  {icon:'🌾',title:'Agricultural/Food System Disruption = Long-Lead Signal',detail:'Disruption to food production (drought, policy, conflict) appears 3–8 years before societal collapse in every agricultural-dependent civilisation studied.'},
+  {icon:'🏛️',title:'Institutional Delegitimisation Precedes Structural Collapse',detail:'Loss of public confidence in institutions (courts, military, church, currency) precedes structural collapse in all 20 cases. Once institutions lose legitimacy, collapse velocity accelerates.'},
+  {icon:'📉',title:'Middle Class Destruction = Collapse Trigger',detail:'Economic policies that destroy the middle class (inflation, debt, unemployment, asset seizure) remove the political stabiliser of every documented civilisation. Middle class destruction → political extremism → collapse.'},
+  {icon:'🚪',title:'Urban Elite Exodus = Late Warning',detail:'Mass departure of skilled professionals (doctors, engineers, intellectuals) is a late-stage warning. By this point, the tax base and institutional knowledge base that sustain civilisation are failing.'},
+  {icon:'⚡',title:'Cascade Velocity Accelerates at Tipping Points',detail:'All 20 collapses show a pattern: slow degradation for years, then sudden acceleration when a tipping point (bank run, battle, assassination, natural disaster) triggers cascade. The collapse itself often takes weeks, not years.'},
+];
+
+const ELITE_TACTICS_UNIVERSAL=[
+  {num:1, tactic:'Pre-positioned offshore capital', detail:'In every collapse studied, elite capital flight preceded the public crisis by 12–18 months. Switzerland, Cayman Islands, Singapore are the universal destinations. This is Ark Protocol Step 1.'},
+  {num:2, tactic:'Second citizenship / foreign residency', detail:'Every elite survivor in every collapse had either foreign citizenship, residency, or family abroad. This is the non-negotiable foundation of the Ark Collective doctrine.'},
+  {num:3, tactic:'Hard asset acquisition at peak currency value', detail:'Physical gold, productive land, and foreign real estate were acquired before devaluation in every case. Weimar, Argentina, Zimbabwe, Venezuela — identical pattern.'},
+  {num:4, tactic:'Early geographic relocation', detail:'From Roman aristocrats fleeing to Constantinople, to wealthy Sarajevans leaving before the siege, to Venezuelan boligarchs with Miami apartments — geographic relocation is the defining elite survival mechanism.'},
+  {num:5, tactic:'Information arbitrage — knowing before the public', detail:'Elite actors in every collapse had advance information: insider selling before Dot-Com, capital flight before Argentina corralito, land purchases before Zimbabwe seizures. Intelligence is the highest-value asset.'},
+  {num:6, tactic:'Community/network preservation', detail:'Elites maintained cohesive networks (mafia, banking families, political parties, religious groups) that provided protection, information, and resources when institutions failed. The Ark Collective is the democratic version of this tactic.'},
+  {num:7, tactic:'Maintained productive asset ownership through collapse', detail:'Aristocratic land in Rome, industrial assets in Weimar, shipping magnates in Greece — productive assets denominated in real terms (not currency) preserved elite wealth through every monetary collapse.'},
+  {num:8, tactic:'Controlled information environment', detail:'In every political/civil collapse, the surviving elite controlled the information narrative: Roman emperors, Stalinist successors, Yugoslav nationalists. Information environment management is both a survival tactic and a threat signal.'},
+];
+
+const EARLY_WARNING_SIGNALS=[
+  {cat:'Financial',signals:['Forex reserve drawdown >30% in 12 months','Currency debasement acceleration (M2 growth >15% annually)','Yield curve inversion sustained >12 months','Capital flight measurable in banking statistics','Asset seizure rhetoric from political leadership']},
+  {cat:'Political',signals:['Opposition party/leaders arrested or exiled','Media consolidation under state/oligarch control','Emergency powers legislation passed or invoked','Electoral result disputed by significant minority','Scapegoating rhetoric targeting ethnic/economic minority reaches "dehumanisation" level']},
+  {cat:'Social',signals:['Skilled professional diaspora (doctors, engineers) emigration rate >2% annually','Civil society organisations suppressed or defunded','Social trust index decline measurable in polling','Public protests scale >1% of population','Food/fuel queues visible in major cities']},
+  {cat:'Infrastructure',signals:['Power outages increasing in frequency in major cities','Hospital supply shortages becoming visible','Food price inflation >25% annually','Fuel rationing introduced or visibly anticipated','Water quality/access deteriorating in urban centres']},
+  {cat:'Biological',signals:['Novel pathogen reports from two or more unrelated geographic locations','Mammalian spillover event confirmed for high-CFR avian virus','WHO Disease Outbreak News frequency increase','Hospital system "capacity warnings" in multiple jurisdictions','Antimicrobial resistance mortality statistics increasing rapidly']},
+];
+
+const DOCTRINE_MAPPINGS=[
+  {cls:'A',icon:'💸',title:'Financial Collapse',examples:['Weimar Germany','Zimbabwe','Venezuela','Argentina','Greece'],tier:'Tier 2→3',prep:'Hard assets, foreign accounts, second residency, 6-month cash/supply buffer'},
+  {cls:'B',icon:'🏗️',title:'Infrastructure Failure',examples:['Hurricane Katrina','Bronze Age (supply)'],tier:'Tier 1→2',prep:'72-hour bug-out, off-grid capability, backup energy, water purification'},
+  {cls:'C',icon:'🔥',title:'Societal/Political',examples:['Rome','USSR','Yugoslavia','Lebanon','Rwanda'],tier:'Tier 3→4',prep:'Second passport, community network, armed defence capability, geographic relocation'},
+  {cls:'D',icon:'🦠',title:'Medical/Pandemic',examples:['Black Death','Spanish Flu','COVID-19'],tier:'Tier 2→3',prep:'6-month supply isolation capability, medical stockpile, remote bug-out, PPE cache'},
+  {cls:'E',icon:'🌊',title:'Environmental',examples:['Dust Bowl','Bronze Age (climate)'],tier:'Tier 1→2',prep:'Food growing capability, diversified food supply, seed bank, geographic selection'},
+  {cls:'F',icon:'⚠️',title:'Existential/Multi-System',examples:['Bronze Age Collapse'],tier:'Tier 4',prep:'Full Ark protocol: self-sufficient community, 2-year supplies, off-grid energy, knowledge preservation'},
+];
+
+/* ════════════════════════════════════════
+   RENDER BLOCK
+════════════════════════════════════════ */
+const CLS_COL={A:'var(--warn)',B:'var(--info)',C:'var(--danger)',D:'var(--purple)',E:'var(--teal)',F:'#ff0055'};
+const SEV_COL={CATASTROPHIC:'var(--danger)',TOTAL:'#ff0055',SEVERE:'var(--warn)',MODERATE:'var(--info)',ONGOING:'var(--warn)'};
+
+function renderSummaryStats(){
+  const stats=[
+    {v:'20',label:'Historical precedents',col:'var(--primary)'},
+    {v:'6',label:'Collapse classes covered',col:'var(--info)'},
+    {v:'~273M',label:'Total deaths documented',col:'var(--danger)'},
+    {v:'100%',label:'Elite survival rate*',col:'var(--warn)',note:'*via early relocation/offshore capital'},
+  ];
+  document.getElementById('summaryStats').innerHTML=stats.map(s=>`
+    <div class="summary-stat">
+      <div class="stat-v" style="color:${s.col}">${s.v}</div>
+      <div class="xs muted">${s.label}</div>
+      ${s.note?`<div class="xxs" style="color:${s.col};margin-top:.2rem">${s.note}</div>`:''}
+    </div>`).join('');
+}
+
+function renderFilterBar(activeFilter='ALL'){
+  const filters=['ALL','A','B','C','D','E','F'];
+  const labels={'ALL':'All 20','A':'Class A: Financial','B':'Class B: Infrastructure','C':'Class C: Societal','D':'Class D: Medical','E':'Class E: Environmental','F':'Class F: Existential'};
+  document.getElementById('filterBar').innerHTML=filters.map(f=>`
+    <button class="flt-btn ${f===activeFilter?'active':''}" onclick="applyFilter('${f}')">${labels[f]}</button>`
+  ).join('');
+}
+
+function renderAccordions(filter='ALL'){
+  const list=filter==='ALL'?COLLAPSES:COLLAPSES.filter(c=>c.cls===filter);
+  document.getElementById('accContainer').innerHTML=list.map((c,idx)=>buildAccordion(c,idx)).join('');
+}
+
+function buildAccordion(c,idx){
+  const cc=CLS_COL[c.cls]||'var(--muted)';
+  const sc=SEV_COL[c.severity]||'var(--muted)';
+  return `
+  <div class="acc-item" id="acc-${c.id}">
+    <div class="acc-header" onclick="toggleAcc('${c.id}')">
+      <span style="font-size:1.5rem">${c.flag}</span>
+      <div style="flex:1">
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+          <span style="font-weight:700;font-size:.95rem">${c.title}</span>
+          <span class="era-badge" style="background:${cc}22;color:${cc};border:1px solid ${cc}44">${c.cls}: ${c.clsLabel}</span>
+          <span class="badge" style="background:${sc}22;color:${sc};border:1px solid ${sc}44">${c.severity}</span>
+        </div>
+        <div class="xs muted" style="margin-top:.2rem">${c.year} · ${c.deaths} · ${c.duration}</div>
+      </div>
+      <span class="acc-chevron">▼</span>
+    </div>
+    <div class="acc-body">
+      <p class="sm" style="color:var(--muted2);line-height:1.65;margin:.75rem 0">${c.summary}</p>
+      
+      <div class="g2" style="margin-bottom:.85rem">
+        <div>
+          <h3 style="color:var(--danger);margin-bottom:.5rem;font-size:.85rem;text-transform:uppercase;letter-spacing:.06em">🔴 Collapse Triggers</h3>
+          ${c.triggers.map(t=>`<div style="display:flex;gap:.5rem;font-size:.82rem;padding:.3rem 0;border-bottom:1px solid var(--border);line-height:1.4"><span style="color:var(--danger);flex-shrink:0">→</span><span style="color:var(--muted2)">${t}</span></div>`).join('')}
+        </div>
+        <div>
+          <h3 style="color:var(--primary);margin-bottom:.5rem;font-size:.85rem;text-transform:uppercase;letter-spacing:.06em">🟢 Elite Survival Moves</h3>
+          ${c.eliteMoves.map(m=>`<div style="display:flex;gap:.5rem;font-size:.82rem;padding:.3rem 0;border-bottom:1px solid var(--border);line-height:1.4"><span style="color:var(--primary);flex-shrink:0">✓</span><span style="color:var(--muted2)">${m}</span></div>`).join('')}
+        </div>
+      </div>
+
+      <div class="ark-map">
+        <h4>🗺️ Ark Collective Mapping — ${c.arkMapping.class}</h4>
+        <p class="sm" style="color:var(--muted2);line-height:1.6;margin-bottom:.65rem">${c.arkMapping.lesson}</p>
+        <div class="g2">
+          <div>
+            <div class="xs" style="color:var(--primary);font-weight:700;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.06em">Required Preparations</div>
+            ${c.arkMapping.prep.map(p=>`<div class="sm muted" style="padding:.2rem 0;display:flex;gap:.4rem"><span style="color:var(--primary)">◆</span>${p}</div>`).join('')}
+          </div>
+          <div>
+            <div class="xs" style="color:var(--warn);font-weight:700;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.06em">Modern Parallel</div>
+            <div class="sm" style="color:var(--muted2);line-height:1.6;padding:.35rem .6rem;background:rgba(255,170,0,.06);border-radius:var(--r3);border-left:2px solid var(--warn)">${c.arkMapping.parallel}</div>
+            <div class="xs" style="color:var(--warn);font-weight:700;margin:.5rem 0 .3rem;text-transform:uppercase;letter-spacing:.06em">Key Lessons</div>
+            ${c.lessons.slice(0,3).map(l=>`<div class="xs muted" style="padding:.2rem 0;display:flex;gap:.4rem;line-height:1.45"><span style="color:var(--warn)">•</span>${l}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderPatterns(){
+  document.getElementById('patternCards').innerHTML=COLLAPSE_PATTERNS.map(p=>`
+    <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--r3);padding:.85rem">
+      <div style="font-size:1.3rem;margin-bottom:.4rem">${p.icon}</div>
+      <div style="font-weight:700;font-size:.88rem;margin-bottom:.35rem">${p.title}</div>
+      <div class="xs muted" style="line-height:1.55">${p.detail}</div>
+    </div>`).join('');
+}
+
+function renderEliteTactics(){
+  document.getElementById('eliteTactics').innerHTML=ELITE_TACTICS_UNIVERSAL.map(e=>`
+    <div class="elite-item">
+      <span class="elite-num">${e.num}.</span>
+      <div>
+        <div style="font-weight:700;font-size:.88rem;color:var(--warn)">${e.tactic}</div>
+        <div class="xs muted" style="margin-top:.25rem;line-height:1.55">${e.detail}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderEarlyWarnings(){
+  document.getElementById('earlyWarnings').innerHTML=EARLY_WARNING_SIGNALS.map(cat=>`
+    <div style="margin-bottom:1rem">
+      <h3 style="font-size:.88rem;margin-bottom:.5rem;color:var(--warn)">${cat.cat} Signals</h3>
+      ${cat.signals.map(s=>`
+        <div style="display:flex;gap:.5rem;align-items:flex-start;padding:.35rem 0;border-bottom:1px solid var(--border);font-size:.82rem">
+          <span style="color:var(--primary);flex-shrink:0;margin-top:1px">⚡</span>
+          <span style="color:var(--muted2);line-height:1.45">${s}</span>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function renderDoctrine(){
+  document.getElementById('doctrineMappings').innerHTML=`
+    <table class="dtable">
+      <tr><th>Class</th><th>Scenario Type</th><th>Historical Examples</th><th>Ark Tier</th><th>Core Preparation</th></tr>
+      ${DOCTRINE_MAPPINGS.map(d=>`
+        <tr>
+          <td><span style="font-weight:700;color:${CLS_COL[d.cls]}">${d.icon} ${d.cls}</span></td>
+          <td style="font-weight:600">${d.title}</td>
+          <td>${d.examples.map(e=>`<span class="tag tb" style="display:inline-block;margin:.1rem">${e}</span>`).join('')}</td>
+          <td><span class="badge ${d.tier.includes('4')?'b-crit':d.tier.includes('3')?'b-high':d.tier.includes('2')?'b-mod':'b-low'}">${d.tier}</span></td>
+          <td class="xs muted" style="line-height:1.5">${d.prep}</td>
+        </tr>`).join('')}
+    </table>`;
+}
+
+/* ════════════════════════════════════════
+   INTERACTION BLOCK
+════════════════════════════════════════ */
+function toggleAcc(id){
+  const item=document.getElementById('acc-'+id);
+  const wasOpen=item.classList.contains('open');
+  item.classList.toggle('open',!wasOpen);
+}
+
+function applyFilter(cls){
+  renderFilterBar(cls);
+  renderAccordions(cls);
+}
+
+function expandAll(){
+  document.querySelectorAll('.acc-item').forEach(el=>el.classList.add('open'));
+}
+
+function collapseAll(){
+  document.querySelectorAll('.acc-item').forEach(el=>el.classList.remove('open'));
+}
+
+const PANEL_IDS=['patterns','elite','signals','doctrine'];
+function switchTab(tabGrpId, panelGrpId, panelId){
+  PANEL_IDS.forEach(pid=>{
+    const el=document.getElementById('panel-'+pid);
+    if(el){el.style.display='none';el.classList.remove('active');}
+  });
+  const active=document.getElementById('panel-'+panelId);
+  if(active){active.style.display='block';active.classList.add('active');}
+  document.getElementById(tabGrpId).querySelectorAll('button').forEach(b=>{
+    b.classList.toggle('active',b.getAttribute('onclick')&&b.getAttribute('onclick').includes(`'${panelId}'`));
+  });
+}
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+renderSummaryStats();
+renderFilterBar();
+renderAccordions();
+renderPatterns();
+renderEliteTactics();
+renderEarlyWarnings();
+renderDoctrine();
+
+// Hide non-active pattern panels
+['elite','signals','doctrine'].forEach(pid=>{
+  const el=document.getElementById('panel-'+pid);
+  if(el){el.style.display='none';el.classList.remove('active');}
+});
+</script>
+</body>
+</html>

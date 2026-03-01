@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>08 — Countries Deep Dive | Ark v3 (Standalone)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════
+   ARK v3 · FOUNDATION · COUNTRIES INTELLIGENCE
+═══════════════════════════════════════════════ */
+:root{
+  --ink:#04080f;
+  --surface:#080d18;
+  --panel:#0c1220;
+  --glass:rgba(255,255,255,.045);
+  --glass-2:rgba(255,255,255,.08);
+  --border:rgba(255,255,255,.08);
+  --border-bright:rgba(255,255,255,.16);
+  --accent:#00d4ff;
+  --accent-dim:rgba(0,212,255,.15);
+  --gold:#ffd700;
+  --gold-dim:rgba(255,215,0,.12);
+  --neon:#39ff14;
+  --neon-dim:rgba(57,255,20,.1);
+  --red:#ff3c3c;
+  --red-dim:rgba(255,60,60,.12);
+  --orange:#ff8c00;
+  --muted:#6b7a96;
+  --muted-2:#4a5568;
+  --text:#dde4f0;
+  --radius:14px;
+  --radius-sm:8px;
+  --font-head:'Syne',sans-serif;
+  --font-body:'Instrument Sans',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --glow-c:rgba(0,212,255,.25);
+  --glow-g:rgba(57,255,20,.25);
+  --glow-r:rgba(255,60,60,.25);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+
+body{
+  background:var(--ink);
+  color:var(--text);
+  font-family:var(--font-body);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── BACKGROUND FIELD ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%,rgba(0,212,255,.07) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 60% at 80% 80%,rgba(57,255,20,.05) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 30% at 60% 30%,rgba(255,215,0,.04) 0%,transparent 50%),
+    repeating-linear-gradient(0deg,transparent,transparent 80px,rgba(255,255,255,.008) 80px,rgba(255,255,255,.008) 81px),
+    repeating-linear-gradient(90deg,transparent,transparent 80px,rgba(255,255,255,.008) 80px,rgba(255,255,255,.008) 81px);
+  pointer-events:none;z-index:0;
+}
+
+.wrap{position:relative;z-index:1;}
+.container{max-width:1400px;margin:0 auto;padding:0 2rem 4rem;}
+
+/* ── TYPOGRAPHY ── */
+h1,h2,h3{font-family:var(--font-head);}
+.mono{font-family:var(--font-mono);}
+
+/* ── GLASSMORPHIC CARDS ── */
+.gl{
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+}
+.gl-bright{
+  background:var(--glass-2);
+  border:1px solid var(--border-bright);
+  border-radius:var(--radius);
+  backdrop-filter:blur(20px);
+}
+.gl-inset{
+  background:rgba(0,0,0,.3);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+}
+
+/* ── BADGES ── */
+.badge{
+  display:inline-flex;align-items:center;
+  padding:.18rem .65rem;border-radius:20px;
+  font-size:.72rem;font-weight:600;letter-spacing:.04em;
+  font-family:var(--font-mono);
+}
+.bt1{background:rgba(57,255,20,.15);color:var(--neon);border:1px solid rgba(57,255,20,.35);}
+.bt2{background:rgba(255,215,0,.12);color:var(--gold);border:1px solid rgba(255,215,0,.3);}
+.bt3{background:rgba(255,140,0,.12);color:var(--orange);border:1px solid rgba(255,140,0,.3);}
+.bno{background:rgba(255,60,60,.12);color:var(--red);border:1px solid rgba(255,60,60,.3);}
+.bacc{background:rgba(0,212,255,.12);color:var(--accent);border:1px solid rgba(0,212,255,.3);}
+.bmono{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border);}
+
+/* ── SCORE BAR ── */
+.sbar{height:5px;border-radius:3px;background:rgba(255,255,255,.07);margin:.3rem 0 .1rem;}
+.sbar-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+
+/* ── TABS ── */
+.tabs{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.75rem;}
+.tab-btn{
+  padding:.55rem 1.15rem;border:1px solid var(--border);border-radius:var(--radius-sm);
+  background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font-body);
+  font-size:.87rem;font-weight:500;transition:all .22s;white-space:nowrap;
+}
+.tab-btn:hover{color:var(--text);border-color:var(--border-bright);background:var(--glass-2);}
+.tab-btn.on{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700;}
+.tab-pane{display:none;animation:fadeUp .3s ease;}
+.tab-pane.on{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ── ACCORDION ── */
+.acc{margin-bottom:.6rem;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);transition:border-color .2s;}
+.acc:hover{border-color:rgba(0,212,255,.2);}
+.acc-h{
+  width:100%;background:rgba(8,13,24,.8);border:none;color:var(--text);
+  padding:.95rem 1.3rem;text-align:left;cursor:pointer;
+  font-family:var(--font-body);font-size:.95rem;font-weight:600;
+  display:flex;justify-content:space-between;align-items:center;gap:1rem;
+  transition:background .2s;
+}
+.acc-h:hover{background:rgba(0,212,255,.06);}
+.acc-h .chevron{
+  width:20px;height:20px;border:1.5px solid var(--muted);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;color:var(--muted);flex-shrink:0;transition:transform .3s,border-color .2s;
+}
+.acc-h.open .chevron{transform:rotate(180deg);border-color:var(--accent);color:var(--accent);}
+.acc-b{max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(.4,0,.2,1);}
+.acc-b.open{max-height:2000px;}
+.acc-inner{padding:1.4rem;}
+
+/* ── GRIDS ── */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;}
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;}
+.g5{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;}
+
+/* ── STAT BOX ── */
+.sbox{padding:1.1rem 1.3rem;}
+.sbox .val{font-family:var(--font-mono);font-size:1.8rem;font-weight:600;line-height:1;}
+.sbox .lbl{font-size:.75rem;color:var(--muted);margin-top:.3rem;text-transform:uppercase;letter-spacing:.06em;}
+.sbox .sub{font-size:.8rem;color:var(--muted-2);margin-top:.2rem;}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:.88rem;}
+.tbl th{
+  background:rgba(0,212,255,.07);color:var(--accent);
+  padding:.7rem 1rem;text-align:left;font-size:.72rem;
+  text-transform:uppercase;letter-spacing:.08em;font-family:var(--font-mono);
+  white-space:nowrap;
+}
+.tbl td{padding:.7rem 1rem;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:middle;}
+.tbl tr:hover td{background:rgba(255,255,255,.02);}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl.sort th[data-col]{cursor:pointer;user-select:none;}
+.tbl.sort th[data-col]:hover{color:var(--gold);}
+
+/* ── SEARCH / FILTER ── */
+.search-inp{
+  width:100%;padding:.8rem 1.2rem .8rem 3rem;
+  border-radius:var(--radius-sm);border:1px solid var(--border);
+  background:rgba(255,255,255,.04);color:var(--text);font-size:.93rem;
+  font-family:var(--font-body);transition:border-color .2s;
+}
+.search-inp:focus{outline:none;border-color:var(--accent);background:rgba(0,212,255,.04);}
+.search-wrap{position:relative;}
+.search-wrap::before{
+  content:'⌕';position:absolute;left:1rem;top:50%;transform:translateY(-50%);
+  color:var(--muted);font-size:1.1rem;pointer-events:none;
+}
+.pill{
+  padding:.35rem .9rem;border-radius:20px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);cursor:pointer;font-size:.8rem;
+  font-family:var(--font-body);transition:all .2s;
+}
+.pill.on{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700;}
+.pill:hover:not(.on){border-color:var(--border-bright);color:var(--text);}
+
+/* ── COUNTRY CARD (profile) ── */
+.country-flag{font-size:2rem;line-height:1;}
+.country-name{font-family:var(--font-head);font-size:1.1rem;font-weight:700;}
+.score-ring{
+  width:56px;height:56px;flex-shrink:0;
+  border-radius:50%;border:2px solid;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:.95rem;font-weight:600;
+}
+.metric-row{display:flex;align-items:center;gap:.75rem;margin:.45rem 0;font-size:.83rem;}
+.metric-row .metric-lbl{color:var(--muted);width:160px;flex-shrink:0;font-size:.8rem;}
+.metric-row .metric-bar{flex:1;}
+.metric-row .metric-val{font-family:var(--font-mono);font-size:.78rem;color:var(--muted);width:30px;text-align:right;}
+
+/* ── COMPARE ENGINE ── */
+.cmp-col{background:rgba(0,0,0,.3);border-radius:12px;padding:1.25rem;border:1px solid var(--border);}
+.cmp-col.active{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.04);}
+.cmp-score-big{font-family:var(--font-mono);font-size:4rem;font-weight:600;line-height:1;}
+.cmp-bar{display:flex;align-items:center;gap:.6rem;margin:.3rem 0;font-size:.8rem;}
+.cmp-bar-track{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.07);}
+.cmp-bar-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+.cmp-lbl{color:var(--muted);font-size:.78rem;width:120px;flex-shrink:0;}
+.cmp-val{font-family:var(--font-mono);font-size:.78rem;color:var(--muted-2);width:24px;text-align:right;}
+.radar-wrap{display:flex;justify-content:center;margin:1rem 0;}
+
+/* ── HERO ── */
+.hero{
+  padding:4rem 2rem 3rem;text-align:center;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 60% at 50% 0%,rgba(0,212,255,.12),transparent);
+  pointer-events:none;
+}
+.hero-eyebrow{
+  font-family:var(--font-mono);font-size:.75rem;letter-spacing:.2em;
+  color:var(--accent);text-transform:uppercase;margin-bottom:1rem;
+  display:inline-flex;align-items:center;gap:.5rem;
+}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';width:30px;height:1px;background:var(--accent);opacity:.5;}
+.hero h1{
+  font-family:var(--font-head);
+  font-size:clamp(2.2rem,5vw,4.5rem);font-weight:800;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 40%,var(--neon) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:1.05;margin-bottom:1rem;
+}
+.hero-sub{color:var(--muted);font-size:1.05rem;max-width:600px;margin:0 auto 2rem;line-height:1.6;}
+.hero-stats{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:2rem;
+  padding-top:1.5rem;border-top:1px solid var(--border);margin-top:1.5rem;
+}
+.hero-stat .n{font-family:var(--font-mono);font-size:2rem;font-weight:600;}
+.hero-stat .n.g{color:var(--neon);}
+.hero-stat .n.y{color:var(--gold);}
+.hero-stat .n.r{color:var(--red);}
+.hero-stat .n.a{color:var(--accent);}
+.hero-stat .l{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem;}
+
+/* ── TIER SECTION HEADERS ── */
+.tier-head{
+  display:flex;align-items:center;gap:.75rem;
+  margin:2.5rem 0 1rem;padding:.75rem 1.25rem;
+  border-radius:var(--radius-sm);border-left:3px solid;
+}
+.tier-head.t1{border-color:var(--neon);background:rgba(57,255,20,.05);}
+.tier-head.t2{border-color:var(--gold);background:rgba(255,215,0,.05);}
+.tier-head.t3{border-color:var(--orange);background:rgba(255,140,0,.05);}
+.tier-head.tn{border-color:var(--red);background:rgba(255,60,60,.05);}
+.tier-head h3{font-family:var(--font-head);font-size:1.1rem;}
+
+/* ── INTEL FEED ── */
+.intel-item{
+  display:flex;gap:1rem;padding:1rem 0;
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+.intel-item:last-child{border-bottom:none;}
+.intel-dot{
+  width:8px;height:8px;border-radius:50%;margin-top:.35rem;flex-shrink:0;
+}
+.intel-item.hot .intel-dot{background:var(--red);box-shadow:0 0 8px var(--red);}
+.intel-item.warm .intel-dot{background:var(--gold);box-shadow:0 0 8px var(--gold);}
+.intel-item.cool .intel-dot{background:var(--accent);box-shadow:0 0 8px var(--accent);}
+
+/* ── PROPERTY CARD ── */
+.prop-card{padding:1.1rem;border-radius:10px;border-left:3px solid;}
+.prop-card.buy{border-color:var(--neon);}
+.prop-card.rent{border-color:var(--accent);}
+.prop-card.warn{border-color:var(--orange);}
+.prop-price{font-family:var(--font-mono);font-size:1.3rem;font-weight:600;margin:.4rem 0;}
+
+/* ── HEATMAP TABLE ── */
+.heat-cell{
+  width:40px;height:36px;
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:.72rem;font-weight:600;cursor:default;
+  transition:transform .15s;
+}
+.heat-cell:hover{transform:scale(1.15);z-index:10;position:relative;}
+.heat-row{display:flex;gap:3px;align-items:center;}
+.heat-lbl{font-size:.78rem;color:var(--muted);width:130px;flex-shrink:0;font-family:var(--font-body);}
+
+/* ── SCROLL SNAP ── */
+.country-scroll{
+  display:flex;gap:1rem;overflow-x:auto;padding-bottom:1rem;
+  scroll-snap-type:x mandatory;scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+}
+.country-scroll::-webkit-scrollbar{height:4px;}
+.country-scroll::-webkit-scrollbar-track{background:transparent;}
+.country-scroll::-webkit-scrollbar-thumb{background:var(--border-bright);border-radius:2px;}
+.snap-card{
+  min-width:260px;scroll-snap-align:start;padding:1.25rem;
+  background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);
+  cursor:pointer;transition:border-color .2s,transform .2s;flex-shrink:0;
+}
+.snap-card:hover{border-color:rgba(0,212,255,.3);transform:translateY(-2px);}
+.snap-card.active{border-color:var(--accent);background:rgba(0,212,255,.06);}
+
+/* ── CLIMATE RISK GRID ── */
+.climate-cell{
+  padding:.9rem;border-radius:10px;border:1px solid var(--border);
+  display:flex;flex-direction:column;gap:.3rem;transition:border-color .2s;
+}
+.climate-cell:hover{border-color:rgba(0,212,255,.2);}
+.climate-icon{font-size:1.5rem;}
+.climate-name{font-weight:600;font-size:.9rem;}
+.climate-risk{font-size:.78rem;color:var(--muted);}
+
+/* ── CHART (SVG radar) ── */
+.radar-svg{overflow:visible;}
+
+/* ── ALERT BOX ── */
+.alert{
+  padding:1rem 1.25rem;border-radius:var(--radius-sm);
+  font-size:.88rem;line-height:1.6;margin-bottom:1rem;
+}
+.alert.warn{background:rgba(255,140,0,.08);border:1px solid rgba(255,140,0,.2);border-left:3px solid var(--orange);}
+.alert.info{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-left:3px solid var(--accent);}
+.alert.danger{background:rgba(255,60,60,.06);border:1px solid rgba(255,60,60,.15);border-left:3px solid var(--red);}
+.alert.success{background:rgba(57,255,20,.05);border:1px solid rgba(57,255,20,.15);border-left:3px solid var(--neon);}
+
+/* ── RANKING TABLE ── */
+.rank-row{
+  display:flex;align-items:center;gap:1rem;padding:.75rem 1rem;
+  border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;cursor:default;
+}
+.rank-row:hover{background:rgba(255,255,255,.02);}
+.rank-num{font-family:var(--font-mono);font-size:1.1rem;font-weight:600;width:36px;flex-shrink:0;color:var(--muted-2);}
+.rank-row:nth-child(1) .rank-num{color:var(--gold);}
+.rank-row:nth-child(2) .rank-num{color:#c0c0c0;}
+.rank-row:nth-child(3) .rank-num{color:#cd7f32;}
+.rank-flag{font-size:1.3rem;flex-shrink:0;}
+.rank-name{flex:1;font-weight:600;}
+.rank-score{font-family:var(--font-mono);font-weight:600;color:var(--accent);}
+.rank-bar-wrap{width:120px;height:6px;background:rgba(255,255,255,.07);border-radius:3px;flex-shrink:0;}
+.rank-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--neon));}
+
+/* ── SELECT STYLED ── */
+.sel-styled{
+  padding:.65rem 1rem;border-radius:var(--radius-sm);border:1px solid var(--border);
+  background:rgba(255,255,255,.04);color:var(--text);font-family:var(--font-body);
+  font-size:.88rem;cursor:pointer;transition:border-color .2s;
+}
+.sel-styled:focus{outline:none;border-color:var(--accent);}
+option{background:#0c1220;}
+
+/* ── BTN ── */
+.btn{
+  padding:.7rem 1.5rem;border-radius:var(--radius-sm);border:none;
+  cursor:pointer;font-family:var(--font-body);font-weight:600;font-size:.9rem;
+  transition:all .2s;display:inline-flex;align-items:center;gap:.5rem;
+}
+.btn-accent{background:linear-gradient(135deg,var(--accent),#0099cc);color:#000;}
+.btn-accent:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,212,255,.3);}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#cc9900);color:#000;}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ── PULSE ANIMATION ── */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes glow{0%,100%{box-shadow:0 0 4px var(--neon)}50%{box-shadow:0 0 12px var(--neon),0 0 24px rgba(57,255,20,.3)}}
+.live-dot{
+  width:8px;height:8px;background:var(--neon);border-radius:50%;
+  animation:pulse 2s ease-in-out infinite,glow 2s ease-in-out infinite;
+  display:inline-block;margin-right:.4rem;
+}
+
+/* ── SEPARATOR ── */
+.sep{height:1px;background:var(--border);margin:1.5rem 0;}
+
+/* ── MISC ── */
+.dim{color:var(--muted);}
+.mono-sm{font-family:var(--font-mono);font-size:.8rem;}
+.lh{line-height:1.7;}
+.tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.5rem;}
+.tag{padding:.15rem .55rem;border-radius:10px;font-size:.72rem;background:rgba(255,255,255,.05);color:var(--muted-2);border:1px solid var(--border);}
+.section-label{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:.6rem;}
+.note{font-size:.78rem;color:var(--muted);line-height:1.6;font-style:italic;}
+.flag-big{font-size:2.5rem;}
+.hidden{display:none!important;}
+
+/* Sticky header for table scroll */
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);}
+.tbl-wrap table{margin:0;min-width:900px;}
+.sticky-col{position:sticky;left:0;background:var(--surface);z-index:1;}
+
+/* Responsive */
+@media(max-width:768px){
+  .hero h1{font-size:2.2rem;}
+  .metric-row .metric-lbl{width:110px;font-size:.73rem;}
+  .g2,.g3,.g4{grid-template-columns:1fr;}
+  .hero-stats{gap:1.2rem;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-eyebrow">Section 08 · Ark Collective v3</div>
+  <h1>Countries Deep Dive</h1>
+  <p class="hero-sub">Full-spectrum intelligence on 42 nations — stability scores, elite migration flows, property markets, climate risk overlays, visa pathways, dual citizenship timelines, and collapse survivability ratings.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="n a">42</div><div class="l">Nations Profiled</div></div>
+    <div class="hero-stat"><div class="n g">8</div><div class="l">Tier 1 Sanctuaries</div></div>
+    <div class="hero-stat"><div class="n y">15</div><div class="l">Tier 2 Viable</div></div>
+    <div class="hero-stat"><div class="n" style="color:var(--orange)">11</div><div class="l">Tier 3 Watch</div></div>
+    <div class="hero-stat"><div class="n r">8</div><div class="l">No-Go Zones</div></div>
+    <div class="hero-stat"><div class="n a">2027</div><div class="l">Intel Horizon</div></div>
+    <div class="hero-stat"><div class="n g">150</div><div class="l">Collapse Scenarios</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MAIN CONTAINER
+══════════════════════════════════════ -->
+<div class="container">
+
+<!-- LIVE INTELLIGENCE TICKER -->
+<div class="gl" style="padding:.9rem 1.4rem;margin-bottom:2rem;display:flex;align-items:center;gap:1rem;overflow:hidden;">
+  <span style="font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;color:var(--accent);white-space:nowrap;padding-right:1rem;border-right:1px solid var(--border)"><span class="live-dot"></span>LIVE INTEL</span>
+  <div style="overflow:hidden;flex:1">
+    <div id="ticker" style="display:flex;gap:3rem;font-size:.8rem;color:var(--muted);animation:tickerMove 40s linear infinite;white-space:nowrap;">
+      <span>🇳🇿 NZ property up 3.2% Q1 2025 — highland demand driven by US tech exodus</span>
+      <span>🇺🇾 Uruguay Rentista visa wait time: 6 weeks · applications +180% YoY</span>
+      <span>🇬🇪 Georgia 365-day policy confirmed extended through 2026</span>
+      <span>🇵🇹 Portugal NHR replaced by IFICI regime — 20% tax on foreign income</span>
+      <span>🇨🇭 Swiss lump-sum tax negotiated rate now CHF 400K min in lower cantons</span>
+      <span>🇵🇦 Panama Friendly Nations Visa processing: 30–45 days (up from 15)</span>
+      <span>🇳🇴 Norway sovereign wealth fund hits USD 1.8T — 352K per citizen</span>
+      <span>⚠️ Taiwan Strait incidents up 40% in Q4 2024 — CIA 2027 window assessment unchanged</span>
+      <span>🇳🇿 NZ property up 3.2% Q1 2025 — highland demand driven by US tech exodus</span>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes tickerMove{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+</style>
+
+<!-- SEARCH + FILTER BAR -->
+<div class="gl" style="padding:1.5rem;margin-bottom:2rem;">
+  <div class="g2" style="gap:1rem;align-items:start;">
+    <div>
+      <div class="section-label" style="margin-bottom:.75rem">Search Intelligence Database</div>
+      <div class="search-wrap">
+        <input class="search-inp" id="mainSearch" placeholder="Search country, region, trait (e.g. 'no military', 'geothermal', 'nuclear safe', 'USD economy')…" oninput="runSearch()"/>
+      </div>
+    </div>
+    <div>
+      <div class="section-label" style="margin-bottom:.75rem">Sort & Filter</div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <select class="sel-styled" id="sortBy" onchange="runSearch()">
+          <option value="score">Sort: Ark Score ↓</option>
+          <option value="nuclear">Sort: Nuclear Risk ↑</option>
+          <option value="political">Sort: Political Stability ↓</option>
+          <option value="entry">Sort: Entry Cost ↑</option>
+          <option value="visa">Sort: Visa Ease ↓</option>
+        </select>
+        <select class="sel-styled" id="budgetFilter" onchange="runSearch()">
+          <option value="all">Any Budget</option>
+          <option value="0">Under $50K entry</option>
+          <option value="1">$50K–$250K entry</option>
+          <option value="2">$250K–$1M entry</option>
+          <option value="3">$1M+ entry</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:1rem;display:flex;flex-wrap:wrap;gap:.4rem;" id="regionPills">
+    <button class="pill on" onclick="setRegion('all',this)">All</button>
+    <button class="pill" onclick="setRegion('europe',this)">Europe</button>
+    <button class="pill" onclick="setRegion('latam',this)">Latin America</button>
+    <button class="pill" onclick="setRegion('oceania',this)">Oceania</button>
+    <button class="pill" onclick="setRegion('asia',this)">Asia</button>
+    <button class="pill" onclick="setRegion('africa',this)">Africa &amp; ME</button>
+    <button class="pill" onclick="setRegion('tier1',this)">🟢 Tier 1 Only</button>
+    <button class="pill" onclick="setRegion('tier2',this)">🟡 Tier 2 Only</button>
+    <button class="pill" onclick="setRegion('nogo',this)">🔴 No-Go Only</button>
+    <button class="pill" onclick="setRegion('nuclear-safe',this)">☢ Nuclear Safe</button>
+    <button class="pill" onclick="setRegion('easy-visa',this)">📄 Easy Visa</button>
+    <button class="pill" onclick="setRegion('no-military',this)">🕊 No Military</button>
+  </div>
+  <div id="searchResultCount" style="margin-top:.75rem;font-size:.8rem;color:var(--muted);font-family:var(--font-mono)"></div>
+</div>
+
+<!-- MAIN NAVIGATION TABS -->
+<div class="tabs" id="mainTabs">
+  <button class="tab-btn on" data-tab="profiles">📋 Country Profiles</button>
+  <button class="tab-btn" data-tab="ranking">🏆 Global Rankings</button>
+  <button class="tab-btn" data-tab="compare">⚖ Compare Engine</button>
+  <button class="tab-btn" data-tab="heatmap">🌡 Threat Heatmap</button>
+  <button class="tab-btn" data-tab="visas">📄 Visa & Residency</button>
+  <button class="tab-btn" data-tab="property">🏡 Property Intel</button>
+  <button class="tab-btn" data-tab="climate">🌊 Climate Risk</button>
+  <button class="tab-btn" data-tab="migration">🚀 Elite Migration</button>
+  <button class="tab-btn" data-tab="passport">🛂 Passport Strategy</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB: COUNTRY PROFILES
+══════════════════════════════════════ -->
+<div class="tab-pane on" id="tab-profiles">
+
+<div class="tier-head t1"><span style="font-size:1.2rem">🟢</span><h3 style="color:var(--neon)">Tier 1 — Primary Ark Sanctuaries</h3><span class="badge bt1">8 Nations</span></div>
+
+<!-- NEW ZEALAND -->
+<div class="acc country-entry" id="c-nz" data-region="oceania" data-tier="tier1" data-score="9.1" data-nuclear="1" data-political="9" data-visa="medium" data-entry="2" data-budget="2"
+data-tags="new zealand nz island isolated alpine geothermal nuclear safe food sovereign tech billionaire peter thiel south island">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1;min-width:0">
+    <span style="font-size:1.6rem">🇳🇿</span>
+    <div style="min-width:0">
+      <div class="country-name">New Zealand</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem">
+        <span class="badge bt1">TIER 1</span>
+        <span class="badge bacc mono-sm">9.1 / 10</span>
+        <span class="badge bmono">Oceania</span>
+        <span class="badge bt1">Nuclear Safe</span>
+      </div>
+    </div>
+  </div>
+  <div class="chevron">▾</div>
+</button>
+<div class="acc-b">
+<div class="acc-inner">
+  <div class="g2" style="margin-bottom:1.25rem">
+    <div>
+      <div class="section-label">Ark Intelligence Brief</div>
+      <p class="lh" style="font-size:.9rem;color:#bcc8e0">New Zealand is the single most consistently cited collapse-resistant nation across all major academic and intelligence frameworks. Sitting 2,000+ km from the nearest continent, it combines extreme geographic isolation with food sovereignty (exports 9× what it consumes), 100% renewable electricity potential, and geothermal energy in the North Island. The South Island's Canterbury Plains and Mackenzie Basin represent the <em>gold standard</em> for Ark compound locations worldwide — defensible alpine terrain, glacier-fed rivers, minimal population density, and airstrip-capable properties. Peter Thiel's NZD 10M+ property and citizenship acquisition (2011, disclosed 2017) signaled what Silicon Valley executives already knew privately: this is the primary elite escape destination. The 2020–2024 US tech exodus brought 2,000+ UHNW families to NZ residency processes. Property prices surged 45% in the South Island highlands. Act now or lose your window.</p>
+      <div class="tags">
+        <span class="tag">Island isolation</span><span class="tag">Geothermal energy</span><span class="tag">Food exports 9× domestic</span>
+        <span class="tag">Zero nuclear fallout path</span><span class="tag">Elite bunker zone</span><span class="tag">Commonwealth passport</span>
+        <span class="tag">Peter Thiel adjacency</span><span class="tag">Renewable-capable</span>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Stability Metrics</div>
+      <div class="metric-row"><span class="metric-lbl">Ark Survivability</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:95%;background:var(--neon)"></div></div></div><span class="metric-val">9.5</span></div>
+      <div class="metric-row"><span class="metric-lbl">Political Stability</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:92%;background:var(--neon)"></div></div></div><span class="metric-val">9.2</span></div>
+      <div class="metric-row"><span class="metric-lbl">Food Sovereignty</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:98%;background:var(--neon)"></div></div></div><span class="metric-val">9.8</span></div>
+      <div class="metric-row"><span class="metric-lbl">Geographic Isolation</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:98%;background:var(--neon)"></div></div></div><span class="metric-val">9.8</span></div>
+      <div class="metric-row"><span class="metric-lbl">Nuclear Fallout Risk</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:3%;background:var(--neon)"></div></div></div><span class="metric-val">0.3</span></div>
+      <div class="metric-row"><span class="metric-lbl">Democracy Record</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:96%;background:var(--neon)"></div></div></div><span class="metric-val">9.6</span></div>
+      <div class="metric-row"><span class="metric-lbl">Infrastructure</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:88%;background:var(--accent)"></div></div></div><span class="metric-val">8.8</span></div>
+      <div class="metric-row"><span class="metric-lbl">Climate Resilience</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:85%;background:var(--accent)"></div></div></div><span class="metric-val">8.5</span></div>
+      <div class="metric-row"><span class="metric-lbl">Entry Cost</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:40%;background:var(--gold)"></div></div></div><span class="metric-val dim">High</span></div>
+    </div>
+  </div>
+  <div class="g4">
+    <div class="gl-inset" style="padding:1rem">
+      <div class="section-label">Best Visa Path</div>
+      <div style="font-weight:600">Investor Plus Visa</div>
+      <div class="dim mono-sm" style="margin-top:.2rem">NZD 3M · 3yr → PR → 5yr → Citizenship</div>
+    </div>
+    <div class="gl-inset" style="padding:1rem">
+      <div class="section-label">Property Entry</div>
+      <div style="font-weight:600">NZD 500K – 3M+</div>
+      <div class="dim mono-sm" style="margin-top:.2rem">Rural highlands: best value. Watch: rising elite demand.</div>
+    </div>
+    <div class="gl-inset" style="padding:1rem">
+      <div class="section-label">Ark Zone (Primary)</div>
+      <div style="font-weight:600">Mackenzie Basin</div>
+      <div class="dim mono-sm" style="margin-top:.2rem">600–1200m · Alpine fed · Airstrip capable</div>
+    </div>
+    <div class="gl-inset" style="padding:1rem">
+      <div class="section-label">Top Threat Watch</div>
+      <div style="font-weight:600;color:var(--orange)">Elite Crowding</div>
+      <div class="dim mono-sm" style="margin-top:.2rem">Silicon Valley exodus pushing rural land prices up 45%</div>
+    </div>
+  </div>
+  <div class="alert info" style="margin-top:1rem">💡 <strong>Ark Verdict:</strong> Primary sanctuary. Act immediately — the 2025–2027 window is closing as elite demand accelerates. Investor visa applications up 340% since 2022. Foreign land purchases require Overseas Investment Office (OIO) approval — budget 12–18 months for approval process.</div>
+</div>
+</div>
+</div>
+
+<!-- SWITZERLAND -->
+<div class="acc country-entry" id="c-ch" data-region="europe" data-tier="tier1" data-score="8.9" data-nuclear="2" data-political="9.8" data-visa="hard" data-entry="3" data-budget="3"
+data-tags="switzerland swiss alpine neutral bunker mandatory shelter cold war gold banking lex koller canton">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1">
+    <span style="font-size:1.6rem">🇨🇭</span>
+    <div>
+      <div class="country-name">Switzerland</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem">
+        <span class="badge bt1">TIER 1</span><span class="badge bacc mono-sm">8.9 / 10</span><span class="badge bmono">Central Europe</span><span class="badge bt1">370K Bunkers</span>
+      </div>
+    </div>
+  </div>
+  <div class="chevron">▾</div>
+</button>
+<div class="acc-b">
+<div class="acc-inner">
+  <div class="g2" style="margin-bottom:1.25rem">
+    <div>
+      <div class="section-label">Ark Intelligence Brief</div>
+      <p class="lh" style="font-size:.9rem;color:#bcc8e0">Switzerland is the world's most prepared nation for societal disruption — not by accident but by legal mandate. Since 1963, every building constructed must include civil protection shelters. Result: 370,000+ registered shelters with capacity for 114% of the population. The Swiss Federal Council maintains 3-month food stockpiles. Alpine geography creates a natural fortress — mountain passes defensible year-round, hydroelectric power immune to grid attacks. The 700-year-old Confederation model produces a political resilience unmatched in Europe. Banking secrecy (post-FATCA), gold reserves (1,040 tonnes, 6th globally), and the CHF as the world's oldest floating hard currency make Switzerland the definitive financial fortress. NATO neutrality removes the #1 geopolitical risk vector. Entry is expensive and competitive but offers the highest infrastructure quality of any Ark location.</p>
+      <div class="tags">
+        <span class="tag">370K mandatory bunkers</span><span class="tag">NATO-neutral 1815</span><span class="tag">Alpine fortress terrain</span>
+        <span class="tag">CHF hard currency</span><span class="tag">1,040t gold reserves</span><span class="tag">3-month food stockpile</span>
+        <span class="tag">Hydro power immune</span><span class="tag">Lump-sum tax canton</span>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Stability Metrics</div>
+      <div class="metric-row"><span class="metric-lbl">Ark Survivability</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:93%;background:var(--neon)"></div></div></div><span class="metric-val">9.3</span></div>
+      <div class="metric-row"><span class="metric-lbl">Political Neutrality</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:99%;background:var(--neon)"></div></div></div><span class="metric-val">9.9</span></div>
+      <div class="metric-row"><span class="metric-lbl">Bunker Infrastructure</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:100%;background:var(--neon)"></div></div></div><span class="metric-val">10</span></div>
+      <div class="metric-row"><span class="metric-lbl">Financial Sovereignty</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:95%;background:var(--neon)"></div></div></div><span class="metric-val">9.5</span></div>
+      <div class="metric-row"><span class="metric-lbl">Nuclear Fallout Risk</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:15%;background:var(--neon)"></div></div></div><span class="metric-val">1.5</span></div>
+      <div class="metric-row"><span class="metric-lbl">Energy Independence</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:90%;background:var(--neon)"></div></div></div><span class="metric-val">9.0</span></div>
+      <div class="metric-row"><span class="metric-lbl">Food Self-Sufficiency</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:65%;background:var(--gold)"></div></div></div><span class="metric-val">6.5</span></div>
+      <div class="metric-row"><span class="metric-lbl">Entry Cost</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:18%;background:var(--red)"></div></div></div><span class="metric-val dim">V.High</span></div>
+    </div>
+  </div>
+  <div class="g4">
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Visa Path</div><div style="font-weight:600">Lump-Sum Tax</div><div class="dim mono-sm">CHF 400–450K/yr flat · Canton negotiation required</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Property Entry</div><div style="font-weight:600">USD 1.5M – 8M+</div><div class="dim mono-sm">Lex Koller restricts foreign purchase — canton-specific exceptions</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Ark Zone (Primary)</div><div style="font-weight:600">Graubünden Alps</div><div class="dim mono-sm">1,200–2,800m · Bunkers built-in · Heli access</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Top Threat Watch</div><div style="font-weight:600;color:var(--gold)">FATCA / Global Tax</div><div class="dim mono-sm">Banking privacy erosion under OECD CRS framework</div></div>
+  </div>
+  <div class="alert success" style="margin-top:1rem">✅ <strong>Ark Verdict:</strong> Finest infrastructure per capita on Earth. Ideal for those with USD 5M+ net worth. Lex Koller foreign property restriction is the primary obstacle — structure via Swiss company or long-term rental with separate entity for asset holding.</div>
+</div>
+</div>
+</div>
+
+<!-- ICELAND -->
+<div class="acc country-entry" id="c-is" data-region="europe" data-tier="tier1" data-score="8.7" data-nuclear="1" data-political="9.5" data-visa="medium" data-entry="1" data-budget="2"
+data-tags="iceland geothermal nordic renewable fish remote island atlantic small population volcanic">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1">
+    <span style="font-size:1.6rem">🇮🇸</span>
+    <div><div class="country-name">Iceland</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bt1">TIER 1</span><span class="badge bacc mono-sm">8.7 / 10</span><span class="badge bmono">North Atlantic</span><span class="badge bt1">100% Renewable</span></div></div>
+  </div>
+  <div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <div class="g2" style="margin-bottom:1.25rem">
+    <div>
+      <div class="section-label">Ark Intelligence Brief</div>
+      <p class="lh" style="font-size:.9rem;color:#bcc8e0">Iceland operates on 100% renewable electricity (geothermal + hydro) year-round. With a population of 380,000 spread across an island larger than England, the population density advantage is extraordinary — 3.5 people per km². Geothermal greenhouses grow tomatoes, cucumbers, and herbs in volcanic heat year-round. The fishing industry alone provides 3× caloric needs for the entire population. The 2008 banking collapse and subsequent democratic correction (jailing bankers, refusing IMF terms, writing new constitution) demonstrated a civic resilience model unmatched globally. NATO membership is the single major risk factor. Westfjords region in the northwest is the most remote territory in Europe — 500km of dirt road from Reykjavik, almost entirely off-grid.</p>
+      <div class="tags"><span class="tag">100% geothermal/hydro</span><span class="tag">3.5 people/km²</span><span class="tag">Fish 3× caloric needs</span><span class="tag">Geothermal greenhouses</span><span class="tag">2008 collapse recovery model</span><span class="tag">Westfjords extreme isolation</span></div>
+    </div>
+    <div>
+      <div class="section-label">Stability Metrics</div>
+      <div class="metric-row"><span class="metric-lbl">Ark Survivability</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:90%;background:var(--neon)"></div></div></div><span class="metric-val">9.0</span></div>
+      <div class="metric-row"><span class="metric-lbl">Renewable Energy</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:100%;background:var(--neon)"></div></div></div><span class="metric-val">10</span></div>
+      <div class="metric-row"><span class="metric-lbl">Food (Fish+Geo Ag)</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:85%;background:var(--neon)"></div></div></div><span class="metric-val">8.5</span></div>
+      <div class="metric-row"><span class="metric-lbl">Population Isolation</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:96%;background:var(--neon)"></div></div></div><span class="metric-val">9.6</span></div>
+      <div class="metric-row"><span class="metric-lbl">Nuclear Fallout Risk</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:5%;background:var(--neon)"></div></div></div><span class="metric-val">0.5</span></div>
+      <div class="metric-row"><span class="metric-lbl">NATO Exposure</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:50%;background:var(--gold)"></div></div></div><span class="metric-val dim">Med</span></div>
+    </div>
+  </div>
+  <div class="g4">
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Visa Path</div><div style="font-weight:600">Long-Term Visa (180d+)</div><div class="dim mono-sm">Skilled worker or self-employment · PR after 4yrs</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Property Entry</div><div style="font-weight:600">USD 250K – 1.2M</div><div class="dim mono-sm">Reykjavik suburban vs. Westfjords remote (from $80K)</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Ark Zone (Primary)</div><div style="font-weight:600">Westfjords Region</div><div class="dim mono-sm">Europe's most remote. Geothermal pools. Zero infrastructure dependency.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Top Threat Watch</div><div style="font-weight:600;color:var(--gold)">Volcanic Activity</div><div class="dim mono-sm">Reykjanes peninsula eruptions 2023–2024 signal ongoing geological risk</div></div>
+  </div>
+  <div class="alert info" style="margin-top:1rem">💡 <strong>Ark Verdict:</strong> Exceptional energy and food survivability. NATO membership is the primary concern — in a full NATO vs. Russia scenario, Iceland becomes strategically important to both sides (as in Cold War). Westfjords as secondary compound; NZ or Uruguay as primary.</div>
+</div></div>
+</div>
+
+<!-- NORWAY -->
+<div class="acc country-entry" id="c-no" data-region="europe" data-tier="tier1" data-score="8.8" data-nuclear="2" data-political="9.4" data-visa="medium" data-entry="2" data-budget="2"
+data-tags="norway nordic fjord oil fund sovereign wealth svalbard seed vault nato renewable fish salmon">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1">
+    <span style="font-size:1.6rem">🇳🇴</span>
+    <div><div class="country-name">Norway</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bt1">TIER 1</span><span class="badge bacc mono-sm">8.8 / 10</span><span class="badge bmono">Scandinavia</span><span class="badge bt2">$1.8T Fund</span></div></div>
+  </div>
+  <div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <div class="g2" style="margin-bottom:1.25rem">
+    <div>
+      <div class="section-label">Ark Intelligence Brief</div>
+      <p class="lh" style="font-size:.9rem;color:#bcc8e0">Norway's Government Pension Fund Global (GPFG) — commonly called the Oil Fund — reached USD 1.8 trillion in 2024: approximately USD 352,000 per Norwegian citizen. This sovereign buffer insulates the nation from global financial shocks at a scale no other country can match. Svalbard (1,300km from the North Pole) hosts the Global Seed Vault with 1.3 million seed varieties — Norway's contribution to post-collapse civilisation. Fjord geography creates naturally defensible terrain — coastal approaches are among the most difficult on Earth. 98% hydroelectric electricity. Per capita fish production feeds 14 million people. Hardangerfjord and Telemark regions offer Ark-grade property with water, food, energy independence. NATO membership (founding member) is the critical downside — in WWIII scenario, Norway becomes contested early. Plan B: Svalbard is demilitarised by treaty (Paris 1920) — potential safe zone if treaty respected.</p>
+      <div class="tags"><span class="tag">$1.8T sovereign wealth</span><span class="tag">Svalbard seed vault</span><span class="tag">Fjord defensive terrain</span><span class="tag">98% hydro electricity</span><span class="tag">14M people fed by fish</span><span class="tag">Svalbard demilitarised</span></div>
+    </div>
+    <div>
+      <div class="section-label">Stability Metrics</div>
+      <div class="metric-row"><span class="metric-lbl">Sovereign Wealth</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:100%;background:var(--neon)"></div></div></div><span class="metric-val">10</span></div>
+      <div class="metric-row"><span class="metric-lbl">Democratic Resilience</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:96%;background:var(--neon)"></div></div></div><span class="metric-val">9.6</span></div>
+      <div class="metric-row"><span class="metric-lbl">Energy Independence</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:98%;background:var(--neon)"></div></div></div><span class="metric-val">9.8</span></div>
+      <div class="metric-row"><span class="metric-lbl">Food Sovereignty</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:72%;background:var(--accent)"></div></div></div><span class="metric-val">7.2</span></div>
+      <div class="metric-row"><span class="metric-lbl">NATO Exposure Risk</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:62%;background:var(--gold)"></div></div></div><span class="metric-val dim">Med</span></div>
+      <div class="metric-row"><span class="metric-lbl">Cost of Living</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:22%;background:var(--red)"></div></div></div><span class="metric-val dim">V.High</span></div>
+    </div>
+  </div>
+  <div class="g4">
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Visa Path</div><div style="font-weight:600">Skilled Worker / EEA</div><div class="dim mono-sm">Schengen access · PR after 3 years · Citizenship 7yr</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Property Entry</div><div style="font-weight:600">USD 400K – 2M</div><div class="dim mono-sm">Fjord estates: exceptional. No foreign ownership restriction.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Ark Zone</div><div style="font-weight:600">Hardangerfjord + Svalbard</div><div class="dim mono-sm">Hardanger: farmable, water-rich. Svalbard: demilitarised treaty zone.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Top Threat Watch</div><div style="font-weight:600;color:var(--red)">NATO WWIII Exposure</div><div class="dim mono-sm">Founding NATO member · Russian border conflict zones adjacent</div></div>
+  </div>
+</div></div>
+</div>
+
+<!-- COSTA RICA -->
+<div class="acc country-entry" id="c-cr" data-region="latam" data-tier="tier1" data-score="8.4" data-nuclear="1" data-political="8.8" data-visa="easy" data-entry="0" data-budget="1"
+data-tags="costa rica central america no army military abolished rainforest biodiversity renewable expat pensionado chirripó highlands">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1">
+    <span style="font-size:1.6rem">🇨🇷</span>
+    <div><div class="country-name">Costa Rica</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bt1">TIER 1</span><span class="badge bacc mono-sm">8.4 / 10</span><span class="badge bmono">Central America</span><span class="badge bt1">No Military</span></div></div>
+  </div>
+  <div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <div class="g2" style="margin-bottom:1.25rem">
+    <div>
+      <div class="section-label">Ark Intelligence Brief</div>
+      <p class="lh" style="font-size:.9rem;color:#bcc8e0">Costa Rica abolished its military on December 1, 1948 — the only Central American nation with 75+ years of unbroken civilian democracy. Article 12 of its constitution permanently bans standing armies. 99%+ renewable electricity (hydro, geothermal, wind, solar). Contains 5% of the world's total biodiversity in 0.03% of Earth's land area — meaning food sources are extraordinarily diverse and abundant. The Chirripó highlands (1,800–3,820m) offer altitude advantage, cool temperatures, and genuine tactical defensibility. Pensionado visa requires only USD 1,000/month pension income — easiest high-quality residency program in the Western Hemisphere. Rising narco transit corridor threat (trafficking from Colombia and Mexico) is the primary emerging risk to monitor in Pacific coastal zones; highlands remain unaffected.</p>
+      <div class="tags"><span class="tag">Military abolished 1948</span><span class="tag">75yr democracy</span><span class="tag">5% global biodiversity</span><span class="tag">99% renewables</span><span class="tag">$1K/mo residency</span><span class="tag">Chirripó highlands</span><span class="tag">Rich expat community</span></div>
+    </div>
+    <div>
+      <div class="section-label">Stability Metrics</div>
+      <div class="metric-row"><span class="metric-lbl">No-Military Advantage</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:100%;background:var(--neon)"></div></div></div><span class="metric-val">10</span></div>
+      <div class="metric-row"><span class="metric-lbl">Renewable Energy</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:99%;background:var(--neon)"></div></div></div><span class="metric-val">9.9</span></div>
+      <div class="metric-row"><span class="metric-lbl">Food Biodiversity</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:94%;background:var(--neon)"></div></div></div><span class="metric-val">9.4</span></div>
+      <div class="metric-row"><span class="metric-lbl">Democratic Stability</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:88%;background:var(--neon)"></div></div></div><span class="metric-val">8.8</span></div>
+      <div class="metric-row"><span class="metric-lbl">Cartel Transit Risk</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:38%;background:var(--gold)"></div></div></div><span class="metric-val dim">Med</span></div>
+      <div class="metric-row"><span class="metric-lbl">Nuclear Fallout Risk</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:2%;background:var(--neon)"></div></div></div><span class="metric-val">0.2</span></div>
+    </div>
+  </div>
+  <div class="g4">
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Visa Path</div><div style="font-weight:600">Pensionado / Rentista</div><div class="dim mono-sm">$1K/mo · PR in 3yrs · Citizenship 7yrs · Fast + cheap</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Property Entry</div><div style="font-weight:600">USD 80K – 600K</div><div class="dim mono-sm">Highlands best value. Coastal 3× markup. No foreign ownership restriction.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Ark Zone</div><div style="font-weight:600">San Gerardo de Rivas</div><div class="dim mono-sm">Base of Chirripó. Altitude 1,400m. River access. Small community.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Top Threat Watch</div><div style="font-weight:600;color:var(--gold)">Narco Transit</div><div class="dim mono-sm">Pacific corridor trafficking increasing. Stick to highland zones.</div></div>
+  </div>
+</div></div>
+</div>
+
+<!-- URUGUAY -->
+<div class="acc country-entry" id="c-uy" data-region="latam" data-tier="tier1" data-score="8.2" data-nuclear="1" data-political="8.7" data-visa="easy" data-entry="0" data-budget="1"
+data-tags="uruguay south america pampas stable democracy rule of law land agricultural passport territorial tax">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1">
+    <span style="font-size:1.6rem">🇺🇾</span>
+    <div><div class="country-name">Uruguay</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bt1">TIER 1</span><span class="badge bacc mono-sm">8.2 / 10</span><span class="badge bmono">Southern Cone</span><span class="badge bt2">LATAM #1 Stable</span></div></div>
+  </div>
+  <div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <div class="g2" style="margin-bottom:1.25rem">
+    <div>
+      <div class="section-label">Ark Intelligence Brief</div>
+      <p class="lh" style="font-size:.9rem;color:#bcc8e0">Uruguay has ranked #1 in Latin America for rule of law, democracy, press freedom, and absence of corruption for 15+ consecutive years across every major index (EIU, Freedom House, Transparency International). Temperate climate (no major hurricanes, earthquakes, or volcanoes), 33° South latitude places it in the Southern Hemisphere's Western weather shield — nuclear fallout from Northern Hemisphere exchange will not reach it. The pampas produce 5× Uruguay's domestic food needs — beef, soy, wheat surplus is massive. Territorial tax system means foreign income is completely untaxed for the first 5 years, then only 7%. Property is among the cheapest in South America per quality unit: 100-acre cattle farms from USD 200,000. Full citizenship available in 3–5 years via standard residency. The Uruguayan passport (186 countries visa-free) is one of the most underrated in the world.</p>
+      <div class="tags"><span class="tag">LATAM democracy #1</span><span class="tag">0% foreign tax 5yr</span><span class="tag">100ac farm from $200K</span><span class="tag">186-country passport</span><span class="tag">Southern cone nuclear shield</span><span class="tag">5× food surplus</span></div>
+    </div>
+    <div>
+      <div class="section-label">Stability Metrics</div>
+      <div class="metric-row"><span class="metric-lbl">Rule of Law</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:89%;background:var(--neon)"></div></div></div><span class="metric-val">8.9</span></div>
+      <div class="metric-row"><span class="metric-lbl">Agricultural Land</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:92%;background:var(--neon)"></div></div></div><span class="metric-val">9.2</span></div>
+      <div class="metric-row"><span class="metric-lbl">Press Freedom</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:90%;background:var(--neon)"></div></div></div><span class="metric-val">9.0</span></div>
+      <div class="metric-row"><span class="metric-lbl">Nuclear Fallout Risk</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:3%;background:var(--neon)"></div></div></div><span class="metric-val">0.3</span></div>
+      <div class="metric-row"><span class="metric-lbl">Renewable Energy</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:94%;background:var(--neon)"></div></div></div><span class="metric-val">9.4</span></div>
+      <div class="metric-row"><span class="metric-lbl">Property Affordability</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:87%;background:var(--neon)"></div></div></div><span class="metric-val">8.7</span></div>
+    </div>
+  </div>
+  <div class="g4">
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Visa Path</div><div style="font-weight:600">Rentista Visa</div><div class="dim mono-sm">$1,500/mo income · PR 2yrs · Citizenship 3–5yrs</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Property Entry</div><div style="font-weight:600">USD 50K – 500K</div><div class="dim mono-sm">Pampas farmland: best value globally for quality/price ratio</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Ark Zone</div><div style="font-weight:600">Tacuarembó / Rivera</div><div class="dim mono-sm">Interior north. Rolling pampas. Water. Cattle capacity. Far from Montevideo.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Top Threat Watch</div><div style="font-weight:600;color:var(--accent)">Argentine Contagion</div><div class="dim mono-sm">Economic instability of neighbour Argentina can create spillover</div></div>
+  </div>
+</div></div>
+</div>
+
+<!-- GEORGIA -->
+<div class="acc country-entry" id="c-ge" data-region="asia" data-tier="tier1" data-score="7.9" data-nuclear="2" data-political="7.0" data-visa="easy" data-entry="0" data-budget="0"
+data-tags="georgia caucasus tbilisi 365 visa free flat tax 1% remote work digital nomad mountain svaneti kazbegi budget">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1">
+    <span style="font-size:1.6rem">🇬🇪</span>
+    <div><div class="country-name">Georgia (Caucasus)</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bt1">TIER 1</span><span class="badge bacc mono-sm">7.9 / 10</span><span class="badge bmono">Caucasus</span><span class="badge bt1">365-day Visa-Free</span></div></div>
+  </div>
+  <div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <div class="g2" style="margin-bottom:1.25rem">
+    <div>
+      <div class="section-label">Ark Intelligence Brief</div>
+      <p class="lh" style="font-size:.9rem;color:#bcc8e0">Georgia offers the most accessible Ark base on Earth: 365 days visa-free for 95+ nationalities, 1% income tax for small businesses (virtual zone registration), and property from USD 40,000 in Tbilisi. The Caucasus mountain range creates some of the most dramatic and defensible terrain in Eurasia — Svaneti and Kazbegi regions are genuinely remote. The Mktvari and Alazani river valleys provide food production. The 2022 Russian invasion of Ukraine triggered 120,000 Russian dissenters to relocate to Tbilisi, accelerating Georgia's transformation into a cosmopolitan tech hub (with lower prices than Berlin). Risk: 2008 Russian Federation invasion precedent, South Ossetia and Abkhazia occupied territories. NATO aspirant status creates political volatility. Best framed as: exceptional budget forward-base or secondary hub, not primary Ark.</p>
+      <div class="tags"><span class="tag">365-day visa-free</span><span class="tag">1% business flat tax</span><span class="tag">$40K property entry</span><span class="tag">Caucasus mountain refuge</span><span class="tag">Russian 2008 precedent</span><span class="tag">Tech hub 2022+</span></div>
+    </div>
+    <div>
+      <div class="section-label">Stability Metrics</div>
+      <div class="metric-row"><span class="metric-lbl">Visa Accessibility</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:98%;background:var(--neon)"></div></div></div><span class="metric-val">9.8</span></div>
+      <div class="metric-row"><span class="metric-lbl">Tax Environment</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:95%;background:var(--neon)"></div></div></div><span class="metric-val">9.5</span></div>
+      <div class="metric-row"><span class="metric-lbl">Property Affordability</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:94%;background:var(--neon)"></div></div></div><span class="metric-val">9.4</span></div>
+      <div class="metric-row"><span class="metric-lbl">Mountain Terrain</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:88%;background:var(--neon)"></div></div></div><span class="metric-val">8.8</span></div>
+      <div class="metric-row"><span class="metric-lbl">Russian Proximity Risk</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:58%;background:var(--gold)"></div></div></div><span class="metric-val dim">Med</span></div>
+      <div class="metric-row"><span class="metric-lbl">Political Stability</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:62%;background:var(--gold)"></div></div></div><span class="metric-val">6.2</span></div>
+    </div>
+  </div>
+  <div class="g4">
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Entry</div><div style="font-weight:600">365-day Stay + VZ Biz</div><div class="dim mono-sm">No visa needed · Register virtual zone · Pay 1% on profits</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Property Entry</div><div style="font-weight:600">USD 40K – 250K</div><div class="dim mono-sm">Tbilisi: $60K+. Mountain regions: $30K–$80K. No foreign restriction.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Ark Zone</div><div style="font-weight:600">Svaneti / Mestia</div><div class="dim mono-sm">UNESCO valley. 1,500m. Road access cut in winter = natural protection.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Top Threat Watch</div><div style="font-weight:600;color:var(--red)">Russian Federation</div><div class="dim mono-sm">2008 invasion precedent. Do not use as primary Ark.</div></div>
+  </div>
+</div></div>
+</div>
+
+<!-- PANAMA -->
+<div class="acc country-entry" id="c-pa" data-region="latam" data-tier="tier1" data-score="7.8" data-nuclear="2" data-political="7.2" data-visa="easy" data-entry="0" data-budget="1"
+data-tags="panama dollarized usd currency friendly nations visa pensionado canal boquete highlands territorial tax financial hub">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1">
+    <span style="font-size:1.6rem">🇵🇦</span>
+    <div><div class="country-name">Panama</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bt1">TIER 1</span><span class="badge bacc mono-sm">7.8 / 10</span><span class="badge bmono">Central America</span><span class="badge bt2">USD Economy</span></div></div>
+  </div>
+  <div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <div class="g2" style="margin-bottom:1.25rem">
+    <div>
+      <div class="section-label">Ark Intelligence Brief</div>
+      <p class="lh" style="font-size:.9rem;color:#bcc8e0">Panama is the Western Hemisphere's fastest residency jurisdiction and its only fully USD-dollarized economy outside the US — eliminating currency risk entirely. The Friendly Nations Visa (FNV) grants immediate permanent residency to citizens of 50 approved countries for minimal investment (USD 5,000 in a bank account plus job letter or business). Panama City functions as a genuine Latin American financial hub with first-world banking infrastructure, direct flights to every major US city (3–5hr), and Central American logistics supremacy. The Boquete and Volcán highlands (1,200–2,000m altitude) represent one of the most underrated expat zones in the world: spring temperatures year-round (18–22°C), exceptional coffee, Swiss-quality water from Barú volcano, and established Ark-capable land from USD 50K. The Canal represents both Panama's strategic asset and its greatest geopolitical liability — in a US-China conflict it becomes a contested chokepoint.</p>
+      <div class="tags"><span class="tag">USD dollarized</span><span class="tag">Immediate PR (FNV)</span><span class="tag">Zero foreign income tax</span><span class="tag">Boquete highlands 18–22°C</span><span class="tag">First-world banking</span><span class="tag">Canal strategic risk</span></div>
+    </div>
+    <div>
+      <div class="section-label">Stability Metrics</div>
+      <div class="metric-row"><span class="metric-lbl">USD Stability</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:100%;background:var(--neon)"></div></div></div><span class="metric-val">10</span></div>
+      <div class="metric-row"><span class="metric-lbl">Territorial Tax</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:95%;background:var(--neon)"></div></div></div><span class="metric-val">9.5</span></div>
+      <div class="metric-row"><span class="metric-lbl">Visa Accessibility</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:92%;background:var(--neon)"></div></div></div><span class="metric-val">9.2</span></div>
+      <div class="metric-row"><span class="metric-lbl">Infrastructure Quality</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:74%;background:var(--accent)"></div></div></div><span class="metric-val">7.4</span></div>
+      <div class="metric-row"><span class="metric-lbl">Crime / Corruption</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:44%;background:var(--gold)"></div></div></div><span class="metric-val dim">Med</span></div>
+      <div class="metric-row"><span class="metric-lbl">Canal Geopolitics</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:40%;background:var(--gold)"></div></div></div><span class="metric-val dim">Risk</span></div>
+    </div>
+  </div>
+  <div class="g4">
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Visa Path</div><div style="font-weight:600">Friendly Nations Visa</div><div class="dim mono-sm">$5K bank + job/biz · Immediate PR · Citizenship 5yr</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Property Entry</div><div style="font-weight:600">USD 60K – 400K</div><div class="dim mono-sm">Boquete highlands: $60K–$180K for 1–5 acre plots. Excellent value.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Ark Zone</div><div style="font-weight:600">Volcán / Alto Boquete</div><div class="dim mono-sm">1,200–2,000m · Barú water · Temperature stable · Small community</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Top Threat Watch</div><div style="font-weight:600;color:var(--gold)">Canal Conflict Risk</div><div class="dim mono-sm">US-China conflict scenario makes canal a primary strategic target</div></div>
+  </div>
+</div></div>
+</div>
+
+<!-- ─── TIER 2 ─── -->
+<div class="tier-head t2"><span style="font-size:1.2rem">🟡</span><h3 style="color:var(--gold)">Tier 2 — Viable Contingency Options</h3><span class="badge bt2">15 Nations</span></div>
+
+<!-- PORTUGAL -->
+<div class="acc country-entry" id="c-pt" data-region="europe" data-tier="tier2" data-score="7.4" data-nuclear="3" data-political="8.0" data-visa="medium" data-entry="2" data-budget="2"
+data-tags="portugal lisbon alentejo golden visa nhr ifici eu passport atlantic wine olive expat digital nomad">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1"><span style="font-size:1.6rem">🇵🇹</span>
+    <div><div class="country-name">Portugal</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bt2">TIER 2</span><span class="badge bacc mono-sm">7.4 / 10</span><span class="badge bmono">Iberia / Atlantic</span><span class="badge bacc">EU Passport</span></div></div>
+  </div><div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <div class="g2">
+    <div>
+      <div class="section-label">Ark Intelligence Brief</div>
+      <p class="lh" style="font-size:.9rem;color:#bcc8e0">Portugal's IFICI tax regime (successor to NHR) provides a 20% flat tax on Portuguese-sourced income for 10 years. Golden Visa (EUR 500K investment fund or EUR 250K cultural investment) provides EU residency and ultimately citizenship, unlocking Schengen-area freedom. Atlantic coast creates a natural buffer from Central European fallout. Alentejo region offers Ark-grade agricultural land from EUR 80K/hectare — olive groves, cork oak forests, private water — with increasingly established expat infrastructure. NATO membership means exposure in European conflict scenarios. Water stress south of the Tagus river is an increasingly critical constraint. The Peneda-Gerês mountains in the north offer the best terrain-defensibility in the country. Avoid Algarve coast — tourist density and sea-level vulnerability.</p>
+      <div class="tags"><span class="tag">EU citizenship path</span><span class="tag">IFICI 20% flat 10yr</span><span class="tag">GV EUR 500K fund</span><span class="tag">Atlantic buffer</span><span class="tag">Alentejo farmland</span><span class="tag">Water stress risk</span></div>
+    </div>
+    <div>
+      <div class="section-label">Stability Metrics</div>
+      <div class="metric-row"><span class="metric-lbl">EU Passport Value</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:95%;background:var(--neon)"></div></div></div><span class="metric-val">9.5</span></div>
+      <div class="metric-row"><span class="metric-lbl">Agricultural Land</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:74%;background:var(--accent)"></div></div></div><span class="metric-val">7.4</span></div>
+      <div class="metric-row"><span class="metric-lbl">NATO Exposure</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:55%;background:var(--gold)"></div></div></div><span class="metric-val dim">Med</span></div>
+      <div class="metric-row"><span class="metric-lbl">Water Stress (south)</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:62%;background:var(--gold)"></div></div></div><span class="metric-val dim">Med</span></div>
+      <div class="metric-row"><span class="metric-lbl">Fire Season Risk</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:58%;background:var(--gold)"></div></div></div><span class="metric-val dim">Med</span></div>
+    </div>
+  </div>
+  <div class="g4" style="margin-top:1rem">
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Visa Path</div><div style="font-weight:600">D8 Digital Nomad / GV</div><div class="dim mono-sm">EUR 760/mo D8 · EUR 500K GV fund → 5yr citizenship</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Property Entry</div><div style="font-weight:600">EUR 80K – 600K</div><div class="dim mono-sm">Alentejo interior: best value. No foreign ownership restriction.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Ark Zone</div><div style="font-weight:600">Peneda-Gerês / Alentejo</div><div class="dim mono-sm">North: mountain terrain. Alentejo: agricultural ark compounds.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Top Threat Watch</div><div style="font-weight:600;color:var(--gold)">Wildfire + Water</div><div class="dim mono-sm">Increasing fire severity. South: serious water scarcity by 2030.</div></div>
+  </div>
+</div></div>
+</div>
+
+<!-- CHILE -->
+<div class="acc country-entry" id="c-cl" data-region="latam" data-tier="tier2" data-score="7.3" data-nuclear="1" data-political="7.5" data-visa="easy" data-entry="1" data-budget="1"
+data-tags="chile patagonia andes copper lithium seismic earthquake democratic stable latin america southern cone">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1"><span style="font-size:1.6rem">🇨🇱</span>
+    <div><div class="country-name">Chile</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bt2">TIER 2</span><span class="badge bacc mono-sm">7.3 / 10</span><span class="badge bmono">Southern Cone</span><span class="badge bt1">Patagonia Zone</span></div></div>
+  </div><div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <div class="g2">
+    <div>
+      <div class="section-label">Ark Intelligence Brief</div>
+      <p class="lh" style="font-size:.9rem;color:#bcc8e0">Chile is a 4,270km north-south strip — the longest country on Earth — creating an unrivaled escape corridor. Aysén and Magallanes regions in Chilean Patagonia represent the most remote, naturally fortress-like terrain in South America. Ted Turner (740K acres), the Tompkins Conservation portfolio (900K acres), and documented Elon Musk Patagonia interest signal the elite's awareness. Glacial water from the Andes is extraordinarily abundant in the south. Northern Chile has the Atacama — most arid desert on Earth, solar potential exceptional. The ring-of-fire seismic activity (2010 8.8 Maule, 1960 9.5 Valdivia — largest ever recorded) is the primary physical risk. Constitutional rewrites (2022 rejected, 2023 rejected) signal political instability but also functional democratic debate.</p>
+      <div class="tags"><span class="tag">4,270km escape corridor</span><span class="tag">Patagonia isolation</span><span class="tag">Glacier water</span><span class="tag">Ted Turner 740K acres</span><span class="tag">Ring-of-fire seismic</span><span class="tag">Atacama solar</span></div>
+    </div>
+    <div>
+      <div class="section-label">Stability Metrics</div>
+      <div class="metric-row"><span class="metric-lbl">Geographic Escape</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:97%;background:var(--neon)"></div></div></div><span class="metric-val">9.7</span></div>
+      <div class="metric-row"><span class="metric-lbl">Patagonia Isolation</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:95%;background:var(--neon)"></div></div></div><span class="metric-val">9.5</span></div>
+      <div class="metric-row"><span class="metric-lbl">Economic Strength</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:77%;background:var(--accent)"></div></div></div><span class="metric-val">7.7</span></div>
+      <div class="metric-row"><span class="metric-lbl">Seismic Risk</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:72%;background:var(--gold)"></div></div></div><span class="metric-val dim">High</span></div>
+      <div class="metric-row"><span class="metric-lbl">Political Volatility</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:45%;background:var(--gold)"></div></div></div><span class="metric-val dim">Med</span></div>
+    </div>
+  </div>
+  <div class="g4" style="margin-top:1rem">
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Visa Path</div><div style="font-weight:600">Rentier / Investor</div><div class="dim mono-sm">Investor: USD 500K · PR 1yr · Citizenship 5yr</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Property Entry</div><div style="font-weight:600">USD 100K – 2M</div><div class="dim mono-sm">Patagonia estancias: exceptional value. 500–5,000 acres accessible.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Ark Zone</div><div style="font-weight:600">Aysén / Coyhaique</div><div class="dim mono-sm">49°S latitude. Glacier fed. Minimal population. Airstrip required.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Top Threat Watch</div><div style="font-weight:600;color:var(--red)">Mega-earthquake</div><div class="dim mono-sm">1960 9.5M still largest ever recorded. Region overdue for next cycle.</div></div>
+  </div>
+</div></div>
+</div>
+
+<!-- MALTA -->
+<div class="acc country-entry" id="c-mt" data-region="europe" data-tier="tier2" data-score="7.2" data-nuclear="2" data-political="7.8" data-visa="medium" data-entry="3" data-budget="3"
+data-tags="malta mediterranean eu passport citizenship by investment cbi schengen small island english speaking">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1"><span style="font-size:1.6rem">🇲🇹</span>
+    <div><div class="country-name">Malta</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bt2">TIER 2</span><span class="badge bacc mono-sm">7.2 / 10</span><span class="badge bmono">Mediterranean</span><span class="badge bacc">Fastest EU Passport</span></div></div>
+  </div><div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <p class="lh" style="font-size:.9rem;color:#bcc8e0;margin-bottom:1rem">Malta offers the fastest legal path to EU citizenship via the Malta Permanent Residence Programme (MPRP) and MEIN: EUR 750K+ in contributions, donation, and property — citizenship in 1–3 years. English is an official language. Mediterranean climate, NATO member. Primary weakness: tiny (316 km²), no agricultural self-sufficiency, fully import-dependent for food and energy. Best use case: EU passport acquisition vehicle, not primary Ark location. Keep residence here, Ark compound elsewhere.</p>
+  <div class="g4">
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Visa Path</div><div style="font-weight:600">MEIN Program</div><div class="dim mono-sm">EUR 600K+ total · EU citizenship 1–3yr · Fastest legal path</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Property Entry</div><div style="font-weight:600">EUR 300K – 1M+</div><div class="dim mono-sm">Required for MEIN. Very expensive for island size.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Use Case</div><div style="font-weight:600">Passport Vehicle</div><div class="dim mono-sm">Acquire EU citizenship here. Live your Ark life elsewhere.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Top Risk</div><div style="font-weight:600;color:var(--red)">No Food Sovereignty</div><div class="dim mono-sm">100% food import dependent. Not survivable as standalone Ark.</div></div>
+  </div>
+</div></div>
+</div>
+
+<!-- ESTONIA -->
+<div class="acc country-entry" id="c-ee" data-region="europe" data-tier="tier2" data-score="7.0" data-nuclear="4" data-political="7.8" data-visa="easy" data-entry="0" data-budget="1"
+data-tags="estonia digital e-residency nato eu tech baltic digital nation low tax flat tax russian border proximity">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1"><span style="font-size:1.6rem">🇪🇪</span>
+    <div><div class="country-name">Estonia</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bt2">TIER 2</span><span class="badge bacc mono-sm">7.0 / 10</span><span class="badge bmono">Baltic / EU</span><span class="badge bacc">e-Residency</span></div></div>
+  </div><div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <p class="lh" style="font-size:.9rem;color:#bcc8e0;margin-bottom:1rem">Estonia has the most digitally advanced government on Earth (e-voting, digital ID, X-Road data layer). e-Residency enables EU company formation remotely. Flat 20% income tax, 0% on reinvested corporate profits. However: 294km land border with Russia, NATO Article 5 invocation risk is highest in Europe. Best use case as a corporate structure hub (offshore Estonian company) rather than physical Ark location. If physically present: south Estonia forest regions have natural camouflage advantage but no defensible terrain advantage.</p>
+  <div class="g4">
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Use Case</div><div style="font-weight:600">Corporate Structure Hub</div><div class="dim mono-sm">e-Residency → EU company → 0% undistributed profit tax</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Physical Risk</div><div style="font-weight:600;color:var(--red)">Russian Border</div><div class="dim mono-sm">294km Russia border. NATO exposure. Do not physically Ark here.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Visa Path</div><div style="font-weight:600">Digital Nomad Visa</div><div class="dim mono-sm">EUR 4,500/mo income · 12-month stay · Low cost of living</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Property Entry</div><div style="font-weight:600">EUR 60K – 250K</div><div class="dim mono-sm">Cheap vs. Western EU. High war-risk discount.</div></div>
+  </div>
+</div></div>
+</div>
+
+<!-- PARAGUAY -->
+<div class="acc country-entry" id="c-py" data-region="latam" data-tier="tier2" data-score="6.8" data-nuclear="1" data-political="6.5" data-visa="easy" data-entry="0" data-budget="0"
+data-tags="paraguay landlocked south america agricultural low tax no capital gains mennonite ranching cheap">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1"><span style="font-size:1.6rem">🇵🇾</span>
+    <div><div class="country-name">Paraguay</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bt2">TIER 2</span><span class="badge bacc mono-sm">6.8 / 10</span><span class="badge bmono">South America</span><span class="badge bt2">No Capital Gains Tax</span></div></div>
+  </div><div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <p class="lh" style="font-size:.9rem;color:#bcc8e0;margin-bottom:1rem">Paraguay has zero capital gains tax, no inheritance tax, and no tax on foreign income. Residency for USD 5,000 in a local bank. Citizenship achievable in 3 years — fastest in South America. The Mennonite communities in the Chaco demonstrate long-term agricultural self-sufficiency models directly applicable to Ark planning. 100+ acre ranches available under USD 100,000. Primary weaknesses: landlocked (no maritime escape), political corruption, limited infrastructure outside Asunción, and Dengue fever endemic zones. Ideal for those wanting absolute minimum cost Ark setup in South America.</p>
+  <div class="g4">
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Visa Path</div><div style="font-weight:600">Investor Residency</div><div class="dim mono-sm">$5K bank deposit · 2yr PR · 3yr citizenship — cheapest in SA</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Property Entry</div><div style="font-weight:600">USD 15K – 150K</div><div class="dim mono-sm">100+ acre ranch under $100K. Chaco region: extreme value.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Ark Zone</div><div style="font-weight:600">Chaco / Mennonite Belt</div><div class="dim mono-sm">Mennonite community model = proven Ark agriculture at scale.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Top Risk</div><div style="font-weight:600;color:var(--gold)">Landlocked / Corruption</div><div class="dim mono-sm">No maritime escape. Political instability. Dengue endemic.</div></div>
+  </div>
+</div></div>
+</div>
+
+<!-- ECUADOR -->
+<div class="acc country-entry" id="c-ec" data-region="latam" data-tier="tier2" data-score="6.7" data-nuclear="1" data-political="6.0" data-visa="easy" data-entry="0" data-budget="0"
+data-tags="ecuador cuenca andes dollar usd pensioner retirement low cost highland tropical galapagos">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1"><span style="font-size:1.6rem">🇪🇨</span>
+    <div><div class="country-name">Ecuador</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bt2">TIER 2</span><span class="badge bacc mono-sm">6.7 / 10</span><span class="badge bmono">Andean</span><span class="badge bt2">USD Economy</span></div></div>
+  </div><div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <p class="lh" style="font-size:.9rem;color:#bcc8e0;margin-bottom:1rem">Cuenca, Ecuador has been ranked the world's top retirement destination multiple times (International Living). USD-dollarized economy, highland altitude (2,560m), spring climate year-round. Pensioner visa requires only $800/month income. Agricultural land available at extraordinary prices — Andean valley farms with water from surrounding glaciers. Increasing political instability 2022–2024 (President Noboa emergency powers, gang violence surge in Guayaquil) is the primary risk — strictly limit presence to highland zones away from Pacific coast and Guayas province.</p>
+  <div class="g4">
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Visa Path</div><div style="font-weight:600">Pensioner Visa</div><div class="dim mono-sm">$800/mo income · Immediate residency · Citizenship 5yr</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Property Entry</div><div style="font-weight:600">USD 30K – 200K</div><div class="dim mono-sm">Cuenca suburbs: excellent. Rural Andean: extreme value.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Ark Zone</div><div style="font-weight:600">Cuenca / Azuay Province</div><div class="dim mono-sm">2,560m altitude. Spring climate. Water from El Cajas. Established expats.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Top Risk</div><div style="font-weight:600;color:var(--red)">Gang Violence</div><div class="dim mono-sm">Guayaquil/coast cartel violence escalating 2023–2025. Highlands safer.</div></div>
+  </div>
+</div></div>
+</div>
+
+<!-- MONTENEGRO + SLOVENIA + ANDORRA (condensed rows) -->
+<div class="acc country-entry" id="c-me" data-region="europe" data-tier="tier2" data-score="6.9" data-nuclear="2" data-political="6.8" data-visa="easy" data-entry="1" data-budget="1"
+data-tags="montenegro adriatic eu accession nato mountain cheap property citizenship investment balkan">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1"><span style="font-size:1.6rem">🇲🇪</span>
+    <div><div class="country-name">Montenegro</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bt2">TIER 2</span><span class="badge bacc mono-sm">6.9 / 10</span><span class="badge bmono">Adriatic / Balkans</span></div></div>
+  </div><div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <p class="lh" style="font-size:.9rem;color:#bcc8e0;margin-bottom:1rem">Montenegro uses the Euro without being EU (unique status). CBI program closed 2022 but standard investment residency available. Durmitor National Park (UNESCO) and Prokletije mountains offer exceptional terrain — some of the most dramatic in Europe. 9% flat income tax, 9% corporate. EU accession negotiations ongoing (2025 target). Adriatic coast = refugee migration route risk in European collapse. Keep highland — Žabljak region (1,450m) for Ark positioning. NATO member since 2017 adds geopolitical exposure.</p>
+  <div class="g4">
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Entry Point</div><div style="font-weight:600">EUR 100K – 400K</div><div class="dim mono-sm">Investment residency. Mountain properties exceptional value.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Tax</div><div style="font-weight:600">9% Flat</div><div class="dim mono-sm">Both income and corporate. No capital gains on property >2yr hold.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Ark Zone</div><div style="font-weight:600">Žabljak / Durmitor</div><div class="dim mono-sm">1,450m. Tara Canyon. Extreme isolation. Winter access limited.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Risk</div><div style="font-weight:600;color:var(--gold)">NATO + Balkan Politics</div><div class="dim mono-sm">Balkan political volatility. NATO adds conflict exposure.</div></div>
+  </div>
+</div></div>
+</div>
+
+<div class="acc country-entry" id="c-si" data-region="europe" data-tier="tier2" data-score="7.1" data-nuclear="2" data-political="8.0" data-visa="medium" data-entry="1" data-budget="2"
+data-tags="slovenia julian alps eu schengen cave karst wine stable small overlooked">
+<button class="acc-h" onclick="togAcc(this)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1"><span style="font-size:1.6rem">🇸🇮</span>
+    <div><div class="country-name">Slovenia</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4cm;margin-top:.3rem"><span class="badge bt2">TIER 2</span><span class="badge bacc mono-sm">7.1 / 10</span><span class="badge bmono">Alpine / EU</span></div></div>
+  </div><div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <p class="lh" style="font-size:.9rem;color:#bcc8e0;margin-bottom:1rem">Slovenia is the most overlooked Ark-viable EU nation. Julian Alps create Swiss-quality alpine terrain at 1/5 Swiss price. 60% forested, abundant water (Sava, Soča rivers), 80%+ renewable electricity. EU, Schengen, Eurozone. Deeply stable democracy (independent 1991, zero coups). Population 2.1 million — low density advantage. Postojna Karst cave system (over 20km) offers extraordinary natural shelter potential. Property EUR 80K–350K in mountain regions. Triglav National Park surrounds — water and food-independent terrain. Best kept secret in European Ark planning.</p>
+  <div class="g4">
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Best Visa</div><div style="font-weight:600">Digital Nomad / EU</div><div class="dim mono-sm">D-visa → TRP → PR 5yr → Citizenship 10yr</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Property Entry</div><div style="font-weight:600">EUR 80K – 350K</div><div class="dim mono-sm">Alpine farmhouses: exceptional. Foreigners can buy in EU capacity.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Ark Zone</div><div style="font-weight:600">Triglav / Soča Valley</div><div class="dim mono-sm">Julian Alps. Pure water. Forest cover. Cave shelters available.</div></div>
+    <div class="gl-inset" style="padding:1rem"><div class="section-label">Hidden Advantage</div><div style="font-weight:600;color:var(--neon)">Postojna Caves</div><div class="dim mono-sm">23km natural cave system. Constant 10°C. Natural fallout shelter.</div></div>
+  </div>
+</div></div>
+</div>
+
+<!-- ─── TIER 3 ─── -->
+<div class="tier-head t3"><span style="font-size:1.2rem">🟠</span><h3 style="color:var(--orange)">Tier 3 — Monitor &amp; Watch List</h3><span class="badge bt3">11 Nations</span></div>
+
+<!-- COMPACT TIER 3 TABLE -->
+<div class="tbl-wrap gl" style="margin-bottom:2rem">
+<table class="tbl">
+<thead><tr><th>Country</th><th>Score</th><th>Key Strength</th><th>Key Risk</th><th>Best Visa</th><th>Property Entry</th><th>Ark Verdict</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong>🇹🇭 Thailand</strong></td>
+  <td><span class="badge bt3">6.5</span></td>
+  <td>Low cost, food rich, Buddhist stability</td>
+  <td>Coup history, flooding, military control</td>
+  <td>Thailand Elite Visa ($30K)</td>
+  <td>$50K–$300K (leasehold)</td>
+  <td class="dim">Lifestyle base. No freehold for foreigners.</td>
+</tr>
+<tr>
+  <td><strong>🇲🇾 Malaysia</strong></td>
+  <td><span class="badge bt3">6.4</span></td>
+  <td>MM2H visa, low cost, good food</td>
+  <td>Political instability, racial tension</td>
+  <td>MM2H (USD 30K deposit)</td>
+  <td>$80K–$400K</td>
+  <td class="dim">Good secondary base. Not primary Ark.</td>
+</tr>
+<tr>
+  <td><strong>🇲🇽 Mexico</strong></td>
+  <td><span class="badge bt3">5.8</span></td>
+  <td>USD proximity, Baja climate, agriculture</td>
+  <td>Cartel control of rural zones, violence</td>
+  <td>Temporary Resident Visa</td>
+  <td>$50K–$500K</td>
+  <td class="dim">Specific zones only (Oaxaca high country).</td>
+</tr>
+<tr>
+  <td><strong>🇧🇿 Belize</strong></td>
+  <td><span class="badge bt3">6.2</span></td>
+  <td>English, QRP visa, Caribbean coast</td>
+  <td>Crime, hurricane zone, tiny economy</td>
+  <td>QRP ($24K income/yr)</td>
+  <td>$30K–$200K</td>
+  <td class="dim">English language advantage. Hurricane risk.</td>
+</tr>
+<tr>
+  <td><strong>🇷🇴 Romania</strong></td>
+  <td><span class="badge bt3">6.3</span></td>
+  <td>Carpathian mountains, EU, low cost</td>
+  <td>NATO, corruption, brain drain</td>
+  <td>Digital Nomad Visa</td>
+  <td>EUR 30K–150K</td>
+  <td class="dim">Carpathians defensible. Corruption risk.</td>
+</tr>
+<tr>
+  <td><strong>🇧🇬 Bulgaria</strong></td>
+  <td><span class="badge bt3">6.0</span></td>
+  <td>10% flat tax, EU, Black Sea coast</td>
+  <td>Corruption, NATO, Russian influence</td>
+  <td>Passive Income Visa</td>
+  <td>EUR 25K–100K</td>
+  <td class="dim">Tax base only. Rhodope mountains viable.</td>
+</tr>
+<tr>
+  <td><strong>🇦🇲 Armenia</strong></td>
+  <td><span class="badge bt3">6.1</span></td>
+  <td>Cheap, fast residency, tech hub 2022</td>
+  <td>Azerbaijan border, Turkish pressure</td>
+  <td>180-day visa-free, easy residency</td>
+  <td>$30K–$120K</td>
+  <td class="dim">Georgia superior alternative. Frontier risk.</td>
+</tr>
+<tr>
+  <td><strong>🇵🇭 Philippines</strong></td>
+  <td><span class="badge bt3">5.9</span></td>
+  <td>SRRV visa, English, island isolation</td>
+  <td>Typhoon, China sea dispute, Duterte-era</td>
+  <td>SRRV ($10K–$50K deposit)</td>
+  <td>$30K–$200K (leasehold)</td>
+  <td class="dim">Island isolation good. Typhoon belt bad.</td>
+</tr>
+<tr>
+  <td><strong>🇩🇴 Dominican Rep.</strong></td>
+  <td><span class="badge bt3">5.7</span></td>
+  <td>Cheap, tropical, Caribbean agriculture</td>
+  <td>Hurricane, Haiti border, crime</td>
+  <td>Pensionado ($1,500/mo)</td>
+  <td>$40K–$250K</td>
+  <td class="dim">Far eastern mountains only. Haiti risk adjacent.</td>
+</tr>
+<tr>
+  <td><strong>🇨🇴 Colombia</strong></td>
+  <td><span class="badge bt3">5.6</span></td>
+  <td>Medellín climate, agriculture, low cost</td>
+  <td>FARC remnants, coca corridors, violence</td>
+  <td>Pensioner ($750/mo)</td>
+  <td>$40K–$200K</td>
+  <td class="dim">Antioquia highlands show promise. Narco risk.</td>
+</tr>
+<tr>
+  <td><strong>🇦🇩 Andorra</strong></td>
+  <td><span class="badge bt3">7.0</span></td>
+  <td>Pyrenean fortress, 0% income tax, tiny</td>
+  <td>No passport, 90K population, EU dependent</td>
+  <td>Passive income residency</td>
+  <td>EUR 200K–800K</td>
+  <td class="dim">Tax fortress only. No passport issued.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- ─── NO-GO ZONES ─── -->
+<div class="tier-head tn"><span style="font-size:1.2rem">🔴</span><h3 style="color:var(--red)">No-Go Zones — Do Not Base Primary Ark Here</h3><span class="badge bno">8 Nations + Analysis</span></div>
+
+<div class="alert danger">☢ <strong>Warning:</strong> The following nations score below 4.0 on the Ark Survivability Index. One or more critical failure conditions exist: primary nuclear target, active military conflict, authoritarian control preventing exit, or imminent invasion risk. Do not commit primary capital or Ark infrastructure to these jurisdictions.</div>
+
+<div class="g2">
+<div class="acc country-entry" id="c-us" data-region="nogo" data-tier="nogo" data-score="2.1" data-tags="united states usa nuclear target political instability grid vulnerable">
+<button class="acc-h" onclick="togAcc(this)" style="border-left:3px solid var(--red)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1"><span style="font-size:1.6rem">🇺🇸</span>
+    <div><div class="country-name">United States</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bno">NO-GO ZONE</span><span class="badge bno mono-sm">2.1 / 10</span></div></div>
+  </div><div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <p class="lh" style="font-size:.9rem;color:#bcc8e0;margin-bottom:.75rem">Primary nuclear target (#1–20 on Russian MIRV targeting lists). 6,000+ warheads across 400 Minuteman III silos in Montana, Wyoming, North Dakota. Grid infrastructure 50+ years old — 2003 Northeast Blackout took 55M offline in 15 seconds. Political polarisation at Cold War levels (2024 EIU: "flawed democracy"). California wildfires, Texas freeze, Florida hurricanes creating multi-vector infrastructure stress. $33T national debt creating financial systemic risk. 2025 executive overreach signals institutional erosion. For US citizens: establish international presence NOW. Do not be caught flat-footed.</p>
+  <div class="g2" style="gap:.75rem">
+    <div class="gl-inset" style="padding:.9rem"><div class="section-label">Nuclear Exposure</div><div style="font-weight:600;color:var(--red)">10/10 — Primary Target</div><div class="dim mono-sm">450+ warhead targets on US soil in Russian SIOP doctrine</div></div>
+    <div class="gl-inset" style="padding:.9rem"><div class="section-label">Safe Zones Within US</div><div style="font-weight:600">Pacific Northwest / Appalachia</div><div class="dim mono-sm">Furthest from ICBM silos + major urban targets. Emergency fallback only.</div></div>
+  </div>
+</div></div>
+</div>
+
+<div class="acc country-entry" id="c-ru" data-region="nogo" data-tier="nogo" data-score="0.6" data-tags="russia moscow nuclear authoritarian war asset seizure">
+<button class="acc-h" onclick="togAcc(this)" style="border-left:3px solid var(--red)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1"><span style="font-size:1.6rem">🇷🇺</span>
+    <div><div class="country-name">Russia</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bno">NO-GO ZONE</span><span class="badge bno mono-sm">0.6 / 10</span></div></div>
+  </div><div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <p class="lh" style="font-size:.9rem;color:#bcc8e0;margin-bottom:.75rem">Active nuclear war doctrine including tactical first-strike in doctrine (2020 update). 6,257 nuclear warheads (largest stockpile). Full authoritarian control: oligarchs imprisoned, assets seized (Khodorkovsky, Evraz, Mazepin), passports revoked for dissent, military mobilisation without legislative approval. 700,000+ Russians fled after Feb 2022 — the smart money has already left. Any foreign asset in Russia is subject to seizure under "unfriendly nation" legislation. Zero viable exit in nuclear escalation scenario. Hard AVOID.</p>
+  <div class="g2" style="gap:.75rem">
+    <div class="gl-inset" style="padding:.9rem"><div class="section-label">Asset Risk</div><div style="font-weight:600;color:var(--red)">Total Confiscation Risk</div><div class="dim mono-sm">"Unfriendly nation" laws = any foreign asset can be seized without compensation</div></div>
+    <div class="gl-inset" style="padding:.9rem"><div class="section-label">Exit Risk</div><div style="font-weight:600;color:var(--red)">Military Draft Exposure</div><div class="dim mono-sm">Men 18–65 subject to mobilisation without notice. Border exits restricted.</div></div>
+  </div>
+</div></div>
+</div>
+
+<div class="acc country-entry" id="c-cn" data-region="nogo" data-tier="nogo" data-score="1.2" data-tags="china beijing authoritarian ccp surveillance social credit taiwan conflict">
+<button class="acc-h" onclick="togAcc(this)" style="border-left:3px solid var(--red)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1"><span style="font-size:1.6rem">🇨🇳</span>
+    <div><div class="country-name">China</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bno">NO-GO ZONE</span><span class="badge bno mono-sm">1.2 / 10</span></div></div>
+  </div><div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <p class="lh" style="font-size:.9rem;color:#bcc8e0;margin-bottom:.75rem">Complete social surveillance infrastructure: 700M+ CCTV cameras (AI-integrated), social credit system, exit bans applied to 6M+ individuals as of 2024. In Taiwan conflict scenario: major Chinese cities become nuclear targets. Xi's third term with expanded powers represents accelerating authoritarian consolidation. Jack Ma's disappearance/re-education (2020–2021), Alibaba $2.8B fine, Didi forced delisting — state shows willingness to crush any private power concentration. Zero rule of law for foreigners (arbitrary detention, "exit bans"). HARD AVOID for Ark purposes.</p>
+</div></div>
+</div>
+
+<div class="acc country-entry" id="c-tw" data-region="nogo" data-tier="nogo" data-score="4.1" data-tags="taiwan tsmc semiconductor china invasion 2027 conflict">
+<button class="acc-h" onclick="togAcc(this)" style="border-left:3px solid var(--red)">
+  <div style="display:flex;align-items:center;gap:1rem;flex:1"><span style="font-size:1.6rem">🇹🇼</span>
+    <div><div class="country-name">Taiwan</div>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem"><span class="badge bno">HIGH RISK / NO PRIMARY ARK</span><span class="badge bno mono-sm">4.1 / 10</span></div></div>
+  </div><div class="chevron">▾</div>
+</button>
+<div class="acc-b"><div class="acc-inner">
+  <p class="lh" style="font-size:.9rem;color:#bcc8e0;margin-bottom:.75rem">TSMC controls 92% of sub-7nm chip production — making Taiwan the most strategically contested 36,000 km² on Earth. PLA amphibious landing capability assessed at 2027 readiness (CIA National Intelligence Council, 2023 assessment). Once kinetics start, airport closure is within hours. Naval blockade seals maritime exit. TSMC itself has a "Silicon Shield" strategy — but that's TSMC's survival strategy, not yours. Extraordinary living standards, democracy, technology — all real and genuine. But do not base primary Ark here. Financial diversification only, with clear Day-0 exit protocol already executed.</p>
+  <div class="g2" style="gap:.75rem">
+    <div class="gl-inset" style="padding:.9rem"><div class="section-label">CIA Assessment Window</div><div style="font-weight:600;color:var(--red)">2027 Invasion Readiness</div><div class="dim mono-sm">PLA amphibious assault assessed viable from 2027. Kinetic risk window: 2027–2035.</div></div>
+    <div class="gl-inset" style="padding:.9rem"><div class="section-label">Only Safe Use Case</div><div style="font-weight:600;color:var(--gold)">Financial Staging + Exit Plan</div><div class="dim mono-sm">Hold assets. Pre-positioned NZ/JP/SG residency. Exit at L2 alert trigger. No exceptions.</div></div>
+  </div>
+</div></div>
+</div>
+</div>
+
+<div class="g3" style="margin-top:1rem;margin-bottom:2rem">
+  <div class="gl" style="padding:1.1rem;border-left:3px solid var(--red)">
+    <strong>🇺🇦 Ukraine</strong> — <span class="badge bno">Active Conflict</span><br>
+    <span class="dim" style="font-size:.85rem">Active kinetic war. Do not enter. Martial law, male exit ban (18–60). Grid and infrastructure systematically destroyed.</span>
+  </div>
+  <div class="gl" style="padding:1.1rem;border-left:3px solid var(--red)">
+    <strong>🇵🇰 Pakistan</strong> — <span class="badge bno">Nuclear Unstable</span><br>
+    <span class="dim" style="font-size:.85rem">Nuclear-armed + chronically unstable. IMF dependency (24th program 2024). Taliban border pressure. Water wars imminent. Zero Ark viability.</span>
+  </div>
+  <div class="gl" style="padding:1.1rem;border-left:3px solid var(--red)">
+    <strong>🇻🇪 Venezuela</strong> — <span class="badge bno">Collapsed State</span><br>
+    <span class="dim" style="font-size:.85rem">Already collapsed. 8M+ emigrated. Maduro authoritarian. US sanctions. Hyperinflation. No functional state institutions. Study as case study, not destination.</span>
+  </div>
+</div>
+
+</div><!-- end tab-profiles -->
+
+<!-- ══════════════════════════════════════
+     TAB: GLOBAL RANKINGS
+══════════════════════════════════════ -->
+<div class="tab-pane" id="tab-ranking">
+  <div class="g2" style="margin-bottom:2rem;">
+    <div class="gl" style="padding:1.5rem">
+      <h3 style="margin-bottom:1.25rem;font-family:var(--font-head)">🏆 Ark Survivability Rankings</h3>
+      <div id="rankingList">
+        <!-- JS rendered -->
+      </div>
+    </div>
+    <div>
+      <div class="gl" style="padding:1.5rem;margin-bottom:1rem">
+        <h3 style="margin-bottom:1rem;font-family:var(--font-head)">📊 Score Methodology</h3>
+        <p style="font-size:.88rem;color:#bcc8e0;line-height:1.7;margin-bottom:1rem">The Ark Survivability Index (ASI) is a composite score across 9 weighted vectors, calibrated against the Collapse Bible 150-scenario database.</p>
+        <div style="font-size:.83rem">
+          <div class="metric-row"><span class="metric-lbl" style="width:200px">Geographic Isolation</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:20%;background:var(--neon)"></div></div></div><span class="metric-val dim">20%</span></div>
+          <div class="metric-row"><span class="metric-lbl" style="width:200px">Nuclear Fallout Safety</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:18%;background:var(--accent)"></div></div></div><span class="metric-val dim">18%</span></div>
+          <div class="metric-row"><span class="metric-lbl" style="width:200px">Political Stability</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:16%;background:var(--accent)"></div></div></div><span class="metric-val dim">16%</span></div>
+          <div class="metric-row"><span class="metric-lbl" style="width:200px">Food Sovereignty</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:14%;background:var(--gold)"></div></div></div><span class="metric-val dim">14%</span></div>
+          <div class="metric-row"><span class="metric-lbl" style="width:200px">Energy Independence</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:12%;background:var(--gold)"></div></div></div><span class="metric-val dim">12%</span></div>
+          <div class="metric-row"><span class="metric-lbl" style="width:200px">Invasion Risk (inverse)</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:10%;background:var(--orange)"></div></div></div><span class="metric-val dim">10%</span></div>
+          <div class="metric-row"><span class="metric-lbl" style="width:200px">Climate Resilience</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:5%;background:var(--muted)"></div></div></div><span class="metric-val dim">5%</span></div>
+          <div class="metric-row"><span class="metric-lbl" style="width:200px">Rule of Law</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:3%;background:var(--muted)"></div></div></div><span class="metric-val dim">3%</span></div>
+          <div class="metric-row"><span class="metric-lbl" style="width:200px">Entry Accessibility</span><div class="metric-bar"><div class="sbar"><div class="sbar-fill" style="width:2%;background:var(--muted)"></div></div></div><span class="metric-val dim">2%</span></div>
+        </div>
+      </div>
+      <div class="gl" style="padding:1.5rem">
+        <h4 style="margin-bottom:.75rem;font-family:var(--font-head)">📉 Biggest Rank Changes (2022→2025)</h4>
+        <div style="font-size:.85rem">
+          <div class="rank-row" style="color:var(--neon)"><span class="rank-num">↑5</span><span class="rank-flag">🇺🇾</span><span class="rank-name">Uruguay</span><span>Stability + cheap land demand surge</span></div>
+          <div class="rank-row" style="color:var(--neon)"><span class="rank-num">↑4</span><span class="rank-flag">🇸🇮</span><span class="rank-name">Slovenia</span><span>Discovered by Ark community</span></div>
+          <div class="rank-row" style="color:var(--neon)"><span class="rank-num">↑3</span><span class="rank-flag">🇬🇪</span><span class="rank-name">Georgia</span><span>Tax + visa + 2022 Russian exodus</span></div>
+          <div class="rank-row" style="color:var(--red)"><span class="rank-num">↓6</span><span class="rank-flag">🇬🇧</span><span class="rank-name">United Kingdom</span><span>Non-dom abolition, nuclear targeting</span></div>
+          <div class="rank-row" style="color:var(--red)"><span class="rank-num">↓8</span><span class="rank-flag">🇨🇳</span><span class="rank-name">China</span><span>Xi consolidation, exit ban expansion</span></div>
+          <div class="rank-row" style="color:var(--red)"><span class="rank-num">↓4</span><span class="rank-flag">🇲🇽</span><span class="rank-name">Mexico</span><span>Cartel territorial expansion to highlands</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB: COMPARE ENGINE
+══════════════════════════════════════ -->
+<div class="tab-pane" id="tab-compare">
+  <div class="gl" style="padding:1.5rem;margin-bottom:1.5rem">
+    <h3 style="margin-bottom:1rem;font-family:var(--font-head)">⚖ Three-Way Country Comparison Engine</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:1rem;align-items:flex-end;">
+      <div style="flex:1;min-width:150px"><label style="font-size:.8rem;color:var(--muted);display:block;margin-bottom:.35rem">Country A</label>
+        <select class="sel-styled" id="cmpA" style="width:100%">
+          <option value="nz">🇳🇿 New Zealand</option><option value="ch">🇨🇭 Switzerland</option>
+          <option value="is">🇮🇸 Iceland</option><option value="no">🇳🇴 Norway</option>
+          <option value="cr">🇨🇷 Costa Rica</option><option value="uy">🇺🇾 Uruguay</option>
+          <option value="pa">🇵🇦 Panama</option><option value="ge">🇬🇪 Georgia</option>
+          <option value="pt">🇵🇹 Portugal</option><option value="cl">🇨🇱 Chile</option>
+          <option value="mt">🇲🇹 Malta</option><option value="ee">🇪🇪 Estonia</option>
+          <option value="py">🇵🇾 Paraguay</option><option value="si">🇸🇮 Slovenia</option>
+        </select>
+      </div>
+      <div style="flex:1;min-width:150px"><label style="font-size:.8rem;color:var(--muted);display:block;margin-bottom:.35rem">Country B</label>
+        <select class="sel-styled" id="cmpB" style="width:100%">
+          <option value="uy">🇺🇾 Uruguay</option><option value="nz">🇳🇿 New Zealand</option>
+          <option value="ch">🇨🇭 Switzerland</option><option value="is">🇮🇸 Iceland</option>
+          <option value="no">🇳🇴 Norway</option><option value="cr">🇨🇷 Costa Rica</option>
+          <option value="pa">🇵🇦 Panama</option><option value="ge">🇬🇪 Georgia</option>
+          <option value="pt">🇵🇹 Portugal</option><option value="cl">🇨🇱 Chile</option>
+          <option value="si">🇸🇮 Slovenia</option><option value="py">🇵🇾 Paraguay</option>
+        </select>
+      </div>
+      <div style="flex:1;min-width:150px"><label style="font-size:.8rem;color:var(--muted);display:block;margin-bottom:.35rem">Country C (optional)</label>
+        <select class="sel-styled" id="cmpC" style="width:100%">
+          <option value="none">— None —</option>
+          <option value="pa">🇵🇦 Panama</option><option value="pt">🇵🇹 Portugal</option>
+          <option value="ge">🇬🇪 Georgia</option><option value="cr">🇨🇷 Costa Rica</option>
+          <option value="is">🇮🇸 Iceland</option><option value="cl">🇨🇱 Chile</option>
+          <option value="si">🇸🇮 Slovenia</option><option value="ee">🇪🇪 Estonia</option>
+        </select>
+      </div>
+      <button class="btn btn-accent" onclick="runCompare()">Run Comparison →</button>
+    </div>
+  </div>
+  <div id="compareOutput" class="g3" style="gap:1rem;margin-bottom:1.5rem"></div>
+  <div id="compareInsights" class="gl" style="padding:1.5rem;display:none">
+    <h4 style="font-family:var(--font-head);margin-bottom:.75rem">🧠 Ark Intelligence Comparison Insights</h4>
+    <div id="compareInsightText" style="font-size:.9rem;line-height:1.7;color:#bcc8e0"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB: THREAT HEATMAP
+══════════════════════════════════════ -->
+<div class="tab-pane" id="tab-heatmap">
+  <div class="gl" style="padding:1.5rem;margin-bottom:1.5rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1rem">
+      <h3 style="font-family:var(--font-head)">🌡 8-Vector Threat Heatmap</h3>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;font-size:.78rem;align-items:center">
+        <span style="display:flex;align-items:center;gap:.3rem"><span style="width:12px;height:12px;border-radius:2px;background:#1a4a1a;display:inline-block"></span> 1–3 (Safe)</span>
+        <span style="display:flex;align-items:center;gap:.3rem"><span style="width:12px;height:12px;border-radius:2px;background:#4a3a00;display:inline-block"></span> 4–6 (Medium)</span>
+        <span style="display:flex;align-items:center;gap:.3rem"><span style="width:12px;height:12px;border-radius:2px;background:#5a0000;display:inline-block"></span> 7–10 (Danger)</span>
+      </div>
+    </div>
+    <div style="overflow-x:auto;padding-bottom:.5rem">
+      <div style="min-width:760px">
+        <div class="heat-row" style="margin-bottom:.5rem;padding-left:134px">
+          <span class="heat-cell" style="width:auto;font-size:.68rem;color:var(--accent);background:transparent;flex:1;justify-content:flex-start">☢ NUCLEAR</span>
+          <span class="heat-cell" style="width:auto;font-size:.68rem;color:var(--accent);background:transparent;flex:1;justify-content:flex-start">🌊 CLIMATE</span>
+          <span class="heat-cell" style="width:auto;font-size:.68rem;color:var(--accent);background:transparent;flex:1;justify-content:flex-start">🏛 POLITIC</span>
+          <span class="heat-cell" style="width:auto;font-size:.68rem;color:var(--accent);background:transparent;flex:1;justify-content:flex-start">💰 ECON</span>
+          <span class="heat-cell" style="width:auto;font-size:.68rem;color:var(--accent);background:transparent;flex:1;justify-content:flex-start">⚔ INVASION</span>
+          <span class="heat-cell" style="width:auto;font-size:.68rem;color:var(--accent);background:transparent;flex:1;justify-content:flex-start">🦠 PANDEMIC</span>
+          <span class="heat-cell" style="width:auto;font-size:.68rem;color:var(--accent);background:transparent;flex:1;justify-content:flex-start">🌐 CYBER</span>
+          <span class="heat-cell" style="width:auto;font-size:.68rem;color:var(--accent);background:transparent;flex:1;justify-content:flex-start">📊 COMPOSITE</span>
+        </div>
+        <div id="heatmapRows"></div>
+      </div>
+    </div>
+    <p class="note" style="margin-top:1rem">* Scores represent RISK level (10=maximum danger). Composite weighted: Nuclear 30%, Invasion 25%, Political 20%, Climate 12%, Economic 8%, Pandemic 3%, Cyber 2%.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB: VISA & RESIDENCY
+══════════════════════════════════════ -->
+<div class="tab-pane" id="tab-visas">
+  <div class="alert info" style="margin-bottom:1.5rem">📌 <strong>Strategy Note:</strong> The optimal Ark structure is "Flag Theory" — legal residence in one jurisdiction, domicile in another, banking in a third, citizenship/passport in a fourth. No single country does all four optimally.</div>
+
+  <div class="tbl-wrap gl" style="margin-bottom:1.5rem">
+  <table class="tbl">
+  <thead><tr><th>Country</th><th>Best Program</th><th>Min Requirement</th><th>Processing</th><th>PR Timeline</th><th>Citizenship</th><th>Cost</th><th>Difficulty</th></tr></thead>
+  <tbody id="visaTableBody"></tbody>
+  </table>
+  </div>
+
+  <div class="g2" style="margin-bottom:1.5rem">
+    <div class="gl" style="padding:1.5rem">
+      <h4 style="font-family:var(--font-head);margin-bottom:1rem">🛂 The Ark Passport Stack Strategy</h4>
+      <p class="lh" style="font-size:.88rem;color:#bcc8e0;margin-bottom:1rem">The goal: hold 2–3 passports from different geopolitical blocs. If one country closes exits or revokes passports (precedent: Russia 2022, USA has precedent in FATCA expatriation), you have alternatives that are unconnected.</p>
+      <div style="font-size:.85rem">
+        <div class="intel-item cool"><div class="intel-dot"></div><div><strong>Passport #1: Current nationality</strong> — Keep. Don't renounce until #2 and #3 are secure.</div></div>
+        <div class="intel-item cool"><div class="intel-dot"></div><div><strong>Passport #2: Fast Latin American</strong> — Uruguay, Panama, Paraguay. 3–5 years. Cheapest pathway. Southern Hemisphere = nuclear shield. Best: Uruguay (most legitimate, recognized globally).</div></div>
+        <div class="intel-item cool"><div class="intel-dot"></div><div><strong>Passport #3: EU by Investment</strong> — Malta MEIN (1–3yr), Portugal GV (5yr). Unlocks Schengen, EU banking, EU exit options. Most valuable in US-China conflict scenario.</div></div>
+        <div class="intel-item warm"><div class="intel-dot"></div><div><strong>Optional #4: Island/CBI</strong> — St. Kitts, Vanuatu, Dominica CBIs provide emergency travel documents if all others fail. Not for primary use — for true last-resort exit.</div></div>
+      </div>
+    </div>
+    <div class="gl" style="padding:1.5rem">
+      <h4 style="font-family:var(--font-head);margin-bottom:1rem">⚡ Fastest Legal Pathways to Citizenship</h4>
+      <div style="font-size:.85rem">
+        <div class="rank-row"><div class="rank-num" style="color:var(--neon)">1</div><div class="rank-flag">🇲🇹</div><div class="rank-name">Malta MEIN</div><div>1–3 years · EUR 750K+ · EU passport</div></div>
+        <div class="rank-row"><div class="rank-num" style="color:#c0c0c0">2</div><div class="rank-flag">🇵🇾</div><div class="rank-name">Paraguay</div><div>3 years · $5K+ · S.America passport</div></div>
+        <div class="rank-row"><div class="rank-num" style="color:#cd7f32">3</div><div class="rank-flag">🇺🇾</div><div class="rank-name">Uruguay</div><div>3–5 years · $1.5K/mo · 186 countries</div></div>
+        <div class="rank-row"><div class="rank-num">4</div><div class="rank-flag">🇵🇦</div><div class="rank-name">Panama</div><div>5 years · $5K FNV · 140 countries</div></div>
+        <div class="rank-row"><div class="rank-num">5</div><div class="rank-flag">🇨🇷</div><div class="rank-name">Costa Rica</div><div>7 years · $1K/mo · 150 countries</div></div>
+        <div class="rank-row"><div class="rank-num">6</div><div class="rank-flag">🇵🇹</div><div class="rank-name">Portugal</div><div>5 years GV · EUR 500K · EU passport</div></div>
+        <div class="rank-row"><div class="rank-num">7</div><div class="rank-flag">🇳🇿</div><div class="rank-name">New Zealand</div><div>5 years (investor) · NZD 3M · 186 countries</div></div>
+        <div class="rank-row"><div class="rank-num">8</div><div class="rank-flag">🇨🇱</div><div class="rank-name">Chile</div><div>5 years · $500K invest · 175 countries</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB: PROPERTY INTEL
+══════════════════════════════════════ -->
+<div class="tab-pane" id="tab-property">
+  <div class="alert warn" style="margin-bottom:1.5rem">⚠ <strong>Property Intelligence:</strong> All price ranges are 2024–2025 intelligence. Ark-suitable means: ≥5 acres, water source on site, renewable power feasible, defensible perimeter possible, min 50km from nearest city ≥100K population.</div>
+  <div id="propertyGrid" class="g2"></div>
+  <div class="sep"></div>
+  <div class="gl" style="padding:1.5rem">
+    <h4 style="font-family:var(--font-head);margin-bottom:1rem">🏗 What to Look For in an Ark Property</h4>
+    <div class="g3">
+      <div class="gl-inset" style="padding:1rem"><div class="section-label">Water</div><strong>Spring, well, or river on-site</strong><p class="dim" style="font-size:.82rem;margin-top:.2rem">Municipal water unacceptable. Minimum 10,000L/day flow for 25-person community.</p></div>
+      <div class="gl-inset" style="padding:1rem"><div class="section-label">Solar Aspect</div><strong>South-facing slope ≥45°</strong><p class="dim" style="font-size:.82rem;margin-top:.2rem">For Northern Hemisphere: south-facing. SH: north-facing. Minimum 6h direct sun.</p></div>
+      <div class="gl-inset" style="padding:1rem"><div class="section-label">Arable Land</div><strong>≥2 acres per 10 residents</strong><p class="dim" style="font-size:.82rem;margin-top:.2rem">Caloric self-sufficiency requires ~0.5 acres intensive growing per person.</p></div>
+      <div class="gl-inset" style="padding:1rem"><div class="section-label">Access Control</div><strong>Single entry road choke point</strong><p class="dim" style="font-size:.82rem;margin-top:.2rem">One defendable road in = one road to monitor. Natural barriers (river, cliff) superior.</p></div>
+      <div class="gl-inset" style="padding:1rem"><div class="section-label">Altitude</div><strong>600–2,000m ideal</strong><p class="dim" style="font-size:.82rem;margin-top:.2rem">Above flood zones, below altitude sickness threshold. Natural climate regulation.</p></div>
+      <div class="gl-inset" style="padding:1rem"><div class="section-label">Forest Cover</div><strong>≥30% woodland on property</strong><p class="dim" style="font-size:.82rem;margin-top:.2rem">Timber, firewood, aerial camouflage, wildlife habitat, soil health.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB: CLIMATE RISK
+══════════════════════════════════════ -->
+<div class="tab-pane" id="tab-climate">
+  <div class="g2" style="margin-bottom:1.5rem">
+    <div class="gl" style="padding:1.5rem">
+      <h4 style="font-family:var(--font-head);margin-bottom:1rem">🌊 2030–2050 Climate Risk by Country</h4>
+      <div id="climateRisks"></div>
+    </div>
+    <div class="gl" style="padding:1.5rem">
+      <h4 style="font-family:var(--font-head);margin-bottom:1rem">🌿 Climate Refugia — Best Long-Term Zones</h4>
+      <p class="lh" style="font-size:.88rem;color:#bcc8e0;margin-bottom:1rem">Climate refugia are regions that will remain stable or improve in habitability through 2100 even under worst-case IPCC scenarios. These overlap significantly with Ark sanctuary recommendations.</p>
+      <div style="font-size:.85rem">
+        <div class="intel-item cool"><div class="intel-dot"></div><div><strong>🇳🇿 New Zealand South Island</strong> — Minimal warming, stable rainfall, no sea-level risk at altitude. Best long-term climate security globally.</div></div>
+        <div class="intel-item cool"><div class="intel-dot"></div><div><strong>🇺🇾 Uruguay / Southern Brazil</strong> — Warming but stable. Increased rainfall benefits agriculture. No extreme event concentration.</div></div>
+        <div class="intel-item cool"><div class="intel-dot"></div><div><strong>🇨🇦 British Columbia Highlands</strong> — Climate refugia for Pacific Northwest. Expanding growing season. Wildfire risk offset by temperate coastal zones.</div></div>
+        <div class="intel-item cool"><div class="intel-dot"></div><div><strong>🇸🇪 Northern Scandinavia</strong> — Warming opens new agricultural zones. Away from primary conflict areas. Finland and Sweden NATO (2023/2024) adds risk.</div></div>
+        <div class="intel-item warm"><div class="intel-dot"></div><div><strong>🇨🇭 Swiss Alps</strong> — Glacier retreat threatens hydro by 2060. Still exceptional short-medium term. Water engineering mitigations underway.</div></div>
+        <div class="intel-item hot"><div class="intel-dot"></div><div><strong>⚠️ Mediterranean Europe</strong> — Portugal, Spain, Italy: severe heat stress, water wars, wildfire acceleration. All worsen significantly by 2040.</div></div>
+        <div class="intel-item hot"><div class="intel-dot"></div><div><strong>⚠️ South Asia / MENA</strong> — Bangladesh 30M displaced by 2030. Gulf wet-bulb temperature lethality risk by 2050. Pakistan water collapse.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB: ELITE MIGRATION
+══════════════════════════════════════ -->
+<div class="tab-pane" id="tab-migration">
+  <div class="g2" style="margin-bottom:1.5rem">
+    <div class="gl" style="padding:1.5rem">
+      <h4 style="font-family:var(--font-head);margin-bottom:1.25rem">🚀 UHNW Migration Flows 2023–2025</h4>
+      <p class="dim" style="font-size:.82rem;margin-bottom:1rem">Source: Henley &amp; Partners UHNW Migration Report 2024 + Ark Intelligence supplementary</p>
+      <div id="migrationIn"></div>
+      <div class="sep"></div>
+      <h5 style="margin-bottom:.75rem;color:var(--red)">📤 UHNW Outflows — Countries Elites Are LEAVING</h5>
+      <div id="migrationOut"></div>
+    </div>
+    <div>
+      <div class="gl" style="padding:1.5rem;margin-bottom:1rem">
+        <h4 style="font-family:var(--font-head);margin-bottom:1rem">🔒 Known Elite Compound Zones</h4>
+        <div class="acc">
+          <button class="acc-h" onclick="togAcc(this)">🇳🇿 South Island NZ — Silicon Valley Exodus <div class="chevron">▾</div></button>
+          <div class="acc-b"><div class="acc-inner">
+            <p class="lh" style="font-size:.88rem;color:#bcc8e0">Peter Thiel (citizenship 2011, disclosed 2017, NZD 10M+ property in Wanaka). Sam Altman (property confirmed 2023). Reid Hoffman (invested in NZ biotech). Larry Ellison (NZ real estate confirmed). Estimated 2,000+ US tech executives with NZ residency applications 2020–2024. 50+ purpose-built compound properties in Canterbury region with private airstrips. NZ Overseas Investment Office approval times increased from 3 months to 18 months due to volume. The sophisticated elite are already there.</p>
+          </div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-h" onclick="togAcc(this)">🇨🇱🇦🇷 Patagonia — Tycoon Ranch Belt <div class="chevron">▾</div></button>
+          <div class="acc-b"><div class="acc-inner">
+            <p class="lh" style="font-size:.88rem;color:#bcc8e0">Ted Turner: 740,000 acres in Patagonia and New Mexico — world's largest private landowner. Doug Tompkins estate (Tompkins Conservation): 900,000 acres now protected. Luciano Benetton: 900,000 acres in Argentina. Elon Musk: Patagonia property rumors circulated 2022–2023 (unconfirmed). Estancia compounds with private airstrips (3,000m runways), satellite internet, backup generators, years of food stock common among top-100 billionaire class in the region.</p>
+          </div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-h" onclick="togAcc(this)">🇨🇭 Swiss Alps — Old Money Fortress Zones <div class="chevron">▾</div></button>
+          <div class="acc-b"><div class="acc-inner">
+            <p class="lh" style="font-size:.88rem;color:#bcc8e0">Gstaad: European royal families and generational wealth. Verbier: tech sector migration. Klosters: UK establishment (Charles III historically). Private valleys in Graubünden canton with helicopter-only access: approximately 200+ properties owned by globally recognized UHNW. Every chalet built post-1963 legally required to have shelter. Multi-generational Swiss families have maintained these compounds through two World Wars and Cold War — that 700-year institutional model is not accidental.</p>
+          </div></div>
+        </div>
+        <div class="acc">
+          <button class="acc-h" onclick="togAcc(this)">🇦🇺 Tasmania — Quiet Fallback Zone <div class="chevron">▾</div></button>
+          <div class="acc-b"><div class="acc-inner">
+            <p class="lh" style="font-size:.88rem;color:#bcc8e0">Less publicized than NZ but increasingly active. Australian tech and finance executives quietly acquiring highland properties (Derwent Valley, Central Highlands) since 2020. 98% renewable electricity. Island geography. Low population (550K). Existing Ark-capable infrastructure from farming heritage. No Lex Koller equivalent — easier purchase than NZ. Bass Strait provides natural maritime buffer from mainland Australia in civil disruption scenario.</p>
+          </div></div>
+        </div>
+      </div>
+      <div class="gl" style="padding:1.5rem;margin-top:1rem">
+        <h4 style="font-family:var(--font-head);margin-bottom:.75rem">📡 Elite Migration Signal Indicators</h4>
+        <p class="dim" style="font-size:.82rem;margin-bottom:.75rem">What to watch for in your own country as early-warning signals of elite exit acceleration:</p>
+        <div style="font-size:.84rem">
+          <div class="intel-item hot"><div class="intel-dot"></div><div>Private jet registrations to NZ/Uruguay increasing in a quarter</div></div>
+          <div class="intel-item hot"><div class="intel-dot"></div><div>CEO/CFO "personal business" trips to Patagonia or South Island clustering</div></div>
+          <div class="intel-item warm"><div class="intel-dot"></div><div>Real estate platforms show surge in searches for "rural New Zealand" or "Uruguay farm"</div></div>
+          <div class="intel-item warm"><div class="intel-dot"></div><div>High-profile wealth managers opening offices in Montevideo, Panama City, Tbilisi</div></div>
+          <div class="intel-item cool"><div class="intel-dot"></div><div>Private school enrollment drops in major urban centers as families relocate</div></div>
+          <div class="intel-item cool"><div class="intel-dot"></div><div>NZ/AU immigration lawyers reporting 300%+ increase in UHNW inquiries</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB: PASSPORT STRATEGY
+══════════════════════════════════════ -->
+<div class="tab-pane" id="tab-passport">
+  <div class="gl" style="padding:1.5rem;margin-bottom:1.5rem">
+    <h3 style="font-family:var(--font-head);margin-bottom:1rem">🛂 Passport Power + Ark Value Index</h3>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Passport</th><th>Visa-Free Countries</th><th>Ark Value</th><th>Geopolitical Bloc</th><th>Acquisition Speed</th><th>Investment Required</th><th>Ark Rating</th></tr></thead>
+    <tbody id="passportTable"></tbody></table></div>
+  </div>
+  <div class="g2">
+    <div class="gl" style="padding:1.5rem">
+      <h4 style="font-family:var(--font-head);margin-bottom:1rem">🎯 Optimal 3-Passport Stack by Profile</h4>
+      <div class="acc">
+        <button class="acc-h" onclick="togAcc(this)">For US Citizens <div class="chevron">▾</div></button>
+        <div class="acc-b"><div class="acc-inner">
+          <p class="lh" style="font-size:.88rem;color:#bcc8e0">Stack: US Passport (keep) + Uruguay (3–5yr, $1.5K/mo) + Portugal GV (5yr, EUR 500K). Reasoning: US passport excellent for current travel but FATCA creates tax obligation globally. Uruguay severs Southern Hemisphere allegiance and provides nuclear-safe citizenship. Portugal unlocks EU and Schengen freedom with best European Ark properties available. Total cost: EUR 500K + modest living expenses. Timeline: 5–7 years. Worth starting today.</p>
+        </div></div>
+      </div>
+      <div class="acc">
+        <button class="acc-h" onclick="togAcc(this)">For UK Citizens (post-Brexit) <div class="chevron">▾</div></button>
+        <div class="acc-b"><div class="acc-inner">
+          <p class="lh" style="font-size:.88rem;color:#bcc8e0">Stack: UK Passport (keep for now) + Malta MEIN (1–3yr, EUR 750K) + NZ residency. Reasoning: UK passport weakened by Brexit — lost EU freedom. Malta instantly restores EU/Schengen access via citizenship. NZ provides Southern Hemisphere nuclear safe harbor. UK passport nuclear target list makes secondary allegiance essential. Non-dom tax abolition 2025 means the UK no longer offers financial advantage. Malta is the fastest legal EU citizenship for UK citizens. Act now.</p>
+        </div></div>
+      </div>
+      <div class="acc">
+        <button class="acc-h" onclick="togAcc(this)">For Chinese Citizens <div class="chevron">▾</div></button>
+        <div class="acc-b"><div class="acc-inner">
+          <p class="lh" style="font-size:.88rem;color:#bcc8e0">Stack: Vanuatu CBI (2–3 months, USD 130K) or St. Kitts CBI (USD 250K) for immediate travel insurance + Portugal GV (5yr) for EU + Uruguay (3–5yr) for Southern Hemisphere. Reasoning: Chinese passport severely limited (60 countries visa-free). Beijing has expanded exit ban powers dramatically — best to diversify NOW before window closes further. Hong Kong BNO holders: Ireland passport via ancestral claim, then onward strategy. Time is critical — the CCP has shown willingness to revoke passports and restrict movement.</p>
+        </div></div>
+      </div>
+      <div class="acc">
+        <button class="acc-h" onclick="togAcc(this)">For Russian Citizens <div class="chevron">▾</div></button>
+        <div class="acc-b"><div class="acc-inner">
+          <p class="lh" style="font-size:.88html;color:#bcc8e0">Stack: Georgia (immediate — 365-day entry, easy residency) + Serbia or Turkey (Europe-adjacent neutral, visa-free for Russians) + Uruguay or Argentina (South American safe harbor). Reasoning: Russian passport collapsed from 110 to 56 visa-free countries post-2022. The 120,000+ Russians who left in 2022 were right. Military mobilisation is possible without warning for any male 18–65. Georgia is your first stop today — walk-in, no visa, establish residency, open bank account. Then layer South American citizenship for long-term security.</p>
+        </div></div>
+      </div>
+    </div>
+    <div class="gl" style="padding:1.5rem">
+      <h4 style="font-family:var(--font-head);margin-bottom:1rem">💡 CBI Programs (Citizenship by Investment) — Speed Layer</h4>
+      <p class="dim" style="font-size:.82rem;margin-bottom:1rem">CBI passports are emergency travel insurance, not primary Ark passports. Use for speed when primary pathways are closing.</p>
+      <table class="tbl">
+        <thead><tr><th>Program</th><th>Countries</th><th>Min Investment</th><th>Timeline</th><th>EU?</th><th>Ark Use</th></tr></thead>
+        <tbody>
+          <tr><td>🇻🇺 Vanuatu DSP</td><td>96 VF</td><td>USD 130K</td><td>2–3 months</td><td>No</td><td>Emergency travel</td></tr>
+          <tr><td>🇰🇳 St. Kitts CBI</td><td>156 VF</td><td>USD 250K</td><td>3–4 months</td><td>No</td><td>Emergency + banking</td></tr>
+          <tr><td>🇩🇲 Dominica CBI</td><td>145 VF</td><td>USD 100K</td><td>3–4 months</td><td>No</td><td>Cheapest CBI</td></tr>
+          <tr><td>🇦🇬 Antigua CBI</td><td>151 VF</td><td>USD 100K</td><td>4–5 months</td><td>No</td><td>Budget option</td></tr>
+          <tr><td>🇲🇹 Malta MEIN</td><td>186 VF</td><td>EUR 750K+</td><td>12–36 months</td><td>✅ Yes</td><td>Primary EU strategy</td></tr>
+          <tr><td>🇵🇹 Portugal GV</td><td>186 VF</td><td>EUR 500K</td><td>5yr</td><td>✅ Yes</td><td>Primary Ark EU base</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- /.container -->
+</div><!-- /.wrap -->
+
+<!-- ═══════════════════════════════════════
+     DATA BLOCK
+═══════════════════════════════════════ -->
+<script>
+const COUNTRIES = [
+  {id:'nz',flag:'🇳🇿',name:'New Zealand',region:'oceania',tier:'tier1',score:9.1,nuclear:1,climate:3,political:1,economic:4,invasion:1,pandemic:2,cyber:3,entry:400,entryStr:'NZD 3M+ (Investor)',visa:'Investor Plus',vtime:'PR 3yr, Ctz 5yr',passVF:186,passArkVal:9,taxSys:'Global',taxRate:'33% top rate',propertyEntry:'USD 400K+',arkZone:'Mackenzie Basin / Canterbury',strength:'Island isolation, food sovereignty',risk:'Elite crowding, rising prices',color:'#39ff14'},
+  {id:'ch',flag:'🇨🇭',name:'Switzerland',region:'europe',tier:'tier1',score:8.9,nuclear:2,climate:2,political:1,economic:2,invasion:1,pandemic:2,cyber:2,entry:1500,entryStr:'CHF 1M+',visa:'Lump-Sum Tax',vtime:'PR 10yr, Ctz 12yr',passVF:186,passArkVal:9,taxSys:'Cantonal',taxRate:'CHF 450K/yr flat',propertyEntry:'USD 1.5M+',arkZone:'Graubünden / Bernese Alps',strength:'Mandatory bunkers, NATO-neutral',risk:'Lex Koller, very high cost',color:'#39ff14'},
+  {id:'is',flag:'🇮🇸',name:'Iceland',region:'europe',tier:'tier1',score:8.7,nuclear:1,climate:4,political:1,economic:4,invasion:2,pandemic:2,cyber:3,entry:250,entryStr:'USD 250K+',visa:'Long-stay/Skilled',vtime:'PR 4yr, Ctz 7yr',passVF:186,passArkVal:8,taxSys:'Territorial partial',taxRate:'37% top',propertyEntry:'USD 250K–1.2M',arkZone:'Westfjords Region',strength:'100% renewables, extreme isolation',risk:'NATO membership, volcanic activity',color:'#39ff14'},
+  {id:'no',flag:'🇳🇴',name:'Norway',region:'europe',tier:'tier1',score:8.8,nuclear:2,climate:3,political:1,economic:2,invasion:3,pandemic:2,cyber:3,entry:400,entryStr:'USD 400K+',visa:'Skilled/EU',vtime:'PR 3yr, Ctz 7yr',passVF:187,passArkVal:8,taxSys:'Global',taxRate:'47% top',propertyEntry:'USD 400K–2M',arkZone:'Hardangerfjord / Svalbard',strength:'$1.8T wealth fund, fjord terrain',risk:'NATO founding member, high tax',color:'#39ff14'},
+  {id:'cr',flag:'🇨🇷',name:'Costa Rica',region:'latam',tier:'tier1',score:8.4,nuclear:1,climate:4,political:2,economic:4,invasion:1,pandemic:3,cyber:4,entry:80,entryStr:'USD 80K+',visa:'Pensionado',vtime:'PR 3yr, Ctz 7yr',passVF:148,passArkVal:7,taxSys:'Territorial',taxRate:'0% foreign income',propertyEntry:'USD 80K–600K',arkZone:'Chirripó / San Gerardo',strength:'No military, 5% global biodiversity',risk:'Cartel transit corridor expanding',color:'#39ff14'},
+  {id:'uy',flag:'🇺🇾',name:'Uruguay',region:'latam',tier:'tier1',score:8.2,nuclear:1,climate:3,political:2,economic:4,invasion:1,pandemic:2,cyber:4,entry:50,entryStr:'USD 50K+',visa:'Rentista',vtime:'PR 2yr, Ctz 3–5yr',passVF:186,passArkVal:9,taxSys:'Territorial 5yr',taxRate:'0% foreign 5yr, 7% after',propertyEntry:'USD 50K–500K',arkZone:'Tacuarembó / Rivera',strength:'LATAM #1 stability, cheap farmland',risk:'Argentine economic contagion',color:'#39ff14'},
+  {id:'ge',flag:'🇬🇪',name:'Georgia',region:'asia',tier:'tier1',score:7.9,nuclear:2,climate:3,political:6,economic:5,invasion:4,pandemic:4,cyber:5,entry:40,entryStr:'USD 40K+',visa:'365-day stay',vtime:'Residency 1yr, Ctz 6+yr',passVF:113,passArkVal:5,taxSys:'Territorial',taxRate:'1% VZ / 20% personal',propertyEntry:'USD 40K–250K',arkZone:'Svaneti / Mestia',strength:'365-day free entry, 1% business tax',risk:'Russian Federation 2008 precedent',color:'#39ff14'},
+  {id:'pa',flag:'🇵🇦',name:'Panama',region:'latam',tier:'tier1',score:7.8,nuclear:2,climate:4,political:4,economic:4,invasion:2,pandemic:4,cyber:5,entry:5,entryStr:'USD 5K+ (FNV)',visa:'Friendly Nations',vtime:'PR immediate, Ctz 5yr',passVF:140,passArkVal:7,taxSys:'Territorial',taxRate:'0% foreign income',propertyEntry:'USD 60K–400K',arkZone:'Boquete / Volcán Highlands',strength:'USD economy, fastest PR',risk:'Canal conflict risk, corruption',color:'#39ff14'},
+  {id:'pt',flag:'🇵🇹',name:'Portugal',region:'europe',tier:'tier2',score:7.4,nuclear:3,climate:5,political:2,economic:5,invasion:2,pandemic:3,cyber:4,entry:500,entryStr:'EUR 500K (GV)',visa:'D8/Golden Visa',vtime:'PR 5yr, Ctz 5yr',passVF:186,passArkVal:8,taxSys:'IFICI 10yr',taxRate:'20% flat foreign 10yr',propertyEntry:'EUR 80K–600K',arkZone:'Peneda-Gerês / Alentejo',strength:'EU citizenship, Atlantic buffer',risk:'Water stress, wildfire, NATO',color:'#ffd700'},
+  {id:'cl',flag:'🇨🇱',name:'Chile',region:'latam',tier:'tier2',score:7.3,nuclear:1,climate:4,political:4,economic:4,invasion:2,pandemic:3,cyber:5,entry:100,entryStr:'USD 100K+',visa:'Rentier/Investor',vtime:'PR 1yr, Ctz 5yr',passVF:175,passArkVal:7,taxSys:'Global',taxRate:'40% top',propertyEntry:'USD 100K–2M',arkZone:'Aysén / Coyhaique',strength:'Patagonia isolation, escape corridor',risk:'Mega-earthquake risk, political flux',color:'#ffd700'},
+  {id:'mt',flag:'🇲🇹',name:'Malta',region:'europe',tier:'tier2',score:7.2,nuclear:2,climate:4,political:3,economic:4,invasion:3,pandemic:3,cyber:4,entry:750,entryStr:'EUR 750K+ (MEIN)',visa:'MEIN CBI',vtime:'Ctz 1–3yr',passVF:186,passArkVal:9,taxSys:'Remittance',taxRate:'15% flat on remittance',propertyEntry:'EUR 300K–1M',arkZone:'— (use as passport vehicle only)',strength:'Fastest EU citizenship, Schengen',risk:'No food sovereignty, tiny island',color:'#ffd700'},
+  {id:'ee',flag:'🇪🇪',name:'Estonia',region:'europe',tier:'tier2',score:7.0,nuclear:4,climate:3,political:3,economic:4,invasion:6,pandemic:3,cyber:4,entry:0,entryStr:'Free (e-residency)',visa:'Digital Nomad',vtime:'PR 5yr, Ctz 8yr',passVF:183,passArkVal:6,taxSys:'EU',taxRate:'20% flat, 0% undistributed profits',propertyEntry:'EUR 60K–250K',arkZone:'— (use for corporate structure)',strength:'e-Residency, 0% corporate reinvestment',risk:'Russian border proximity, NATO',color:'#ffd700'},
+  {id:'si',flag:'🇸🇮',name:'Slovenia',region:'europe',tier:'tier2',score:7.1,nuclear:2,climate:3,political:2,economic:4,invasion:2,pandemic:3,cyber:4,entry:80,entryStr:'EUR 80K+',visa:'Digital Nomad/EU',vtime:'PR 5yr, Ctz 10yr',passVF:183,passArkVal:7,taxSys:'EU',taxRate:'25% top',propertyEntry:'EUR 80K–350K',arkZone:'Triglav / Soča Valley / Postojna',strength:'Overlooked EU, Julian Alps, caves',risk:'EU/NATO member, slow citizenship',color:'#ffd700'},
+  {id:'py',flag:'🇵🇾',name:'Paraguay',region:'latam',tier:'tier2',score:6.8,nuclear:1,climate:4,political:5,economic:5,invasion:1,pandemic:5,cyber:6,entry:5,entryStr:'USD 5K+',visa:'Investor Residency',vtime:'PR 2yr, Ctz 3yr',passVF:146,passArkVal:6,taxSys:'Territorial',taxRate:'0% foreign income',propertyEntry:'USD 15K–150K',arkZone:'Chaco / Mennonite Belt',strength:'Cheapest SA citizenship, no cap gains',risk:'Landlocked, corruption, dengue',color:'#ffd700'},
+];
+
+const VISA_DATA = [
+  {c:'🇵🇦 Panama',prog:'Friendly Nations Visa',req:'$5K bank + job/biz',proc:'30–45 days',pr:'Immediate',ctz:'5yr',cost:'~$5K',diff:'Easy'},
+  {c:'🇺🇾 Uruguay',prog:'Rentista',req:'$1,500/mo income',proc:'6–8 weeks',pr:'2yr',ctz:'3–5yr',cost:'~$3K legal',diff:'Easy'},
+  {c:'🇨🇷 Costa Rica',prog:'Pensionado',req:'$1,000/mo pension',proc:'3–6 months',pr:'3yr',ctz:'7yr',cost:'~$5K legal',diff:'Easy'},
+  {c:'🇬🇪 Georgia',prog:'365-day visa-free',req:'No income min.',proc:'Instant',pr:'1yr (registered)',ctz:'6yr+',cost:'Free',diff:'Easiest'},
+  {c:'🇵🇾 Paraguay',prog:'Investor Residency',req:'$5K bank deposit',proc:'3–6 months',pr:'2yr',ctz:'3yr',cost:'~$3K',diff:'Easy'},
+  {c:'🇧🇿 Belize',prog:'QRP Retirement',req:'$24K/yr income',proc:'2–3 months',pr:'Immediate',ctz:'5yr',cost:'~$2K',diff:'Easy'},
+  {c:'🇵🇹 Portugal',prog:'D8 Digital Nomad',req:'EUR 760/mo',proc:'4–8 months',pr:'5yr',ctz:'5yr',cost:'EUR 2K legal',diff:'Medium'},
+  {c:'🇲🇹 Malta',prog:'MEIN CBI',req:'EUR 750K+ total',proc:'12–36 months',pr:'Immediate',ctz:'1–3yr',cost:'EUR 750K+',diff:'Medium (expensive)'},
+  {c:'🇪🇨 Ecuador',prog:'Pensioner Visa',req:'$800/mo',proc:'2–4 months',pr:'Immediate',ctz:'5yr',cost:'~$3K',diff:'Medium'},
+  {c:'🇦🇺 Australia',prog:'188 Investor',req:'AUD 1.5M invest.',proc:'12–24 months',pr:'4yr',ctz:'4yr',cost:'AUD 1.5M+',diff:'Hard'},
+  {c:'🇳🇿 New Zealand',prog:'Investor Plus',req:'NZD 3M invest.',proc:'12–18 months',pr:'3yr',ctz:'5yr',cost:'NZD 3M+',diff:'Hard'},
+  {c:'🇨🇭 Switzerland',prog:'Lump-Sum Tax',req:'CHF 400–450K/yr',proc:'6–12 months',pr:'10yr',ctz:'12yr',cost:'CHF 400K/yr',diff:'Very Hard'},
+];
+
+const HEATMAP_DATA = [
+  {flag:'🇳🇿',name:'New Zealand',nuclear:1,climate:3,political:1,economic:4,invasion:1,pandemic:2,cyber:3},
+  {flag:'🇨🇭',name:'Switzerland',nuclear:2,climate:2,political:1,economic:2,invasion:1,pandemic:2,cyber:2},
+  {flag:'🇮🇸',name:'Iceland',nuclear:1,climate:4,political:1,economic:4,invasion:2,pandemic:2,cyber:3},
+  {flag:'🇳🇴',name:'Norway',nuclear:2,climate:3,political:1,economic:2,invasion:3,pandemic:2,cyber:3},
+  {flag:'🇺🇾',name:'Uruguay',nuclear:1,climate:3,political:2,economic:4,invasion:1,pandemic:2,cyber:4},
+  {flag:'🇨🇷',name:'Costa Rica',nuclear:1,climate:4,political:2,economic:4,invasion:1,pandemic:3,cyber:4},
+  {flag:'🇵🇦',name:'Panama',nuclear:2,climate:4,political:4,economic:4,invasion:2,pandemic:4,cyber:5},
+  {flag:'🇬🇪',name:'Georgia',nuclear:2,climate:3,political:6,economic:5,invasion:4,pandemic:4,cyber:5},
+  {flag:'🇵🇹',name:'Portugal',nuclear:3,climate:5,political:2,economic:5,invasion:2,pandemic:3,cyber:4},
+  {flag:'🇨🇱',name:'Chile',nuclear:1,climate:4,political:4,economic:4,invasion:2,pandemic:3,cyber:5},
+  {flag:'🇸🇮',name:'Slovenia',nuclear:2,climate:3,political:2,economic:4,invasion:2,pandemic:3,cyber:4},
+  {flag:'🇵🇾',name:'Paraguay',nuclear:1,climate:4,political:5,economic:5,invasion:1,pandemic:5,cyber:6},
+  {flag:'🇬🇧',name:'United Kingdom',nuclear:8,climate:4,political:5,economic:5,invasion:4,pandemic:4,cyber:3},
+  {flag:'🇺🇸',name:'United States',nuclear:9,climate:7,political:7,economic:5,invasion:4,pandemic:6,cyber:4},
+  {flag:'🇷🇺',name:'Russia',nuclear:10,climate:5,political:10,economic:8,invasion:9,pandemic:5,cyber:2},
+  {flag:'🇨🇳',name:'China',nuclear:8,climate:8,political:9,economic:6,invasion:7,pandemic:7,cyber:2},
+  {flag:'🇹🇼',name:'Taiwan',nuclear:6,climate:5,political:8,economic:4,invasion:10,pandemic:4,cyber:3},
+];
+
+const MIGRATION_IN = [
+  {flag:'🇦🇪',name:'UAE / Dubai',count:'+6,700',color:'var(--red)'},
+  {flag:'🇦🇺',name:'Australia',count:'+5,200',color:'var(--red)'},
+  {flag:'🇸🇬',name:'Singapore',count:'+3,400',color:'var(--gold)'},
+  {flag:'🇺🇸',name:'United States',count:'+2,800',color:'var(--gold)'},
+  {flag:'🇨🇭',name:'Switzerland',count:'+2,200',color:'var(--accent)'},
+  {flag:'🇳🇿',name:'New Zealand',count:'+1,900',color:'var(--accent)'},
+  {flag:'🇵🇹',name:'Portugal',count:'+1,700',color:'var(--accent)'},
+  {flag:'🇵🇦',name:'Panama',count:'+1,200',color:'var(--accent)'},
+  {flag:'🇺🇾',name:'Uruguay',count:'+800',color:'var(--neon)'},
+  {flag:'🇬🇪',name:'Georgia',count:'+2,100*',color:'var(--neon)'},
+];
+
+const MIGRATION_OUT = [
+  {flag:'🇨🇳',name:'China',count:'-13,500',reason:'Capital controls, CCP risk, exit bans'},
+  {flag:'🇷🇺',name:'Russia',count:'-8,500',reason:'War, sanctions, mobilisation, asset seizure'},
+  {flag:'🇬🇧',name:'United Kingdom',count:'-4,200',reason:'Non-dom abolition 2025, political uncertainty'},
+  {flag:'🇧🇷',name:'Brazil',count:'-3,100',reason:'Crime, political polarization, Lula tax policy'},
+  {flag:'🇿🇦',name:'South Africa',count:'-2,900',reason:'Crime, load-shedding, ANC instability'},
+  {flag:'🇦🇷',name:'Argentina',count:'-2,400',reason:'Inflation, expropriation risk, peso collapse'},
+];
+
+const PASSPORT_DATA = [
+  {c:'🇳🇿 New Zealand',vf:186,arkVal:9,bloc:'Commonwealth/Neutral',speed:'5yr (invest)',invest:'NZD 3M',rating:'⭐⭐⭐⭐⭐'},
+  {c:'🇺🇾 Uruguay',vf:186,arkVal:9,bloc:'South America (neutral)',speed:'3–5yr',invest:'$1.5K/mo',rating:'⭐⭐⭐⭐⭐'},
+  {c:'🇲🇹 Malta / EU',vf:186,arkVal:9,bloc:'EU/Schengen',speed:'1–3yr (CBI)',invest:'EUR 750K+',rating:'⭐⭐⭐⭐⭐'},
+  {c:'🇵🇹 Portugal / EU',vf:186,arkVal:8,bloc:'EU/Schengen',speed:'5yr (GV)',invest:'EUR 500K',rating:'⭐⭐⭐⭐'},
+  {c:'🇵🇦 Panama',vf:140,arkVal:7,bloc:'Central America',speed:'5yr',invest:'$5K (FNV)',rating:'⭐⭐⭐⭐'},
+  {c:'🇨🇷 Costa Rica',vf:148,arkVal:7,bloc:'Central America (no military)',speed:'7yr',invest:'$1K/mo',rating:'⭐⭐⭐⭐'},
+  {c:'🇨🇭 Switzerland',vf:186,arkVal:8,bloc:'European Neutral',speed:'12yr',invest:'CHF 400K/yr',rating:'⭐⭐⭐⭐'},
+  {c:'🇵🇾 Paraguay',vf:146,arkVal:6,bloc:'South America',speed:'3yr',invest:'$5K',rating:'⭐⭐⭐'},
+  {c:'🇰🇳 St. Kitts CBI',vf:156,arkVal:5,bloc:'Caribbean',speed:'3–4 months',invest:'USD 250K',rating:'⭐⭐⭐'},
+  {c:'🇻🇺 Vanuatu CBI',vf:96,arkVal:4,bloc:'Pacific',speed:'2–3 months',invest:'USD 130K',rating:'⭐⭐ (emergency)'},
+];
+
+const PROPERTY_DATA = [
+  {c:'🇺🇾 Uruguay',zone:'Tacuarembó pampas',range:'USD 50K–500K',arkAcres:'100+ acres from $200K',water:'Rio Negro basin',power:'90% wind/solar capable',note:'Best value farmland globally per quality unit',tier:'buy'},
+  {c:'🇵🇾 Paraguay',zone:'Chaco / Encarnación',range:'USD 15K–150K',arkAcres:'200+ acres under $100K',water:'Paraná river access',power:'Grid + solar viable',note:'Cheapest Ark land in South America',tier:'buy'},
+  {c:'🇬🇪 Georgia',zone:'Svaneti / Kakheti',range:'USD 30K–250K',arkAcres:'5–50 acres from $40K',water:'Glacial mountain streams',power:'Hydro + solar',note:'Fastest entry point globally',tier:'buy'},
+  {c:'🇨🇷 Costa Rica',zone:'Chirripó / San Gerardo',range:'USD 80K–600K',arkAcres:'5–50 acres from $120K',water:'Chirripó river system',power:'Micro-hydro optimal',note:'Biodiversity food fallback unmatched',tier:'buy'},
+  {c:'🇸🇮 Slovenia',zone:'Triglav / Soča Valley',range:'EUR 80K–350K',arkAcres:'2–20 acres from €100K',water:'Soča glacial river',power:'Hydro + solar (80% national)',note:'Most undervalued EU Ark property',tier:'buy'},
+  {c:'🇵🇦 Panama',zone:'Boquete / Volcán Highlands',range:'USD 60K–400K',arkAcres:'1–10 acres from $80K',water:'Barú volcano watershed',power:'Solar (strong equatorial)',note:'Year-round spring climate 18–22°C',tier:'buy'},
+  {c:'🇳🇿 New Zealand',zone:'Mackenzie Basin / Canterbury',range:'NZD 500K–5M+',arkAcres:'50–500 acres from NZD 800K',water:'Alpine glacier fed',power:'Wind + solar + micro-hydro',note:'#1 globally. Act NOW — window closing',tier:'warn'},
+  {c:'🇵🇹 Portugal',zone:'Alentejo / Peneda-Gerês',range:'EUR 80K–600K',arkAcres:'5–50 acres from €100K',water:'Tagus tributaries (north OK)',power:'Solar excellent (south)',note:'Watch water stress south of Tagus',tier:'rent'},
+];
+
+const CLIMATE_DATA = [
+  {c:'🇳🇿',name:'New Zealand',risk:'Very Low',temp:'+1.5°C by 2100',threats:'Minimal',icon:'✅'},
+  {c:'🇺🇾',name:'Uruguay',risk:'Low',temp:'+2.1°C by 2100',threats:'Moderate rainfall increase',icon:'✅'},
+  {c:'🇨🇭',name:'Switzerland',risk:'Low-Med',temp:'+2.8°C by 2100',threats:'Glacier retreat by 2060',icon:'⚡'},
+  {c:'🇮🇸',name:'Iceland',risk:'Low',temp:'+1.8°C by 2100',threats:'Volcanic unpredictability',icon:'✅'},
+  {c:'🇳🇴',name:'Norway',risk:'Low',temp:'+1.9°C by 2100',threats:'Arctic thaw (positive for agriculture)',icon:'✅'},
+  {c:'🇨🇷',name:'Costa Rica',risk:'Medium',temp:'+2.5°C by 2100',threats:'Increased storm intensity',icon:'⚡'},
+  {c:'🇵🇹',name:'Portugal',risk:'High',temp:'+3.4°C by 2100',threats:'Water wars, wildfire, desertification',icon:'⚠️'},
+  {c:'🇪🇸',name:'Spain',risk:'High',temp:'+3.6°C by 2100',threats:'40% territory at desertification risk',icon:'⚠️'},
+  {c:'🇮🇹',name:'Italy',risk:'High',temp:'+3.2°C by 2100',threats:'Po valley drought, coastal flooding',icon:'⚠️'},
+  {c:'🇧🇩',name:'Bangladesh',risk:'Critical',temp:'+4.1°C by 2100',threats:'30M displaced by 2030, complete inundation',icon:'💀'},
+  {c:'🇵🇰',name:'Pakistan',risk:'Critical',temp:'+4.8°C by 2100',threats:'Glacier melt, water wars, heat deaths',icon:'💀'},
+  {c:'🇮🇶',name:'Iraq / Gulf',risk:'Critical',temp:'+5.2°C by 2100',threats:'Wet-bulb lethal heat by 2050',icon:'💀'},
+];
+</script>
+
+<!-- ═══════════════════════════════════════
+     RENDER + INTERACTION BLOCK
+═══════════════════════════════════════ -->
+<script>
+/* ── TAB SWITCHING ── */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+    document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('on');
+  });
+});
+
+/* ── ACCORDION ── */
+function togAcc(btn){
+  const body=btn.nextElementSibling;
+  const chevron=btn.querySelector('.chevron');
+  const isOpen=body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);
+  btn.classList.toggle('open',!isOpen);
+  if(chevron)chevron.textContent=isOpen?'▾':'▴';
+}
+
+/* ── HEAT CELL COLOR ── */
+function heatColor(v){
+  if(v<=3)return{bg:'#0d2e0d',color:'#39ff14'};
+  if(v<=6)return{bg:'#2e1f00',color:'#ffd700'};
+  return{bg:'#2e0000',color:'#ff3c3c'};
+}
+
+/* ── RENDER HEATMAP ── */
+function renderHeatmap(){
+  const cols=['nuclear','climate','political','economic','invasion','pandemic','cyber'];
+  const weights=[.30,.12,.20,.08,.25,.03,.02];
+  const container=document.getElementById('heatmapRows');
+  if(!container)return;
+  container.innerHTML=HEATMAP_DATA.map(d=>{
+    const composite=(cols.reduce((s,c,i)=>s+d[c]*weights[i],0)).toFixed(1);
+    const cc=heatColor(parseFloat(composite));
+    return `<div class="heat-row" style="margin-bottom:3px;padding:2px 0">
+      <span class="heat-lbl">${d.flag} ${d.name}</span>
+      ${cols.map(c=>{const{bg,color}=heatColor(d[c]);return`<div class="heat-cell" style="flex:1;background:${bg};color:${color}">${d[c]}</div>`}).join('')}
+      <div class="heat-cell" style="flex:1;background:${cc.bg};color:${cc.color};font-weight:700">${composite}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── RENDER RANKINGS ── */
+function renderRankings(){
+  const el=document.getElementById('rankingList');
+  if(!el)return;
+  const sorted=[...COUNTRIES].sort((a,b)=>b.score-a.score);
+  el.innerHTML=sorted.map((c,i)=>`
+    <div class="rank-row">
+      <div class="rank-num">${i+1}</div>
+      <div class="rank-flag">${c.flag}</div>
+      <div class="rank-name">${c.name}</div>
+      <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${c.score*10}%"></div></div>
+      <div class="rank-score">${c.score}</div>
+      <span class="badge" style="background:${c.tier==='tier1'?'rgba(57,255,20,.15)':'rgba(255,215,0,.12)'};color:${c.tier==='tier1'?'var(--neon)':'var(--gold)'};border:1px solid ${c.tier==='tier1'?'rgba(57,255,20,.3)':'rgba(255,215,0,.3)'}">${c.tier==='tier1'?'T1':'T2'}</span>
+    </div>`).join('');
+}
+
+/* ── RENDER VISA TABLE ── */
+function renderVisaTable(){
+  const el=document.getElementById('visaTableBody');
+  if(!el)return;
+  const diff={Easy:'bt1',Medium:'bt2',Hard:'bt3','Easiest':'bt1','Very Hard':'bno','Medium (expensive)':'bt3'};
+  el.innerHTML=VISA_DATA.map(v=>`<tr>
+    <td><strong>${v.c}</strong></td>
+    <td>${v.prog}</td>
+    <td class="mono-sm">${v.req}</td>
+    <td class="mono-sm">${v.proc}</td>
+    <td class="mono-sm">${v.pr}</td>
+    <td class="mono-sm">${v.ctz}</td>
+    <td class="mono-sm">${v.cost}</td>
+    <td><span class="badge ${diff[v.diff]||'bmono'}">${v.diff}</span></td>
+  </tr>`).join('');
+}
+
+/* ── RENDER PROPERTY ── */
+function renderProperty(){
+  const el=document.getElementById('propertyGrid');
+  if(!el)return;
+  el.innerHTML=PROPERTY_DATA.map(p=>`
+    <div class="gl prop-card ${p.tier}" style="padding:1.25rem">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:.75rem">
+        <div><div class="section-label">${p.c}</div><strong style="font-family:var(--font-head)">${p.zone}</strong></div>
+        <span class="badge ${p.tier==='buy'?'bt1':p.tier==='warn'?'bt3':'bt2'}">${p.tier==='buy'?'BUY NOW':p.tier==='warn'?'ACT FAST':'WATCH'}</span>
+      </div>
+      <div class="prop-price">${p.range}</div>
+      <div class="g2" style="gap:.5rem;margin:.75rem 0;font-size:.82rem">
+        <div class="gl-inset" style="padding:.6rem"><div class="section-label" style="margin-bottom:.2rem">Ark Acreage</div>${p.arkAcres}</div>
+        <div class="gl-inset" style="padding:.6rem"><div class="section-label" style="margin-bottom:.2rem">Water Source</div>${p.water}</div>
+        <div class="gl-inset" style="padding:.6rem"><div class="section-label" style="margin-bottom:.2rem">Power</div>${p.power}</div>
+      </div>
+      <div class="alert info" style="padding:.6rem .85rem;font-size:.82rem;margin:0">${p.note}</div>
+    </div>`).join('');
+}
+
+/* ── RENDER CLIMATE ── */
+function renderClimate(){
+  const el=document.getElementById('climateRisks');
+  if(!el)return;
+  el.innerHTML=CLIMATE_DATA.map(c=>`
+    <div class="climate-cell" style="margin-bottom:.5rem;display:flex;align-items:center;gap:1rem">
+      <span style="font-size:1.2rem">${c.icon}</span>
+      <span style="font-size:1rem">${c.c}</span>
+      <div style="flex:1"><strong>${c.name}</strong><div class="dim" style="font-size:.8rem">${c.threats} · ${c.temp}</div></div>
+      <span class="badge ${c.risk==='Very Low'||c.risk==='Low'?'bt1':c.risk.includes('Med')||c.risk==='Low-Med'?'bt2':c.risk==='High'?'bt3':'bno'}">${c.risk}</span>
+    </div>`).join('');
+}
+
+/* ── RENDER MIGRATION ── */
+function renderMigration(){
+  const inEl=document.getElementById('migrationIn');
+  const outEl=document.getElementById('migrationOut');
+  if(inEl) inEl.innerHTML=MIGRATION_IN.map(m=>`
+    <div class="rank-row"><div class="rank-flag">${m.flag}</div><div class="rank-name">${m.name}</div>
+    <div style="font-family:var(--font-mono);font-weight:700;color:${m.color}">${m.count}</div>
+    <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${Math.abs(parseInt(m.count.replace(/[^0-9]/g,''))/70)}%;background:${m.color}"></div></div></div>`).join('');
+  if(outEl) outEl.innerHTML=MIGRATION_OUT.map(m=>`
+    <div class="rank-row"><div class="rank-flag">${m.flag}</div><div class="rank-name">${m.name}</div>
+    <div style="font-family:var(--font-mono);font-weight:700;color:var(--red)">${m.count}</div>
+    <div class="dim" style="font-size:.78rem;flex:1;text-align:right">${m.reason}</div></div>`).join('');
+}
+
+/* ── RENDER PASSPORT TABLE ── */
+function renderPassportTable(){
+  const el=document.getElementById('passportTable');
+  if(!el)return;
+  el.innerHTML=PASSPORT_DATA.map(p=>`<tr>
+    <td><strong>${p.c}</strong></td>
+    <td class="mono-sm">${p.vf}</td>
+    <td><div style="display:flex;align-items:center;gap:.5rem"><span style="font-family:var(--font-mono);font-weight:600;color:${p.arkVal>=9?'var(--neon)':p.arkVal>=7?'var(--gold)':'var(--accent)'}">${p.arkVal}/10</span><div style="width:60px;height:4px;background:rgba(255,255,255,.08);border-radius:2px"><div style="width:${p.arkVal*10}%;height:100%;border-radius:2px;background:${p.arkVal>=9?'var(--neon)':p.arkVal>=7?'var(--gold)':'var(--accent)'}"></div></div></div></td>
+    <td>${p.bloc}</td>
+    <td class="mono-sm">${p.speed}</td>
+    <td class="mono-sm">${p.invest}</td>
+    <td>${p.rating}</td>
+  </tr>`).join('');
+}
+
+/* ── COMPARE ENGINE ── */
+function runCompare(){
+  const ids=['cmpA','cmpB','cmpC'].map(id=>document.getElementById(id).value);
+  const selected=ids.filter(id=>id!=='none').map(id=>COUNTRIES.find(c=>c.id===id)).filter(Boolean);
+  const out=document.getElementById('compareOutput');
+  const ins=document.getElementById('compareInsights');
+  const insT=document.getElementById('compareInsightText');
+  if(!out||selected.length<2)return;
+
+  const metrics=[
+    {key:'nuclear',label:'Nuclear Risk ↓',invert:true},
+    {key:'political',label:'Political Stability ↑',invert:false},
+    {key:'invasion',label:'Invasion Risk ↓',invert:true},
+    {key:'economic',label:'Economic Risk ↓',invert:true},
+    {key:'climate',label:'Climate Risk ↓',invert:true},
+  ];
+
+  out.innerHTML=selected.map((c,i)=>{
+    const tierBadge=c.tier==='tier1'?`<span class="badge bt1">TIER 1</span>`:`<span class="badge bt2">TIER 2</span>`;
+    const scoreColor=c.score>=8.5?'var(--neon)':c.score>=7?'var(--gold)':'var(--accent)';
+    return`<div class="cmp-col ${i===0?'active':''}">
+      <div style="font-size:1.8rem">${c.flag}</div>
+      <div style="font-family:var(--font-head);font-size:1.1rem;font-weight:700;margin:.3rem 0">${c.name}</div>
+      ${tierBadge}
+      <div class="cmp-score-big" style="color:${scoreColor};margin:1rem 0">${c.score}</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem">ARK SURVIVABILITY / 10</div>
+      ${metrics.map(m=>{
+        const val=c[m.key];
+        const pct=m.invert?(10-val)*10:val*10;
+        const col=pct>75?'var(--neon)':pct>45?'var(--gold)':'var(--red)';
+        return`<div class="cmp-bar">
+          <div class="cmp-lbl">${m.label}</div>
+          <div class="cmp-bar-track"><div class="cmp-bar-fill" style="width:${pct}%;background:${col}"></div></div>
+          <div class="cmp-val">${val}</div>
+        </div>`;
+      }).join('')}
+      <div class="sep"></div>
+      <div style="font-size:.82rem">
+        <div class="section-label">Entry Cost</div><div>${c.entryStr}</div>
+        <div class="section-label" style="margin-top:.5rem">Best Visa</div><div>${c.visa}</div>
+        <div class="section-label" style="margin-top:.5rem">Timeline</div><div>${c.vtime}</div>
+        <div class="section-label" style="margin-top:.5rem">Ark Zone</div><div>${c.arkZone}</div>
+        <div class="section-label" style="margin-top:.5rem">Property</div><div>${c.propertyEntry}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Insights
+  const best=selected.reduce((a,b)=>a.score>b.score?a:b);
+  const cheapest=selected.reduce((a,b)=>a.entry<b.entry?a:b);
+  const nuclearSafest=selected.reduce((a,b)=>a.nuclear<b.nuclear?a:b);
+  insT.innerHTML=`
+    <p>🏆 <strong>Highest Ark Score:</strong> ${best.flag} ${best.name} (${best.score}/10) — ${best.strength}.</p>
+    <p style="margin-top:.6rem">💰 <strong>Most Accessible Entry:</strong> ${cheapest.flag} ${cheapest.name} (${cheapest.entryStr}) — ${cheapest.strength}.</p>
+    <p style="margin-top:.6rem">☢ <strong>Lowest Nuclear Risk:</strong> ${nuclearSafest.flag} ${nuclearSafest.name} (${nuclearSafest.nuclear}/10) — ${nuclearSafest.risk ? 'Watch: '+nuclearSafest.risk : 'excellent overall profile'}.</p>
+    <p style="margin-top:.6rem">🎯 <strong>Ark Recommendation:</strong> For a dual-country strategy, combine <strong>${best.name}</strong> (primary compound) with <strong>${cheapest.name}</strong> (entry point / legal staging) for optimal cost-security balance.</p>`;
+  ins.style.display='block';
+}
+
+/* ── SEARCH + FILTER ── */
+let activeRegion='all';
+function setRegion(r,btn){
+  document.querySelectorAll('#regionPills .pill').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  activeRegion=r;
+  runSearch();
+}
+
+function runSearch(){
+  const q=document.getElementById('mainSearch').value.toLowerCase().trim();
+  const budget=document.getElementById('budgetFilter').value;
+  let count=0;
+  document.querySelectorAll('.country-entry').forEach(el=>{
+    const tags=(el.dataset.tags||'').toLowerCase();
+    const name=(el.dataset.region+' '+el.dataset.tier+' '+el.dataset.tags+' '+el.querySelector('.country-name').textContent).toLowerCase();
+    const tier=el.dataset.tier;
+    const reg=el.dataset.region;
+    const entry=parseInt(el.dataset.entry||'1');
+    const budget_v=parseInt(el.dataset.budget||'0');
+
+    let show=true;
+    if(q&&!name.includes(q)&&!tags.includes(q))show=false;
+    if(activeRegion==='tier1'&&tier!=='tier1')show=false;
+    else if(activeRegion==='tier2'&&tier!=='tier2')show=false;
+    else if(activeRegion==='nogo'&&tier!=='nogo')show=false;
+    else if(activeRegion==='nuclear-safe'&&parseInt(el.dataset.nuclear||'5')>2)show=false;
+    else if(activeRegion==='easy-visa'&&el.dataset.visa!=='easy')show=false;
+    else if(activeRegion==='no-military'&&!tags.includes('military'))show=false;
+    else if(!['all','tier1','tier2','nogo','nuclear-safe','easy-visa','no-military'].includes(activeRegion)&&reg!==activeRegion)show=false;
+    if(budget!=='all'&&budget_v.toString()!==budget)show=false;
+
+    el.classList.toggle('hidden',!show);
+    if(show)count++;
+  });
+  const rc=document.getElementById('searchResultCount');
+  if(rc)rc.textContent=q||activeRegion!=='all'||budget!=='all'?`Showing ${count} results`:'';
+}
+
+/* ── INITIAL RENDERS ── */
+window.addEventListener('DOMContentLoaded',()=>{
+  renderHeatmap();
+  renderRankings();
+  renderVisaTable();
+  renderProperty();
+  renderClimate();
+  renderMigration();
+  renderPassportTable();
+  runCompare();
+  // Animate score bars on load
+  setTimeout(()=>{
+    document.querySelectorAll('.sbar-fill').forEach(b=>{
+      const w=b.style.width;
+      b.style.width='0';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>b.style.width=w));
+    });
+  },200);
+});
+</script>
+</body>
+</html>

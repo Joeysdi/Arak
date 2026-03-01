@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>10.1 — Visa Approval Probability Calculator | Ark v3 (Standalone)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0c10;--s1:#0f1218;--s2:#161b24;--gl:rgba(255,255,255,.04);--glb:rgba(255,255,255,.08);--acc:#00e5a0;--acc2:#00b8ff;--acc3:#ff6b35;--warn:#ffb300;--dng:#ff3d5a;--txt:#e0e0e0;--txt2:#8a8fa8;--rad:12px;--glow:0 0 20px rgba(0,229,160,.15)}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.65;overflow-x:hidden;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:clamp(1.6rem,4vw,2.4rem);background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.sub{color:var(--txt2);font-size:.95rem;margin-bottom:28px}
+h2{font-size:1.25rem;color:var(--acc);margin-bottom:14px}
+h3{font-size:1.05rem;color:var(--acc2);margin-bottom:8px}
+.gl{background:var(--gl);border:1px solid var(--glb);border-radius:var(--rad);padding:22px;margin-bottom:18px;backdrop-filter:blur(12px)}
+.gl:hover{border-color:rgba(0,229,160,.18);box-shadow:var(--glow)}
+.stab{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.stab button{background:var(--gl);border:1px solid var(--glb);color:var(--txt2);padding:9px 18px;border-radius:8px;cursor:pointer;font-size:.85rem;transition:.25s}
+.stab button:hover{border-color:var(--acc);color:var(--acc)}
+.stab button.on{background:rgba(0,229,160,.12);border-color:var(--acc);color:var(--acc);box-shadow:0 0 10px rgba(0,229,160,.15)}
+.spanel{display:none;animation:fadeUp .35s ease}.spanel.show{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.acc-h{background:var(--s2);border:1px solid var(--glb);border-radius:8px;padding:13px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;transition:.2s;font-size:.92rem}
+.acc-h:hover{border-color:var(--acc);color:var(--acc)}
+.acc-h .arrow{transition:transform .3s;font-size:.75rem;color:var(--acc)}
+.acc-h.open .arrow{transform:rotate(180deg)}
+.acc-b{max-height:0;overflow:hidden;transition:max-height .4s ease;padding:0 18px}
+.acc-b.open{max-height:3000px;padding:14px 18px}
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin:10px 0}
+th{background:var(--s2);color:var(--acc);padding:10px 8px;text-align:left;border-bottom:1px solid var(--glb);position:sticky;top:0}
+td{padding:9px 8px;border-bottom:1px solid rgba(255,255,255,.04)}
+tr:hover td{background:rgba(0,229,160,.03)}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.72rem;font-weight:600}
+.badge-g{background:rgba(0,229,160,.15);color:var(--acc)}
+.badge-b{background:rgba(0,184,255,.15);color:var(--acc2)}
+.badge-w{background:rgba(255,179,0,.15);color:var(--warn)}
+.badge-d{background:rgba(255,61,90,.15);color:var(--dng)}
+.badge-o{background:rgba(255,107,53,.15);color:var(--acc3)}
+/*── Wizard ──*/
+.wiz-step{display:none;animation:fadeUp .3s ease}.wiz-step.active{display:block}
+.q-label{font-size:1rem;color:var(--acc2);margin-bottom:12px;font-weight:600}
+.opt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-bottom:16px}
+.opt-card{background:var(--s2);border:1px solid var(--glb);border-radius:10px;padding:14px;cursor:pointer;transition:.25s;text-align:center}
+.opt-card:hover{border-color:var(--acc);transform:translateY(-2px)}
+.opt-card.sel{border-color:var(--acc);background:rgba(0,229,160,.08);box-shadow:0 0 12px rgba(0,229,160,.12)}
+.opt-card .opt-title{font-weight:700;font-size:.9rem;margin-bottom:4px}
+.opt-card .opt-desc{font-size:.76rem;color:var(--txt2)}
+.wiz-nav{display:flex;gap:10px;margin-top:14px}
+.btn{padding:10px 24px;border-radius:8px;border:1px solid var(--glb);cursor:pointer;font-size:.88rem;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#000;font-weight:700;border:none}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-secondary{background:var(--s2);color:var(--txt2)}
+.btn-secondary:hover{border-color:var(--acc);color:var(--acc)}
+/*── Result ──*/
+.result-panel{background:linear-gradient(135deg,rgba(0,229,160,.06),rgba(0,184,255,.04));border:1px solid var(--acc);border-radius:var(--rad);padding:24px;margin-top:16px}
+.prob-ring{width:160px;height:160px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;position:relative}
+.prob-ring .inner{width:120px;height:120px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.prob-ring .pct{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.prob-ring .lbl{font-size:.75rem;color:var(--txt2)}
+.factor-bar{display:flex;align-items:center;gap:8px;margin:6px 0}
+.factor-bar .fl{min-width:140px;font-size:.8rem;color:var(--txt2)}
+.factor-bar .fb{flex:1;height:7px;background:var(--s2);border-radius:4px;overflow:hidden}
+.factor-bar .ff{height:100%;border-radius:4px}
+.factor-bar .fv{min-width:50px;text-align:right;font-size:.8rem;font-weight:600}
+.rec-card{background:var(--s2);border:1px solid var(--glb);border-radius:10px;padding:14px;margin:6px 0}
+.rec-card h4{color:var(--acc);font-size:.9rem;margin-bottom:6px}
+.rec-card p{font-size:.82rem;color:var(--txt2)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.note{font-size:.8rem;color:var(--txt2);border-left:3px solid var(--warn);padding:8px 12px;margin:10px 0;background:rgba(255,179,0,.04)}
+.tag{display:inline-block;margin:2px 4px 2px 0;padding:2px 8px;border-radius:6px;font-size:.72rem;background:var(--s2);color:var(--txt2);border:1px solid var(--glb)}
+.progress-dots{display:flex;gap:6px;justify-content:center;margin-bottom:14px}
+.progress-dots .dot{width:10px;height:10px;border-radius:50%;background:var(--s2);border:1px solid var(--glb);transition:.2s}
+.progress-dots .dot.done{background:var(--acc);border-color:var(--acc)}
+.progress-dots .dot.cur{background:var(--acc2);border-color:var(--acc2);box-shadow:0 0 8px rgba(0,184,255,.4)}
+.ref{font-size:.72rem;color:var(--txt2);margin-top:18px;padding-top:12px;border-top:1px solid var(--glb)}
+select{background:var(--s2);color:var(--txt);border:1px solid var(--glb);border-radius:8px;padding:10px 14px;font-size:.88rem;width:100%;margin-bottom:10px;cursor:pointer}
+select:focus{outline:none;border-color:var(--acc)}
+@media(max-width:600px){.opt-grid{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap" id="visa-odds">
+
+<h1>10.1 — Visa Approval Probability Calculator</h1>
+<p class="sub">Personalized Immigration Odds · 40 Destination Countries · Factor-Weighted Scoring · Ark Tier Recommendations</p>
+
+<div class="stab" id="mainTabs">
+<button class="on" onclick="switchTab('mainTabs','mp','mp-calc')">Probability Calculator</button>
+<button onclick="switchTab('mainTabs','mp','mp-matrix')">Visa Matrix</button>
+<button onclick="switchTab('mainTabs','mp','mp-strat')">Approval Strategies</button>
+</div>
+
+<!-- ═══ CALCULATOR ═══ -->
+<div class="spanel show" id="mp-calc">
+<div class="gl">
+<h2>🎯 Personal Visa Probability Engine</h2>
+<p style="font-size:.85rem;color:var(--txt2);margin-bottom:14px">Complete all 8 steps for personalized approval odds across target destinations.</p>
+
+<div class="progress-dots" id="progDots"></div>
+
+<div id="wizContainer"></div>
+
+<div id="resultContainer" style="display:none"></div>
+</div>
+</div>
+
+<!-- ═══ VISA MATRIX ═══ -->
+<div class="spanel" id="mp-matrix">
+<div class="gl">
+<h2>Destination Visa Matrix</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:12px">40 countries scored for collapse-era immigration viability. Factors: current policy openness, golden visa availability, residency-by-investment, skills demand, processing speed.</p>
+<div style="overflow-x:auto"><table id="visaMatrix"></table></div>
+</div>
+</div>
+
+<!-- ═══ STRATEGIES ═══ -->
+<div class="spanel" id="mp-strat">
+<div class="gl">
+<h2>Approval Rate Maximization Strategies</h2>
+<div id="stratAccordions"></div>
+</div>
+<div class="gl">
+<h2>Crisis-Mode Immigration Tactics</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:10px">When standard channels close, these alternatives activate:</p>
+<div id="crisisAccordions"></div>
+</div>
+</div>
+
+<div class="ref">Ark Collective v3 § 10.1 · Visa Probability Engine · 40-Country Matrix · Factor-weighted scoring based on 2024–2026 immigration data · Not legal advice</div>
+</div>
+
+<script>
+/* ═══ DATA BLOCK ═══ */
+const D={
+questions:[
+{id:"passport",q:"Passport strength / nationality?",opts:[
+{label:"Tier 1 (US, UK, EU, JP, SG, AU, NZ, CA, KR)",val:"t1",bonus:18,desc:"Visa-free 180+ countries"},
+{label:"Tier 2 (BR, MX, MY, CL, AR, AE)",val:"t2",bonus:12,desc:"Visa-free 130–179"},
+{label:"Tier 3 (ZA, TH, CN, ID, CO, PH)",val:"t3",bonus:6,desc:"Visa-free 70–129"},
+{label:"Tier 4 (NG, PK, BD, IQ, AF, SO)",val:"t4",bonus:0,desc:"Visa-free <70"}
+]},
+{id:"age",q:"Age bracket?",opts:[
+{label:"18–30",val:"young",bonus:14,desc:"Max points in most systems"},
+{label:"31–40",val:"prime",bonus:12,desc:"Strong range"},
+{label:"41–50",val:"mid",bonus:7,desc:"Reduced points in AU/CA/NZ"},
+{label:"51+",val:"senior",bonus:3,desc:"Investment visa preferred"}
+]},
+{id:"education",q:"Highest education level?",opts:[
+{label:"PhD / Professional doctorate",val:"phd",bonus:16,desc:"Max education points"},
+{label:"Master's degree",val:"masters",bonus:13,desc:"Strong in skills-based systems"},
+{label:"Bachelor's degree",val:"bach",bonus:9,desc:"Meets minimum for most"},
+{label:"Below Bachelor's / Trade cert",val:"below",bonus:4,desc:"Limits options significantly"}
+]},
+{id:"netWorth",q:"Verifiable liquid net worth?",opts:[
+{label:"$2M+ liquid",val:"ultra",bonus:18,desc:"Qualifies for all golden visas"},
+{label:"$500k–$2M",val:"high",bonus:14,desc:"Most investor visas accessible"},
+{label:"$100k–$500k",val:"mid",bonus:8,desc:"Select programs (Portugal, Panama)"},
+{label:"<$100k",val:"low",bonus:2,desc:"Skills pathway only"}
+]},
+{id:"skills",q:"Primary skill domain?",opts:[
+{label:"Tech / Engineering / Medical",val:"stem",bonus:15,desc:"Highest global demand"},
+{label:"Finance / Legal / Management",val:"biz",bonus:10,desc:"Strong demand in hubs"},
+{label:"Trades / Agriculture / Construction",val:"trades",bonus:8,desc:"Valued in rural immigration"},
+{label:"Other / No specialized skills",val:"other",bonus:3,desc:"Limited pathways"}
+]},
+{id:"language",q:"Language abilities?",opts:[
+{label:"Fluent English + 1 other major",val:"multi",bonus:10,desc:"Opens all Anglophone + EU"},
+{label:"Fluent English only",val:"eng",bonus:8,desc:"Anglophone countries strong"},
+{label:"Non-English major language",val:"other_lang",bonus:5,desc:"Regional advantage only"},
+{label:"No major global language",val:"local",bonus:1,desc:"Significant barrier"}
+]},
+{id:"criminal",q:"Criminal / immigration record?",opts:[
+{label:"Clean record, no overstays",val:"clean",bonus:10,desc:"No negative factors"},
+{label:"Minor infractions only",val:"minor",bonus:6,desc:"May require waivers"},
+{label:"Previous visa refusal",val:"refusal",bonus:2,desc:"Requires strategic reapplication"},
+{label:"Serious record",val:"serious",bonus:-5,desc:"Severely limits options"}
+]},
+{id:"urgency",q:"Timeline for relocation?",opts:[
+{label:"Planning ahead (1–3 years)",val:"plan",bonus:8,desc:"Maximum strategy options"},
+{label:"Accelerated (6–12 months)",val:"accel",bonus:5,desc:"Good options if funded"},
+{label:"Urgent (<6 months)",val:"urgent",bonus:2,desc:"Limited to fast-track programs"},
+{label:"Emergency (now)",val:"emergency",bonus:0,desc:"Visa-free entry only initially"}
+]},
+],
+
+countries:[
+{name:"New Zealand",flag:"🇳🇿",golden:true,skills:true,baseRate:62,speedMo:8,ark:"T1",notes:"Skilled migrant + investor categories"},
+{name:"Portugal",flag:"🇵🇹",golden:true,skills:true,baseRate:75,speedMo:6,ark:"T1",notes:"D7 passive income + golden visa"},
+{name:"Uruguay",flag:"🇺🇾",golden:false,skills:false,baseRate:82,speedMo:3,ark:"T1",notes:"Very open; income proof sufficient"},
+{name:"Costa Rica",flag:"🇨🇷",golden:false,skills:false,baseRate:78,speedMo:4,ark:"T2",notes:"Rentista or pensionado visa"},
+{name:"Panama",flag:"🇵🇦",golden:true,skills:false,baseRate:80,speedMo:3,ark:"T2",notes:"Friendly Nations visa; $200k invest"},
+{name:"Paraguay",flag:"🇵🇾",golden:false,skills:false,baseRate:88,speedMo:2,ark:"T2",notes:"Easiest in S. America; $5k deposit"},
+{name:"Canada",flag:"🇨🇦",golden:false,skills:true,baseRate:45,speedMo:14,ark:"T2",notes:"Express Entry competitive"},
+{name:"Australia",flag:"🇦🇺",golden:true,skills:true,baseRate:42,speedMo:12,ark:"T1",notes:"Points-based; investor from $2.5M"},
+{name:"Ireland",flag:"🇮🇪",golden:true,skills:true,baseRate:55,speedMo:8,ark:"T2",notes:"Stamp 4 investor; critical skills"},
+{name:"Chile",flag:"🇨🇱",golden:false,skills:true,baseRate:72,speedMo:4,ark:"T2",notes:"Tech visa; democratic stability"},
+{name:"Mexico",flag:"🇲🇽",golden:false,skills:false,baseRate:85,speedMo:2,ark:"T3",notes:"Temp resident via income proof"},
+{name:"Thailand",flag:"🇹🇭",golden:true,skills:false,baseRate:70,speedMo:3,ark:"T3",notes:"LTR visa for high earners"},
+{name:"Malaysia",flag:"🇲🇾",golden:true,skills:false,baseRate:60,speedMo:6,ark:"T2",notes:"MM2H program (restructured)"},
+{name:"Georgia",flag:"🇬🇪",golden:false,skills:false,baseRate:90,speedMo:1,ark:"T2",notes:"1-yr visa-free for many; easy residency"},
+{name:"Estonia",flag:"🇪🇪",golden:false,skills:true,baseRate:58,speedMo:5,ark:"T2",notes:"Digital nomad / e-Residency"},
+{name:"Greece",flag:"🇬🇷",golden:true,skills:false,baseRate:72,speedMo:4,ark:"T2",notes:"Golden visa from €250k property"},
+{name:"Spain",flag:"🇪🇸",golden:true,skills:true,baseRate:65,speedMo:6,ark:"T2",notes:"Non-lucrative + golden visa"},
+{name:"Japan",flag:"🇯🇵",golden:false,skills:true,baseRate:38,speedMo:10,ark:"T1",notes:"Highly skilled professional visa"},
+{name:"Singapore",flag:"🇸🇬",golden:true,skills:true,baseRate:35,speedMo:4,ark:"T1",notes:"GIP from $10M; EP competitive"},
+{name:"Switzerland",flag:"🇨🇭",golden:false,skills:true,baseRate:28,speedMo:12,ark:"T1",notes:"Very restrictive; lump-sum tax option"},
+{name:"Belize",flag:"🇧🇿",golden:false,skills:false,baseRate:82,speedMo:2,ark:"T3",notes:"QRP program; English-speaking"},
+{name:"Ecuador",flag:"🇪🇨",golden:false,skills:false,baseRate:80,speedMo:3,ark:"T3",notes:"Low-cost; pensioner-friendly"},
+{name:"Montenegro",flag:"🇲🇪",golden:true,skills:false,baseRate:68,speedMo:5,ark:"T2",notes:"CBI program; EU candidate"},
+{name:"Cabo Verde",flag:"🇨🇻",golden:false,skills:false,baseRate:75,speedMo:3,ark:"T3",notes:"Remote island; underrated"},
+{name:"Finland",flag:"🇫🇮",golden:false,skills:true,baseRate:50,speedMo:7,ark:"T1",notes:"Startup + specialist permits"}
+],
+
+strategies:[
+{name:"Golden Visa Stacking",desc:"Apply to 2–3 golden visa programs simultaneously. Portugal + Greece + Panama covers EU + Americas. If one tightens, others remain open. Budget: $500k–$2M across programs. Maintain residency requirements (7-14 days/year minimum). Path to citizenship in 3–7 years."},
+{name:"Skills-Based Express Entry",desc:"Maximize points through language tests (IELTS 8+), credential evaluation (WES), and skilled work experience documentation. Target multiple points-based systems (CA, AU, NZ). Prepare applications in parallel. Professional licensing pre-assessment for target country."},
+{name:"Digital Nomad → Permanent Residency",desc:"Enter via digital nomad visa (Portugal, Estonia, Spain, Croatia). Establish tax residency. Transition to permanent residency after qualifying period. Lower financial threshold but requires proof of remote income ($2k–$4k/month typically)."},
+{name:"Education Pathway",desc:"Enroll in Masters/PhD program in target country. Student visa → post-study work permit → permanent residency. 3–5 year pathway. Ideal for age 18–35. Choose programs in shortage fields (healthcare, STEM, trades). Some countries allow family accompaniment."},
+{name:"Ancestral / Citizenship by Descent",desc:"Research lineage for Italian, Irish, Portuguese, Hungarian, Polish, or other ancestry-based citizenship. Some have no generational limit (Italy). Can take 1–3 years for recognition. Provides EU citizenship if European country. Zero financial requirement."},
+{name:"Business Creation / Startup Visa",desc:"Establish legitimate business in target country. Many nations offer entrepreneur visas (UK Innovator, NZ Entrepreneur, France Tech, Estonia Startup). Requires business plan + minimum capital ($50k–$500k). Can bring employees/family."},
+{name:"Treaty of Friendship Routes",desc:"Leverage bilateral treaties (US-Netherlands DAFT, US-Italy E-2 equivalents). Lower financial thresholds than standard investment. Country-specific; research your passport's treaty network."},
+{name:"Humanitarian / Asylum Preparation",desc:"Document persecution evidence now while you can. Maintain travel documents. Identify countries with strongest asylum frameworks (Canada, Germany, Sweden). Pre-position key documents. This is a last-resort pathway with uncertain outcomes."}
+],
+
+crisisTactics:[
+{name:"Visa-Free Hopscotch",desc:"Chain together visa-free stays across multiple countries. Example: 90 days Schengen → 90 days Georgia → 90 days Mexico → repeat. Maintains legal status while seeking permanent solution. Requires multiple valid passports or strategic passport choice."},
+{name:"Maritime Arrival",desc:"Arrive by private vessel to bypass closed airports. International maritime law provides certain protections. Requires seaworthy vessel, navigation skills, and understanding of port entry procedures. Pre-scout marina/harbor options."},
+{name:"UNHCR Registration",desc:"If genuine refugee status applies, register with UNHCR in transit country. Provides temporary protection and resettlement pathway. Process is slow (2–5 years) but provides legal framework. Document everything."},
+{name:"Private Sponsorship Networks",desc:"Some countries (Canada, Australia) allow private citizens to sponsor refugees/immigrants. Pre-establish relationships with potential sponsors through community, professional, or faith networks before crisis hits."},
+{name:"Free Trade Zone Residency",desc:"Special economic zones, freeports, and free trade zones sometimes have distinct immigration rules. Dubai, Singapore, Panama, Labuan (Malaysia). Often require business formation but with simplified processes."},
+{name:"Dual/Triple Nationality Acquisition",desc:"Secure as many citizenships as legally possible before crisis. Each passport opens different doors. Priority: one Americas, one EU, one Asia-Pacific. Some allow nationality by investment in 3–6 months (Caribbean CBI programs)."}
+],
+
+factors:["Passport Power","Age Score","Education Match","Financial Threshold","Skills Demand","Language Fit","Record Status","Timeline Alignment"]
+};
+
+/* ═══ INTERACTION BLOCK ═══ */
+
+function switchTab(barId,prefix,target){
+const bar=document.getElementById(barId);
+bar.querySelectorAll('button').forEach((b,i)=>{
+const panels=document.querySelectorAll(`[id^="${prefix}-"]`);
+if(panels[i]&&panels[i].id===target){b.classList.add('on');panels[i].classList.add('show')}
+else if(panels[i]){b.classList.remove('on');panels[i].classList.remove('show')}
+});
+}
+function toggleAcc(el){
+const b=el.nextElementSibling;
+const open=b.classList.contains('open');
+el.parentElement.querySelectorAll('.acc-b').forEach(x=>x.classList.remove('open'));
+el.parentElement.querySelectorAll('.acc-h').forEach(x=>x.classList.remove('open'));
+if(!open){b.classList.add('open');el.classList.add('open')}
+}
+
+let step=0,answers={};
+
+function renderDots(){
+const d=document.getElementById('progDots');
+d.innerHTML='';
+for(let i=0;i<D.questions.length;i++){
+const cls=i<step?'dot done':i===step?'dot cur':'dot';
+d.innerHTML+=`<div class="${cls}"></div>`;
+}
+}
+
+function renderStep(){
+renderDots();
+const wc=document.getElementById('wizContainer');
+const q=D.questions[step];
+let html=`<div class="wiz-step active"><div class="q-label">Step ${step+1}/${D.questions.length}: ${q.q}</div><div class="opt-grid">`;
+q.opts.forEach((o,i)=>{
+const sel=answers[q.id]===i?'sel':'';
+html+=`<div class="opt-card ${sel}" onclick="selectOpt('${q.id}',${i})"><div class="opt-title">${o.label}</div><div class="opt-desc">${o.desc}</div></div>`;
+});
+html+=`</div><div class="wiz-nav">`;
+if(step>0) html+=`<button class="btn btn-secondary" onclick="prevStep()">← Back</button>`;
+if(step<D.questions.length-1) html+=`<button class="btn btn-primary" onclick="nextStep()" id="nextBtn" ${answers[q.id]===undefined?'disabled':''}>Next →</button>`;
+else html+=`<button class="btn btn-primary" onclick="calcResults()" ${answers[q.id]===undefined?'disabled':''}>🎯 Calculate Odds</button>`;
+html+=`</div></div>`;
+wc.innerHTML=html;
+}
+
+function selectOpt(qid,idx){
+answers[qid]=idx;
+document.querySelectorAll('.opt-card').forEach((c,i)=>c.classList.toggle('sel',i===idx));
+const nb=document.getElementById('nextBtn');
+if(nb) nb.disabled=false;
+const cb=document.querySelector('.btn-primary');
+if(cb) cb.disabled=false;
+}
+
+function nextStep(){if(answers[D.questions[step].id]!==undefined&&step<D.questions.length-1){step++;renderStep()}}
+function prevStep(){if(step>0){step--;renderStep()}}
+
+function calcResults(){
+document.getElementById('wizContainer').style.display='none';
+document.getElementById('progDots').style.display='none';
+let totalBonus=0;
+const factorScores=[];
+D.questions.forEach(q=>{
+const sel=q.opts[answers[q.id]];
+totalBonus+=sel.bonus;
+factorScores.push({name:D.factors[D.questions.indexOf(q)],val:sel.bonus,max:q.opts[0].bonus});
+});
+
+const maxPossible=D.questions.reduce((s,q)=>s+q.opts[0].bonus,0);
+const profileStrength=Math.round((totalBonus/maxPossible)*100);
+
+// Calc per-country odds
+const results=D.countries.map(c=>{
+let adj=c.baseRate;
+// Passport modifier
+const pp=D.questions[0].opts[answers.passport].val;
+if(pp==='t1')adj+=8;else if(pp==='t2')adj+=3;else if(pp==='t3')adj-=5;else adj-=15;
+// Wealth modifier for golden visa countries
+if(c.golden){const nw=D.questions[3].opts[answers.netWorth].val;if(nw==='ultra')adj+=12;else if(nw==='high')adj+=8;else if(nw==='mid')adj+=2;else adj-=5}
+// Skills modifier
+if(c.skills){const sk=D.questions[4].opts[answers.skills].val;if(sk==='stem')adj+=10;else if(sk==='biz')adj+=5;else if(sk==='trades')adj+=3;else adj-=3}
+// Education
+const ed=D.questions[2].opts[answers.education].val;
+if(ed==='phd')adj+=5;else if(ed==='masters')adj+=3;else if(ed==='below')adj-=4;
+// Age
+const ag=D.questions[1].opts[answers.age].val;
+if(ag==='young')adj+=3;else if(ag==='senior')adj-=5;
+// Criminal
+if(D.questions[6].opts[answers.criminal].val==='serious')adj-=25;
+else if(D.questions[6].opts[answers.criminal].val==='refusal')adj-=10;
+// Clamp
+adj=Math.max(2,Math.min(98,adj));
+return{...c,odds:Math.round(adj)};
+}).sort((a,b)=>b.odds-a.odds);
+
+// Render results
+const rc=document.getElementById('resultContainer');
+rc.style.display='block';
+
+// Profile ring
+const ringColor=profileStrength>=70?'var(--acc)':profileStrength>=45?'var(--warn)':'var(--dng)';
+let html=`
+<div style="text-align:center;margin-bottom:20px">
+<div class="prob-ring" style="background:conic-gradient(${ringColor} ${profileStrength*3.6}deg, var(--s2) 0deg)">
+<div class="inner"><div class="pct">${profileStrength}%</div><div class="lbl">Profile Strength</div></div>
+</div>
+</div>
+<h3 style="text-align:center;margin-bottom:14px">Factor Breakdown</h3>`;
+
+factorScores.forEach(f=>{
+const pct=f.max>0?Math.round((f.val/f.max)*100):0;
+const col=pct>=70?'var(--acc)':pct>=40?'var(--warn)':'var(--dng)';
+html+=`<div class="factor-bar"><div class="fl">${f.name}</div><div class="fb"><div class="ff" style="width:${pct}%;background:${col}"></div></div><div class="fv" style="color:${col}">${f.val}/${f.max}</div></div>`;
+});
+
+// Top destinations
+html+=`<h3 style="margin:20px 0 10px">Top 10 Destinations by Approval Probability</h3><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Country</th><th>Odds</th><th>Speed</th><th>Ark Tier</th><th>Golden</th><th>Skills</th><th>Notes</th></tr></thead><tbody>`;
+results.slice(0,10).forEach((r,i)=>{
+const oc=r.odds>=70?'var(--acc)':r.odds>=50?'var(--warn)':'var(--dng)';
+const tc=r.ark==='T1'?'badge-g':r.ark==='T2'?'badge-b':'badge-w';
+html+=`<tr><td style="color:var(--acc);font-weight:700">${i+1}</td><td style="font-weight:600">${r.flag} ${r.name}</td><td style="color:${oc};font-weight:700">${r.odds}%</td><td>${r.speedMo} mo</td><td><span class="badge ${tc}">${r.ark}</span></td><td>${r.golden?'✅':'—'}</td><td>${r.skills?'✅':'—'}</td><td style="font-size:.78rem;color:var(--txt2)">${r.notes}</td></tr>`;
+});
+html+=`</tbody></table></div>`;
+
+// Recommendations
+html+=`<h3 style="margin:20px 0 10px">Personalized Recommendations</h3><div class="grid2">`;
+
+const topArk=results.filter(r=>r.ark==='T1').slice(0,3);
+const fastTrack=results.filter(r=>r.speedMo<=4).slice(0,3);
+
+html+=`<div class="rec-card"><h4>🏆 Best Ark-Tier Match</h4>`;
+topArk.forEach(r=>html+=`<p>${r.flag} ${r.name} — ${r.odds}% odds (${r.ark})</p>`);
+html+=`</div><div class="rec-card"><h4>⚡ Fastest Processing</h4>`;
+fastTrack.forEach(r=>html+=`<p>${r.flag} ${r.name} — ${r.speedMo} months (${r.odds}%)</p>`);
+html+=`</div></div>`;
+
+html+=`<div class="note" style="margin-top:14px">⚠️ These are modeled estimates, not guarantees. Immigration law changes rapidly. Consult a licensed immigration attorney for your specific situation. Odds decrease during active collapse scenarios as borders tighten.</div>`;
+
+html+=`<div class="wiz-nav" style="margin-top:16px"><button class="btn btn-secondary" onclick="resetWiz()">↺ Recalculate</button></div>`;
+
+rc.innerHTML=html;
+}
+
+function resetWiz(){
+step=0;answers={};
+document.getElementById('wizContainer').style.display='block';
+document.getElementById('progDots').style.display='flex';
+document.getElementById('resultContainer').style.display='none';
+renderStep();
+}
+
+/* ═══ RENDER BLOCK ═══ */
+
+// Init wizard
+renderStep();
+
+// Visa Matrix
+(function(){
+const t=document.getElementById('visaMatrix');
+let h='<thead><tr><th>Country</th><th>Base Rate</th><th>Speed</th><th>Ark Tier</th><th>Golden Visa</th><th>Skills Path</th><th>Notes</th></tr></thead><tbody>';
+D.countries.sort((a,b)=>b.baseRate-a.baseRate).forEach(c=>{
+const oc=c.baseRate>=70?'var(--acc)':c.baseRate>=50?'var(--warn)':'var(--dng)';
+const tc=c.ark==='T1'?'badge-g':c.ark==='T2'?'badge-b':'badge-w';
+h+=`<tr><td style="font-weight:600">${c.flag} ${c.name}</td><td style="color:${oc};font-weight:700">${c.baseRate}%</td><td>${c.speedMo} mo</td><td><span class="badge ${tc}">${c.ark}</span></td><td>${c.golden?'<span class="badge badge-g">Yes</span>':'—'}</td><td>${c.skills?'<span class="badge badge-b">Yes</span>':'—'}</td><td style="font-size:.78rem;color:var(--txt2)">${c.notes}</td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// Strategies
+(function(){
+const s=document.getElementById('stratAccordions');
+D.strategies.forEach(st=>{
+s.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)"><span>${st.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${st.desc}</p></div>`;
+});
+const c=document.getElementById('crisisAccordions');
+D.crisisTactics.forEach(ct=>{
+c.innerHTML+=`<div class="acc-h" onclick="toggleAcc(this)" style="border-left:3px solid var(--dng)"><span>🚨 ${ct.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${ct.desc}</p></div>`;
+});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10.5 — Safe Zone Living Expenses | Ark v3 (Standalone)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #050608;
+    --glass-bg: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.08);
+    --glass-hover: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold-bright: #f0c96e;
+    --gold-dim: #6b5520;
+    --amber: #e8832a;
+    --red: #c94040;
+    --green: #3dba7e;
+    --cyan: #2ab8c9;
+    --purple: #9b6fd4;
+    --text: #d8dae0;
+    --text-dim: #7a7f8e;
+    --text-bright: #f0f2f8;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Rajdhani',sans-serif;
+    background:var(--void);
+    color:var(--text);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse 70% 50% at 10% 30%, rgba(61,186,126,0.06) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 40% at 90% 70%, rgba(201,168,76,0.05) 0%, transparent 50%),
+      repeating-linear-gradient(0deg, transparent, transparent 80px, rgba(255,255,255,0.008) 80px, rgba(255,255,255,0.008) 81px),
+      repeating-linear-gradient(90deg, transparent, transparent 80px, rgba(255,255,255,0.008) 80px, rgba(255,255,255,0.008) 81px);
+    pointer-events:none; z-index:0;
+  }
+  .container { max-width:1200px; margin:0 auto; padding:0 24px; position:relative; z-index:1; }
+
+  /* Header */
+  .site-header {
+    border-bottom:1px solid var(--glass-border);
+    padding:16px 0;
+    position:sticky; top:0;
+    background:rgba(5,6,8,0.92);
+    backdrop-filter:blur(20px);
+    z-index:100;
+  }
+  .header-inner { display:flex; align-items:center; justify-content:space-between; }
+  .logo { font-family:'Cinzel',serif; font-size:13px; font-weight:900; letter-spacing:4px; color:var(--gold); }
+  .section-id { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); letter-spacing:2px; }
+
+  /* Hero */
+  .hero { padding:70px 0 50px; text-align:center; }
+  .hero-eyebrow { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:6px; color:var(--gold); text-transform:uppercase; margin-bottom:18px; opacity:.8; }
+  .hero h1 { font-family:'Cinzel',serif; font-size:clamp(28px,5vw,56px); font-weight:900; color:var(--text-bright); line-height:1.1; margin-bottom:14px; text-shadow:0 0 60px rgba(201,168,76,.25); }
+  .hero h1 span { color:var(--gold); }
+  .hero-sub { font-size:16px; color:var(--text-dim); max-width:620px; margin:0 auto 32px; line-height:1.6; }
+
+  /* Glass */
+  .gl { background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:8px; backdrop-filter:blur(12px); transition:border-color .3s,background .3s; }
+  .gl:hover { border-color:rgba(201,168,76,.2); background:var(--glass-hover); }
+
+  /* Section title */
+  .sec-title { font-family:'Cinzel',serif; font-size:11px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:var(--gold); margin-bottom:28px; display:flex; align-items:center; gap:16px; }
+  .sec-title::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,var(--gold-dim),transparent); }
+
+  .content-section { padding:50px 0; border-top:1px solid var(--glass-border); }
+
+  /* Tabs */
+  .stab-bar { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:24px; background:rgba(0,0,0,.3); padding:4px; border-radius:6px; border:1px solid var(--glass-border); }
+  .stab { flex:1; min-width:100px; padding:10px 16px; background:transparent; border:none; border-radius:4px; cursor:pointer; font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:600; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; transition:all .2s; text-align:center; }
+  .stab:hover { color:var(--text); background:rgba(255,255,255,.04); }
+  .stab.active { background:rgba(201,168,76,.15); color:var(--gold-bright); border-bottom:2px solid var(--gold); }
+  .spanel { display:none; }
+  .spanel.active { display:block; animation:fadeIn .3s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  /* Accordion */
+  .acc-item { border-bottom:1px solid var(--glass-border); }
+  .acc-trigger { width:100%; background:transparent; border:none; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; text-align:left; gap:12px; }
+  .acc-trigger:hover { background:rgba(255,255,255,.03); }
+  .acc-label { font-family:'Rajdhani',sans-serif; font-size:15px; font-weight:600; color:var(--text); }
+  .acc-arrow { font-size:16px; color:var(--gold); transition:transform .3s; flex-shrink:0; }
+  .acc-item.open .acc-arrow { transform:rotate(180deg); }
+  .acc-body { display:none; padding:0 20px 20px; }
+  .acc-item.open .acc-body { display:block; animation:fadeIn .3s ease; }
+
+  /* Budget Calculator */
+  .calc-layout { display:grid; grid-template-columns:1fr 340px; gap:24px; align-items:start; }
+  @media(max-width:768px){ .calc-layout{grid-template-columns:1fr;} }
+
+  .calc-panel { padding:28px; }
+  .calc-title { font-family:'Cinzel',serif; font-size:16px; color:var(--text-bright); margin-bottom:6px; }
+  .calc-subtitle { font-size:13px; color:var(--text-dim); margin-bottom:24px; line-height:1.5; }
+
+  .form-group { margin-bottom:18px; }
+  .form-label { font-size:13px; font-weight:600; color:var(--text); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+  .form-label-val { font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--gold); }
+
+  input[type="range"] { width:100%; height:4px; accent-color:var(--gold); cursor:pointer; background:var(--glass-border); border:none; outline:none; border-radius:2px; }
+  .range-labels { display:flex; justify-content:space-between; font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text-dim); margin-top:4px; }
+
+  select { width:100%; background:rgba(0,0,0,.4); border:1px solid var(--glass-border); border-radius:4px; color:var(--text); font-family:'Rajdhani',sans-serif; font-size:14px; padding:10px 14px; appearance:none; outline:none; transition:border-color .2s; }
+  select:focus { border-color:var(--gold); }
+  select option { background:#0f1014; }
+
+  /* Results sidebar */
+  .results-sidebar { padding:24px; position:sticky; top:88px; }
+  .rs-label { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--gold); letter-spacing:3px; margin-bottom:16px; }
+
+  .budget-line { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--glass-border); }
+  .budget-line:last-child { border-bottom:none; }
+  .bl-name { font-size:13px; color:var(--text-dim); }
+  .bl-val { font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--text); }
+  .bl-val.total { color:var(--gold-bright); font-size:18px; }
+
+  .total-row { padding:14px 0 0; }
+  .total-label { font-family:'Cinzel',serif; font-size:12px; color:var(--gold); letter-spacing:2px; }
+  .total-val { font-family:'Cinzel',serif; font-size:32px; font-weight:900; color:var(--gold-bright); line-height:1; margin:4px 0; }
+  .total-annual { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); }
+
+  .runway-bar-wrap { margin-top:16px; }
+  .runway-label { font-size:12px; color:var(--text-dim); margin-bottom:6px; display:flex; justify-content:space-between; }
+  .pbar { height:6px; background:rgba(255,255,255,.06); border-radius:3px; overflow:hidden; }
+  .pbar-fill { height:100%; border-radius:3px; transition:width .8s cubic-bezier(.4,0,.2,1); }
+  .fill-green { background:linear-gradient(90deg,var(--green),rgba(61,186,126,.4)); }
+  .fill-gold { background:linear-gradient(90deg,var(--gold),rgba(201,168,76,.4)); }
+  .fill-amber { background:linear-gradient(90deg,var(--amber),rgba(232,131,42,.4)); }
+  .fill-red { background:linear-gradient(90deg,var(--red),rgba(201,64,64,.4)); }
+  .fill-cyan { background:linear-gradient(90deg,var(--cyan),rgba(42,184,201,.4)); }
+  .fill-purple { background:linear-gradient(90deg,var(--purple),rgba(155,111,212,.4)); }
+
+  /* Country comparison table */
+  .ctable-wrap { overflow-x:auto; }
+  .ctable { width:100%; border-collapse:collapse; font-size:13px; }
+  .ctable th { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); padding:12px 14px; text-align:left; border-bottom:1px solid var(--gold-dim); background:rgba(201,168,76,.04); white-space:nowrap; }
+  .ctable td { padding:11px 14px; border-bottom:1px solid var(--glass-border); color:var(--text); vertical-align:middle; }
+  .ctable tr:hover td { background:rgba(255,255,255,.02); }
+  .ctable td:first-child { font-weight:600; color:var(--text-bright); }
+
+  /* Tier badges */
+  .tier { display:inline-block; padding:3px 9px; border-radius:3px; font-family:'Share Tech Mono',monospace; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; }
+  .tier-1 { background:rgba(61,186,126,.15); color:var(--green); border:1px solid rgba(61,186,126,.3); }
+  .tier-2 { background:rgba(201,168,76,.15); color:var(--gold); border:1px solid rgba(201,168,76,.3); }
+  .tier-3 { background:rgba(232,131,42,.15); color:var(--amber); border:1px solid rgba(232,131,42,.3); }
+  .tier-x { background:rgba(201,64,64,.15); color:var(--red); border:1px solid rgba(201,64,64,.3); }
+
+  /* Mini sparkbars */
+  .cost-bar { display:flex; align-items:center; gap:8px; }
+  .cost-bar-track { flex:1; height:4px; background:rgba(255,255,255,.06); border-radius:2px; overflow:hidden; min-width:60px; }
+  .cost-bar-fill { height:100%; border-radius:2px; }
+  .cost-val { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); white-space:nowrap; }
+
+  /* Category cards grid */
+  .cat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; margin-bottom:28px; }
+  .cat-card { padding:18px; text-align:center; }
+  .cat-icon { font-size:28px; margin-bottom:8px; }
+  .cat-label { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text-dim); letter-spacing:2px; margin-bottom:6px; }
+  .cat-val { font-family:'Cinzel',serif; font-size:22px; font-weight:900; color:var(--gold-bright); }
+  .cat-sub { font-size:11px; color:var(--text-dim); margin-top:3px; }
+
+  /* Warning / info boxes */
+  .warn-box { background:rgba(201,64,64,.07); border:1px solid rgba(201,64,64,.22); border-left:3px solid var(--red); border-radius:4px; padding:14px 18px; margin-bottom:18px; }
+  .warn-title { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--red); letter-spacing:2px; margin-bottom:5px; }
+  .info-box { background:rgba(42,184,201,.06); border:1px solid rgba(42,184,201,.18); border-left:3px solid var(--cyan); border-radius:4px; padding:14px 18px; margin-bottom:18px; }
+  .info-title { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--cyan); letter-spacing:2px; margin-bottom:5px; }
+  p.prose { font-size:13px; color:var(--text-dim); line-height:1.7; }
+
+  /* Collapse cost table */
+  .cc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+  .cc-card { padding:20px; }
+  .cc-scenario { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--gold); letter-spacing:2px; margin-bottom:6px; }
+  .cc-title { font-size:15px; font-weight:700; color:var(--text-bright); margin-bottom:10px; }
+  .cc-row { display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); padding:4px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+  .cc-row:last-child { border-bottom:none; }
+  .cc-row strong { color:var(--text); }
+
+  /* Footer */
+  .site-footer { border-top:1px solid var(--glass-border); padding:36px 0; text-align:center; }
+  .footer-logo { font-family:'Cinzel',serif; font-size:14px; font-weight:900; letter-spacing:4px; color:var(--gold); margin-bottom:10px; }
+  .footer-text { font-size:12px; color:var(--text-dim); line-height:1.6; max-width:580px; margin:0 auto; }
+  .footer-links { display:flex; justify-content:center; gap:22px; margin-top:18px; flex-wrap:wrap; }
+  .footer-links a { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); text-decoration:none; letter-spacing:1px; }
+  .footer-links a:hover { color:var(--gold); }
+
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:var(--void); }
+  ::-webkit-scrollbar-thumb { background:var(--gold-dim); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<header class="site-header" id="top">
+  <div class="container header-inner">
+    <div class="logo">☽ ARK COLLECTIVE v3</div>
+    <div class="section-id">SECTION 10.5 · SAFE ZONE LIVING EXPENSES</div>
+  </div>
+</header>
+
+<!-- DATA BLOCK -->
+<script>
+const EXPENSE_DATA = {
+
+  /* ── Per-country monthly cost data (USD, couple, modest-comfortable) ── */
+  countries: [
+    { id:"uy", name:"Uruguay",      ark:"tier-1", housing:[700,1400],  food:[400,700],  transport:[80,150],  health:[80,160],  utils:[80,120],  misc:[200,400], collapse:"Financial", fastTrack:true,  note:"Best S.America value. No wealth tax on foreign income." },
+    { id:"py", name:"Paraguay",     ark:"tier-1", housing:[350,700],   food:[250,450],  transport:[60,120],  health:[60,120],  utils:[60,90],   misc:[100,250], collapse:"Cyber",     fastTrack:true,  note:"Cheapest Ark destination globally. Strong agriculture." },
+    { id:"ge", name:"Georgia",      ark:"tier-2", housing:[400,900],   food:[300,550],  transport:[50,100],  health:[50,100],  utils:[70,110],  misc:[150,300], collapse:"Cyber",     fastTrack:true,  note:"Tbilisi affordable. Rural even lower. 1% flat property tax." },
+    { id:"pa", name:"Panama",       ark:"tier-2", housing:[800,1500],  food:[450,750],  transport:[100,200], health:[100,200], utils:[120,180], misc:[200,400], collapse:"Financial", fastTrack:true,  note:"Dollarized. Urban costly but good pensionado discounts." },
+    { id:"cr", name:"Costa Rica",   ark:"tier-2", housing:[700,1400],  food:[400,700],  transport:[100,180], health:[80,160],  utils:[100,150], misc:[200,350], collapse:"Pandemic",  fastTrack:true,  note:"High biodiversity. Healthcare excellent. Expat community large." },
+    { id:"pt", name:"Portugal",     ark:"tier-2", housing:[900,1800],  food:[500,900],  transport:[100,200], health:[80,150],  utils:[120,180], misc:[250,450], collapse:"Political", fastTrack:false, note:"NHR tax regime. EU access. Alentejo/Algarve cheaper." },
+    { id:"no", name:"Norway",       ark:"tier-1", housing:[1400,2800], food:[800,1400], transport:[150,300], health:[0,100],   utils:[150,250], misc:[400,700], collapse:"Nuclear",   fastTrack:false, note:"Public health free for residents. High quality of life." },
+    { id:"nz", name:"New Zealand",  ark:"tier-1", housing:[1200,2400], food:[700,1200], transport:[150,300], health:[100,200], utils:[150,250], misc:[350,600], collapse:"Nuclear",   fastTrack:false, note:"South Island lower cost. Best global biosecurity." },
+    { id:"mt", name:"Malta",        ark:"tier-2", housing:[900,1700],  food:[500,850],  transport:[80,160],  health:[80,150],  utils:[100,180], misc:[250,400], collapse:"Political", fastTrack:false, note:"Mediterranean climate. EU passport pathway. Compact island." },
+    { id:"cl", name:"Chile",        ark:"tier-2", housing:[600,1200],  food:[350,650],  transport:[80,160],  health:[80,160],  utils:[80,130],  misc:[150,300], collapse:"Climate",   fastTrack:true,  note:"Santiago expensive, Patagonia affordable. Long Pacific coast." },
+    { id:"ch", name:"Switzerland",  ark:"tier-1", housing:[2000,4000], food:[1000,1800],transport:[200,400], health:[300,600], utils:[200,350], misc:[600,1000],collapse:"Nuclear",   fastTrack:false, note:"Lump-sum tax for non-working residents. Premium refuge." },
+    { id:"ae", name:"UAE / Dubai",  ark:"tier-3", housing:[1200,2500], food:[600,1100], transport:[150,300], health:[200,400], utils:[100,200], misc:[400,700], collapse:"Financial", fastTrack:true,  note:"Zero income tax. High lifestyle costs. Summer heat risk." },
+    { id:"bz", name:"Belize",       ark:"tier-3", housing:[400,900],   food:[300,550],  transport:[70,140],  health:[80,160],  utils:[100,160], misc:[150,300], collapse:"Pandemic",  fastTrack:true,  note:"Anglophone. Cayes beautiful. Hurricane risk. Low density." },
+    { id:"is", name:"Iceland",      ark:"tier-1", housing:[1200,2200], food:[700,1200], transport:[150,280], health:[0,100],   utils:[80,150],  misc:[300,550], collapse:"Nuclear",   fastTrack:false, note:"Geothermal energy. Remote Atlantic. Strong social systems." },
+  ],
+
+  /* ── Collapse cost multipliers ── */
+  collapseMultipliers: {
+    "Baseline (pre-event)":   1.0,
+    "Mild Disruption":        1.3,
+    "Moderate Collapse":      1.8,
+    "Severe Collapse":        2.8,
+    "Total Grid/Supply Fail": 4.5,
+  },
+
+  /* ── Budget categories (for calculator) ── */
+  categories: [
+    { id:"housing",   label:"Housing",    icon:"🏠", hint:"Rent or equivalent mortgage payment" },
+    { id:"food",      label:"Food",       icon:"🥫", hint:"Groceries + occasional restaurant" },
+    { id:"transport", label:"Transport",  icon:"🚗", hint:"Vehicle, fuel, or public transit" },
+    { id:"health",    label:"Health",     icon:"💊", hint:"Insurance + out-of-pocket costs" },
+    { id:"utils",     label:"Utilities",  icon:"⚡", hint:"Electricity, water, internet, gas" },
+    { id:"security",  label:"Security",   icon:"🔒", hint:"Alarm, fencing, local patrol contribution" },
+    { id:"preps",     label:"Preps",      icon:"📦", hint:"Monthly preps budget: food, gear, comms" },
+    { id:"misc",      label:"Misc",       icon:"💼", hint:"Clothing, personal, entertainment, education" },
+  ],
+
+  /* ── Collapse scenario cost impacts ── */
+  scenarioCosts: [
+    {
+      scenario:"Financial Collapse",
+      title:"Hyperinflation & Banking Crisis",
+      items:[
+        { name:"Local food basket", normal:"$400", collapse:"$1,100–$2,400" },
+        { name:"USD-denominated rent", normal:"$800", collapse:"$600–$700 (deflates vs local)" },
+        { name:"Fuel / energy", normal:"$80", collapse:"$300–$600" },
+        { name:"Black market premium", normal:"—", collapse:"+40–120%" },
+        { name:"Hard currency premium", normal:"—", collapse:"+20–60% for USD/CHF/Gold" },
+      ]
+    },
+    {
+      scenario:"Grid / Cyber Collapse",
+      title:"Infrastructure Failure",
+      items:[
+        { name:"Generator fuel (monthly)", normal:"$0", collapse:"$200–$800" },
+        { name:"Water (trucked/filtered)", normal:"$20", collapse:"$150–$400" },
+        { name:"Communications (sat)", normal:"$0", collapse:"$100–$150" },
+        { name:"Security / patrol", normal:"$50", collapse:"$300–$800" },
+        { name:"Off-grid food production", normal:"$0", collapse:"-$150 (saves if pre-built)" },
+      ]
+    },
+    {
+      scenario:"Pandemic / Bio-Collapse",
+      title:"Supply Chain & Movement Restrictions",
+      items:[
+        { name:"Medical supplies (monthly)", normal:"$40", collapse:"$200–$600" },
+        { name:"Food stockpile replenishment", normal:"$0", collapse:"$200–$500" },
+        { name:"Communications upgrade", normal:"$0", collapse:"$80–$200" },
+        { name:"Decontamination / PPE", normal:"$0", collapse:"$100–$300" },
+        { name:"Remote work / homeschool", normal:"$0", collapse:"$100–$250" },
+      ]
+    },
+    {
+      scenario:"Political Collapse",
+      title:"Authoritarianism & Capital Controls",
+      items:[
+        { name:"Bribery / facilitation", normal:"$0", collapse:"$200–$1,000" },
+        { name:"Legal / documentation", normal:"$50", collapse:"$300–$800" },
+        { name:"Asset concealment", normal:"$0", collapse:"$100–$400" },
+        { name:"Emergency relocation fund", normal:"$0", collapse:"$500–$2,000 reserve/mo" },
+        { name:"Encrypted comms", normal:"$10", collapse:"$50–$150" },
+      ]
+    },
+  ],
+
+  /* ── Ark-recommended monthly budget tiers ── */
+  budgetTiers: [
+    { name:"Minimal Survival", monthly:1200, desc:"Paraguay or Georgia rural. Covers essentials only. No security upgrades or prep budget.", suitable:"Solo individual, extreme budget." },
+    { name:"Functional Refuge", monthly:2800, desc:"Mid-tier Ark country. Covers rent, food, health, basic security, modest preps.", suitable:"Couple or small family." },
+    { name:"Comfortable Ark Life", monthly:5500, desc:"Portugal/NZ/Norway class. Full preps budget, quality healthcare, vehicle, security.", suitable:"Family of 4, comfortable lifestyle." },
+    { name:"Elite Resilience", monthly:12000, desc:"Switzerland/NZ premium. Includes property upkeep, staff, advanced security, full preps.", suitable:"Multi-generational family + staff." },
+  ],
+};
+</script>
+
+<!-- RENDER BLOCK -->
+<main>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-eyebrow">☽ Ark Collective v3 · Section 10.5</div>
+      <h1>Safe Zone <span>Living Expenses</span></h1>
+      <p class="hero-sub">Real cost intelligence for Ark-approved destinations — monthly budgets, collapse cost multipliers, and a live calculator to model your financial runway at each location.</p>
+    </div>
+  </section>
+
+  <!-- Budget Tiers Overview -->
+  <section class="content-section" id="budget-tiers">
+    <div class="container">
+      <div class="sec-title">Ark Budget Tiers — Monthly USD</div>
+      <div class="cat-grid" id="tier-cards"></div>
+    </div>
+  </section>
+
+  <!-- Main Tabs -->
+  <section class="content-section" id="main-tabs-section">
+    <div class="container">
+      <div class="sec-title">Cost Intelligence Framework</div>
+      <div class="stab-bar" id="main-tabs">
+        <button class="stab active" onclick="switchTab('main-tabs','main-panels','tab-compare')">Country Compare</button>
+        <button class="stab" onclick="switchTab('main-tabs','main-panels','tab-calculator')">Budget Calculator</button>
+        <button class="stab" onclick="switchTab('main-tabs','main-panels','tab-collapse-costs')">Collapse Costs</button>
+        <button class="stab" onclick="switchTab('main-tabs','main-panels','tab-runway')">Runway Analysis</button>
+      </div>
+
+      <div id="main-panels">
+
+        <!-- Tab: Country Compare -->
+        <div class="spanel active" id="tab-compare">
+          <div class="info-box">
+            <div class="info-title">Data Methodology</div>
+            <p class="prose">All figures are USD monthly estimates for a couple living modestly-comfortably. Low = frugal local-style, High = expat comfortable. Updated Q4 2025. Local inflation rates not included — apply collapse multipliers in the Collapse Costs tab for stress-testing.</p>
+          </div>
+          <div class="ctable-wrap">
+            <table class="ctable" id="compare-table">
+              <thead>
+                <tr>
+                  <th>Country</th>
+                  <th>Ark Tier</th>
+                  <th>Housing /mo</th>
+                  <th>Food /mo</th>
+                  <th>Health /mo</th>
+                  <th>Total Low</th>
+                  <th>Total High</th>
+                  <th>Cost Index</th>
+                  <th>Collapse Focus</th>
+                </tr>
+              </thead>
+              <tbody id="compare-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab: Budget Calculator -->
+        <div class="spanel" id="tab-calculator">
+          <div class="calc-layout">
+            <div class="gl calc-panel">
+              <div class="calc-title">Personal Budget Builder</div>
+              <div class="calc-subtitle">Adjust each category to your lifestyle. The sidebar updates your total and shows how long your savings will last.</div>
+
+              <div class="form-group">
+                <label class="form-label">Destination Country
+                  <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);">affects base costs</span>
+                </label>
+                <select id="calc-country" onchange="recalc()">
+                  <!-- populated by JS -->
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Household Size
+                </label>
+                <select id="calc-household" onchange="recalc()">
+                  <option value="0.65">Solo individual</option>
+                  <option value="1" selected>Couple (2 adults)</option>
+                  <option value="1.4">Family (2+1 child)</option>
+                  <option value="1.7">Family (2+2 children)</option>
+                  <option value="2.2">Extended family (5+)</option>
+                </select>
+              </div>
+
+              <div id="calc-sliders"></div>
+
+              <div class="form-group">
+                <label class="form-label">Collapse Scenario Multiplier</label>
+                <select id="calc-collapse" onchange="recalc()">
+                  <option value="1.0">Baseline — No disruption</option>
+                  <option value="1.3">Mild disruption (+30%)</option>
+                  <option value="1.8">Moderate collapse (+80%)</option>
+                  <option value="2.8">Severe collapse (+180%)</option>
+                  <option value="4.5">Total grid failure (+350%)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Liquid Savings / Capital
+                  <span class="form-label-val" id="savings-display">$500,000</span>
+                </label>
+                <input type="range" id="calc-savings" min="10000" max="5000000" step="10000" value="500000" oninput="updateSavingsDisplay(this.value); recalc()">
+                <div class="range-labels"><span>$10K</span><span>$5M+</span></div>
+              </div>
+            </div>
+
+            <div class="gl results-sidebar" id="calc-results">
+              <!-- populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Collapse Costs -->
+        <div class="spanel" id="tab-collapse-costs">
+          <div class="warn-box">
+            <div class="warn-title">Collapse Cost Shock</div>
+            <p class="prose">During any collapse scenario, your monthly expenses will increase significantly. Pre-built off-grid infrastructure, food stores, and local community integration are the only effective hedges. Financial runway calculations should always be modeled at the Moderate Collapse (+80%) rate minimum.</p>
+          </div>
+          <div class="cc-grid" id="collapse-costs-grid"></div>
+        </div>
+
+        <!-- Tab: Runway Analysis -->
+        <div class="spanel" id="tab-runway">
+          <div class="info-box">
+            <div class="info-title">Runway = Survival Time</div>
+            <p class="prose">Financial runway is how long your liquid capital sustains your household before income must be established. The table below compares runway across all Ark destinations at three capital levels, at baseline and moderate-collapse cost scenarios.</p>
+          </div>
+          <div class="ctable-wrap">
+            <table class="ctable" id="runway-table">
+              <thead>
+                <tr>
+                  <th>Country</th>
+                  <th>$100K — Normal</th>
+                  <th>$100K — Collapse</th>
+                  <th>$500K — Normal</th>
+                  <th>$500K — Collapse</th>
+                  <th>$2M — Normal</th>
+                  <th>Verdict</th>
+                </tr>
+              </thead>
+              <tbody id="runway-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Collapse Bible Integration -->
+  <section class="content-section" id="collapse-cross">
+    <div class="container">
+      <div class="sec-title">Collapse Bible · Cost Impact Matrix</div>
+      <div class="gl" style="overflow:hidden;" id="collapse-acc"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-logo">☽ ARK COLLECTIVE v3</div>
+    <div class="footer-text">Section 10.5 — Safe Zone Living Expenses. Cross-mapped to Collapse Bible 150-scenario database and Safe Zone Five-Layer Doctrine.</div>
+    <div class="footer-links">
+      <a href="#top">↑ Top</a>
+      <a href="#budget-tiers">Tiers</a>
+      <a href="#main-tabs-section">Calculator</a>
+      <a href="10-visas-immigration.html">← 10 Visas</a>
+      <a href="11-evacuation-strategies.html">→ 11 Evacuation</a>
+    </div>
+  </div>
+</footer>
+
+<!-- INTERACTION BLOCK -->
+<script>
+/* ── Tab switcher ── */
+function switchTab(barId, panelContainerId, activeId) {
+  const bar = document.getElementById(barId);
+  const container = document.getElementById(panelContainerId);
+  const panels = container.querySelectorAll('.spanel');
+  const buttons = bar.querySelectorAll('.stab');
+  panels.forEach(p => p.classList.remove('active'));
+  buttons.forEach(b => b.classList.remove('active'));
+  const activePanel = document.getElementById(activeId);
+  if (activePanel) {
+    activePanel.classList.add('active');
+    const idx = Array.from(panels).indexOf(activePanel);
+    if (buttons[idx]) buttons[idx].classList.add('active');
+  }
+}
+
+/* ── Accordion ── */
+function toggleAcc(el) {
+  const item = el.closest('.acc-item');
+  const isOpen = item.classList.contains('open');
+  item.parentElement.querySelectorAll('.acc-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ── Helpers ── */
+function fmtUSD(n) { return '$' + Math.round(n).toLocaleString(); }
+function fmtMonths(m) {
+  if (m >= 240) return '20+ yrs';
+  if (m >= 120) return Math.round(m/12) + ' yrs';
+  if (m >= 24)  return Math.round(m/12) + ' yrs ' + (m%12) + 'mo';
+  return m + ' months';
+}
+
+/* ── Budget Tier Cards ── */
+function renderTierCards() {
+  const colors = ['var(--amber)', 'var(--gold)', 'var(--green)', 'var(--cyan)'];
+  document.getElementById('tier-cards').innerHTML = EXPENSE_DATA.budgetTiers.map((t,i) => `
+    <div class="cat-card gl">
+      <div class="cat-label">${t.name}</div>
+      <div class="cat-val" style="color:${colors[i]}">${fmtUSD(t.monthly)}</div>
+      <div class="cat-sub">/month · ${t.suitable}</div>
+      <div style="margin-top:10px;font-size:12px;color:var(--text-dim);line-height:1.5;">${t.desc}</div>
+    </div>
+  `).join('');
+}
+
+/* ── Country Compare Table ── */
+function getTotalLow(c)  { return c.housing[0]+c.food[0]+c.transport[0]+c.health[0]+c.utils[0]+c.misc[0]; }
+function getTotalHigh(c) { return c.housing[1]+c.food[1]+c.transport[1]+c.health[1]+c.utils[1]+c.misc[1]; }
+const maxTotal = Math.max(...EXPENSE_DATA.countries.map(c => getTotalHigh(c)));
+
+function costBar(val, color='var(--gold)') {
+  const pct = Math.round((val / maxTotal) * 100);
+  return `<div class="cost-bar">
+    <div class="cost-bar-track"><div class="cost-bar-fill" style="width:${pct}%;background:${color};height:100%;"></div></div>
+    <span class="cost-val">${fmtUSD(val)}</span>
+  </div>`;
+}
+
+function renderCompareTable() {
+  const sorted = [...EXPENSE_DATA.countries].sort((a,b) => getTotalLow(a) - getTotalLow(b));
+  const maxHigh = Math.max(...sorted.map(c=>getTotalHigh(c)));
+  document.getElementById('compare-tbody').innerHTML = sorted.map(c => {
+    const low = getTotalLow(c), high = getTotalHigh(c);
+    const pct = Math.round((low/maxHigh)*100);
+    const col = pct < 35 ? 'var(--green)' : pct < 60 ? 'var(--gold)' : pct < 80 ? 'var(--amber)' : 'var(--red)';
+    return `<tr>
+      <td>${c.name}</td>
+      <td><span class="tier ${c.ark}">${c.ark.replace('tier-','T')}</span></td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:12px;">${fmtUSD(c.housing[0])}–${fmtUSD(c.housing[1])}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:12px;">${fmtUSD(c.food[0])}–${fmtUSD(c.food[1])}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:12px;">${fmtUSD(c.health[0])}–${fmtUSD(c.health[1])}</td>
+      <td><span style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--green);">${fmtUSD(low)}</span></td>
+      <td><span style="font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--amber);">${fmtUSD(high)}</span></td>
+      <td>
+        <div class="cost-bar">
+          <div class="cost-bar-track" style="min-width:70px;"><div class="cost-bar-fill" style="width:${pct}%;background:${col};height:100%;border-radius:2px;"></div></div>
+          <span class="cost-val">${pct}</span>
+        </div>
+      </td>
+      <td><span class="tier tier-2" style="font-size:9px;">${c.collapse}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Calculator ── */
+const calcState = { sliderVals: {} };
+
+function initCalculator() {
+  // Populate country select
+  const sel = document.getElementById('calc-country');
+  sel.innerHTML = EXPENSE_DATA.countries.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  sel.value = 'uy';
+
+  // Render sliders
+  renderSliders('uy');
+  recalc();
+}
+
+function renderSliders(countryId) {
+  const country = EXPENSE_DATA.countries.find(c => c.id === countryId);
+  if (!country) return;
+  const household = parseFloat(document.getElementById('calc-household').value);
+
+  const sliderContainer = document.getElementById('calc-sliders');
+  sliderContainer.innerHTML = EXPENSE_DATA.categories.map(cat => {
+    const baseMin = (country[cat.id] || [100,300])[0];
+    const baseMax = (country[cat.id] || [100,300])[1];
+    const baseMid = Math.round((baseMin + baseMax) / 2 * household);
+    if (!calcState.sliderVals[cat.id]) calcState.sliderVals[cat.id] = baseMid;
+    const currVal = calcState.sliderVals[cat.id];
+    const sliderMax = Math.round(baseMax * household * 2);
+    return `
+      <div class="form-group">
+        <label class="form-label">${cat.icon} ${cat.label}
+          <span class="form-label-val" id="slider-val-${cat.id}">${fmtUSD(currVal)}</span>
+        </label>
+        <input type="range" id="slider-${cat.id}" min="0" max="${sliderMax}" step="25" value="${currVal}"
+          oninput="updateSlider('${cat.id}', this.value)">
+        <div class="range-labels"><span>$0</span><span>${fmtUSD(sliderMax)}</span></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateSlider(id, val) {
+  calcState.sliderVals[id] = parseFloat(val);
+  const display = document.getElementById('slider-val-' + id);
+  if (display) display.textContent = fmtUSD(val);
+  recalc();
+}
+
+function updateSavingsDisplay(val) {
+  document.getElementById('savings-display').textContent = fmtUSD(val);
+}
+
+function recalc() {
+  const countryId = document.getElementById('calc-country').value;
+  const household = parseFloat(document.getElementById('calc-household').value);
+  const collapseMulti = parseFloat(document.getElementById('calc-collapse').value);
+  const savings = parseFloat(document.getElementById('calc-savings').value);
+
+  // Reinit sliders if country changed
+  const country = EXPENSE_DATA.countries.find(c => c.id === countryId);
+  if (calcState.lastCountry !== countryId) {
+    calcState.sliderVals = {};
+    calcState.lastCountry = countryId;
+    renderSliders(countryId);
+  }
+
+  // Sum current slider values
+  let baseTotal = 0;
+  EXPENSE_DATA.categories.forEach(cat => {
+    const el = document.getElementById('slider-' + cat.id);
+    if (el) baseTotal += parseFloat(el.value);
+  });
+
+  const monthlyTotal = baseTotal * collapseMulti;
+  const monthsRunway = savings > 0 ? Math.round(savings / monthlyTotal) : 0;
+  const annualTotal = monthlyTotal * 12;
+  const runwayColor = monthsRunway >= 60 ? 'var(--green)' : monthsRunway >= 24 ? 'var(--gold)' : monthsRunway >= 12 ? 'var(--amber)' : 'var(--red)';
+  const runwayPct = Math.min(100, Math.round((monthsRunway / 120) * 100));
+
+  const breakdownLines = EXPENSE_DATA.categories.map(cat => {
+    const el = document.getElementById('slider-' + cat.id);
+    const val = el ? parseFloat(el.value) : 0;
+    const collapsed = val * collapseMulti;
+    return `<div class="budget-line">
+      <span class="bl-name">${cat.icon} ${cat.label}</span>
+      <span class="bl-val">${fmtUSD(collapsed)}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('calc-results').innerHTML = `
+    <div class="rs-label">YOUR MONTHLY BUDGET</div>
+    ${breakdownLines}
+    <div class="budget-line total-row">
+      <div>
+        <div class="total-label">MONTHLY TOTAL</div>
+        <div class="total-val">${fmtUSD(monthlyTotal)}</div>
+        <div class="total-annual">${fmtUSD(annualTotal)} / year</div>
+        ${collapseMulti > 1 ? `<div style="font-size:10px;color:var(--red);font-family:'Share Tech Mono',monospace;margin-top:3px;">×${collapseMulti} collapse multiplier applied</div>` : ''}
+      </div>
+    </div>
+    <div class="runway-bar-wrap">
+      <div class="runway-label">
+        <span>Financial Runway</span>
+        <span style="color:${runwayColor};font-family:'Share Tech Mono',monospace;">${fmtMonths(monthsRunway)}</span>
+      </div>
+      <div class="pbar"><div class="pbar-fill fill-green" style="width:0%;background:${runwayColor};" id="runway-bar"></div></div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:6px;">${savings > 0 ? fmtUSD(savings) + ' capital at ' + fmtUSD(monthlyTotal) + '/mo' : 'Enter savings to calculate runway'}</div>
+    </div>
+    <div style="margin-top:16px;padding:12px;background:rgba(0,0,0,.2);border-radius:4px;border:1px solid var(--glass-border);">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:2px;margin-bottom:6px;">ARK NOTE</div>
+      <div style="font-size:12px;color:var(--text-dim);line-height:1.6;">${country ? country.note : ''}</div>
+    </div>
+  `;
+
+  // Animate runway bar
+  requestAnimationFrame(() => {
+    const bar = document.getElementById('runway-bar');
+    if (bar) { bar.style.width = '0'; requestAnimationFrame(() => { bar.style.width = runwayPct + '%'; }); }
+  });
+}
+
+/* ── Collapse Costs Grid ── */
+function renderCollapseCosts() {
+  document.getElementById('collapse-costs-grid').innerHTML = EXPENSE_DATA.scenarioCosts.map(s => `
+    <div class="cc-card gl">
+      <div class="cc-scenario">${s.scenario}</div>
+      <div class="cc-title">${s.title}</div>
+      ${s.items.map(item => `
+        <div class="cc-row">
+          <span>${item.name}</span>
+          <span><strong>${item.collapse}</strong></span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+/* ── Runway Table ── */
+function renderRunwayTable() {
+  const sorted = [...EXPENSE_DATA.countries].sort((a,b) => getTotalLow(a) - getTotalLow(b));
+  document.getElementById('runway-tbody').innerHTML = sorted.map(c => {
+    const low = getTotalLow(c);
+    const collapsed = Math.round(low * 1.8);
+    const r100n  = Math.round(100000  / low);
+    const r100c  = Math.round(100000  / collapsed);
+    const r500n  = Math.round(500000  / low);
+    const r500c  = Math.round(500000  / collapsed);
+    const r2mn   = Math.round(2000000 / low);
+    const verdict = r500n >= 60 ? ['STRONG','tier-1'] : r500n >= 30 ? ['VIABLE','tier-2'] : r500n >= 18 ? ['TIGHT','tier-3'] : ['CAUTION','tier-x'];
+    function cell(months) {
+      const col = months >= 60 ? 'var(--green)' : months >= 30 ? 'var(--gold)' : months >= 12 ? 'var(--amber)' : 'var(--red)';
+      return `<td style="font-family:'Share Tech Mono',monospace;font-size:12px;color:${col};">${fmtMonths(months)}</td>`;
+    }
+    return `<tr>
+      <td>${c.name}</td>
+      ${cell(r100n)}${cell(r100c)}${cell(r500n)}${cell(r500c)}
+      <td style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--cyan);">${fmtMonths(r2mn)}</td>
+      <td><span class="tier ${verdict[1]}">${verdict[0]}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Collapse Accordion ── */
+function renderCollapseAccordion() {
+  const collapseScenarios = [
+    { title:'Financial Collapse / Hyperinflation', body:'In hyperinflationary environments, USD-denominated rent and foreign-held assets become cheaper in real terms while local goods skyrocket. Prioritize countries with dollarized economies (Panama, Uruguay pegged) or low import dependency. Stock 6 months of local currency and 3 months of hard goods.' },
+    { title:'Grid / Infrastructure Collapse', body:'Monthly utility spend can multiply 10–20×. Pre-installed solar, rainwater, and backup comms are the only effective cost hedge. Off-grid setups with 10kWh/day solar pay back within 8 months of a grid collapse event.' },
+    { title:'Pandemic / Bio-Event', body:'Medical costs spike, supply chains restrict. A pre-stocked medical kit ($1,200–$2,500) covers 3–6 months of basic needs. Countries with strong public health systems (Norway, NZ, Iceland) provide near-zero emergency costs for legal residents.' },
+    { title:'Political Collapse / Capital Controls', body:'When capital controls activate, monthly costs become irrelevant — access to capital becomes the crisis. Pre-positioned offshore accounts, hard assets at destination, and multi-currency holdings are the only mitigation. No monthly budget survives a bank freeze without pre-planning.' },
+    { title:'Climate Event / Natural Disaster', body:'Short-term costs spike 3–8× for 1–6 months post-event. Countries with strong disaster response (NZ, Norway) recover fastest. Coastal and low-lying properties carry highest risk. Chile\'s Patagonia and Georgia\'s highlands are among the lowest climate-risk Ark positions.' },
+  ];
+
+  const container = document.getElementById('collapse-acc');
+  container.innerHTML = collapseScenarios.map(s => `
+    <div class="acc-item">
+      <button class="acc-trigger" onclick="toggleAcc(this)">
+        <span class="acc-label">${s.title}</span>
+        <span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body"><p class="prose">${s.body}</p></div>
+    </div>
+  `).join('');
+}
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+  renderTierCards();
+  renderCompareTable();
+  initCalculator();
+  renderCollapseCosts();
+  renderRunwayTable();
+  renderCollapseAccordion();
+});
+</script>
+</body>
+</html>

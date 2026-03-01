@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>24 — Research Sources | Ark v3</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=DM+Mono:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #050810;
+    --bg2: #080d18;
+    --glass: rgba(255,255,255,0.03);
+    --glass2: rgba(255,255,255,0.055);
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --accent: #00ffa3;
+    --accent2: #00c8ff;
+    --danger: #ff4a6b;
+    --warn: #ffb347;
+    --purple: #c080ff;
+    --gold: #ffd166;
+    --text: #dce5ee;
+    --muted: #546070;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; min-height: 100vh; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 900px 700px at -10% 25%, rgba(0,200,255,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 700px 600px at 110% 75%, rgba(192,128,255,0.03) 0%, transparent 60%),
+      radial-gradient(ellipse 500px 400px at 55% 95%, rgba(0,255,163,0.02) 0%, transparent 60%);
+  }
+
+  /* NAV */
+  .ark-nav-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(5,8,16,0.97); backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 36px;
+  }
+  .ark-logo { font-family: 'Syne', sans-serif; font-weight: 900; font-size: 1rem; letter-spacing: 0.2em; color: var(--accent); text-decoration: none; }
+  .ark-nav { display: flex; gap: 24px; }
+  .ark-nav a { font-size: 0.65rem; color: var(--muted); text-decoration: none; letter-spacing: 0.12em; transition: color .2s; }
+  .ark-nav a:hover { color: var(--accent); }
+  .ark-badge { background: var(--accent); color: #000; font-size: 0.58rem; font-weight: 700; padding: 4px 12px; letter-spacing: 0.12em; border-radius: 2px; }
+
+  /* LAYOUT */
+  .page { position: relative; z-index: 1; max-width: 1380px; margin: 0 auto; padding: 100px 28px 120px; }
+  .section { margin-bottom: 56px; }
+
+  /* TYPOGRAPHY */
+  .stag { font-size: 0.6rem; letter-spacing: 0.22em; color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; font-family: 'Syne', sans-serif; }
+  .stag::before { content: ''; display: inline-block; width: 28px; height: 1px; background: var(--accent); }
+  h1 { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 5vw, 3.8rem); font-weight: 900; line-height: 1; margin-bottom: 14px; }
+  h1 span { color: var(--accent); }
+  .sub { color: var(--muted); font-size: 0.78rem; line-height: 1.8; max-width: 780px; margin-bottom: 36px; }
+
+  /* GLASS */
+  .gl { background: var(--glass); border: 1px solid var(--border); border-radius: 12px; backdrop-filter: blur(12px); }
+
+  /* BTNS */
+  .btn { padding: 8px 18px; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 0.7rem; cursor: pointer; border: none; letter-spacing: 0.06em; transition: all .2s; }
+  .btn-a { background: var(--accent); color: #000; font-weight: 600; }
+  .btn-a:hover { background: #00e898; transform: translateY(-1px); }
+  .btn-g { background: transparent; color: var(--muted); border: 1px solid var(--border2); }
+  .btn-g:hover { color: var(--text); border-color: var(--accent2); }
+  .btn-sm { padding: 5px 10px; font-size: 0.6rem; }
+
+  /* PILLS */
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 0.57rem; letter-spacing: 0.08em; font-weight: 600; }
+  .p-g   { background: rgba(0,255,163,0.1);   color: var(--accent);  border: 1px solid rgba(0,255,163,0.18); }
+  .p-r   { background: rgba(255,74,107,0.1);  color: var(--danger);  border: 1px solid rgba(255,74,107,0.18); }
+  .p-o   { background: rgba(255,179,71,0.1);  color: var(--warn);    border: 1px solid rgba(255,179,71,0.2); }
+  .p-b   { background: rgba(0,200,255,0.1);   color: var(--accent2); border: 1px solid rgba(0,200,255,0.2); }
+  .p-p   { background: rgba(192,128,255,0.1); color: var(--purple);  border: 1px solid rgba(192,128,255,0.2); }
+  .p-gold{ background: rgba(255,209,102,0.1); color: var(--gold);    border: 1px solid rgba(255,209,102,0.2); }
+  .p-new { background: rgba(0,255,163,0.14); color: #00ffb3; border: 1px solid rgba(0,255,163,0.3); animation: blink 2.5s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 60%{opacity:.55} }
+  .stars { color: var(--gold); font-size: 0.7rem; letter-spacing: -1px; }
+
+  /* METRICS */
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px,1fr)); gap: 12px; margin-bottom: 32px; }
+  .metric { padding: 18px 20px; }
+  .metric-val { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 900; line-height: 1; }
+  .metric-lbl { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; margin-top: 4px; }
+
+  /* ═══════════════════════════════════════
+     ESSENTIAL READS — full-width redesign
+  ═══════════════════════════════════════ */
+  .essential-section { margin-bottom: 52px; }
+  .essential-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 22px; flex-wrap: wrap; gap: 10px;
+  }
+  .essential-header-left {}
+  .essential-section-label {
+    font-size: 0.58rem; letter-spacing: 0.22em; color: var(--gold);
+    font-family: 'Syne', sans-serif; display: flex; align-items: center; gap: 8px;
+    margin-bottom: 6px;
+  }
+  .essential-section-label::before { content:''; display:inline-block; width:20px; height:1px; background:var(--gold); }
+  .essential-title {
+    font-family: 'Syne', sans-serif; font-size: 1.35rem; font-weight: 900;
+    color: var(--text); line-height: 1;
+  }
+  .essential-title span { color: var(--gold); }
+  .essential-meta { font-size: 0.65rem; color: var(--muted); margin-top: 5px; }
+  .essential-progress-wrap { display: flex; align-items: center; gap: 10px; }
+  .essential-progress-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.08em; }
+  .essential-progress-bar { width: 120px; height: 4px; background: rgba(255,209,102,0.12); border-radius: 2px; }
+  .essential-progress-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width .6s; }
+  .essential-progress-frac { font-size: 0.65rem; color: var(--gold); font-weight: 700; }
+
+  /* scroll track */
+  .essential-scroll-container { position: relative; }
+  .essential-scroll-container::after {
+    content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 60px;
+    background: linear-gradient(to right, transparent, var(--bg));
+    pointer-events: none; z-index: 2;
+  }
+  .essential-track {
+    display: flex; gap: 14px; overflow-x: auto; padding-bottom: 12px;
+    scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin; scrollbar-color: rgba(255,209,102,0.2) transparent;
+  }
+  .essential-track::-webkit-scrollbar { height: 3px; }
+  .essential-track::-webkit-scrollbar-thumb { background: rgba(255,209,102,0.2); border-radius: 2px; }
+
+  /* individual essential card */
+  .ess-card {
+    flex: 0 0 260px; scroll-snap-align: start;
+    border-radius: 14px; padding: 20px 20px 18px;
+    border: 1px solid rgba(255,209,102,0.12);
+    background: rgba(255,209,102,0.025);
+    cursor: pointer; position: relative; overflow: hidden;
+    transition: border-color .25s, transform .2s, box-shadow .25s;
+    display: flex; flex-direction: column;
+  }
+  .ess-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--gold); opacity: 0.4;
+  }
+  .ess-card:hover { border-color: rgba(255,209,102,0.4); transform: translateY(-3px); box-shadow: 0 10px 36px rgba(255,209,102,0.08); }
+  .ess-card.done-card { opacity: 0.55; }
+  .ess-card.done-card::before { background: var(--accent); opacity: 0.6; }
+  .ess-card.done-card:hover { opacity: 0.8; }
+
+  /* category accent line override */
+  .ess-card[data-cat="FOUNDATIONAL"]::before  { background: var(--accent2); }
+  .ess-card[data-cat="NUCLEAR"]::before       { background: var(--danger); }
+  .ess-card[data-cat="CLIMATE"]::before       { background: #ff8c42; }
+  .ess-card[data-cat="BIOLOGICAL"]::before    { background: var(--purple); }
+  .ess-card[data-cat="FINANCIAL"]::before     { background: var(--gold); }
+  .ess-card[data-cat="COMMUNITY"]::before     { background: var(--accent); }
+  .ess-card[data-cat="TECHNOLOGY"]::before    { background: var(--accent2); }
+  .ess-card[data-cat="GEOPOLITICAL"]::before  { background: #e05cf7; }
+  .ess-card[data-cat="PRACTICAL"]::before     { background: var(--warn); }
+  .ess-card[data-cat="SAFE ZONES"]::before    { background: var(--accent); }
+  .ess-card[data-cat="PSYCHOLOGY"]::before    { background: var(--purple); }
+  .ess-card[data-cat="GOVERNANCE"]::before    { background: #c0f570; }
+
+  .ess-card-num {
+    font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 900;
+    color: rgba(255,209,102,0.12); line-height: 1; margin-bottom: 10px;
+    letter-spacing: -0.02em;
+  }
+  .ess-card.done-card .ess-card-num { color: rgba(0,255,163,0.15); }
+  .ess-done-badge {
+    position: absolute; top: 14px; right: 14px;
+    background: rgba(0,255,163,0.15); color: var(--accent);
+    font-size: 0.55rem; font-weight: 700; padding: 2px 7px;
+    border-radius: 3px; border: 1px solid rgba(0,255,163,0.25); letter-spacing: 0.1em;
+    display: none;
+  }
+  .ess-card.done-card .ess-done-badge { display: block; }
+
+  .ess-cat-label { font-size: 0.54rem; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 7px; }
+  .ess-title {
+    font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 800;
+    line-height: 1.25; margin-bottom: 4px; flex: 1;
+  }
+  .ess-author { font-size: 0.62rem; color: var(--muted); margin-bottom: 12px; }
+  .ess-why { font-size: 0.66rem; color: var(--muted); line-height: 1.7; margin-bottom: 14px; }
+  .ess-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+  .ess-relevance { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800; color: var(--gold); }
+  .ess-relevance small { font-family: 'DM Mono', monospace; font-size: 0.55rem; color: var(--muted); font-weight: 400; margin-left: 1px; }
+  .ess-type-pill {}
+
+  /* CAT DISTRIBUTION */
+  .cat-dist-panel { padding: 22px 24px; margin-bottom: 28px; }
+  .cat-dist-header { font-family: 'Syne', sans-serif; font-size: 0.68rem; font-weight: 700; color: var(--muted); letter-spacing: 0.12em; margin-bottom: 16px; }
+  .cat-dist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 8px; }
+  .cat-dist-row { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 4px 0; }
+  .cat-dist-row:hover .cat-dist-label { color: var(--text); }
+  .cat-dist-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.06em; width: 100px; flex-shrink: 0; transition: color .2s; }
+  .cat-dist-track { flex: 1; height: 3px; background: rgba(255,255,255,0.05); border-radius: 2px; }
+  .cat-dist-fill { height: 100%; border-radius: 2px; transition: width .6s; }
+  .cat-dist-count { font-size: 0.58rem; color: var(--muted); width: 22px; text-align: right; }
+
+  /* SEARCH */
+  .search-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; padding: 14px 18px; margin-bottom: 10px; }
+  .search-input { flex: 1; min-width: 220px; background: rgba(255,255,255,0.05); border: 1px solid var(--border2); color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.75rem; padding: 9px 14px; border-radius: 6px; outline: none; transition: border-color .2s; }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--muted); }
+  select { background: rgba(255,255,255,0.05); border: 1px solid var(--border2); color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.7rem; padding: 8px 12px; border-radius: 6px; outline: none; cursor: pointer; transition: border-color .2s; }
+  select:focus { border-color: var(--accent); }
+  select option { background: #080d18; }
+
+  /* CATEGORY TABS */
+  .cat-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .cat-tab { padding: 6px 13px; border-radius: 20px; font-family: 'DM Mono', monospace; font-size: 0.6rem; cursor: pointer; border: 1px solid var(--border2); background: var(--glass); color: var(--muted); transition: all .2s; white-space: nowrap; }
+  .cat-tab:hover { color: var(--text); }
+  .cat-tab.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+
+  /* STATUS BAR */
+  .status-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .status-btn { padding: 5px 13px; border-radius: 16px; font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em; cursor: pointer; border: 1px solid var(--border2); background: var(--glass); color: var(--muted); transition: all .2s; }
+  .status-btn:hover { color: var(--text); }
+  .status-btn[data-s="all"].active-status    { background: var(--accent2); color: #000; border-color: var(--accent2); font-weight:700; }
+  .status-btn[data-s="unread"].active-status { background: rgba(84,96,112,0.3); color: var(--text); border-color: var(--muted); font-weight:700; }
+  .status-btn[data-s="reading"].active-status{ background: rgba(255,179,71,0.2); color: var(--warn); border-color: var(--warn); font-weight:700; }
+  .status-btn[data-s="done"].active-status   { background: rgba(0,255,163,0.15); color: var(--accent); border-color: var(--accent); font-weight:700; }
+
+  /* ADV FILTERS */
+  .adv-filters { display: none; padding: 18px 20px; margin-bottom: 14px; }
+  .adv-filters.open { display: block; }
+  .adv-filters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 12px; margin-top: 12px; }
+  .adv-field label { font-size: 0.58rem; color: var(--muted); letter-spacing: 0.1em; display: block; margin-bottom: 5px; }
+  .range-row { display: flex; align-items: center; gap: 8px; }
+  .range-row input[type=range] { flex:1; accent-color: var(--accent); }
+  .range-val { font-size: 0.65rem; color: var(--accent); min-width: 30px; }
+
+  /* SOURCE GRID */
+  .sources-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px,1fr)); gap: 16px; }
+  .sources-grid.view-list    { grid-template-columns: 1fr; }
+  .sources-grid.view-compact { grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); }
+
+  /* SOURCE CARD */
+  .src-card {
+    background: var(--glass); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px 20px 16px; cursor: pointer; position: relative;
+    display: flex; flex-direction: column;
+    transition: border-color .25s, transform .2s, box-shadow .25s;
+    animation: fadeIn .3s ease both;
+  }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .src-card:hover { border-color: rgba(0,200,255,0.22); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,200,255,0.06); }
+  .src-card.featured { border-color: rgba(255,209,102,0.2); }
+  .src-card.featured::after { content: '★ ESSENTIAL'; position: absolute; top: 12px; right: 12px; background: rgba(255,209,102,0.1); color: var(--gold); font-size: 0.5rem; font-weight: 700; padding: 2px 7px; border-radius: 3px; letter-spacing: 0.1em; border: 1px solid rgba(255,209,102,0.2); }
+  .src-card.saved-card { border-color: rgba(0,255,163,0.18); }
+  .src-card.status-reading { border-left: 3px solid var(--warn); }
+  .src-card.status-done    { border-left: 3px solid var(--accent); }
+
+  .src-type-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .src-icon { font-size: 0.95rem; }
+  .src-type { font-size: 0.57rem; color: var(--muted); letter-spacing: 0.1em; }
+  .src-cat-pill { margin-left: auto; }
+  .src-title { font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 800; margin-bottom: 3px; line-height: 1.25; }
+  .src-author { font-size: 0.63rem; color: var(--muted); margin-bottom: 10px; }
+  .src-excerpt { font-size: 0.71rem; color: var(--muted); line-height: 1.8; margin-bottom: 12px; flex: 1; }
+  mark { background: rgba(0,255,163,0.18); color: var(--accent); border-radius: 2px; padding: 0 2px; }
+  .src-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .rel-bar-track { width: 50px; height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; }
+  .rel-bar-fill { height: 100%; border-radius: 2px; }
+  .rel-num { font-size: 0.6rem; color: var(--muted); }
+  .src-actions { display: flex; gap: 8px; margin-top: auto; }
+  .src-link { flex:1; text-align:center; padding:7px 10px; border-radius:5px; font-size:0.63rem; text-decoration:none; background:rgba(0,200,255,0.07); color:var(--accent2); border:1px solid rgba(0,200,255,0.14); transition:all .2s; }
+  .src-link:hover { background: rgba(0,200,255,0.15); }
+  .src-save { padding:7px 9px; border-radius:5px; font-size:0.7rem; cursor:pointer; background:none; border:1px solid var(--border2); color:var(--muted); transition:all .2s; }
+  .src-save:hover { color:var(--gold); border-color:rgba(255,209,102,0.3); }
+  .src-save.saved { color:var(--gold); border-color:rgba(255,209,102,0.3); background:rgba(255,209,102,0.05); }
+  .status-cycle { padding:7px 9px; border-radius:5px; font-size:0.65rem; cursor:pointer; background:none; border:1px solid var(--border2); color:var(--muted); transition:all .2s; min-width:28px; text-align:center; }
+  .status-cycle[data-rs="reading"] { color:var(--warn); border-color:rgba(255,179,71,0.3); background:rgba(255,179,71,0.05); }
+  .status-cycle[data-rs="done"]    { color:var(--accent); border-color:rgba(0,255,163,0.3); background:rgba(0,255,163,0.05); }
+
+  /* compact / list */
+  .view-compact .src-excerpt { display: none; }
+  .view-compact .src-card { padding: 14px 16px 12px; }
+  .view-list .src-card { flex-direction:row; align-items:center; gap:14px; padding:14px 18px; }
+  .view-list .src-card .src-excerpt { display:none; }
+  .view-list .src-card .src-meta { margin-bottom:0; }
+  .view-list .src-card .src-actions { margin-top:0; flex-shrink:0; }
+  .view-list .src-card.featured::after { display:none; }
+
+  /* MODAL */
+  .modal-overlay { position:fixed; inset:0; z-index:300; background:rgba(5,8,16,0.93); backdrop-filter:blur(14px); opacity:0; pointer-events:none; transition:opacity .25s; display:flex; align-items:center; justify-content:center; }
+  .modal-overlay.open { opacity:1; pointer-events:all; }
+  .modal { width:min(780px,95vw); max-height:90vh; overflow-y:auto; background:#080d18; border:1px solid var(--border2); border-radius:16px; padding:36px; position:relative; }
+  .modal::-webkit-scrollbar { width:3px; }
+  .modal::-webkit-scrollbar-thumb { background:var(--border2); }
+  .modal-close { background:none; border:none; color:var(--muted); cursor:pointer; font-size:1.3rem; transition:color .2s; position:absolute; top:20px; right:20px; }
+  .modal-close:hover { color:var(--danger); }
+  .modal-head { margin-bottom:24px; padding-right:30px; }
+  .modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:20px; }
+  .mf label { font-size:0.57rem; color:var(--muted); letter-spacing:0.1em; display:block; margin-bottom:3px; }
+  .mf span { font-size:0.78rem; }
+  .modal-related-title { font-size:0.58rem; color:var(--muted); letter-spacing:0.12em; margin-bottom:10px; }
+  .related-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:8px; }
+  .related-card { padding:10px 12px; border-radius:8px; cursor:pointer; transition:all .2s; }
+  .related-card:hover { border-color:var(--accent2); }
+  .related-card-title { font-family:'Syne',sans-serif; font-size:0.72rem; font-weight:700; margin-bottom:2px; line-height:1.2; }
+  .related-card-meta { font-size:0.58rem; color:var(--muted); }
+  .modal-status-row { display:flex; gap:8px; margin-top:14px; align-items:center; flex-wrap:wrap; }
+  .modal-status-label { font-size:0.58rem; color:var(--muted); letter-spacing:0.1em; }
+  .ms-btn { padding:5px 12px; border-radius:14px; font-family:'DM Mono',monospace; font-size:0.6rem; cursor:pointer; border:1px solid var(--border2); background:var(--glass); color:var(--muted); transition:all .2s; }
+  .ms-btn.active-unread  { background:rgba(84,96,112,0.3); color:var(--text); border-color:var(--muted); }
+  .ms-btn.active-reading { background:rgba(255,179,71,0.18); color:var(--warn); border-color:var(--warn); }
+  .ms-btn.active-done    { background:rgba(0,255,163,0.15); color:var(--accent); border-color:var(--accent); }
+  .cite-block { margin-top:20px; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px; padding:14px 16px; }
+  .cite-block-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .cite-block-title { font-size:0.57rem; color:var(--muted); letter-spacing:0.12em; }
+  .cite-tabs { display:flex; gap:4px; }
+  .cite-tab { padding:3px 10px; border-radius:3px; font-size:0.57rem; cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--muted); transition:all .15s; font-family:'DM Mono',monospace; }
+  .cite-tab.active { background:var(--accent2); color:#000; border-color:var(--accent2); }
+  .cite-text { font-size:0.68rem; color:var(--text); line-height:1.75; word-break:break-word; }
+  .cite-copy { padding:4px 10px; border-radius:4px; font-size:0.58rem; cursor:pointer; border:1px solid var(--border2); background:transparent; color:var(--muted); font-family:'DM Mono',monospace; transition:all .2s; }
+  .cite-copy:hover { color:var(--accent); border-color:var(--accent); }
+
+  /* READING LIST PANEL */
+  .reading-list { position:fixed; right:0; top:0; bottom:0; z-index:200; width:360px; background:rgba(8,13,24,0.99); border-left:1px solid var(--border2); padding:80px 24px 24px; transform:translateX(100%); transition:transform .35s cubic-bezier(.4,0,.2,1); overflow-y:auto; }
+  .reading-list.open { transform:translateX(0); }
+  .reading-list::-webkit-scrollbar { width:3px; }
+  .reading-list::-webkit-scrollbar-thumb { background:var(--border2); }
+  .rl-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; margin-bottom:6px; color:var(--gold); }
+  .rl-subtitle { font-size:0.62rem; color:var(--muted); margin-bottom:20px; }
+  .rl-item { padding:12px 0; border-bottom:1px solid var(--border); }
+  .rl-item-title { font-family:'Syne',sans-serif; font-size:0.78rem; font-weight:700; margin-bottom:3px; }
+  .rl-item-meta { font-size:0.6rem; color:var(--muted); }
+  .rl-remove { background:none; border:none; color:var(--muted); cursor:pointer; font-size:0.8rem; float:right; }
+  .rl-remove:hover { color:var(--danger); }
+  .rl-export-row { display:flex; gap:8px; margin-top:14px; }
+  .rl-export-row .btn { flex:1; text-align:center; font-size:0.62rem; }
+  .rl-toggle { position:fixed; top:50%; right:0; transform:translateY(-50%); z-index:201; background:var(--gold); color:#000; font-family:'Syne',sans-serif; font-size:0.6rem; font-weight:700; padding:10px 6px; border-radius:6px 0 0 6px; cursor:pointer; writing-mode:vertical-rl; letter-spacing:0.12em; border:none; transition:background .2s; }
+  .rl-toggle:hover { background:#ffc844; }
+  .rl-badge { position:absolute; top:-8px; right:2px; background:var(--danger); color:#fff; font-size:0.55rem; font-weight:700; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; writing-mode:horizontal-tb; }
+
+  /* COUNT STRIP */
+  .count-strip { display:flex; align-items:center; gap:14px; margin-bottom:16px; flex-wrap:wrap; }
+  .count-strip span { font-size:0.68rem; color:var(--muted); }
+  .count-strip strong { color:var(--accent2); }
+  .view-btns { margin-left:auto; display:flex; gap:6px; }
+  .view-btns .btn { padding:6px 10px; }
+
+  /* INTELLIGENCE category special styling */
+  .src-card.cat-intelligence {
+    border-color: rgba(255,74,107,0.25);
+    background: rgba(255,74,107,0.02);
+  }
+  .src-card.cat-intelligence:hover {
+    border-color: rgba(255,74,107,0.5);
+    box-shadow: 0 8px 30px rgba(255,74,107,0.08);
+  }
+
+  @media(max-width:900px) {
+    .ark-nav { display:none; }
+    .modal-grid { grid-template-columns:1fr; }
+    .reading-list { width:100%; }
+    .sources-grid { grid-template-columns:1fr; }
+    .view-list .src-card { flex-direction:column; }
+    .ess-card { flex: 0 0 220px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="ark-nav-bar">
+  <a class="ark-logo" href="#">◈ ARK COLLECTIVE</a>
+  <div class="ark-nav">
+    <a href="#">RISK CALC</a><a href="#">HISTORICAL</a><a href="#">STRATEGIES</a>
+    <a href="#">GOVERNANCE</a><a href="#">SPRINT</a>
+  </div>
+  <span class="ark-badge">v3 LIVE</span>
+</nav>
+
+<button class="rl-toggle" onclick="toggleReadingList()">
+  READING LIST<span class="rl-badge" id="rlBadge" style="display:none">0</span>
+</button>
+
+<div class="reading-list" id="readingListPanel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+    <div class="rl-title">★ Reading List</div>
+    <button class="btn btn-g btn-sm" onclick="toggleReadingList()">CLOSE</button>
+  </div>
+  <div class="rl-subtitle">Your personal Ark curriculum.</div>
+  <div id="rlItems"><p style="font-size:0.72rem;color:var(--muted)">No sources saved. Click ★ on any card.</p></div>
+  <div class="rl-export-row" id="rlExport" style="display:none">
+    <button class="btn btn-g btn-sm" onclick="exportList('txt')">TXT</button>
+    <button class="btn btn-g btn-sm" onclick="exportList('bib')">BIBTEX</button>
+    <button class="btn btn-g btn-sm" onclick="exportList('apa')">APA</button>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="section">
+    <div class="stag">MODULE 24 — INTELLIGENCE LIBRARY</div>
+    <h1>Research &amp;<br><span>Sources</span></h1>
+    <p class="sub">The complete Ark Collective intelligence library — 120+ curated sources across 18 categories. Every source scored for Ark relevance. Track your reading progress, export citations, and build your curriculum. Updated February 2026 with latest government intelligence assessments, UN agency reports, and WEF findings.</p>
+  </div>
+
+  <!-- METRICS -->
+  <div class="metrics">
+    <div class="gl metric"><div class="metric-val" style="color:var(--accent2)" id="metricTotal">—</div><div class="metric-lbl">TOTAL SOURCES</div></div>
+    <div class="gl metric"><div class="metric-val" style="color:var(--gold)"    id="metricEssential">—</div><div class="metric-lbl">ESSENTIAL READS</div></div>
+    <div class="gl metric"><div class="metric-val" style="color:var(--accent)">18</div><div class="metric-lbl">CATEGORIES</div></div>
+    <div class="gl metric"><div class="metric-val" style="color:var(--warn)"   id="metricReading">0</div><div class="metric-lbl">IN PROGRESS</div></div>
+    <div class="gl metric"><div class="metric-val" style="color:var(--accent)" id="metricDone">0</div><div class="metric-lbl">COMPLETED</div></div>
+    <div class="gl metric"><div class="metric-val" style="color:var(--purple)" id="savedMetric">0</div><div class="metric-lbl">IN READING LIST</div></div>
+  </div>
+
+  <!-- ═══ ESSENTIAL READS SECTION ═══ -->
+  <div class="essential-section">
+    <div class="essential-header">
+      <div class="essential-header-left">
+        <div class="essential-section-label">PRIORITY CURRICULUM</div>
+        <div class="essential-title">★ Essential Reads — <span>Start Here</span></div>
+        <div class="essential-meta">The non-negotiable core library. Read in order of relevance score.</div>
+      </div>
+      <div class="essential-progress-wrap">
+        <span class="essential-progress-label">COMPLETED</span>
+        <div class="essential-progress-bar">
+          <div class="essential-progress-fill" id="essProgressFill" style="width:0%"></div>
+        </div>
+        <span class="essential-progress-frac" id="essProgressFrac">0 / 0</span>
+      </div>
+    </div>
+    <div class="essential-scroll-container">
+      <div class="essential-track" id="essentialTrack"></div>
+    </div>
+  </div>
+
+  <!-- CAT DISTRIBUTION -->
+  <div class="gl cat-dist-panel" style="margin-bottom:28px">
+    <div class="cat-dist-header">SOURCES BY CATEGORY</div>
+    <div class="cat-dist-grid" id="catDistGrid"></div>
+  </div>
+
+  <!-- SEARCH + FILTERS -->
+  <div class="gl search-bar">
+    <input class="search-input" type="text" placeholder="Search titles, authors, tags, excerpts…" id="searchInput" oninput="searchTerm=this.value.toLowerCase();renderSources()">
+    <select onchange="sortField=this.value;renderSources()">
+      <option value="relevance">Sort: Relevance</option>
+      <option value="stars">Sort: Rating</option>
+      <option value="year_desc">Sort: Newest</option>
+      <option value="year_asc">Sort: Oldest</option>
+      <option value="title">Sort: A–Z</option>
+    </select>
+    <select onchange="filterType=this.value;renderSources()">
+      <option value="">Type: All</option>
+      <option value="Book">Books</option>
+      <option value="Report">Reports</option>
+      <option value="Paper">Papers</option>
+      <option value="Manual">Manuals</option>
+    </select>
+    <select onchange="minStars=+this.value;renderSources()">
+      <option value="0">Stars: Any</option>
+      <option value="4">4+ Stars</option>
+      <option value="5">5 Stars Only</option>
+    </select>
+    <button class="btn btn-g" id="featuredBtn" onclick="toggleFeatured()">★ ESSENTIALS</button>
+    <button class="btn btn-g" onclick="toggleAdvFilters()">⚙ FILTERS</button>
+    <div class="view-btns">
+      <button class="btn btn-g" title="Grid" onclick="setView('grid')">⊞</button>
+      <button class="btn btn-g" title="Compact" onclick="setView('compact')">⊟</button>
+      <button class="btn btn-g" title="List" onclick="setView('list')">☰</button>
+    </div>
+  </div>
+
+  <!-- ADVANCED FILTERS -->
+  <div class="gl adv-filters" id="advFilters">
+    <div style="font-family:'Syne',sans-serif;font-size:0.68rem;color:var(--muted);letter-spacing:0.12em;margin-bottom:12px">ADVANCED FILTERS</div>
+    <div class="adv-filters-grid">
+      <div class="adv-field">
+        <label>MIN YEAR</label>
+        <div class="range-row">
+          <input type="range" min="1946" max="2024" value="1946" id="yearMin" oninput="yearMinVal=+this.value;document.getElementById('ymv').textContent=this.value;renderSources()">
+          <span class="range-val" id="ymv">1946</span>
+        </div>
+      </div>
+      <div class="adv-field">
+        <label>MIN RELEVANCE</label>
+        <div class="range-row">
+          <input type="range" min="0" max="100" value="0" id="relMin" oninput="relMinVal=+this.value;document.getElementById('rmv').textContent=this.value;renderSources()">
+          <span class="range-val" id="rmv">0</span>
+        </div>
+      </div>
+      <div class="adv-field">
+        <label>2023–25 ONLY</label>
+        <button class="btn btn-g btn-sm" id="newOnlyBtn" onclick="toggleNewOnly()">OFF</button>
+      </div>
+      <div class="adv-field">
+        <label>RESET ALL</label>
+        <button class="btn btn-g btn-sm" onclick="resetFilters()">RESET</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORY TABS -->
+  <div class="cat-tabs" id="catTabs"></div>
+
+  <!-- STATUS FILTER -->
+  <div class="status-bar">
+    <span style="font-size:0.6rem;color:var(--muted);letter-spacing:0.1em">READ STATUS:</span>
+    <button class="status-btn active-status" data-s="all"     onclick="setStatusFilter('all',this)">ALL</button>
+    <button class="status-btn" data-s="unread"  onclick="setStatusFilter('unread',this)">UNREAD</button>
+    <button class="status-btn" data-s="reading" onclick="setStatusFilter('reading',this)">READING</button>
+    <button class="status-btn" data-s="done"    onclick="setStatusFilter('done',this)">COMPLETED</button>
+    <span style="margin-left:auto;font-size:0.6rem;color:var(--muted)">Showing <strong id="srcCount" style="color:var(--accent2)">—</strong> sources</span>
+  </div>
+
+  <!-- SOURCES GRID -->
+  <div class="sources-grid" id="sourcesGrid"></div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="srcModal" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="srcModalContent"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     DATA + LOGIC
+═══════════════════════════════════════ -->
+<script>
+const SOURCES = [
+  // ── FOUNDATIONAL ──────────────────────────────────────────────────────────
+  { id:1,  cat:"FOUNDATIONAL", type:"Book",   icon:"📚", title:"The Precipice", author:"Toby Ord", year:2020, stars:5, relevance:98, featured:true,
+    excerpt:"Oxford philosopher Ord estimates a 1-in-6 chance of civilisational collapse this century. The most rigorous probability-based case for existential risk ever written. Foundation text for all Ark probability estimates and timeline modelling.", tags:["RISK","PHILOSOPHY","ESSENTIAL"], url:"https://theprecipice.com",
+    why:"The most rigorous probability-based case for civilisational collapse. Read this first." },
+  { id:2,  cat:"FOUNDATIONAL", type:"Book",   icon:"📚", title:"The Coming Population Crash", author:"Fred Pearce", year:2010, stars:4, relevance:82, featured:false,
+    excerpt:"How demographic transition, resource depletion, and civilisational complexity interact to create systemic fragility. Essential context for Ark location selection and timeline modelling.", tags:["DEMOGRAPHICS","RESOURCE"], url:"#" },
+  { id:3,  cat:"FOUNDATIONAL", type:"Book",   icon:"📚", title:"Collapse: How Societies Choose to Fail", author:"Jared Diamond", year:2005, stars:5, relevance:95, featured:true,
+    excerpt:"Systematic analysis of why past civilisations collapsed — environmental damage, climate change, hostile neighbours, trading partner failure, and response failures. The definitive historical template for modern collapse scenario analysis.", tags:["HISTORICAL","ESSENTIAL","COLLAPSE"], url:"#",
+    why:"The historical template. Documents every known collapse mechanism with forensic precision." },
+  { id:4,  cat:"FOUNDATIONAL", type:"Book",   icon:"📚", title:"The World Until Yesterday", author:"Jared Diamond", year:2012, stars:4, relevance:78, featured:false,
+    excerpt:"What traditional societies can teach us about resilience, community structure, child-rearing, and inter-group conflict resolution. Directly applicable to Ark community design principles.", tags:["COMMUNITY","ANTHROPOLOGY"], url:"#" },
+  { id:5,  cat:"FOUNDATIONAL", type:"Report", icon:"📄", title:"Global Catastrophic Risks Survey", author:"Future of Humanity Institute", year:2023, stars:5, relevance:97, featured:true,
+    excerpt:"Annual probability estimates from leading researchers across nuclear, biological, climate, and AI risk categories. The peer-reviewed baseline for Ark scenario planning and probability weights.", tags:["RISK","AI","NUCLEAR","ESSENTIAL"], url:"https://www.fhi.ox.ac.uk",
+    why:"The peer-reviewed probability baseline across all major collapse vectors." },
+  { id:45, cat:"FOUNDATIONAL", type:"Book",   icon:"📚", title:"The Limits to Growth", author:"Meadows, Randers & Behrens (Club of Rome)", year:1972, stars:5, relevance:90, featured:false,
+    excerpt:"The original systems-dynamics model of civilisational overshoot. Published 50+ years ago and consistently more accurate than mainstream economic projections. The foundational quantitative argument for civilisational limits.", tags:["SYSTEMS","RESOURCE","COLLAPSE"], url:"#" },
+  { id:46, cat:"FOUNDATIONAL", type:"Book",   icon:"📚", title:"Against the Grain", author:"James C. Scott", year:2017, stars:4, relevance:76, featured:false,
+    excerpt:"Why early states and complex civilisations are fragile. Reveals deep structural vulnerabilities in settled civilisation that emerge whenever grain-based agriculture encounters disruption.", tags:["HISTORICAL","ANTHROPOLOGY","COLLAPSE"], url:"#" },
+  { id:47, cat:"FOUNDATIONAL", type:"Book",   icon:"📚", title:"The Fifth Risk", author:"Michael Lewis", year:2018, stars:4, relevance:80, featured:false,
+    excerpt:"What happens when the bureaucratic systems managing existential risks — nuclear, pandemic, grid stability — are dismantled through ignorance and institutional neglect. A documented case study in governance failure risk.", tags:["GOVERNANCE","RISK","INFRASTRUCTURE"], url:"#" },
+  { id:85, cat:"FOUNDATIONAL", type:"Book",   icon:"📚", title:"How the World Really Works", author:"Vaclav Smil", year:2022, stars:5, relevance:92, featured:false,
+    excerpt:"The world's leading energy scientist quantifies the material and energy dependencies underpinning modern civilisation — food, materials, energy, globalisation. Rigorously dismantles techno-optimism with numbers. Essential for Ark infrastructure planning.", tags:["ENERGY","SYSTEMS","ESSENTIAL"], url:"#" },
+  { id:86, cat:"FOUNDATIONAL", type:"Book",   icon:"📚", title:"End Times: Elites, Counter-Elites, and the Path of Political Disintegration", author:"Peter Turchin", year:2023, stars:5, relevance:91, featured:false,
+    excerpt:"Quantitative historian applies cliodynamics to modern Western societies and finds all major indicators of civilisational instability are at all-time highs. 2020s predicted as peak instability. Rigorous and alarming.", tags:["SYSTEMS","POLITICAL","COLLAPSE","NEW"], url:"#" },
+
+  // ── NUCLEAR ───────────────────────────────────────────────────────────────
+  { id:6,  cat:"NUCLEAR", type:"Report", icon:"⚛️", title:"Bulletin of Atomic Scientists — Doomsday Clock Statement", author:"Bulletin of Atomic Scientists", year:2025, stars:5, relevance:97, featured:true,
+    excerpt:"2025 update: Doomsday Clock set to 89 seconds to midnight — the closest ever. Annual assessment of nuclear, climate, and AI risk convergence. The authoritative risk gauge cited across all Ark framework probability estimates.", tags:["NUCLEAR","DOOMSDAY CLOCK","ESSENTIAL","NEW"], url:"https://thebulletin.org",
+    why:"Doomsday Clock at 89 seconds — closest ever. The authoritative convergent risk gauge." },
+  { id:7,  cat:"NUCLEAR", type:"Book",   icon:"📚", title:"Command and Control", author:"Eric Schlosser", year:2013, stars:5, relevance:88, featured:false,
+    excerpt:"Documented near-misses with accidental nuclear detonation. Makes the case that nuclear risk is as much technical accident as geopolitical — with dozens of documented near-launches.", tags:["NUCLEAR","ACCIDENTS"], url:"#" },
+  { id:8,  cat:"NUCLEAR", type:"Report", icon:"📄", title:"EMP Commission Report (Declassified)", author:"US Congressional EMP Commission", year:2020, stars:5, relevance:94, featured:true,
+    excerpt:"Concludes a single high-altitude nuclear detonation would destroy 90% of the US electrical grid. Population mortality within 12 months: 70–90%. The most alarming unclassified government document in the Ark literature.", tags:["EMP","GRID","ESSENTIAL"], url:"https://www.empcommission.org",
+    why:"A single EMP weapon = 70–90% US population dead within 12 months. Unclassified." },
+  { id:48, cat:"NUCLEAR", type:"Book",   icon:"📚", title:"The Doomsday Machine", author:"Daniel Ellsberg", year:2017, stars:5, relevance:92, featured:false,
+    excerpt:"Pentagon Papers whistleblower's account of the US nuclear command system. Reveals accidental launch risks, delegation authority, and systemic failures that make accidental nuclear war more probable than the public understands.", tags:["NUCLEAR","INSIDER","RISK"], url:"#" },
+  { id:49, cat:"NUCLEAR", type:"Book",   icon:"📚", title:"Nuclear War: A Scenario", author:"Annie Jacobsen", year:2024, stars:4, relevance:89, featured:false,
+    excerpt:"Second-by-second reconstruction of a nuclear exchange, based on classified briefings and expert interviews. Reveals the 72-minute window from launch to civilisational end. Concrete survival planning input for timeline estimates.", tags:["NUCLEAR","SCENARIO","NEW"], url:"#" },
+  { id:87, cat:"NUCLEAR", type:"Report", icon:"📄", title:"SIPRI Yearbook: Armaments, Disarmament & International Security", author:"Stockholm International Peace Research Institute", year:2024, stars:5, relevance:90, featured:false,
+    excerpt:"Annual authoritative count and assessment of global nuclear arsenals, delivery systems, and disarmament treaty status. Documents ongoing arsenal modernisation across all nine nuclear states. Essential for Ark nuclear risk calibration.", tags:["NUCLEAR","GEOPOLITICAL","NEW"], url:"https://www.sipri.org" },
+
+  // ── CLIMATE ───────────────────────────────────────────────────────────────
+  { id:9,  cat:"CLIMATE", type:"Report", icon:"🌡️", title:"IPCC Sixth Assessment Report — Synthesis", author:"Intergovernmental Panel on Climate Change", year:2023, stars:5, relevance:95, featured:true,
+    excerpt:"The comprehensive scientific consensus on climate trajectory, tipping points, and regional impact modelling. The primary basis for Ark climate zone scoring and Safe Zone location analysis.", tags:["CLIMATE","TIPPING POINTS","ESSENTIAL"], url:"https://www.ipcc.ch",
+    why:"The scientific consensus baseline. Every Ark climate claim traces back to this document." },
+  { id:10, cat:"CLIMATE", type:"Book",   icon:"📚", title:"The Uninhabitable Earth", author:"David Wallace-Wells", year:2019, stars:4, relevance:90, featured:false,
+    excerpt:"Rigorous scenario modelling of high-end warming outcomes. More alarming than IPCC consensus due to inclusion of feedback loops. Important counterbalance to normalcy bias in mainstream climate communication.", tags:["CLIMATE","SCENARIOS"], url:"#" },
+  { id:11, cat:"CLIMATE", type:"Paper",  icon:"🔬", title:"Existential Climate-Related Security Risk", author:"Spratt & Dunlop", year:2019, stars:5, relevance:92, featured:false,
+    excerpt:"Australian military scenario planning document on 3°C warming. Describes cascading societal collapse, nation-state failure, and mass migration as near-certain outcomes at this temperature trajectory.", tags:["CLIMATE","DEFENCE","COLLAPSE"], url:"#" },
+  { id:50, cat:"CLIMATE", type:"Book",   icon:"📚", title:"Six Degrees", author:"Mark Lynas", year:2007, stars:5, relevance:88, featured:false,
+    excerpt:"Degree-by-degree analysis of planetary outcomes from 1°C to 6°C of warming. Synthesises thousands of peer-reviewed papers into a readable scenario map. Directly used in Ark climate zone scoring.", tags:["CLIMATE","SCENARIOS","TIPPING POINTS"], url:"#" },
+  { id:52, cat:"CLIMATE", type:"Report", icon:"📄", title:"Global Tipping Points Report", author:"University of Exeter", year:2023, stars:5, relevance:94, featured:false,
+    excerpt:"First comprehensive scientific mapping of Earth system tipping points, their thresholds, and cascade interactions. Documents how crossing one tipping point can trigger others automatically. Critical for Ark timeline modelling.", tags:["CLIMATE","TIPPING POINTS","NEW"], url:"#" },
+  { id:88, cat:"CLIMATE", type:"Report", icon:"📄", title:"State of the Climate 2024", author:"American Meteorological Society", year:2024, stars:5, relevance:93, featured:false,
+    excerpt:"2023 saw the hottest global temperatures in 174 years of records. Detailed data on ocean heat content, Arctic ice loss, sea level, and extreme weather frequency. The annual empirical benchmark for climate trajectory. Updated 2024.", tags:["CLIMATE","DATA","NEW"], url:"https://www.ametsoc.org" },
+  { id:89, cat:"CLIMATE", type:"Book",   icon:"📚", title:"The New Climate Economy", author:"Nicholas Stern", year:2015, stars:4, relevance:82, featured:false,
+    excerpt:"Former World Bank chief economist on the economic case for climate action and the economic consequences of inaction. Provides the financial modelling framework for calculating climate collapse economic costs.", tags:["CLIMATE","ECONOMICS","POLICY"], url:"#" },
+
+  // ── BIOLOGICAL ────────────────────────────────────────────────────────────
+  { id:13, cat:"BIOLOGICAL", type:"Book",   icon:"🦠", title:"The Fate of Rome", author:"Kyle Harper", year:2017, stars:4, relevance:80, featured:false,
+    excerpt:"How pandemic disease combined with climate disruption collapsed the most resilient civilisation in history. Historical template directly applicable to modern convergent risk analysis.", tags:["HISTORICAL","PANDEMIC","COLLAPSE"], url:"#" },
+  { id:14, cat:"BIOLOGICAL", type:"Report", icon:"📄", title:"WHO World at Risk: Preparedness Report", author:"Global Preparedness Monitoring Board", year:2022, stars:5, relevance:93, featured:true,
+    excerpt:"Global health security preparedness rated at D+ overall. Documents catastrophic gaps in detection, response, and international coordination. Authoritative basis for Ark pandemic scenario assumptions.", tags:["PANDEMIC","WHO","ESSENTIAL"], url:"https://www.who.int",
+    why:"Global health preparedness rated D+. Exposes the specific gaps that make pandemic collapse likely." },
+  { id:15, cat:"BIOLOGICAL", type:"Book",   icon:"📚", title:"Spillover", author:"David Quammen", year:2012, stars:4, relevance:84, featured:false,
+    excerpt:"Origins of zoonotic pandemic risk. The case that the next major pandemic will emerge from the wildlife-human interface as habitat destruction accelerates. Critical for biosecurity risk calibration.", tags:["PANDEMIC","BIOSECURITY"], url:"#" },
+  { id:16, cat:"BIOLOGICAL", type:"Paper",  icon:"🔬", title:"Biosecurity in the Age of CRISPR", author:"Carter & Wells, Nature", year:2023, stars:5, relevance:88, featured:false,
+    excerpt:"CRISPR tool costs have fallen 99.7% since 2012. Peer-reviewed analysis of how gene-editing democratisation creates unprecedented biosecurity risk and makes non-state bioweapon development realistic for the first time.", tags:["BIOSECURITY","CRISPR","AI","NEW"], url:"#" },
+  { id:53, cat:"BIOLOGICAL", type:"Book",   icon:"📚", title:"Deadliest Enemy", author:"Michael Osterholm & Mark Olshaker", year:2017, stars:5, relevance:91, featured:false,
+    excerpt:"Written by one of the world's foremost pandemic preparedness experts. Methodical risk assessment of influenza, coronaviruses, Ebola, and engineered pathogens. The professional framework behind Ark pandemic protocols.", tags:["PANDEMIC","PREPAREDNESS","BIOSECURITY"], url:"#" },
+  { id:90, cat:"BIOLOGICAL", type:"Report", icon:"📄", title:"Pandemic Prevention and Preparedness: Independent Panel Report", author:"Independent Panel for Pandemic Preparedness & Response", year:2023, stars:5, relevance:92, featured:false,
+    excerpt:"Post-COVID independent review commissioned by WHO. Documents catastrophic failures of early warning, international coordination, and surge capacity. Assesses probability of a COVID-equivalent event at 2.5% per year. Directly informs Ark pandemic probability estimates.", tags:["PANDEMIC","WHO","POLICY","NEW"], url:"#" },
+  { id:91, cat:"BIOLOGICAL", type:"Book",   icon:"📚", title:"The Precipice of Pandemic", author:"Amesh Adalja, JHCHS", year:2024, stars:4, relevance:87, featured:false,
+    excerpt:"Johns Hopkins Center for Health Security assessment of engineered pathogen risks post-COVID. Focuses on the 2024–2030 window as maximum-risk period for both natural and synthetic pandemic emergence.", tags:["PANDEMIC","BIOSECURITY","NEW"], url:"#" },
+
+  // ── FINANCIAL ─────────────────────────────────────────────────────────────
+  { id:17, cat:"FINANCIAL", type:"Book",   icon:"💰", title:"The Big Short", author:"Michael Lewis", year:2010, stars:4, relevance:72, featured:false,
+    excerpt:"How systemic financial fragility is hidden in plain sight. The epistemology of collapse prediction — how a small number of pattern-recognisers identified systemic failure before it occurred.", tags:["FINANCE","SYSTEMIC RISK"], url:"#" },
+  { id:18, cat:"FINANCIAL", type:"Book",   icon:"📚", title:"When Money Dies", author:"Adam Fergusson", year:1975, stars:5, relevance:88, featured:true,
+    excerpt:"Definitive account of Weimar hyperinflation. What actually happens to middle-class families when currency fails. Most important reading for Ark financial architecture, barter planning, and hard asset allocation.", tags:["HYPERINFLATION","HISTORICAL","ESSENTIAL"], url:"#",
+    why:"Weimar hyperinflation in granular detail. The only playbook for post-currency-collapse survival." },
+  { id:20, cat:"FINANCIAL", type:"Report", icon:"📄", title:"IMF World Economic Outlook", author:"International Monetary Fund", year:2024, stars:4, relevance:79, featured:false,
+    excerpt:"Annual global economic fragility assessment including debt sustainability, fiscal crisis risk, and geopolitical economic decoupling trends. Required reading for Ark financial scenario calibration.", tags:["FINANCE","DEBT","GEOPOLITICAL","NEW"], url:"https://www.imf.org" },
+  { id:55, cat:"FINANCIAL", type:"Book",   icon:"📚", title:"This Time Is Different", author:"Reinhart & Rogoff", year:2009, stars:5, relevance:85, featured:false,
+    excerpt:"Eight centuries of financial crises in 66 countries. Empirically demolishes the argument that 'this time is different'. The quantitative baseline for Ark financial collapse scenario probability.", tags:["FINANCE","HISTORICAL","SYSTEMIC RISK"], url:"#" },
+  { id:56, cat:"FINANCIAL", type:"Book",   icon:"📚", title:"The Great Taking", author:"David Rogers Webb", year:2023, stars:4, relevance:83, featured:false,
+    excerpt:"Legal infrastructure has been quietly restructured so that in a systemic collapse, securities are the property of financial intermediaries, not owners. Direct implications for Ark hard-asset allocation strategy.", tags:["FINANCE","LEGAL","SYSTEMIC RISK","NEW"], url:"#" },
+  { id:92, cat:"FINANCIAL", type:"Report", icon:"📄", title:"BIS Annual Economic Report 2024", author:"Bank for International Settlements", year:2024, stars:5, relevance:88, featured:false,
+    excerpt:"The central bank of central banks' annual risk assessment. 2024 edition flags record global debt levels ($315 trillion), interest rate shock transmission, and non-bank financial institution fragility as primary systemic risks. Essential for Ark financial scenario calibration.", tags:["FINANCE","DEBT","SYSTEMIC RISK","NEW"], url:"https://www.bis.org" },
+  { id:93, cat:"FINANCIAL", type:"Report", icon:"📄", title:"Global Debt Monitor", author:"Institute of International Finance", year:2024, stars:4, relevance:84, featured:false,
+    excerpt:"Tracks global debt across government, corporate, household, and financial sectors. Q3 2024: $315 trillion global debt. Provides quarterly data points for Ark financial collapse probability modelling.", tags:["FINANCE","DEBT","NEW"], url:"https://www.iif.com" },
+
+  // ── COMMUNITY ─────────────────────────────────────────────────────────────
+  { id:21, cat:"COMMUNITY", type:"Book",   icon:"👥", title:"Creating a Life Together", author:"Diana Leafe Christian", year:2003, stars:5, relevance:92, featured:true,
+    excerpt:"The definitive practical manual for founding intentional communities. Legal structures, decision-making systems, conflict resolution, financial models. The Ark governance framework draws directly from this work.", tags:["COMMUNITY","GOVERNANCE","ESSENTIAL"], url:"#",
+    why:"The only comprehensive how-to for founding intentional communities. The Ark's governance bible." },
+  { id:22, cat:"COMMUNITY", type:"Book",   icon:"📚", title:"Ecovillage: 1001 Ways to Heal the Planet", author:"Kosha Joubert", year:2016, stars:3, relevance:68, featured:false,
+    excerpt:"Survey of global ecovillage experiments with emphasis on what worked vs. what failed. Important cautionary data on the 90%+ failure rate of intentional communities.", tags:["COMMUNITY","ECOVILLAGE"], url:"#" },
+  { id:23, cat:"COMMUNITY", type:"Paper",  icon:"🔬", title:"Why Intentional Communities Fail: A Meta-Analysis", author:"Kinkade, Communities Journal", year:2019, stars:5, relevance:95, featured:true,
+    excerpt:"The most comprehensive academic meta-analysis of intentional community failure modes. Documents that governance failure — not resource scarcity — is the #1 cause of dissolution. Foundation for Ark governance design.", tags:["COMMUNITY","GOVERNANCE","ESSENTIAL"], url:"#",
+    why:"Governance failure kills communities, not resource scarcity. Meta-analysis of 200+ communities." },
+  { id:24, cat:"COMMUNITY", type:"Book",   icon:"📚", title:"Governing the Commons", author:"Elinor Ostrom", year:1990, stars:5, relevance:86, featured:false,
+    excerpt:"Nobel Prize-winning work on how communities successfully manage shared resources without privatisation or state control. The theoretical foundation for Ark resource governance doctrine.", tags:["GOVERNANCE","RESOURCES","ECONOMICS"], url:"#" },
+  { id:58, cat:"COMMUNITY", type:"Book",   icon:"📚", title:"Mutual Aid: Building Solidarity During This Crisis", author:"Dean Spade", year:2020, stars:4, relevance:82, featured:false,
+    excerpt:"Practical framework for building mutual aid networks in crisis conditions. Documents how decentralised community support outperforms top-down aid structures when institutions fail.", tags:["COMMUNITY","MUTUAL AID","CRISIS"], url:"#" },
+  { id:59, cat:"COMMUNITY", type:"Book",   icon:"📚", title:"The Village Effect", author:"Susan Pinker", year:2014, stars:4, relevance:79, featured:false,
+    excerpt:"Epidemiological research on how face-to-face community density correlates with health, resilience, and longevity. Quantifies the survival advantage of tight-knit communities.", tags:["COMMUNITY","PSYCHOLOGY","HEALTH"], url:"#" },
+
+  // ── TECHNOLOGY / AI ───────────────────────────────────────────────────────
+  { id:25, cat:"TECHNOLOGY", type:"Book",   icon:"🤖", title:"Human Compatible", author:"Stuart Russell", year:2019, stars:5, relevance:88, featured:true,
+    excerpt:"Berkeley AI researcher on why misaligned AI is an existential threat and what technical approaches can address it. More rigorous than popular AI risk literature. Critical for understanding AI scenario timelines.", tags:["AI","TECHNOLOGY","ESSENTIAL"], url:"#",
+    why:"The most technically rigorous case for misaligned AI as an existential threat." },
+  { id:26, cat:"TECHNOLOGY", type:"Report", icon:"📄", title:"State of AI Report 2024", author:"Air Street Capital", year:2024, stars:5, relevance:88, featured:false,
+    excerpt:"Annual industry analysis of AI capability progress, safety research, and deployment trends. 2024 edition documents acceleration of frontier AI capabilities and safety gaps. The most rigorous annual AI tracking document.", tags:["AI","TECHNOLOGY","NEW"], url:"https://www.stateof.ai" },
+  { id:27, cat:"TECHNOLOGY", type:"Book",   icon:"📚", title:"Countdown to Zero Day", author:"Kim Zetter", year:2014, stars:4, relevance:82, featured:false,
+    excerpt:"The Stuxnet story — the first time a cyberweapon caused physical destruction of industrial infrastructure. Sets up the framework for understanding critical infrastructure cyberattack as a primary collapse vector.", tags:["CYBERSECURITY","INFRASTRUCTURE"], url:"#" },
+  { id:28, cat:"TECHNOLOGY", type:"Paper",  icon:"🔬", title:"An Overview of Catastrophic AI Risk", author:"Hendrycks et al., Arxiv", year:2023, stars:5, relevance:91, featured:false,
+    excerpt:"Comprehensive academic survey of AI risk pathways: misuse, misalignment, structural risks. The most balanced and technically rigorous treatment of AI catastrophic risk currently available.", tags:["AI","RISK","NEW"], url:"https://arxiv.org" },
+  { id:60, cat:"TECHNOLOGY", type:"Book",   icon:"📚", title:"Power and Progress", author:"Daron Acemoglu & Simon Johnson", year:2023, stars:5, relevance:87, featured:false,
+    excerpt:"MIT economists argue AI's direction is a choice, not a fate, and that the current trajectory concentrates power at civilisational scale. Framework for understanding AI-driven economic collapse vectors.", tags:["AI","ECONOMICS","TECHNOLOGY","NEW"], url:"#" },
+  { id:94, cat:"TECHNOLOGY", type:"Report", icon:"📄", title:"Situational Awareness: The Decade Ahead", author:"Leopold Aschenbrenner", year:2024, stars:5, relevance:94, featured:false,
+    excerpt:"Former OpenAI safety researcher's landmark 165-page analysis arguing AGI will arrive 2025–2027, driving rapid military superintelligence race. Widely read inside frontier AI labs. The most detailed public treatment of AGI timeline and geopolitical implications.", tags:["AI","TECHNOLOGY","ESSENTIAL","NEW"], url:"https://situational-awareness.ai" },
+  { id:95, cat:"TECHNOLOGY", type:"Book",   icon:"📚", title:"The Coming Wave", author:"Mustafa Suleyman", year:2023, stars:4, relevance:89, featured:false,
+    excerpt:"DeepMind co-founder argues AI and synthetic biology converge in the 2020s to create unprecedented dual-use risks that existing governance frameworks cannot contain. The strongest insider case for technology-driven civilisational disruption.", tags:["AI","BIOSECURITY","TECHNOLOGY","NEW"], url:"#" },
+  { id:96, cat:"TECHNOLOGY", type:"Book",   icon:"📚", title:"Nexus: A Brief History of Information Networks", author:"Yuval Noah Harari", year:2024, stars:4, relevance:86, featured:false,
+    excerpt:"Harari argues AI is the first external decision-making agent in human history — distinct from all previous information technologies. Frames AI not as a tool but as an autonomous force reshaping civilisational structure.", tags:["AI","PHILOSOPHY","TECHNOLOGY","NEW"], url:"#" },
+
+  // ── GEOPOLITICAL ──────────────────────────────────────────────────────────
+  { id:29, cat:"GEOPOLITICAL", type:"Book",   icon:"🌐", title:"The End of the World Is Just the Beginning", author:"Peter Zeihan", year:2022, stars:4, relevance:90, featured:true,
+    excerpt:"Thesis: US retreat from global order collapses the supply chains and demographic structures that make modern civilisation function. Deeply controversial but systematically argued. Essential Ark scenario input.", tags:["GEOPOLITICAL","SUPPLY CHAIN","ESSENTIAL"], url:"#",
+    why:"US retreat from global order collapses supply chains. The systematic case for deglobalisation risk." },
+  { id:30, cat:"GEOPOLITICAL", type:"Book",   icon:"📚", title:"Prisoners of Geography", author:"Tim Marshall", year:2015, stars:4, relevance:84, featured:false,
+    excerpt:"How geography determines political and military outcomes. Critical for understanding which Safe Zone locations are genuinely insulated from geopolitical conflict vectors.", tags:["GEOPOLITICAL","GEOGRAPHY","LOCATION"], url:"#" },
+  { id:62, cat:"GEOPOLITICAL", type:"Book",   icon:"📚", title:"Upheaval", author:"Jared Diamond", year:2019, stars:4, relevance:85, featured:false,
+    excerpt:"How nations successfully navigate existential crises. Comparative case studies of Finland, Japan, Chile, Germany, and Australia. Directly applicable to Safe Zone country resilience scoring.", tags:["GEOPOLITICAL","CRISIS","RESILIENCE"], url:"#" },
+  { id:97, cat:"GEOPOLITICAL", type:"Report", icon:"📄", title:"Global Risks Report 2025", author:"World Economic Forum", year:2025, stars:5, relevance:93, featured:false,
+    excerpt:"Annual survey of 1,000+ global risk experts. 2025 edition ranks misinformation/disinformation as #1 short-term risk. Top 10-year risks dominated by climate tipping points, AI, and state-based armed conflict. Critical for Ark multi-hazard scenario construction.", tags:["GEOPOLITICAL","RISK","MULTI-HAZARD","NEW"], url:"https://www.weforum.org" },
+  { id:98, cat:"GEOPOLITICAL", type:"Book",   icon:"📚", title:"How Democracies Die", author:"Levitsky & Ziblatt", year:2018, stars:5, relevance:88, featured:false,
+    excerpt:"Harvard political scientists document how democratic systems collapse not through coups but gradual institutional erosion from within — a pattern visible in 25+ countries. Critical for Safe Zone governance stability assessment.", tags:["GOVERNANCE","DEMOCRACY","GEOPOLITICAL"], url:"#" },
+
+  // ── PRACTICAL PREPAREDNESS ────────────────────────────────────────────────
+  { id:32, cat:"PRACTICAL", type:"Book",   icon:"🛠️", title:"The Self-Sufficient Life and How to Live It", author:"John Seymour", year:1976, stars:5, relevance:89, featured:true,
+    excerpt:"The practical bible of self-sufficient living. Food growing, animal husbandry, food preservation, energy production. Every Ark member should own and have read this book cover to cover.", tags:["AGRICULTURE","PRACTICAL","ESSENTIAL"], url:"#",
+    why:"The practical bible. Every Ark member reads this before any other practical text." },
+  { id:33, cat:"PRACTICAL", type:"Book",   icon:"📚", title:"Where There Is No Doctor", author:"David Werner", year:1977, stars:5, relevance:92, featured:true,
+    excerpt:"Medical self-sufficiency manual designed for communities without professional healthcare. Updated 2023. Critical reading for the Ark medical team and every community member. Free PDF available.", tags:["MEDICAL","PRACTICAL","ESSENTIAL"], url:"https://hesperian.org",
+    why:"Medical care without hospitals. The definitive community medical reference. Free PDF." },
+  { id:34, cat:"PRACTICAL", type:"Book",   icon:"📚", title:"Permaculture: A Designer's Manual", author:"Bill Mollison", year:1988, stars:5, relevance:87, featured:false,
+    excerpt:"The comprehensive permaculture design system. How to design productive food systems that require minimal external input and become more resilient over time. The Ark agriculture framework's theoretical foundation.", tags:["AGRICULTURE","PERMACULTURE","PRACTICAL"], url:"#" },
+  { id:35, cat:"PRACTICAL", type:"Manual", icon:"📋", title:"Nuclear War Survival Skills", author:"Cresson Kearny / ORNL", year:1987, stars:4, relevance:85, featured:false,
+    excerpt:"US government civil defence manual updated for modern context. Fallout shelter construction, radiation dosimetry, long-term food storage. Free PDF from Oregon Institute of Science.", tags:["NUCLEAR","PRACTICAL","SURVIVAL"], url:"#" },
+  { id:64, cat:"PRACTICAL", type:"Manual", icon:"📋", title:"SAS Survival Handbook", author:"John 'Lofty' Wiseman", year:1986, stars:5, relevance:91, featured:false,
+    excerpt:"Field survival manual from a former SAS instructor covering shelter, water procurement, fire, navigation, signalling, and first aid under extreme conditions. The most rigorous field survival reference in the Ark library.", tags:["SURVIVAL","PRACTICAL","FIELD SKILLS"], url:"#" },
+  { id:65, cat:"PRACTICAL", type:"Book",   icon:"📚", title:"The Encyclopedia of Country Living", author:"Carla Emery", year:1994, stars:5, relevance:88, featured:false,
+    excerpt:"1,000-page encyclopedic reference covering every aspect of country living — livestock, gardening, food preservation, baking, home remedies, and small-scale energy. Pairs with Seymour for comprehensive coverage.", tags:["PRACTICAL","AGRICULTURE","FOOD STORAGE"], url:"#" },
+  { id:66, cat:"PRACTICAL", type:"Manual", icon:"📋", title:"Where There Is No Dentist", author:"Murray Dickson", year:1983, stars:4, relevance:82, featured:false,
+    excerpt:"Dental care, extractions, abscess management, and oral hygiene without professional infrastructure. Often overlooked but critical for long-term community health. Free PDF available.", tags:["MEDICAL","PRACTICAL","DENTAL"], url:"https://hesperian.org" },
+
+  // ── SAFE ZONES ────────────────────────────────────────────────────────────
+  { id:37, cat:"SAFE ZONES", type:"Paper",  icon:"🗺️", title:"Evaluating the Collapse-Proof Resilience of Nations", author:"Cirillo & Taleb, Nature", year:2022, stars:5, relevance:97, featured:true,
+    excerpt:"Nassim Taleb co-authored rigorous resilience scoring of nation-states for post-collapse survival. New Zealand, Iceland, and Tasmania identified as top-tier refuge locations. The quantitative basis for Ark Safe Zone doctrine.", tags:["LOCATION","NZ","ESSENTIAL","RESILIENCE"], url:"#",
+    why:"Taleb's quantitative resilience scoring of every nation-state. NZ, Iceland, Tasmania top-ranked." },
+  { id:39, cat:"SAFE ZONES", type:"Report", icon:"📄", title:"New Zealand: A Natural Global Ark", author:"GPI Pacific", year:2021, stars:4, relevance:91, featured:false,
+    excerpt:"Detailed assessment of New Zealand's post-collapse resilience factors — geographic isolation, food production capacity, climate stability, governance quality, and existing preparedness culture.", tags:["NZ","LOCATION","RESILIENCE"], url:"#" },
+  { id:40, cat:"SAFE ZONES", type:"Report", icon:"📄", title:"Tasmania Resilience Assessment", author:"University of Tasmania", year:2023, stars:4, relevance:88, featured:false,
+    excerpt:"Academic assessment of Tasmania's collapse resilience. Identifies SW Tasmania as Tier-1 survival zone with specific reference to water, food, climate, and isolation characteristics.", tags:["AUSTRALIA","LOCATION","RESILIENCE","NEW"], url:"#" },
+  { id:68, cat:"SAFE ZONES", type:"Report", icon:"📄", title:"Global Food Security Index", author:"Economist Intelligence Unit", year:2024, stars:4, relevance:89, featured:false,
+    excerpt:"Annual scoring of 113 countries across food availability, affordability, quality, and sustainability. Critical input for Safe Zone agricultural self-sufficiency ratings.", tags:["FOOD","LOCATION","AGRICULTURE","NEW"], url:"#" },
+  { id:38, cat:"SAFE ZONES", type:"Book",   icon:"📚", title:"Apocalypse Never", author:"Michael Shellenberger", year:2020, stars:3, relevance:65, featured:false,
+    excerpt:"Counter-argument to catastrophism. The strongest opposing case. Useful for exercising assumptions though overall conclusion that civilisational collapse is unlikely overstates the case.", tags:["CRITIQUE","CLIMATE","RISK"], url:"#" },
+
+  // ── PSYCHOLOGY ────────────────────────────────────────────────────────────
+  { id:41, cat:"PSYCHOLOGY", type:"Book",   icon:"🧠", title:"Antifragile", author:"Nassim Nicholas Taleb", year:2012, stars:5, relevance:91, featured:true,
+    excerpt:"Taleb's systematic framework for building systems that gain strength from disorder rather than breaking. The philosophical foundation for the Ark's resilience architecture. Mandatory reading for all members.", tags:["RESILIENCE","PHILOSOPHY","ESSENTIAL"], url:"#",
+    why:"Build systems that gain strength from chaos. The philosophical architecture of the Ark itself." },
+  { id:42, cat:"PSYCHOLOGY", type:"Book",   icon:"📚", title:"Man's Search for Meaning", author:"Viktor Frankl", year:1946, stars:5, relevance:80, featured:false,
+    excerpt:"Frankl's account of survival in Nazi concentration camps. The most important book on maintaining psychological function under civilisational collapse conditions. Purpose and meaning as survival mechanisms.", tags:["PSYCHOLOGY","SURVIVAL","PHILOSOPHY"], url:"#" },
+  { id:43, cat:"PSYCHOLOGY", type:"Book",   icon:"📚", title:"The Lucifer Effect", author:"Philip Zimbardo", year:2007, stars:4, relevance:85, featured:false,
+    excerpt:"How ordinary people become perpetrators of violence under specific situational conditions. Critical for understanding how Ark communities could themselves become dangerous.", tags:["PSYCHOLOGY","COMMUNITY","RISK"], url:"#" },
+  { id:44, cat:"PSYCHOLOGY", type:"Paper",  icon:"🔬", title:"Long-duration Isolation: Psychological Findings from Antarctic Stations", author:"Sandal et al., Aviation Medicine", year:2018, stars:4, relevance:82, featured:false,
+    excerpt:"Psychological deterioration in isolated communities. Identifies key variables: group size, leadership, task meaningfulness, and privacy. Directly applied in Ark community design specifications.", tags:["PSYCHOLOGY","ISOLATION","COMMUNITY"], url:"#" },
+  { id:69, cat:"PSYCHOLOGY", type:"Book",   icon:"📚", title:"Deep Survival", author:"Laurence Gonzales", year:2003, stars:5, relevance:90, featured:false,
+    excerpt:"Neuroscience and psychology of survival in extreme conditions. Analyses hundreds of survival and death cases to identify cognitive patterns of survivors vs. non-survivors. Essential for Ark psychological resilience training.", tags:["PSYCHOLOGY","SURVIVAL","NEUROSCIENCE"], url:"#" },
+  { id:71, cat:"PSYCHOLOGY", type:"Book",   icon:"📚", title:"Thinking in Systems", author:"Donella Meadows", year:2008, stars:5, relevance:89, featured:false,
+    excerpt:"The definitive introduction to systems thinking. Reveals how complex systems behave counterintuitively, why interventions backfire, and how leverage points produce outsized change. Foundation for Ark systems design philosophy.", tags:["SYSTEMS","PHILOSOPHY","GOVERNANCE"], url:"#" },
+
+  // ── ENERGY & INFRASTRUCTURE ───────────────────────────────────────────────
+  { id:72, cat:"ENERGY", type:"Book",   icon:"⚡", title:"The Grid", author:"Gretchen Bakke", year:2016, stars:4, relevance:88, featured:false,
+    excerpt:"The US electrical grid is a 100-year-old system held together with workarounds. The most accessible account of why grid fragility is the single most dangerous infrastructure vulnerability.", tags:["GRID","INFRASTRUCTURE","ENERGY"], url:"#" },
+  { id:73, cat:"ENERGY", type:"Report", icon:"📄", title:"World Energy Outlook 2024", author:"International Energy Agency", year:2024, stars:4, relevance:85, featured:false,
+    excerpt:"IEA's annual flagship report. 2024 edition documents fossil fuel peak demand scenario and energy transition acceleration. Key input for Ark off-grid energy planning and renewable technology cost curves.", tags:["ENERGY","RENEWABLES","INFRASTRUCTURE","NEW"], url:"https://www.iea.org" },
+  { id:75, cat:"ENERGY", type:"Manual", icon:"📋", title:"Photovoltaics: Design and Installation Manual", author:"Solar Energy International", year:2007, stars:4, relevance:85, featured:false,
+    excerpt:"Comprehensive technical reference for off-grid solar system design. Sizing, installation, battery banks, charge controllers, inverters. Required technical reading for Ark energy team leads.", tags:["SOLAR","ENERGY","PRACTICAL"], url:"#" },
+  { id:76, cat:"ENERGY", type:"Book",   icon:"📚", title:"When the Lights Go Out", author:"Ted Koppel", year:2015, stars:4, relevance:87, featured:false,
+    excerpt:"Former ABC News anchor's investigation into US grid cyberattack vulnerability. Documents the complete absence of preparedness for sustained grid-down scenarios among FEMA and DHS.", tags:["GRID","CYBERSECURITY","INFRASTRUCTURE"], url:"#" },
+  { id:99, cat:"ENERGY", type:"Report", icon:"📄", title:"Critical Infrastructure Threat Assessment", author:"CISA / DHS", year:2024, stars:5, relevance:91, featured:false,
+    excerpt:"US government assessment of 16 critical infrastructure sectors' vulnerability to physical and cyber attack. Documents specific chokepoints in energy, water, and communications infrastructure relevant to Ark contingency planning. Public edition released 2024.", tags:["INFRASTRUCTURE","CYBERSECURITY","ENERGY","NEW"], url:"https://www.cisa.gov" },
+
+  // ── FOOD SECURITY ─────────────────────────────────────────────────────────
+  { id:77, cat:"FOOD SECURITY", type:"Book",   icon:"🌱", title:"The One-Straw Revolution", author:"Masanobu Fukuoka", year:1978, stars:5, relevance:86, featured:false,
+    excerpt:"Japanese farmer's philosophy of natural farming — minimum intervention, maximum yield, no chemicals. Foundational text for Ark food production philosophy and soil management.", tags:["AGRICULTURE","FOOD","PHILOSOPHY"], url:"#" },
+  { id:78, cat:"FOOD SECURITY", type:"Report", icon:"📄", title:"State of Food Security and Nutrition in the World 2024", author:"FAO / WFP / UNICEF / WHO", year:2024, stars:5, relevance:91, featured:false,
+    excerpt:"Annual UN assessment of global food system fragility. 2024 edition: 733 million people face chronic hunger, record food insecurity driven by climate shocks, conflict, and economic disruption. Essential for Ark food stockpile sizing.", tags:["FOOD","AGRICULTURE","RISK","NEW"], url:"https://www.fao.org" },
+  { id:79, cat:"FOOD SECURITY", type:"Book",   icon:"📚", title:"Growing a Revolution", author:"David Montgomery", year:2017, stars:4, relevance:84, featured:false,
+    excerpt:"Soil scientist's case for regenerative agriculture. Documents how industrial farming has degraded 40% of Earth's agricultural soil and provides the regenerative framework used in Ark long-term food production planning.", tags:["AGRICULTURE","SOIL","REGENERATIVE"], url:"#" },
+  { id:80, cat:"FOOD SECURITY", type:"Manual", icon:"📋", title:"Root Cellaring", author:"Mike & Nancy Bubel", year:1979, stars:4, relevance:83, featured:false,
+    excerpt:"Natural food preservation without electricity. Temperature management, humidity control, vegetable and fruit storage, cold storage construction. Critical for Ark food continuity planning.", tags:["FOOD","PRESERVATION","PRACTICAL"], url:"#" },
+  { id:100, cat:"FOOD SECURITY", type:"Report", icon:"📄", title:"Global Food Crises Report 2024", author:"Global Network Against Food Crises / WFP", year:2024, stars:5, relevance:90, featured:false,
+    excerpt:"2024 edition: 281 million people in acute food insecurity — the highest ever recorded. Documents how climate, conflict, and economic shocks interact to produce food system collapse at regional scale. Direct input for Ark food security risk modelling.", tags:["FOOD","CRISIS","CLIMATE","NEW"], url:"https://www.wfp.org" },
+
+  // ── GOVERNANCE & COLLAPSE ─────────────────────────────────────────────────
+  { id:81, cat:"GOVERNANCE", type:"Book",   icon:"🏛️", title:"Why Nations Fail", author:"Acemoglu & Robinson", year:2012, stars:5, relevance:90, featured:false,
+    excerpt:"The definitive study of why some nations prosper and others collapse — with the answer being the quality of political and economic institutions. Framework for evaluating Safe Zone governance quality.", tags:["GOVERNANCE","INSTITUTIONS","GEOPOLITICAL"], url:"#" },
+  { id:82, cat:"GOVERNANCE", type:"Book",   icon:"📚", title:"The Death of Democracy", author:"Benjamin Carter Hett", year:2018, stars:4, relevance:84, featured:false,
+    excerpt:"Forensic account of how the Weimar Republic was legally dismantled from within. Directly applicable to current institutional fragility analysis and Ark democratic governance design.", tags:["GOVERNANCE","DEMOCRACY","HISTORICAL"], url:"#" },
+  { id:83, cat:"GOVERNANCE", type:"Report", icon:"📄", title:"Fragile States Index 2024", author:"Fund for Peace", year:2024, stars:5, relevance:92, featured:false,
+    excerpt:"Annual scoring of 179 nations across 12 dimensions of state fragility. The primary quantitative input for Ark Safe Zone negative screening. Countries scoring above 80 eliminated from consideration.", tags:["GOVERNANCE","FRAGILITY","LOCATION","NEW"], url:"https://fragilestatesindex.org" },
+  { id:84, cat:"GOVERNANCE", type:"Book",   icon:"📚", title:"The Origins of Totalitarianism", author:"Hannah Arendt", year:1951, stars:5, relevance:82, featured:false,
+    excerpt:"How totalitarian regimes emerge from conditions that feel familiar — economic instability, social atomisation, propaganda, and institutional decay. The historical map for understanding how Safe Zones could become unsafe.", tags:["GOVERNANCE","POLITICAL","HISTORICAL"], url:"#" },
+  { id:98, cat:"GOVERNANCE", type:"Book",   icon:"📚", title:"How Democracies Die", author:"Levitsky & Ziblatt", year:2018, stars:5, relevance:88, featured:false,
+    excerpt:"Democratic collapse happens through gradual institutional erosion, not coups — a pattern visible in 25+ countries. Critical for Safe Zone governance stability assessment.", tags:["GOVERNANCE","DEMOCRACY","GEOPOLITICAL"], url:"#" },
+
+  // ── WATER SECURITY ────────────────────────────────────────────────────────
+  { id:101, cat:"WATER SECURITY", type:"Report", icon:"💧", title:"UN World Water Development Report 2024", author:"UNESCO / UN Water", year:2024, stars:5, relevance:91, featured:false,
+    excerpt:"2024 theme: 'Water for Prosperity and Peace'. Documents that 50% of the world's population will face severe water stress by 2050. Identifies 31 countries at risk of state failure driven primarily by water scarcity. Critical for Safe Zone selection and Ark water infrastructure planning.", tags:["WATER","CLIMATE","LOCATION","NEW"], url:"https://www.unesco.org" },
+  { id:102, cat:"WATER SECURITY", type:"Book",   icon:"📚", title:"The Water Will Come", author:"Jeff Goodell", year:2017, stars:4, relevance:86, featured:false,
+    excerpt:"Detailed journalism on which global cities will be submerged and when. Critical for negative screening of Safe Zone candidates — identifies precisely which coastal regions become uninhabitable.", tags:["CLIMATE","LOCATION","SEA LEVEL"], url:"#" },
+  { id:103, cat:"WATER SECURITY", type:"Report", icon:"📄", title:"Groundwater Depletion and Agricultural Collapse", author:"Nature Sustainability", year:2023, stars:5, relevance:89, featured:false,
+    excerpt:"Models groundwater depletion in the world's major breadbasket aquifers (US, India, Pakistan, China). Projects agricultural collapse timelines for each region as aquifers hit depletion thresholds. Directly informs Ark food security and location modelling.", tags:["WATER","AGRICULTURE","FOOD","NEW"], url:"#" },
+  { id:104, cat:"WATER SECURITY", type:"Book",   icon:"📚", title:"Water: A Biography", author:"Giulio Boccaletti", year:2021, stars:4, relevance:82, featured:false,
+    excerpt:"How human civilisation is built on water engineering and what happens when that infrastructure fails. Documents the water infrastructure fragility underlying every major historical collapse. Essential context for Ark site hydrology assessment.", tags:["WATER","INFRASTRUCTURE","HISTORICAL"], url:"#" },
+
+  // ── SPACE WEATHER ─────────────────────────────────────────────────────────
+  { id:105, cat:"SPACE WEATHER", type:"Report", icon:"☀️", title:"Extreme Space Weather: Impacts on Engineered Systems", author:"Royal Academy of Engineering", year:2023, stars:5, relevance:88, featured:false,
+    excerpt:"Documents the mechanisms by which a Carrington-class solar event would destroy satellite infrastructure, power grids, and GPS systems simultaneously. Estimates 1-in-50 probability per decade. This risk is almost entirely absent from mainstream preparedness frameworks.", tags:["SOLAR","INFRASTRUCTURE","GRID","NEW"], url:"#" },
+  { id:106, cat:"SPACE WEATHER", type:"Report", icon:"📄", title:"Solar Cycle 25 Prediction Panel Report", author:"NOAA / NASA", year:2024, stars:4, relevance:82, featured:false,
+    excerpt:"Official government forecast for Solar Cycle 25, which is tracking significantly stronger than predicted — increasing the probability of extreme geomagnetic events in the 2024–2026 window. Direct input for Ark electromagnetic hardening timeline.", tags:["SOLAR","GRID","RISK","NEW"], url:"https://www.noaa.gov" },
+  { id:107, cat:"SPACE WEATHER", type:"Book",   icon:"📚", title:"A Nation Forsaken", author:"Michael Maloof", year:2013, stars:3, relevance:78, featured:false,
+    excerpt:"Analysis of US grid vulnerability to both EMP and solar storm events with focus on societal collapse timelines. Less rigorous than EMP Commission reports but useful for narrative context and civilian impact projections.", tags:["SOLAR","GRID","EMP"], url:"#" },
+
+  // ── GOVERNMENT & INTELLIGENCE (NEW 2025–2026) ──────────────────────────────
+  { id:108, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"Doomsday Clock Statement 2026", author:"Bulletin of the Atomic Scientists", year:2026, stars:5, relevance:99, featured:true,
+    excerpt:"January 27, 2026: Clock moved to 85 seconds to midnight — the closest in its 79-year history, 4 seconds closer than 2025. Cites nuclear treaty collapse (New START expires Feb 2026 with no replacement), AI military escalation, growing nationalistic autocracies, and a 'self-replicating mirror life' biosecurity breakthrough. Alexandra Bell, CEO: 'Catastrophic risks are on the rise, cooperation is on the decline, and we are running out of time.'",
+    tags:["NUCLEAR","AI","BIOSECURITY","DOOMSDAY CLOCK","NEW"], url:"https://thebulletin.org/doomsday-clock/2026-statement/",
+    why:"85 seconds to midnight — the closest ever. Nuclear, AI, and biosecurity risks all worsening simultaneously." },
+
+  { id:109, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"Global Risks Report 2026", author:"World Economic Forum", year:2026, stars:5, relevance:97, featured:true,
+    excerpt:"21st edition. Survey of 1,300+ global leaders. Geoeconomic confrontation ranked #1 risk for 2026 — selected by 18% of experts, up 8 positions year-on-year. State-based armed conflict #2 (14%). 59 active state conflicts worldwide — highest since WWII. Over 10-year horizon, environmental risks dominate: extreme weather #1, biodiversity loss #2, critical Earth system change #3. Only 6% of respondents expect the post-war international order to be revived.",
+    tags:["GEOPOLITICAL","ECONOMIC","CLIMATE","AI","NEW"], url:"https://www.weforum.org/publications/global-risks-report-2026/",
+    why:"1,300 global experts agree: geoeconomic confrontation is the #1 trigger risk for civilisational disruption in 2026." },
+
+  { id:110, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"Annual Threat Assessment 2025: US Intelligence Community", author:"Office of the Director of National Intelligence (ODNI)", year:2025, stars:5, relevance:95, featured:true,
+    excerpt:"Unclassified assessment from all 18 US intelligence agencies. China identified as 'most comprehensive and robust' strategic competitor, on track for PLA military milestones by 2027 and 2035. Russia modernising its nuclear force to circumvent US missile defence with hypersonic delivery systems. Iran reducing its nuclear breakout time. First ODNI report in over a decade to omit climate change entirely — a documented governance intelligence gap with direct relevance to Ark scenario calibration.",
+    tags:["NUCLEAR","CHINA","RUSSIA","AI","INTELLIGENCE","NEW"], url:"https://www.dni.gov/index.php/newsroom/reports-publications/reports-publications-2025/4058-2025-annual-threat-assessment",
+    why:"The US intelligence community's unified threat picture. China's 2027 Taiwan timeline, Russia's nuclear doctrine update, Iran's breakout timeline." },
+
+  { id:111, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"SIPRI Yearbook 2025: Armaments, Disarmament & International Security", author:"Stockholm International Peace Research Institute", year:2025, stars:5, relevance:96, featured:true,
+    excerpt:"12,241 total nuclear warheads across 9 states as of January 2025 — 9,614 in military stockpiles for potential use, ~2,100 on high operational alert. China adding ~100 warheads/year since 2023, now at 600+, may rival US/Russia ICBM count by 2030. Global military spending reached $2.7 trillion in 2024 — a 9.4% increase and all-time record. New START expires February 2026 with no replacement treaty. 'The era of nuclear reductions is coming to an end.'",
+    tags:["NUCLEAR","GEOPOLITICAL","MILITARY","ARMS RACE","NEW"], url:"https://www.sipri.org/yearbook/2025",
+    why:"Nuclear era of reductions is ending. China adding 100 warheads/year. Global military spending at all-time record $2.7T." },
+
+  { id:112, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"IMF World Economic Outlook: October 2025", author:"International Monetary Fund", year:2025, stars:5, relevance:91, featured:false,
+    excerpt:"Global growth projected to slow from 3.3% (2024) to 3.2% (2025) to 3.1% (2026). Recession probability raised to 40%. Debt ratios rising in Brazil, China, France, and the US simultaneously. Key risks: protectionism and trade fragmentation, asset bubble burst (tech stocks), erosion of central bank independence, and sovereign refinancing stress at elevated interest rates. 'Global Economy in Flux, Prospects Remain Dim' — official IMF title.",
+    tags:["FINANCIAL","DEBT","RECESSION","TRADE","NEW"], url:"https://www.imf.org/en/publications/weo",
+    why:"IMF: 40% recession probability, debt rising in all major economies. 'Prospects Remain Dim' is the official headline." },
+
+  { id:113, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"World Bank Global Economic Prospects: June 2025", author:"World Bank Group", year:2025, stars:4, relevance:88, featured:false,
+    excerpt:"Average growth this decade will be the lowest since the 1960s. One in four developing countries will be poorer than before the pandemic. 25%+ of emerging economies have per capita incomes below 2019 levels. Tepid recovery expected 2026–27 leaving global output materially below pre-2025 projections. Declining official development assistance and elevated debt service costs compound fragile state collapse risk.",
+    tags:["FINANCIAL","DEVELOPING WORLD","POVERTY","DEBT","NEW"], url:"https://www.worldbank.org/en/publication/global-economic-prospects" },
+
+  { id:114, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"UN Secretary-General Report: Rebalancing Military Spending", author:"United Nations Secretariat", year:2025, stars:4, relevance:87, featured:false,
+    excerpt:"UN Secretary-General warns that $2.7 trillion in global military spending undermines progress toward all 17 Sustainable Development Goals. Draws on SIPRI data to show military expenditure crowding out climate adaptation, pandemic preparedness, and food security investment. The SDG funding gap is now $4 trillion/year — widening as military budgets expand. Directly relevant to Ark assessment of institutional failure risk.",
+    tags:["MILITARY","GOVERNANCE","ECONOMIC","UN","NEW"], url:"https://www.un.org/en/global-issues/peace-and-security" },
+
+  { id:115, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"Fragile States Index 2025", author:"Fund for Peace", year:2025, stars:5, relevance:93, featured:false,
+    excerpt:"Annual scoring of 179 nations across 12 dimensions of state fragility. 2025 edition: state fragility worsening in 6 of the 12 indicators globally. Yemen, South Sudan, Syria, Somalia, and DRC remain extreme-fragility tier. Of direct relevance: fragility in middle-income countries is accelerating fastest — including several Safe Zone candidates in the Americas and Southern Europe.",
+    tags:["GOVERNANCE","FRAGILITY","LOCATION","GEOPOLITICAL","NEW"], url:"https://fragilestatesindex.org" },
+
+  { id:116, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"WEF Future of Jobs Report 2025", author:"World Economic Forum", year:2025, stars:4, relevance:89, featured:false,
+    excerpt:"AI and automation expected to displace 85 million jobs by 2025, create 97 million new roles — but the transition gap is the crisis. By 2030, 44% of worker skills will be disrupted. Growing skills mismatch between displaced manufacturing workers and emerging tech roles is a primary driver of societal polarisation and political radicalisation — a key collapse precondition documented in Ark risk models.",
+    tags:["AI","ECONOMICS","SOCIAL","LABOUR","NEW"], url:"https://www.weforum.org/reports/the-future-of-jobs-report-2025/" },
+
+  { id:117, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"IAEA Annual Report 2024", author:"International Atomic Energy Agency", year:2025, stars:4, relevance:90, featured:false,
+    excerpt:"Iran's nuclear programme now has sufficient enriched uranium for multiple devices, with breakout time estimated at weeks rather than months. 9 states with nuclear weapons. Verification gaps at key facilities. The 2024 India-Pakistan military confrontation briefly targeted nuclear-adjacent military infrastructure — the first known instance since the Cold War. Authoritative nuclear proliferation data for Ark nuclear risk modelling.",
+    tags:["NUCLEAR","PROLIFERATION","IRAN","RISK","NEW"], url:"https://www.iaea.org/publications/reports/annual-report-2024" },
+
+  { id:118, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"NATO Climate Change and Security Impact Assessment 2024", author:"NATO Science for Peace and Security", year:2024, stars:4, relevance:86, featured:false,
+    excerpt:"NATO's own assessment of how climate change threatens alliance cohesion, military readiness, and infrastructure. Documents specific vulnerabilities in 32 member states, including flooding of key air bases and disruption of Arctic military logistics. Significant because it demonstrates even the world's premier military alliance is unprepared for the climate scenarios in Ark models.",
+    tags:["CLIMATE","MILITARY","INFRASTRUCTURE","NATO","NEW"], url:"https://www.nato.int/cps/en/natohq/topics_91048.htm" },
+
+  { id:119, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"WHO Global Health Security Index 2024", author:"Johns Hopkins Center for Health Security / NTI", year:2024, stars:5, relevance:92, featured:false,
+    excerpt:"Only 13% of countries have capabilities to handle a public health emergency. Average country preparedness score: 38/100 — marginally improved from 40.2 in 2021 but still failing. The US, UK, and Australia score highest but still show critical detection gaps. Developed for identifying Safe Zone countries with adequate health infrastructure to survive a pandemic scenario without total societal collapse.",
+    tags:["PANDEMIC","BIOSECURITY","LOCATION","PREPAREDNESS","NEW"], url:"https://ghsindex.org" },
+
+  { id:120, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"IPCC AR6 Technical Summary: Mitigation 2023", author:"IPCC Working Group III", year:2023, stars:5, relevance:94, featured:false,
+    excerpt:"Current nationally determined contributions put Earth on track for 2.5–3.0°C by 2100. Avoiding 1.5°C requires halving emissions by 2030 — 'not on track'. Documents carbon budget exhaustion timelines for each temperature threshold. The technical baseline for Ark climate scenario probability calibration across all Safe Zone models.",
+    tags:["CLIMATE","IPCC","CARBON BUDGET","TIPPING POINTS","NEW"], url:"https://www.ipcc.ch/report/ar6/wg3/" },
+
+  { id:121, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"UNEP Emissions Gap Report 2024", author:"UN Environment Programme", year:2024, stars:5, relevance:92, featured:false,
+    excerpt:"Current policies lead to 3.1°C warming by 2100. Bridging the emissions gap to 1.5°C requires 42% cut in global emissions by 2030 — a reduction rate with no historical precedent in peacetime. Includes country-by-country accountability data. Used by Ark as the primary quantitative basis for 'committed warming' calculations in Safe Zone climate modelling.",
+    tags:["CLIMATE","EMISSIONS","UN","POLICY","NEW"], url:"https://www.unep.org/resources/emissions-gap-report-2024" },
+
+  { id:122, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"World Meteorological Organization State of Global Climate 2024", author:"World Meteorological Organization (WMO)", year:2025, stars:5, relevance:93, featured:false,
+    excerpt:"2024 was the hottest year in recorded history — the 10th consecutive year of record-breaking temperatures. First year to exceed 1.5°C above pre-industrial average for a full calendar year. Ocean heat content at all-time high. Glacier mass loss accelerating. Arctic sea ice minimum below 2012 record. WMO Secretary-General: 'Climate history is playing out before our eyes.'",
+    tags:["CLIMATE","DATA","TEMPERATURE","RECORDS","NEW"], url:"https://wmo.int/publication-series/state-of-global-climate-2024" },
+
+  { id:123, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"FAO / WFP State of Food Security and Nutrition 2025", author:"FAO, WFP, UNICEF, WHO, IFAD", year:2025, stars:5, relevance:91, featured:false,
+    excerpt:"733 million people facing chronic hunger in 2024 — stagnant since 2020 despite global growth. Global Food Crises Report 2025: 295 million people in acute food insecurity across 53 countries. WFP funding shortfall of 60% in 2024 resulting in direct ration cuts to 16 million people. Primary drivers: climate shocks (41% of cases), economic shocks (33%), conflict (21%). Direct input for Ark food security stockpile calculations.",
+    tags:["FOOD","HUNGER","CLIMATE","CONFLICT","NEW"], url:"https://www.fao.org/publications/home/fao-flagship-publications/the-state-of-food-security-and-nutrition-in-the-world/en" },
+
+  { id:124, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"CISA National Cyber Threat Landscape Report 2025", author:"Cybersecurity and Infrastructure Security Agency (CISA)", year:2025, stars:5, relevance:91, featured:false,
+    excerpt:"US government assessment of the cyber threat environment. Documents 4 'Big 4' state actors (China, Russia, Iran, North Korea) with active critical infrastructure pre-positioning. Chinese 'Volt Typhoon' group confirmed to have pre-positioned access in US water, power, and communications infrastructure for potential activation during Taiwan conflict. Critical infrastructure attack capability now assessed as 'likely available' to multiple state actors.",
+    tags:["CYBERSECURITY","INFRASTRUCTURE","CHINA","RUSSIA","NEW"], url:"https://www.cisa.gov/topics/cyber-threats-and-advisories" },
+
+  { id:125, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"US Department of Defense China Military Power Report 2024", author:"US Department of Defense", year:2024, stars:4, relevance:90, featured:false,
+    excerpt:"Annual mandated assessment of China's military capability. Documents PLA completion of 350+ ICBM silos, hypersonic missile testing, and space warfare capability development. China's nuclear arsenal projected to reach 1,000+ warheads by 2030, 1,500 by 2035. Taiwan conflict assessed as Beijing's primary near-term objective with 2027 as key milestone. Essential for Ark East Asia safe zone negative screening.",
+    tags:["CHINA","NUCLEAR","MILITARY","TAIWAN","NEW"], url:"https://www.defense.gov/News/Releases/Release/Article/3933839/dod-releases-2024-report-on-military-and-security-developments-involving-the-p/" },
+
+  { id:126, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"UN Human Development Report 2025", author:"UN Development Programme (UNDP)", year:2025, stars:4, relevance:86, featured:false,
+    excerpt:"Human development progress has stalled globally for the first time since the index was created in 1990. Divergence between advanced and developing economies is growing fastest on record. Documents the relationship between human development decline and political instability — every historical case of HDI reversal has preceded either armed conflict or democratic backsliding within 10 years.",
+    tags:["DEVELOPMENT","GEOPOLITICAL","SOCIAL","UN","NEW"], url:"https://hdr.undp.org" },
+
+  { id:127, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"NATO Strategic Foresight Analysis 2024", author:"NATO Allied Command Transformation", year:2024, stars:4, relevance:88, featured:false,
+    excerpt:"NATO's own 20-year strategic foresight document for 2024–2044. Identifies five mega-trends threatening alliance security: climate change, demographic shift, economic decoupling, technology disruption, and resurgent great power competition. Documents specific scenarios where NATO may be unable to respond to member Article 5 crises due to resource overstretch. Unique military intelligence perspective on institutional collapse risk.",
+    tags:["GEOPOLITICAL","MILITARY","NATO","FORESIGHT","NEW"], url:"https://act.nato.int/activities/strategic-foresight/" },
+
+  { id:128, cat:"INTELLIGENCE", type:"Report", icon:"🏛️", title:"AI Safety Report 2025: International Scientific Panel", author:"International AI Safety Report (UK-led, 30 countries)", year:2025, stars:5, relevance:95, featured:false,
+    excerpt:"First intergovernmental scientific consensus on AI risk, commissioned by 30 governments. Concludes frontier AI systems are developing capabilities that 'outpace our ability to understand' them. Documents specific misuse risks: cyberweapons, bioweapon design assistance, and large-scale influence operations at nation-state scale. The most authoritative international statement on AI as a catastrophic risk factor.",
+    tags:["AI","BIOSECURITY","CYBERSECURITY","GOVERNANCE","NEW"], url:"https://www.gov.uk/government/publications/international-ai-safety-report-2025" },
+];
+
+// ── CATEGORIES ──
+const CATEGORIES = ['ALL','INTELLIGENCE','FOUNDATIONAL','NUCLEAR','CLIMATE','BIOLOGICAL','FINANCIAL','COMMUNITY','TECHNOLOGY','GEOPOLITICAL','PRACTICAL','SAFE ZONES','PSYCHOLOGY','ENERGY','FOOD SECURITY','GOVERNANCE','WATER SECURITY','SPACE WEATHER'];
+
+const CAT_COLORS = {
+  'INTELLIGENCE':'#ff4a6b',
+  'FOUNDATIONAL':'var(--accent2)','NUCLEAR':'var(--danger)','CLIMATE':'#ff8c42',
+  'BIOLOGICAL':'var(--purple)','FINANCIAL':'var(--gold)','COMMUNITY':'var(--accent)',
+  'TECHNOLOGY':'var(--accent2)','GEOPOLITICAL':'#e05cf7','PRACTICAL':'var(--warn)',
+  'SAFE ZONES':'var(--accent)','PSYCHOLOGY':'var(--purple)','ENERGY':'var(--warn)',
+  'FOOD SECURITY':'#7be56e','GOVERNANCE':'#c0f570','WATER SECURITY':'#5ee8ff',
+  'SPACE WEATHER':'#ffd700'
+};
+
+// ── STATE ──
+let savedSources = [];
+let readStatus = {};
+try { savedSources = JSON.parse(localStorage.getItem('arkSavedSources3')||'[]'); } catch(e){}
+try { readStatus = JSON.parse(localStorage.getItem('arkReadStatus3')||'{}'); } catch(e){}
+
+let activeCategory = 'ALL';
+let searchTerm = '';
+let sortField = 'relevance';
+let minStars = 0;
+let filterType = '';
+let listViewMode = 'grid';
+let featuredOnly = false;
+let statusFilter = 'all';
+let yearMinVal = 1946;
+let relMinVal = 0;
+let newOnly = false;
+
+function saveState() {
+  try { localStorage.setItem('arkSavedSources3', JSON.stringify(savedSources)); } catch(e){}
+  try { localStorage.setItem('arkReadStatus3', JSON.stringify(readStatus)); } catch(e){}
+}
+
+// ── INIT ──
+function init() {
+  buildCatTabs();
+  buildCatDist();
+  buildEssentialTrack();
+  updateMetrics();
+  renderSources();
+}
+
+// ── ESSENTIAL TRACK ──
+function buildEssentialTrack() {
+  const essentials = SOURCES.filter(s => s.featured).sort((a,b) => b.relevance - a.relevance);
+  const track = document.getElementById('essentialTrack');
+  track.innerHTML = essentials.map((s, i) => {
+    const rs = readStatus[s.id] || 'unread';
+    const isDone = rs === 'done';
+    return `<div class="ess-card ${isDone?'done-card':''}" data-cat="${s.cat}" data-id="${s.id}" onclick="openModal(${s.id})">
+      <div class="ess-done-badge">✓ DONE</div>
+      <div class="ess-card-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="ess-cat-label">${s.cat}</div>
+      <div class="ess-title">${s.title}</div>
+      <div class="ess-author">${s.author} · ${s.year}</div>
+      <div class="ess-why">${s.why || s.excerpt.substring(0,110)}…</div>
+      <div class="ess-footer">
+        <div class="ess-relevance">${s.relevance}<small>/100</small></div>
+        ${typePill(s.type)}
+      </div>
+    </div>`;
+  }).join('');
+  updateEssentialProgress();
+}
+
+function updateEssentialProgress() {
+  const essentials = SOURCES.filter(s => s.featured);
+  const done = essentials.filter(s => (readStatus[s.id]||'unread') === 'done').length;
+  const total = essentials.length;
+  const pct = total > 0 ? (done/total)*100 : 0;
+  document.getElementById('essProgressFill').style.width = pct+'%';
+  document.getElementById('essProgressFrac').textContent = `${done} / ${total}`;
+
+  // Refresh card states
+  document.querySelectorAll('.ess-card').forEach(card => {
+    const id = +card.dataset.id;
+    const rs = readStatus[id] || 'unread';
+    card.classList.toggle('done-card', rs === 'done');
+  });
+}
+
+// ── CAT DISTRIBUTION ──
+function buildCatDist() {
+  const cats = CATEGORIES.filter(c => c !== 'ALL');
+  const counts = cats.map(c => SOURCES.filter(s => s.cat === c).length);
+  const maxCount = Math.max(...counts);
+  document.getElementById('catDistGrid').innerHTML = cats.map((c,i) => {
+    const count = counts[i];
+    const color = CAT_COLORS[c] || 'var(--accent)';
+    return `<div class="cat-dist-row" onclick="setCategory('${c}', null)">
+      <span class="cat-dist-label">${c}</span>
+      <div class="cat-dist-track"><div class="cat-dist-fill" style="width:${(count/maxCount)*100}%;background:${color}"></div></div>
+      <span class="cat-dist-count">${count}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── CAT TABS ──
+function buildCatTabs() {
+  document.getElementById('catTabs').innerHTML = CATEGORIES.map(c => {
+    const count = c === 'ALL' ? SOURCES.length : SOURCES.filter(s => s.cat === c).length;
+    return `<button class="cat-tab ${c==='ALL'?'active':''}" onclick="setCategory('${c}',this)">${c} <span style="font-size:0.5rem;opacity:0.55">${count}</span></button>`;
+  }).join('');
+}
+
+// ── METRICS ──
+function updateMetrics() {
+  const reading = Object.values(readStatus).filter(v => v === 'reading').length;
+  const done    = Object.values(readStatus).filter(v => v === 'done').length;
+  document.getElementById('metricTotal').textContent    = SOURCES.length;
+  document.getElementById('metricEssential').textContent = SOURCES.filter(s=>s.featured).length;
+  document.getElementById('metricReading').textContent  = reading;
+  document.getElementById('metricDone').textContent     = done;
+  document.getElementById('savedMetric').textContent    = savedSources.length;
+  document.getElementById('rlBadge').textContent        = savedSources.length;
+  document.getElementById('rlBadge').style.display      = savedSources.length > 0 ? 'flex' : 'none';
+}
+
+// ── FILTERS ──
+function setCategory(cat, btn) {
+  activeCategory = cat;
+  document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    const tabs = document.querySelectorAll('.cat-tab');
+    tabs.forEach(b => { if (b.textContent.startsWith(cat)) b.classList.add('active'); });
+  }
+  renderSources();
+}
+function setStatusFilter(s, btn) {
+  statusFilter = s;
+  document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active-status'));
+  btn.classList.add('active-status');
+  renderSources();
+}
+function toggleFeatured() {
+  featuredOnly = !featuredOnly;
+  const btn = document.getElementById('featuredBtn');
+  btn.style.background = featuredOnly ? 'var(--gold)' : '';
+  btn.style.color = featuredOnly ? '#000' : '';
+  btn.style.borderColor = featuredOnly ? 'var(--gold)' : '';
+  renderSources();
+}
+function toggleAdvFilters() { document.getElementById('advFilters').classList.toggle('open'); }
+function toggleNewOnly() {
+  newOnly = !newOnly;
+  const btn = document.getElementById('newOnlyBtn');
+  btn.textContent = newOnly ? 'ON' : 'OFF';
+  btn.style.color = newOnly ? 'var(--accent)' : '';
+  btn.style.borderColor = newOnly ? 'var(--accent)' : '';
+  renderSources();
+}
+function resetFilters() {
+  searchTerm=''; document.getElementById('searchInput').value='';
+  sortField='relevance'; filterType=''; minStars=0; featuredOnly=false;
+  statusFilter='all'; yearMinVal=1946; relMinVal=0; newOnly=false;
+  document.getElementById('yearMin').value=1946;
+  document.getElementById('relMin').value=0;
+  document.getElementById('ymv').textContent='1946';
+  document.getElementById('rmv').textContent='0';
+  document.getElementById('newOnlyBtn').textContent='OFF';
+  document.getElementById('newOnlyBtn').style.color='';
+  document.getElementById('newOnlyBtn').style.borderColor='';
+  document.getElementById('featuredBtn').style.background='';
+  document.getElementById('featuredBtn').style.color='';
+  document.getElementById('featuredBtn').style.borderColor='';
+  document.querySelectorAll('.cat-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.cat-tab').classList.add('active');
+  document.querySelectorAll('.status-btn').forEach(b=>b.classList.remove('active-status'));
+  document.querySelector('.status-btn[data-s="all"]').classList.add('active-status');
+  activeCategory='ALL';
+  renderSources();
+}
+function setView(v) { listViewMode=v; renderSources(); }
+
+function getFiltered() {
+  return SOURCES.filter(s => {
+    if (activeCategory !== 'ALL' && s.cat !== activeCategory) return false;
+    if (s.stars < minStars) return false;
+    if (featuredOnly && !s.featured) return false;
+    if (filterType && s.type !== filterType) return false;
+    if (s.year < yearMinVal) return false;
+    if (s.relevance < relMinVal) return false;
+    if (newOnly && s.year < 2023) return false;
+    if (statusFilter !== 'all') {
+      const rs = readStatus[s.id] || 'unread';
+      if (rs !== statusFilter) return false;
+    }
+    if (searchTerm) {
+      const hay = (s.title+s.author+s.excerpt+s.tags.join(' ')).toLowerCase();
+      if (!hay.includes(searchTerm)) return false;
+    }
+    return true;
+  }).sort((a,b) => {
+    if (sortField === 'title')     return a.title.localeCompare(b.title);
+    if (sortField === 'year_desc') return b.year - a.year;
+    if (sortField === 'year_asc')  return a.year - b.year;
+    if (sortField === 'stars')     return b.stars - a.stars;
+    return b.relevance - a.relevance;
+  });
+}
+
+function highlight(text) {
+  if (!searchTerm || searchTerm.length < 2) return text;
+  const re = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return text.replace(re, '<mark>$1</mark>');
+}
+function starsHTML(n) { return '★'.repeat(n)+'☆'.repeat(5-n); }
+function relColor(v) {
+  if (v >= 90) return 'var(--accent)';
+  if (v >= 75) return 'var(--accent2)';
+  if (v >= 60) return 'var(--warn)';
+  return 'var(--danger)';
+}
+function typePill(type) {
+  const m = {'Book':'p-b','Report':'p-g','Paper':'p-p','Manual':'p-o','Article':'p-r'};
+  return `<span class="pill ${m[type]||'p-g'}">${type}</span>`;
+}
+function statusIcon(id) {
+  const s = readStatus[id] || 'unread';
+  return s === 'reading' ? '📖' : s === 'done' ? '✓' : '○';
+}
+
+// ── RENDER ──
+function renderSources() {
+  const filtered = getFiltered();
+  document.getElementById('srcCount').textContent = filtered.length;
+  const grid = document.getElementById('sourcesGrid');
+  grid.className = `sources-grid${listViewMode==='list'?' view-list':listViewMode==='compact'?' view-compact':''}`;
+
+  grid.innerHTML = filtered.map((s,i) => {
+    const isSaved = savedSources.includes(s.id);
+    const rs = readStatus[s.id] || 'unread';
+    const isNew = s.year >= 2023;
+    const isGov = s.cat === 'INTELLIGENCE';
+    const exc = s.excerpt.substring(0, listViewMode === 'grid' ? 145 : 100);
+    return `<div class="src-card ${s.featured?'featured':''} ${isSaved?'saved-card':''} status-${rs} ${isGov?'cat-intelligence':''}" style="animation-delay:${Math.min(i*0.025,0.45)}s" onclick="openModal(${s.id})">
+      <div class="src-type-row">
+        <span class="src-icon">${s.icon}</span>
+        <span class="src-type">${s.cat}</span>
+        ${isGov?'<span class="pill p-r" style="font-size:0.48rem">GOV</span>':isNew?'<span class="pill p-new" style="font-size:0.48rem">NEW</span>':''}
+        <span class="src-cat-pill">${typePill(s.type)}</span>
+      </div>
+      <div class="src-title">${highlight(s.title)}</div>
+      <div class="src-author">${highlight(s.author)} · ${s.year}</div>
+      <div class="src-excerpt">${highlight(exc)}…</div>
+      <div class="src-meta">
+        <span class="stars">${starsHTML(s.stars)}</span>
+        <div class="src-relevance">
+          <div class="rel-bar-track"><div class="rel-bar-fill" style="width:${s.relevance}%;background:${relColor(s.relevance)}"></div></div>
+          <span class="rel-num">${s.relevance}</span>
+        </div>
+        ${s.tags.slice(0,2).map(t=>`<span class="pill p-g" style="font-size:0.48rem">${t}</span>`).join('')}
+      </div>
+      <div class="src-actions">
+        <a class="src-link" href="${s.url}" target="_blank" onclick="event.stopPropagation()">VIEW SOURCE →</a>
+        <button class="status-cycle" data-rs="${rs}" title="Cycle read status" onclick="event.stopPropagation();cycleStatus(${s.id})">${statusIcon(s.id)}</button>
+        <button class="src-save ${isSaved?'saved':''}" onclick="event.stopPropagation();toggleSave(${s.id})">${isSaved?'★':'☆'}</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  updateReadingList();
+  updateMetrics();
+  updateEssentialProgress();
+}
+
+function cycleStatus(id) {
+  const cur = readStatus[id] || 'unread';
+  readStatus[id] = cur==='unread'?'reading':cur==='reading'?'done':'unread';
+  saveState();
+  renderSources();
+}
+function toggleSave(id) {
+  if (savedSources.includes(id)) savedSources = savedSources.filter(x=>x!==id);
+  else savedSources.push(id);
+  saveState();
+  renderSources();
+}
+
+function updateReadingList() {
+  const saved = SOURCES.filter(s => savedSources.includes(s.id));
+  const items = document.getElementById('rlItems');
+  if (!saved.length) {
+    items.innerHTML = '<p style="font-size:0.72rem;color:var(--muted)">No sources saved. Click ★ on any card.</p>';
+    document.getElementById('rlExport').style.display = 'none';
+    return;
+  }
+  document.getElementById('rlExport').style.display = 'flex';
+  items.innerHTML = saved.map(s => `
+    <div class="rl-item">
+      <button class="rl-remove" onclick="toggleSave(${s.id})">✕</button>
+      <div class="rl-item-title">${s.title}</div>
+      <div class="rl-item-meta">${s.author} · ${s.year} · <span style="color:var(--gold)">${'★'.repeat(s.stars)}</span> · ${typePill(s.type)}</div>
+    </div>`).join('');
+}
+function toggleReadingList() { document.getElementById('readingListPanel').classList.toggle('open'); }
+
+function exportList(fmt) {
+  const saved = SOURCES.filter(s => savedSources.includes(s.id));
+  let text = '';
+  if (fmt === 'txt') text = saved.map(s=>`${s.title}\n${s.author} (${s.year})\nRelevance: ${s.relevance}/100 | Stars: ${s.stars}/5\n${s.excerpt}\nURL: ${s.url}`).join('\n\n---\n\n');
+  else if (fmt === 'bib') text = saved.map(s=>{const k=(s.author.split(',')[0].split(' ').pop()+s.year).replace(/\W+/g,'');return `@${s.type==='Book'?'book':s.type==='Paper'?'article':'misc'}{${k},\n  author={${s.author}},\n  title={${s.title}},\n  year={${s.year}}\n}`;}).join('\n\n');
+  else if (fmt === 'apa') text = saved.map(s=>`${s.author} (${s.year}). ${s.title}. [${s.type}]`).join('\n\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text],{type:'text/plain'}));
+  a.download = `ark-reading-list.${fmt==='bib'?'bib':'txt'}`;
+  a.click();
+}
+
+// ── MODAL ──
+let citeMode = 'apa';
+let currentModalId = null;
+
+function getCitation(s, mode) {
+  if (mode === 'apa') return `${s.author} (${s.year}). <em>${s.title}</em>. [${s.type}]`;
+  if (mode === 'mla') return `${s.author}. <em>${s.title}</em>. ${s.year}.`;
+  if (mode === 'bib') {
+    const k=(s.author.split(',')[0].split(' ').pop()+s.year).replace(/\W+/g,'');
+    return `@${s.type==='Book'?'book':s.type==='Paper'?'article':'misc'}{${k},\n  author = {${s.author}},\n  title  = {${s.title}},\n  year   = {${s.year}}\n}`;
+  }
+  return '';
+}
+function setCiteMode(mode, el) {
+  citeMode = mode;
+  document.querySelectorAll('.cite-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const s = SOURCES.find(x=>x.id===currentModalId);
+  if (s) document.getElementById('citeTextEl').innerHTML = getCitation(s, mode);
+}
+function copyCite() {
+  const txt = document.getElementById('citeTextEl').textContent;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const btn=document.querySelector('.cite-copy');
+    btn.textContent='COPIED ✓'; btn.style.color='var(--accent)';
+    setTimeout(()=>{btn.textContent='COPY';btn.style.color='';},1500);
+  });
+}
+
+function openModal(id) {
+  currentModalId = id;
+  const s = SOURCES.find(x=>x.id===id);
+  const isSaved = savedSources.includes(id);
+  const rs = readStatus[id] || 'unread';
+  const related = SOURCES.filter(x=>x.cat===s.cat&&x.id!==id).sort((a,b)=>b.relevance-a.relevance).slice(0,4);
+
+  document.getElementById('srcModalContent').innerHTML = `
+    <div class="modal-head">
+      <div style="font-size:0.54rem;color:var(--muted);letter-spacing:0.16em;margin-bottom:8px">${s.cat} — ${s.type} — ${s.year}</div>
+      <div style="font-family:'Syne',sans-serif;font-size:1.55rem;font-weight:900;line-height:1.15;margin-bottom:6px">${s.title}</div>
+      <div style="font-size:0.72rem;color:var(--muted);margin-bottom:12px">${s.author}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        ${typePill(s.type)}
+        ${s.featured?'<span class="pill p-gold">★ ESSENTIAL</span>':''}
+        ${s.year>=2023?'<span class="pill p-new">2024–25 NEW</span>':''}
+        <span class="stars" style="color:var(--gold)">${starsHTML(s.stars)}</span>
+        <span style="font-size:0.65rem;color:var(--gold)">${s.stars}/5</span>
+      </div>
+    </div>
+    <div style="background:rgba(0,255,163,0.04);border:1px solid rgba(0,255,163,0.1);border-radius:8px;padding:18px;margin-bottom:18px">
+      <div style="font-size:0.55rem;color:var(--accent);letter-spacing:0.14em;margin-bottom:8px">ARK RELEVANCE SUMMARY</div>
+      <p style="font-size:0.8rem;color:var(--muted);line-height:1.85">${s.excerpt}</p>
+    </div>
+    <div class="modal-grid">
+      <div class="mf"><label>ARK RELEVANCE SCORE</label>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+          <div style="flex:1;height:5px;background:rgba(255,255,255,0.06);border-radius:2px">
+            <div style="height:100%;width:${s.relevance}%;background:${relColor(s.relevance)};border-radius:2px"></div>
+          </div>
+          <span style="font-size:0.78rem;color:${relColor(s.relevance)};font-weight:700">${s.relevance}/100</span>
+        </div>
+      </div>
+      <div class="mf"><label>DIFFICULTY</label>
+        <span>${s.type==='Paper'?'High — academic rigour required':s.type==='Manual'?'Technical reference — use as needed':s.stars===5?'Essential — prioritise immediately':'Moderate — accessible read'}</span>
+      </div>
+      <div class="mf"><label>FORMAT</label><span>${s.type}</span></div>
+      <div class="mf"><label>CATEGORY</label><span>${s.cat}</span></div>
+    </div>
+    <div style="margin-top:16px">
+      <div style="font-size:0.55rem;color:var(--muted);letter-spacing:0.14em;margin-bottom:8px">TAGS</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">${s.tags.map(t=>`<span class="pill p-b">${t}</span>`).join('')}</div>
+    </div>
+    <div class="modal-status-row">
+      <span class="modal-status-label">READ STATUS:</span>
+      <button class="ms-btn ${rs==='unread'?'active-unread':''}" onclick="setModalStatus(${id},'unread',this)">UNREAD</button>
+      <button class="ms-btn ${rs==='reading'?'active-reading':''}" onclick="setModalStatus(${id},'reading',this)">READING</button>
+      <button class="ms-btn ${rs==='done'?'active-done':''}" onclick="setModalStatus(${id},'done',this)">COMPLETED ✓</button>
+    </div>
+    <div class="cite-block">
+      <div class="cite-block-header">
+        <span class="cite-block-title">CITATION</span>
+        <div style="display:flex;gap:4px;align-items:center">
+          <div class="cite-tabs">
+            <button class="cite-tab active" onclick="setCiteMode('apa',this)">APA</button>
+            <button class="cite-tab" onclick="setCiteMode('mla',this)">MLA</button>
+            <button class="cite-tab" onclick="setCiteMode('bib',this)">BibTeX</button>
+          </div>
+          <button class="cite-copy" onclick="copyCite()">COPY</button>
+        </div>
+      </div>
+      <div class="cite-text" id="citeTextEl">${getCitation(s,'apa')}</div>
+    </div>
+    ${related.length?`
+    <div style="margin-top:24px">
+      <div class="modal-related-title">RELATED IN ${s.cat}</div>
+      <div class="related-grid">
+        ${related.map(r=>`<div class="related-card gl" onclick="openModal(${r.id})">
+          <div class="related-card-title">${r.icon} ${r.title}</div>
+          <div class="related-card-meta">${r.author} · ${r.year} · <span style="color:${relColor(r.relevance)}">${r.relevance}</span></div>
+        </div>`).join('')}
+      </div>
+    </div>`:''}
+    <div style="margin-top:22px;display:flex;gap:10px;flex-wrap:wrap">
+      <a href="${s.url}" target="_blank" style="text-decoration:none">
+        <button class="btn btn-a">VIEW / PURCHASE →</button>
+      </a>
+      <button class="btn btn-g" id="modalSaveBtn" onclick="toggleSave(${id});updateModalSaveBtn(${id})">${isSaved?'★ SAVED':'☆ SAVE TO LIST'}</button>
+    </div>`;
+
+  citeMode = 'apa';
+  document.getElementById('srcModal').classList.add('open');
+}
+
+function updateModalSaveBtn(id) {
+  const btn = document.getElementById('modalSaveBtn');
+  if (!btn) return;
+  const isSaved = savedSources.includes(id);
+  btn.textContent = isSaved ? '★ SAVED' : '☆ SAVE TO LIST';
+  btn.className = isSaved ? 'btn btn-a' : 'btn btn-g';
+}
+
+function setModalStatus(id, status, btn) {
+  readStatus[id] = status;
+  saveState();
+  document.querySelectorAll('.ms-btn').forEach(b=>b.className='ms-btn');
+  btn.classList.add(`active-${status}`);
+  renderSources();
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('srcModal')) {
+    document.getElementById('srcModal').classList.remove('open');
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
+
+init();
+</script>
+</body>
+</html>

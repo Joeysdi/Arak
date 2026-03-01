@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>17 — Psychological Resilience | Ark v3 (Standalone)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  /* ── FOUNDATION PASTE ── */
+  :root{
+    --bg:#060911;--bg2:#0c1120;--bg3:#111827;
+    --glass:rgba(255,255,255,0.04);--glass-b:rgba(255,255,255,0.09);
+    --border:rgba(255,255,255,0.08);--border-h:rgba(255,255,255,0.18);
+    --accent:#a855f7;--accent2:#6366f1;--accent3:#22d3ee;
+    --txt:#e8e6f0;--txt2:#9a96b0;--txt3:#545268;
+    --red:#e84040;--amber:#f0a500;--green:#22d3ee;--purple:#a855f7;
+    --r:12px;--r2:20px;
+    --ff-head:'Syne',sans-serif;--ff-mono:'JetBrains Mono',monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--txt);font-family:var(--ff-mono);
+    min-height:100vh;overflow-x:hidden;
+    background-image:
+      radial-gradient(ellipse 70% 50% at 10% 20%,rgba(168,85,247,.1),transparent),
+      radial-gradient(ellipse 50% 40% at 90% 70%,rgba(99,102,241,.08),transparent),
+      radial-gradient(ellipse 60% 60% at 50% 50%,rgba(34,211,238,.04),transparent);
+  }
+  .gl{
+    background:var(--glass);border:1px solid var(--border);
+    border-radius:var(--r2);backdrop-filter:blur(18px);
+    transition:border .25s,box-shadow .25s;
+  }
+  .gl:hover{border-color:var(--border-h);box-shadow:0 8px 40px rgba(0,0,0,.45)}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  /* hero */
+  .hero{padding:80px 0 48px;text-align:center}
+  .hero-tag{font-size:.65rem;letter-spacing:.25em;color:var(--accent);text-transform:uppercase;margin-bottom:16px}
+  .hero h1{font-family:var(--ff-head);font-size:clamp(2.2rem,5vw,3.8rem);font-weight:800;line-height:1.08;margin-bottom:20px}
+  .hero h1 em{font-style:normal;color:var(--accent)}
+  .hero p{color:var(--txt2);font-size:.9rem;max-width:640px;margin:0 auto 32px;line-height:1.7}
+  /* tabs */
+  .stab{display:flex;gap:4px;flex-wrap:wrap;background:rgba(255,255,255,.03);padding:6px;border-radius:14px;margin-bottom:28px}
+  .stab-btn{
+    flex:1;min-width:120px;padding:10px 16px;border:none;background:transparent;
+    color:var(--txt2);font-family:var(--ff-mono);font-size:.75rem;cursor:pointer;
+    border-radius:10px;transition:all .2s;letter-spacing:.04em;
+  }
+  .stab-btn.active{background:var(--accent);color:#fff;box-shadow:0 4px 20px rgba(168,85,247,.3)}
+  .spanel{display:none}
+  .spanel.active{display:block;animation:fadeIn .3s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  /* resilience assessment */
+  .quiz-wrap{max-width:680px;margin:0 auto}
+  .quiz-q{margin-bottom:28px}
+  .quiz-q .qlabel{font-family:var(--ff-head);font-size:.95rem;font-weight:600;margin-bottom:12px;display:block}
+  .quiz-q .qsub{font-size:.72rem;color:var(--txt3);margin-bottom:10px}
+  .slider-wrap{display:flex;align-items:center;gap:14px}
+  .slider-wrap input[type=range]{
+    flex:1;-webkit-appearance:none;height:4px;border-radius:2px;
+    background:linear-gradient(90deg,var(--accent),var(--border));outline:none;cursor:pointer;
+  }
+  .slider-wrap input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+    background:var(--accent);border:2px solid var(--bg);box-shadow:0 0 12px rgba(168,85,247,.5);
+  }
+  .slider-val{font-size:.85rem;font-weight:500;color:var(--accent);min-width:28px;text-align:right}
+  /* result card */
+  .result-card{
+    background:linear-gradient(135deg,rgba(168,85,247,.1),rgba(99,102,241,.06));
+    border:1px solid rgba(168,85,247,.25);border-radius:var(--r2);padding:32px;text-align:center;
+    display:none;margin-top:32px;
+  }
+  .result-card.show{display:block;animation:fadeIn .5s ease}
+  .result-score{font-family:var(--ff-head);font-size:4rem;font-weight:800;color:var(--accent);line-height:1}
+  .result-label{font-size:1.1rem;font-weight:600;margin:8px 0}
+  .result-desc{font-size:.8rem;color:var(--txt2);max-width:480px;margin:0 auto;line-height:1.7}
+  .result-bars{margin:24px 0;display:grid;gap:10px}
+  .rbar-row{display:flex;align-items:center;gap:12px;font-size:.75rem}
+  .rbar-label{width:160px;color:var(--txt2);text-align:right;flex-shrink:0}
+  .rbar-track{flex:1;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+  .rbar-fill{height:100%;border-radius:3px;transition:width 1s ease}
+  .rbar-val{width:30px;color:var(--txt);font-weight:500}
+  /* pillars grid */
+  .pillars-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+  .pillar-card{padding:24px;border-radius:var(--r2)}
+  .pillar-icon{font-size:1.8rem;margin-bottom:12px}
+  .pillar-name{font-family:var(--ff-head);font-size:1rem;font-weight:700;margin-bottom:8px}
+  .pillar-desc{font-size:.77rem;color:var(--txt2);line-height:1.65;margin-bottom:12px}
+  .pillar-score-bar{height:4px;border-radius:2px;background:rgba(255,255,255,.06);overflow:hidden}
+  .pillar-score-fill{height:100%;border-radius:2px;transition:width .8s .2s ease}
+  .pillar-tactics{list-style:none;margin-top:12px;display:flex;flex-direction:column;gap:6px}
+  .pillar-tactics li{font-size:.7rem;color:var(--txt2);padding:6px 10px;background:rgba(255,255,255,.03);border-radius:6px;border-left:2px solid var(--accent)}
+  /* accordion */
+  .acc-btn{
+    width:100%;background:none;border:none;border-bottom:1px solid var(--border);
+    padding:16px 20px;display:flex;justify-content:space-between;align-items:center;
+    cursor:pointer;color:var(--txt);font-family:var(--ff-mono);font-size:.82rem;text-align:left;
+    transition:background .2s;
+  }
+  .acc-btn:hover{background:rgba(255,255,255,.03)}
+  .acc-btn .arr{transition:transform .3s;font-size:.7rem;color:var(--txt3)}
+  .acc-btn.open .arr{transform:rotate(180deg)}
+  .acc-panel{max-height:0;overflow:hidden;transition:max-height .4s ease}
+  .acc-panel.open{max-height:800px}
+  .acc-inner{padding:16px 20px 20px;font-size:.8rem;color:var(--txt2);line-height:1.75}
+  /* threat matrix */
+  .matrix-table{width:100%;border-collapse:collapse;font-size:.76rem}
+  .matrix-table th{padding:10px 14px;background:rgba(255,255,255,.04);color:var(--txt3);text-align:left;font-weight:500;letter-spacing:.08em;font-size:.65rem;text-transform:uppercase;border-bottom:1px solid var(--border)}
+  .matrix-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--txt2);vertical-align:top}
+  .matrix-table tr:hover td{background:rgba(255,255,255,.02)}
+  .sev-pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+  .sev-high{background:rgba(232,64,64,.15);color:var(--red)}
+  .sev-med{background:rgba(240,165,0,.15);color:var(--amber)}
+  .sev-low{background:rgba(34,211,238,.15);color:var(--green)}
+  /* daily protocol */
+  .proto-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+  .proto-card{padding:20px}
+  .proto-time{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  .proto-title{font-family:var(--ff-head);font-size:.95rem;font-weight:700;margin-bottom:10px}
+  .proto-items{list-style:none;display:flex;flex-direction:column;gap:5px}
+  .proto-items li{font-size:.73rem;color:var(--txt2);padding:5px 8px;border-radius:6px;background:rgba(255,255,255,.03);display:flex;align-items:flex-start;gap:8px}
+  .proto-items li::before{content:'›';color:var(--accent);flex-shrink:0}
+  /* checklist */
+  .check-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+  .check-item:last-child{border-bottom:none}
+  .check-cb{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;margin-top:1px;transition:all .2s;appearance:none;background:transparent}
+  .check-cb:checked{background:var(--accent);border-color:var(--accent)}
+  .check-label{font-size:.8rem;color:var(--txt2);line-height:1.6;cursor:pointer}
+  .check-label.done{text-decoration:line-through;opacity:.5}
+  /* progress ring */
+  .prog-ring-wrap{text-align:center;margin-bottom:32px}
+  .prog-ring{transform:rotate(-90deg)}
+  .prog-circle-bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:8}
+  .prog-circle-fill{fill:none;stroke:var(--accent);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+  .prog-text{font-family:var(--ff-head);font-size:.9rem;fill:var(--txt)}
+  .prog-sub{font-size:.55rem;fill:var(--txt3)}
+  @media(max-width:680px){
+    .stab{flex-direction:column}
+    .stab-btn{flex:none}
+    .matrix-table{font-size:.68rem}
+    .rbar-label{width:110px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ── DATA BLOCK ── -->
+<script>
+const PILLARS=[
+  {
+    id:'emotional',icon:'🧠',name:'Emotional Regulation',color:'#a855f7',
+    desc:'The ability to process extreme grief, loss, fear and rage without it destroying your decision-making capacity or your community relationships.',
+    tactics:['Daily emotional check-ins with accountability partner','Anger processing protocol: 10-breath rule before any decision','Grief rituals: scheduled, bounded, not suppressed','Journaling: 10 min nightly to externalize internal state']
+  },
+  {
+    id:'identity',icon:'⚓',name:'Identity Anchoring',color:'#6366f1',
+    desc:'Maintaining a stable sense of self and purpose when all external markers of identity (job, city, nation, lifestyle) have dissolved.',
+    tactics:['Pre-written personal mission statement to read daily','Role clarity in Ark community provides ongoing identity structure','Values list: 5 non-negotiables that survive any circumstance','Meaningful ritual: something you do every day regardless of chaos']
+  },
+  {
+    id:'community',icon:'🕸',name:'Community Bonds',color:'#22d3ee',
+    desc:'Human connection is the single highest predictor of survival and mental health in all documented disaster scenarios. Loneliness kills faster than starvation.',
+    tactics:['Daily structured community meals (non-negotiable)','Pair system: every person has a designated check-in partner','Conflict resolution protocol: 48h cooling off + mediated session','Celebration system: mark every small victory publicly']
+  },
+  {
+    id:'agency',icon:'⚡',name:'Agency & Purpose',color:'#f0a500',
+    desc:'Helplessness is the primary driver of collapse-related suicide. Maintaining real agency — even over small decisions — prevents psychological deterioration.',
+    tactics:['Assign meaningful roles to every community member','Personal project: one thing each member is responsible for improving','Skill acquisition: daily 30-min learning target','Agency journals: log 3 things you controlled today']
+  },
+  {
+    id:'cognitive',icon:'🔭',name:'Cognitive Clarity',color:'#22d3ee',
+    desc:'Stress degrades executive function. The ability to think clearly under chronic threat requires deliberate cognitive hygiene protocols.',
+    tactics:['Sleep priority: 7+ hours non-negotiable for decision-makers','Decision journal: log the reasoning behind major calls','Pre-mortem practice: imagine how a plan fails before executing','Information diet: 1x daily briefing max, no doom-scrolling']
+  },
+  {
+    id:'somatic',icon:'💪',name:'Physical-Psychological Link',color:'#e84040',
+    desc:'The body IS the mind. Physical fitness, sleep, and nutrition in collapse have disproportionate psychological effects. Movement processes trauma.',
+    tactics:['30 min daily physical activity (any kind)','Body scan: 5-min daily somatic awareness practice','Physiological sigh for acute anxiety: double-inhale + long exhale','Physical labor as psychological anchor: purposeful exhaustion heals']
+  }
+];
+
+const THREATS=[
+  {threat:'PTSD / Trauma Response',onset:'Week 1+',sev:'high',signs:'Flashbacks, hypervigilance, emotional numbness, avoidance',ark:'Designated trauma protocol leader. Peer processing circles. Structured narrative retelling.'},
+  {threat:'Grief Collapse',onset:'Day 3+',sev:'high',signs:'Inability to function, prolonged dissociation, refusal to eat',ark:'48h compassionate hold. Peer companion assigned. Structured grief ritual at week mark.'},
+  {threat:'Leadership Fatigue',onset:'Week 2+',sev:'high',signs:'Decision paralysis, irritability, risky shortcuts, withdrawal',ark:'Mandatory 48h leadership rotation. Deputy readiness. No leader works >14 days continuous.'},
+  {threat:'Moral Injury',onset:'Month 1+',sev:'high',signs:'Shame spirals, confession-seeking, self-punishment behavior',ark:'Community ethics discussions. Explicit pre-agreed moral framework prevents most cases.'},
+  {threat:'Social Fracturing',onset:'Week 3+',sev:'med',signs:'Clique formation, scapegoating, exclusion, rumors spreading',ark:'Conflict resolution protocol. Clear governance rules. Transparent resource allocation.'},
+  {threat:'Learned Helplessness',onset:'Month 2+',sev:'med',signs:'Passivity, refusing tasks, fatalism, "what\'s the point" statements',ark:'Immediate agency restoration: assign meaningful micro-responsibility. Visible impact loops.'},
+  {threat:'Paranoia / Threat Inflation',onset:'Variable',sev:'med',signs:'Seeing spies everywhere, punishing innocents, decision paralysis by fear',ark:'Reality testing partner. Intel verification protocol. Medical eval if acute.'},
+  {threat:'Substance Misuse',onset:'Month 1+',sev:'med',signs:'Escalating use of alcohol/drugs from looted pharmacies',ark:'Pre-agreed substance policy. Access control. Peer accountability pairs.'},
+  {threat:'Compassion Fatigue',onset:'Month 3+',sev:'med',signs:'Emotional numbness, inability to care about others\' suffering',ark:'Rotation of caregiving roles. Mandatory self-care periods. Recognition rituals.'},
+  {threat:'Existential Despair',onset:'Month 2+',sev:'low',signs:'Loss of meaning, questioning survival, passive death wish',ark:'Purpose-first protocols. Legacy projects. Community meaning-making ceremonies.'},
+];
+
+const QUIZ_QUESTIONS=[
+  {id:'stress',label:'Stress tolerance under prolonged uncertainty',sub:'How well do you function when outcomes are unknown for weeks?',min:'Paralyzed',max:'Thrives'},
+  {id:'loss',label:'Previous experience processing major loss',sub:'Death of loved one, financial ruin, identity collapse',min:'No experience',max:'Processed well'},
+  {id:'community',label:'Strength of your current trust relationships',sub:'People who would genuinely risk for you',min:'Isolated',max:'Deep network'},
+  {id:'purpose',label:'Clarity of personal values and purpose',sub:'Do you know what you\'d die for? Live for?',min:'Unclear',max:'Crystal clear'},
+  {id:'physical',label:'Current physical fitness and health baseline',sub:'Physical resilience correlates strongly with mental resilience',min:'Poor',max:'Excellent'},
+  {id:'learning',label:'Rate of skill acquisition under pressure',sub:'Can you learn new hard things when stressed?',min:'Freezes',max:'Accelerates'},
+];
+
+const SCORE_LEVELS=[
+  {min:0,max:40,label:'Critical Risk',color:'var(--red)',desc:'High probability of psychological collapse in an extended crisis. Prioritize community attachment and mental health protocols immediately.'},
+  {min:41,max:60,label:'Moderate Risk',color:'var(--amber)',desc:'Will likely manage but is vulnerable to specific triggers. Targeted protocol training needed before crisis.'},
+  {min:61,max:80,label:'Resilient',color:'var(--accent)',desc:'Above-average capacity. Likely to be a stabilizing force in community. Focus on leadership and peer-support roles.'},
+  {min:81,max:100,label:'Highly Resilient',color:'var(--green)',desc:'Exceptional baseline. High value as psychological anchor for community. Ensure you do not carry others\' burdens alone.'},
+];
+
+const DAILY_PROTOCOLS=[
+  {time:'05:30–06:00',title:'Morning Anchor',items:['Physical movement 20 min (non-negotiable)','Read personal mission statement aloud','Physiological sigh × 3 to regulate nervous system','Identify today\'s 3 agency targets']},
+  {time:'07:00–07:30',title:'Community Sync',items:['Brief check-in round: 1 word each person','Assign/confirm daily roles','Acknowledge yesterday\'s wins publicly','Surface any emerging conflicts early']},
+  {time:'12:00–12:30',title:'Midday Reset',items:['Eat together — always together','5-min body scan or breathing practice','Short intel debrief (1× per day max)','Check in with accountability partner']},
+  {time:'19:30–20:00',title:'Evening Process',items:['Shared meal + open conversation time','Grief/loss check-in (weekly structured, daily informal)','Journaling: what you controlled today','Gratitude: 1 specific thing each person names']},
+  {time:'21:00–21:30',title:'Night Protocol',items:['No information intake after 21:00','Wind-down ritual (consistent = regulating)','8-hour sleep target enforced for decision-makers','Tomorrow\'s first task defined before sleep']},
+];
+
+const COLLAPSE_PROTOCOLS=[
+  {q:'What to do when a community member is suicidal',
+   a:'1. Remove access to means immediately and quietly.\n2. 24-hour companion assignment — never leave alone.\n3. Immediate conversation: direct, non-judgmental ("Are you thinking about ending your life?")\n4. Emergency community meeting: share broadly, reduce shame.\n5. Create meaningful role immediately.\n6. Daily structured check-ins for 30 days minimum.\n7. Document and monitor for recurrence triggers.'},
+  {q:'Managing acute panic attacks in a crisis environment',
+   a:'Physiological sigh: double-inhale through nose, long exhale through mouth. Repeat 3–5×. This is the fastest evidence-based reset of the autonomic nervous system.\nGround: name 5 things you can see, 4 touch, 3 hear, 2 smell, 1 taste.\nFor others: calm, low voice, slow your own breathing visibly, place hand on their back only if they consent.'},
+  {q:'When leadership psychologically collapses',
+   a:'Pre-planning: deputy must be designated and trained before crisis. Succession trigger: 2 community members independently flag degraded leadership functioning.\nProcess: 48h mandatory rest without decision responsibility. Structured debrief with trusted peer. Gradual re-engagement. If full burnout: minimum 2-week full stand-down.'},
+  {q:'Handling mass grief events (multiple deaths in community)',
+   a:'1. Allow 48h of unstructured mourning — do not enforce normalcy.\n2. Formal ritual: even simple one, marks the loss as real.\n3. Name the dead explicitly. Tell their stories.\n4. Redistribute their roles gradually, not immediately.\n5. Create lasting marker: name a project, area, or practice after the lost.\n6. Monitor surviving close partners for 90 days.'},
+  {q:'Managing children\'s psychology in extended crisis',
+   a:'Children need: routine above all else. Predictability is safety.\nBe honest at age-appropriate level — do not pretend everything is fine.\nAllow expression: drawing, play, and anger are healthy processing.\nAssign meaningful age-appropriate responsibilities — agency matters for kids too.\nProtect them from graphic information but do not exclude from community rituals.\nWatch for regression as a signal, not a problem.'},
+];
+</script>
+
+<!-- ── RENDER BLOCK ── -->
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-tag">⬡ Ark Collective v3 · Section 17</div>
+    <h1>Psychological<br/><em>Resilience</em></h1>
+    <p>The mind is the most critical survival system. This section maps the six pillars of collapse-proof psychology, threat identification, daily protocols, and crisis intervention — built from disaster medicine, military psychology, and Holocaust survival research.</p>
+  </section>
+
+  <!-- Tabs -->
+  <div class="stab" id="mainTabs">
+    <button class="stab-btn active" onclick="switchTab('pillars',this)">Six Pillars</button>
+    <button class="stab-btn" onclick="switchTab('assessment',this)">Self Assessment</button>
+    <button class="stab-btn" onclick="switchTab('threats',this)">Threat Matrix</button>
+    <button class="stab-btn" onclick="switchTab('daily',this)">Daily Protocol</button>
+    <button class="stab-btn" onclick="switchTab('crisis',this)">Crisis Protocols</button>
+    <button class="stab-btn" onclick="switchTab('checklist',this)">Pre-Collapse Checklist</button>
+  </div>
+
+  <!-- ── PANEL: Six Pillars ── -->
+  <div class="spanel active" id="tab-pillars">
+    <div style="text-align:center;margin-bottom:28px">
+      <h2 style="font-family:var(--ff-head);font-size:1.6rem;font-weight:700">The Six Pillars of Collapse-Proof Psychology</h2>
+      <p style="color:var(--txt2);font-size:.8rem;margin-top:8px">Derived from survivor accounts of Auschwitz, Hurricane Katrina, Rwandan genocide, and 27 other major collapse scenarios</p>
+    </div>
+    <div class="pillars-grid" id="pillarsGrid"></div>
+  </div>
+
+  <!-- ── PANEL: Assessment ── -->
+  <div class="spanel" id="tab-assessment">
+    <div style="text-align:center;margin-bottom:32px">
+      <h2 style="font-family:var(--ff-head);font-size:1.6rem;font-weight:700">Resilience Self-Assessment</h2>
+      <p style="color:var(--txt2);font-size:.8rem;margin-top:8px">Rate yourself honestly. This data is local to your browser.</p>
+    </div>
+    <div class="quiz-wrap">
+      <div id="quizRoot"></div>
+      <button onclick="calcScore()" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-family:var(--ff-mono);font-size:.85rem;cursor:pointer;font-weight:600;margin-top:8px;letter-spacing:.04em">
+        Calculate My Resilience Score →
+      </button>
+      <div class="result-card" id="resultCard">
+        <div class="result-score" id="rScore">0</div>
+        <div class="result-label" id="rLabel"></div>
+        <div class="result-desc" id="rDesc"></div>
+        <div class="result-bars" id="rBars"></div>
+        <div style="margin-top:20px;padding:16px;background:rgba(255,255,255,.04);border-radius:12px;font-size:.75rem;color:var(--txt2)">
+          <strong style="color:var(--txt)">Priority Focus Area:</strong>
+          <span id="rFocus"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PANEL: Threats ── -->
+  <div class="spanel" id="tab-threats">
+    <div style="text-align:center;margin-bottom:28px">
+      <h2 style="font-family:var(--ff-head);font-size:1.6rem;font-weight:700">Psychological Threat Matrix</h2>
+      <p style="color:var(--txt2);font-size:.8rem;margin-top:8px">10 documented psychological collapse vectors with Ark-specific interventions</p>
+    </div>
+    <div class="gl" style="overflow:hidden">
+      <table class="matrix-table" id="threatTable"></table>
+    </div>
+  </div>
+
+  <!-- ── PANEL: Daily Protocol ── -->
+  <div class="spanel" id="tab-daily">
+    <div style="text-align:center;margin-bottom:28px">
+      <h2 style="font-family:var(--ff-head);font-size:1.6rem;font-weight:700">Daily Psychological Protocol</h2>
+      <p style="color:var(--txt2);font-size:.8rem;margin-top:8px">Non-negotiable daily structure for sustained psychological health in extended crisis</p>
+    </div>
+    <div class="proto-grid" id="protoGrid"></div>
+    <div class="gl" style="padding:24px;margin-top:20px;text-align:center">
+      <div style="font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:8px">Core Principle</div>
+      <div style="font-family:var(--ff-head);font-size:1.2rem;font-weight:700;margin-bottom:10px">"Routine is the skeleton of sanity."</div>
+      <div style="font-size:.78rem;color:var(--txt2);max-width:540px;margin:0 auto;line-height:1.7">In every documented long-duration survival scenario — POW camps, stranded expeditions, refugee camps — the communities that maintained structured daily rhythm had dramatically lower rates of psychological deterioration than those that did not, even when resources were identical.</div>
+    </div>
+  </div>
+
+  <!-- ── PANEL: Crisis Protocols ── -->
+  <div class="spanel" id="tab-crisis">
+    <div style="text-align:center;margin-bottom:28px">
+      <h2 style="font-family:var(--ff-head);font-size:1.6rem;font-weight:700">Crisis Intervention Protocols</h2>
+      <p style="color:var(--txt2);font-size:.8rem;margin-top:8px">Step-by-step Ark protocols for the most critical psychological emergencies</p>
+    </div>
+    <div class="gl" id="crisisRoot" style="overflow:hidden"></div>
+  </div>
+
+  <!-- ── PANEL: Checklist ── -->
+  <div class="spanel" id="tab-checklist">
+    <div style="text-align:center;margin-bottom:28px">
+      <h2 style="font-family:var(--ff-head);font-size:1.6rem;font-weight:700">Pre-Collapse Psychological Preparedness</h2>
+      <p style="color:var(--txt2);font-size:.8rem;margin-top:8px">25-item checklist. Check off completed items.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 200px;gap:24px;align-items:start">
+      <div class="gl" id="checkRoot" style="padding:16px 24px"></div>
+      <div style="position:sticky;top:24px">
+        <div class="gl" style="padding:24px;text-align:center">
+          <svg width="120" height="120" viewBox="0 0 120 120" class="prog-ring">
+            <circle class="prog-circle-bg" cx="60" cy="60" r="50"/>
+            <circle class="prog-circle-fill" id="progCircle" cx="60" cy="60" r="50" stroke-dasharray="314" stroke-dashoffset="314"/>
+            <text x="60" y="54" text-anchor="middle" class="prog-text" id="progPct">0%</text>
+            <text x="60" y="68" text-anchor="middle" class="prog-sub">complete</text>
+          </svg>
+          <div style="font-size:.75rem;color:var(--txt2);margin-top:8px" id="progCount">0 of 25 done</div>
+          <button onclick="resetChecklist()" style="margin-top:12px;width:100%;padding:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--txt3);font-family:var(--ff-mono);font-size:.7rem;cursor:pointer">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:80px"></div>
+</div>
+
+<!-- ── INTERACTION BLOCK ── -->
+<script>
+/* ── switchTab ── */
+function switchTab(id,btn){
+  document.querySelectorAll('.spanel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.stab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ── toggleAcc ── */
+function toggleAcc(btn){
+  const panel=btn.nextElementSibling;
+  const isOpen=panel.classList.contains('open');
+  const container=btn.closest('.gl');
+  container.querySelectorAll('.acc-panel').forEach(p=>p.classList.remove('open'));
+  container.querySelectorAll('.acc-btn').forEach(b=>b.classList.remove('open'));
+  if(!isOpen){panel.classList.add('open');btn.classList.add('open')}
+}
+
+/* ── render pillars ── */
+function renderPillars(){
+  document.getElementById('pillarsGrid').innerHTML=PILLARS.map(p=>`
+    <div class="gl pillar-card" style="border-left:3px solid ${p.color}40">
+      <div class="pillar-icon">${p.icon}</div>
+      <div class="pillar-name" style="color:${p.color}">${p.name}</div>
+      <div class="pillar-desc">${p.desc}</div>
+      <div style="font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--txt3);margin-bottom:6px">Tactics</div>
+      <ul class="pillar-tactics">
+        ${p.tactics.map(t=>`<li>${t}</li>`).join('')}
+      </ul>
+    </div>`).join('');
+}
+
+/* ── render quiz ── */
+function renderQuiz(){
+  document.getElementById('quizRoot').innerHTML=QUIZ_QUESTIONS.map((q,i)=>`
+    <div class="quiz-q gl" style="padding:20px;margin-bottom:12px">
+      <span class="qlabel">${i+1}. ${q.label}</span>
+      <div class="qsub">${q.sub}</div>
+      <div class="slider-wrap">
+        <span style="font-size:.65rem;color:var(--txt3)">${q.min}</span>
+        <input type="range" min="0" max="10" value="5" id="q_${q.id}" oninput="document.getElementById('v_${q.id}').textContent=this.value"/>
+        <span style="font-size:.65rem;color:var(--txt3)">${q.max}</span>
+        <span class="slider-val" id="v_${q.id}">5</span>
+      </div>
+    </div>`).join('');
+}
+
+/* ── calc score ── */
+function calcScore(){
+  const vals=QUIZ_QUESTIONS.map(q=>parseInt(document.getElementById('q_'+q.id).value));
+  const total=Math.round(vals.reduce((a,b)=>a+b,0)/QUIZ_QUESTIONS.length*10);
+  const level=SCORE_LEVELS.find(l=>total>=l.min&&total<=l.max)||SCORE_LEVELS[0];
+  const card=document.getElementById('resultCard');
+  document.getElementById('rScore').textContent=total;
+  document.getElementById('rScore').style.color=level.color;
+  document.getElementById('rLabel').textContent=level.label;
+  document.getElementById('rDesc').textContent=level.desc;
+  // bars
+  const names=['Stress Tolerance','Loss Processing','Community Bonds','Purpose Clarity','Physical Health','Learning Agility'];
+  document.getElementById('rBars').innerHTML=vals.map((v,i)=>`
+    <div class="rbar-row">
+      <div class="rbar-label">${names[i]}</div>
+      <div class="rbar-track"><div class="rbar-fill" style="width:${v*10}%;background:${v<4?'var(--red)':v<7?'var(--amber)':'var(--green)'}"></div></div>
+      <div class="rbar-val">${v}/10</div>
+    </div>`).join('');
+  // focus
+  const minIdx=vals.indexOf(Math.min(...vals));
+  document.getElementById('rFocus').textContent=' Work on '+PILLARS[minIdx].name+': '+PILLARS[minIdx].tactics[0];
+  card.classList.add('show');
+  card.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* ── render threats ── */
+function renderThreats(){
+  document.getElementById('threatTable').innerHTML=`
+    <thead><tr><th>Threat</th><th>Onset</th><th>Severity</th><th>Warning Signs</th><th>Ark Intervention</th></tr></thead>
+    <tbody>${THREATS.map(t=>`
+      <tr>
+        <td style="color:var(--txt);font-weight:500">${t.threat}</td>
+        <td>${t.onset}</td>
+        <td><span class="sev-pill sev-${t.sev}">${t.sev.toUpperCase()}</span></td>
+        <td>${t.signs}</td>
+        <td>${t.ark}</td>
+      </tr>`).join('')}</tbody>`;
+}
+
+/* ── render daily protocol ── */
+function renderProto(){
+  document.getElementById('protoGrid').innerHTML=DAILY_PROTOCOLS.map(p=>`
+    <div class="gl proto-card">
+      <div class="proto-time">${p.time}</div>
+      <div class="proto-title">${p.title}</div>
+      <ul class="proto-items">${p.items.map(i=>`<li>${i}</li>`).join('')}</ul>
+    </div>`).join('');
+}
+
+/* ── render crisis accordion ── */
+function renderCrisis(){
+  document.getElementById('crisisRoot').innerHTML=COLLAPSE_PROTOCOLS.map((p,i)=>`
+    <div>
+      <button class="acc-btn" onclick="toggleAcc(this)">
+        <span>⚠ ${p.q}</span><span class="arr">▼</span>
+      </button>
+      <div class="acc-panel">
+        <div class="acc-inner" style="white-space:pre-line">${p.a}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ── checklist ── */
+const CHECKLIST_ITEMS=[
+  'Write personal mission statement (1 page max)',
+  'Identify your 5 non-negotiable core values',
+  'Designate an accountability partner in Ark community',
+  'Complete a personal grief inventory (unresolved losses)',
+  'Establish a daily journaling habit for 30+ days pre-collapse',
+  'Learn and practice physiological sigh technique',
+  'Study 1 survival psychology book (e.g., Man\'s Search for Meaning)',
+  'Train in basic trauma first aid (psychological)',
+  'Establish a daily physical exercise routine',
+  'Practice 30-day information fast (no news) to build tolerance',
+  'Conduct a personal anger audit: identify your triggers',
+  'Role-play a community conflict resolution scenario',
+  'Designate your deputy/successor for leadership',
+  'Create a legacy letter to be read if you don\'t survive',
+  'Inventory your practical skills (what you contribute)',
+  'Complete at least one deliberately difficult physical challenge',
+  'Map your support network: who would you truly call at 3am',
+  'Practice 48h technology detox to test baseline resilience',
+  'Learn basic meditation or breathwork (at least 10 sessions)',
+  'Document your personal warning signs for burnout',
+  'Build a personal ritual: one thing you do every single day',
+  'Practice honest, direct communication in a conflict',
+  'Run a tabletop scenario: how do you respond to X crisis?',
+  'Complete a fasting trial (24–72h) to understand physical limits',
+  'Establish sleep hygiene protocols and test for 21 days',
+];
+
+let checkState=JSON.parse(localStorage.getItem('ark17checks')||'{}');
+
+function renderChecklist(){
+  document.getElementById('checkRoot').innerHTML=CHECKLIST_ITEMS.map((item,i)=>`
+    <div class="check-item">
+      <input type="checkbox" class="check-cb" id="cb${i}" ${checkState[i]?'checked':''} onchange="toggleCheck(${i})"/>
+      <label class="check-label ${checkState[i]?'done':''}" for="cb${i}">${item}</label>
+    </div>`).join('');
+  updateProgress();
+}
+
+function toggleCheck(i){
+  checkState[i]=!checkState[i];
+  localStorage.setItem('ark17checks',JSON.stringify(checkState));
+  renderChecklist();
+}
+
+function resetChecklist(){
+  checkState={};
+  localStorage.removeItem('ark17checks');
+  renderChecklist();
+}
+
+function updateProgress(){
+  const done=Object.values(checkState).filter(Boolean).length;
+  const total=CHECKLIST_ITEMS.length;
+  const pct=Math.round(done/total*100);
+  const circumference=314;
+  const offset=circumference-(circumference*pct/100);
+  document.getElementById('progCircle').style.strokeDashoffset=offset;
+  document.getElementById('progPct').textContent=pct+'%';
+  document.getElementById('progCount').textContent=done+' of '+total+' done';
+}
+
+/* ── init ── */
+renderPillars();
+renderQuiz();
+renderThreats();
+renderProto();
+renderCrisis();
+renderChecklist();
+</script>
+</body>
+</html>

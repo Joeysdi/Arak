@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>05.6 — 2027 Collapse Scenarios Live | Ark v3 (Standalone)</title>
+<style>
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;--bg4:#1e1e30;
+  --glass:rgba(255,255,255,0.05);--glass2:rgba(255,255,255,0.09);--glass3:rgba(255,255,255,0.03);
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --primary:#00ff88;--danger:#ff4444;--warn:#ffaa00;--info:#00aaff;--purple:#bb44ff;--teal:#00ddcc;
+  --text:#e8e8f0;--muted:#777;--muted2:#aaa;
+  --r:12px;--r2:8px;--r3:5px;
+  --shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+.gl{background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
+.gl3{background:var(--glass3);border:1px solid var(--border);border-radius:var(--r3)}
+
+/* layout */
+.container{max-width:1150px;margin:0 auto;padding:2rem 1rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:.6rem}
+@media(max-width:900px){.g4,.g5{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.g2,.g3,.g4,.g5{grid-template-columns:1fr}}
+
+/* type */
+h1{font-size:1.9rem;font-weight:700;letter-spacing:-.3px}
+h2{font-size:1.3rem;font-weight:600}
+h3{font-size:.98rem;font-weight:600}
+.accent{color:var(--primary)}
+.muted{color:var(--muted)}
+.sm{font-size:.83rem}
+.xs{font-size:.72rem}
+.xxs{font-size:.64rem}
+
+/* tabs */
+.stab{display:flex;gap:.2rem;background:var(--bg3);border-radius:var(--r2);padding:.2rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.stab button{flex:1;min-width:80px;padding:.42rem .7rem;background:transparent;border:none;border-radius:5px;color:var(--muted);cursor:pointer;font-size:.78rem;font-weight:600;transition:all .2s;white-space:nowrap}
+.stab button.active{background:var(--glass2);color:var(--text);border:1px solid var(--border2)}
+.spanel{display:none}.spanel.active{display:block}
+
+/* badge/tag */
+.badge{display:inline-flex;align-items:center;gap:.25rem;padding:.2rem .6rem;border-radius:20px;font-size:.69rem;font-weight:700}
+.b-c{background:rgba(255,68,68,.15);color:var(--danger);border:1px solid rgba(255,68,68,.3)}
+.b-h{background:rgba(255,170,0,.15);color:var(--warn);border:1px solid rgba(255,170,0,.3)}
+.b-m{background:rgba(0,170,255,.12);color:var(--info);border:1px solid rgba(0,170,255,.25)}
+.b-l{background:rgba(0,255,136,.1);color:var(--primary);border:1px solid rgba(0,255,136,.25)}
+.b-p{background:rgba(187,68,255,.12);color:var(--purple);border:1px solid rgba(187,68,255,.25)}
+.tag{display:inline-block;padding:.11rem .4rem;border-radius:3px;font-size:.67rem;font-weight:600;margin:.1rem}
+.tr{background:rgba(255,68,68,.12);color:var(--danger)}
+.ty{background:rgba(255,170,0,.12);color:var(--warn)}
+.tg{background:rgba(0,255,136,.1);color:var(--primary)}
+.tb{background:rgba(0,170,255,.1);color:var(--info)}
+.tp{background:rgba(187,68,255,.1);color:var(--purple)}
+.tt{background:rgba(0,220,200,.1);color:var(--teal)}
+
+/* pulse */
+.pulse{display:inline-block;width:7px;height:7px;border-radius:50%;animation:blink 1.6s infinite;flex-shrink:0}
+.p-r{background:var(--danger)}.p-y{background:var(--warn);animation-delay:.5s}.p-g{background:var(--primary);animation-delay:1s}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* scenario card */
+.sc-card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:all .25s;cursor:pointer;position:relative}
+.sc-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 14px 40px rgba(0,0,0,.4)}
+.sc-card.expanded{border-color:var(--primary)}
+.sc-card .sc-head{padding:.9rem}
+.sc-card .sc-expand{display:none;padding:.9rem;border-top:1px solid var(--border);background:var(--bg2)}
+.sc-card.expanded .sc-expand{display:block}
+.sc-prob-arc{position:absolute;top:.75rem;right:.75rem;width:46px;height:46px}
+
+/* table */
+.dtable{width:100%;border-collapse:collapse;font-size:.79rem}
+.dtable th{padding:.38rem .6rem;background:var(--bg3);color:var(--muted2);font-weight:600;text-align:left;border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap;user-select:none}
+.dtable th:hover{color:var(--text)}
+.dtable td{padding:.48rem .6rem;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.45}
+.dtable tr:last-child td{border-bottom:none}
+.dtable tbody tr:hover td{background:rgba(255,255,255,.02)}
+.dtable tbody tr.row-exp td{background:rgba(0,255,136,.03)}
+
+/* pbar */
+.pbar{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.pbar-f{height:100%;border-radius:3px;transition:width 1s ease}
+
+/* mitigation card */
+.mit-card{background:var(--bg3);border-left:3px solid;border-radius:0 var(--r3) var(--r3) 0;padding:.6rem .8rem;margin-bottom:.4rem;font-size:.8rem;line-height:1.55}
+
+/* countdown */
+.countdown-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;text-align:center}
+.cd-unit{background:var(--bg3);border-radius:var(--r3);padding:.6rem .4rem}
+.cd-val{font-size:1.8rem;font-weight:700;color:var(--danger);font-variant-numeric:tabular-nums;line-height:1}
+.cd-lbl{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem}
+
+/* heat map cell */
+.hm-cell{padding:.55rem .4rem;border-radius:var(--r3);text-align:center;font-size:.7rem;font-weight:700;transition:all .2s;cursor:pointer}
+.hm-cell:hover{transform:scale(1.05)}
+
+/* scenario row expand */
+.row-detail{display:none;background:var(--bg2);border-bottom:2px solid var(--primary)}
+.row-detail.open{display:table-row}
+.row-detail td{padding:.85rem 1rem;border-bottom:none}
+
+/* filter btn */
+.flt-btn{padding:.3rem .7rem;background:var(--glass);border:1px solid var(--border);border-radius:20px;color:var(--muted);cursor:pointer;font-size:.75rem;font-weight:600;transition:all .2s}
+.flt-btn:hover{border-color:var(--border2);color:var(--text)}
+.flt-btn.flt-a{border-color:var(--primary);color:var(--primary);background:rgba(0,255,136,.06)}
+
+/* slider */
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:3px;background:var(--bg3);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--primary);cursor:pointer}
+
+/* sort arrow */
+.sort-a::after{content:' ▲';font-size:.6em;color:var(--primary)}
+.sort-d::after{content:' ▼';font-size:.6em;color:var(--primary)}
+
+/* stacked bar */
+.stack-bar{height:8px;border-radius:4px;overflow:hidden;display:flex;margin-top:.3rem}
+.stack-seg{height:100%;transition:width .8s ease}
+
+/* btn */
+.btn{display:inline-flex;align-items:center;gap:.35rem;padding:.48rem 1rem;border:none;border-radius:var(--r2);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn-p{background:var(--primary);color:#000}
+.btn-d{background:var(--danger);color:#fff}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--glass2)}
+.btn-sm{padding:.3rem .65rem;font-size:.75rem}
+
+/* topbar */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:.55rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap">
+    <span style="font-weight:700;font-size:.9rem">🔮 ARK <span style="color:var(--primary)">2027 SCENARIOS</span></span>
+    <span class="badge b-c"><span class="pulse p-r"></span>LIVE PROBABILITY MODEL</span>
+    <span class="badge b-h">20 Active Predictions</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:.65rem">
+    <span class="xs muted">Model updated:</span>
+    <span id="modelDate" style="font-size:.78rem;font-weight:700;color:var(--primary)"></span>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- HEADER -->
+<div style="margin-bottom:1.5rem;padding-top:.5rem">
+  <div style="display:flex;align-items:center;gap:.85rem;margin-bottom:.4rem">
+    <span style="font-size:2.2rem">🔮</span>
+    <div>
+      <h1>2027 Collapse Scenarios <span class="accent">Live</span></h1>
+      <p class="muted sm">05.6 — Ark Collective v3 | 20 Predictions | Dynamic Probability Model | Ark Mitigation Protocols</p>
+    </div>
+  </div>
+  <p style="color:var(--muted2);max-width:760px;font-size:.88rem;line-height:1.65;margin-top:.5rem">
+    Twenty high-probability collapse scenarios with onset windows 2025–2027. Each carries a live probability score, severity rating, geo-impact map, elite response prediction, and full Ark mitigation protocol. Adjust the probability sliders to build your personal scenario model.
+  </p>
+</div>
+
+<!-- COUNTDOWN + AGGREGATE STATS -->
+<div class="g2" style="margin-bottom:1.25rem;align-items:start">
+  <div class="gl" style="padding:1.1rem 1.25rem">
+    <div class="xs muted" style="margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.07em">⏳ Countdown to 2027-01-01</div>
+    <div class="countdown-wrap" id="countdown"></div>
+    <div style="margin-top:.85rem;padding:.65rem;background:rgba(255,68,68,.06);border-radius:var(--r3);border-left:3px solid var(--danger)">
+      <div class="xs" style="font-weight:700;color:var(--danger);margin-bottom:.2rem">⚠ Decision Window Doctrine</div>
+      <div class="xs muted" style="line-height:1.65">Class A financial scenarios require 12–18 months lead time to protect assets. Class C political scenarios can trigger in days. The 2027 window requires action starting now.</div>
+    </div>
+  </div>
+  <div class="gl" style="padding:1.1rem 1.25rem">
+    <div class="xs muted" style="margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.07em">📊 Aggregate Scenario Model</div>
+    <div id="aggregateStats"></div>
+  </div>
+</div>
+
+<!-- SCENARIO HEAT MAP -->
+<div class="gl" style="padding:1.1rem 1.25rem;margin-bottom:1rem">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:.85rem">
+    <h3>🗺️ 2027 Scenario Heat Map — Probability × Severity</h3>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+      <span class="xs muted" style="align-self:center">Severity →</span>
+      <span class="badge b-l">LOW</span><span class="badge b-m">MED</span><span class="badge b-h">HIGH</span><span class="badge b-c">CRITICAL</span><span class="badge b-p">EXIST.</span>
+    </div>
+  </div>
+  <div id="heatMap" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.4rem"></div>
+</div>
+
+<!-- CONTROLS -->
+<div class="gl" style="padding:1rem 1.25rem;margin-bottom:1rem">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem;margin-bottom:.75rem">
+    <h3>Filter & Sort Scenarios</h3>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" id="btnCards" onclick="setView('cards')">🃏 Cards</button>
+      <button class="btn btn-p btn-sm" id="btnTable" onclick="setView('table')">📊 Table</button>
+      <button class="btn btn-ghost btn-sm" onclick="resetProbs()">↺ Reset Probabilities</button>
+    </div>
+  </div>
+  <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem" id="filterBar"></div>
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center">
+    <div style="display:flex;align-items:center;gap:.5rem">
+      <span class="xs muted">Min probability:</span>
+      <input type="range" min="0" max="90" value="0" id="probSlider" oninput="updateMinProb(this.value)" style="width:100px">
+      <span class="xs" id="probSliderVal" style="color:var(--primary);min-width:28px">0%</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem">
+      <span class="xs muted">Sort by:</span>
+      <select id="sortSel" onchange="applySort()" style="background:var(--bg3);color:var(--text);border:1px solid var(--border2);border-radius:var(--r3);padding:.3rem .55rem;font-size:.78rem">
+        <option value="prob-d">Probability ↓</option>
+        <option value="sev-d">Severity ↓</option>
+        <option value="window-a">Onset Window ↑</option>
+        <option value="impact-d">Impact Score ↓</option>
+        <option value="ark-a">Ark Prep Time ↑</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- CARDS VIEW -->
+<div id="cardsView" style="margin-bottom:1rem">
+  <div id="cardsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:.75rem"></div>
+</div>
+
+<!-- TABLE VIEW -->
+<div id="tableView" style="display:none;margin-bottom:1rem">
+  <div class="gl" style="padding:1.25rem;overflow-x:auto">
+    <table class="dtable" id="scenarioTable"><thead id="tHead"></thead><tbody id="tBody"></tbody></table>
+  </div>
+</div>
+
+<!-- DEEP ANALYSIS TABS -->
+<div class="gl" style="padding:1.25rem;margin-bottom:1rem">
+  <div class="stab" id="deepTabs">
+    <button class="active" onclick="switchTab('deepTabs','deepPanels','cascade')">🔗 Cascade Analysis</button>
+    <button onclick="switchTab('deepTabs','deepPanels','timeline')">📅 Timeline View</button>
+    <button onclick="switchTab('deepTabs','deepPanels','geo')">🌍 Geo Impact</button>
+    <button onclick="switchTab('deepTabs','deepPanels','elite')">🎯 Elite Predictions</button>
+    <button onclick="switchTab('deepTabs','deepPanels','mitigations')">🛡️ Mitigation Master List</button>
+  </div>
+  <div id="deepPanels">
+
+    <div class="spanel active" id="panel-cascade">
+      <p class="sm muted" style="margin-bottom:1rem">Scenario interdependencies — how 2027 collapse vectors amplify each other. Multi-system cascade risk is the defining feature of the 2027 threat window.</p>
+      <div id="cascadeMap"></div>
+    </div>
+
+    <div class="spanel" id="panel-timeline">
+      <p class="sm muted" style="margin-bottom:.85rem">Expected onset windows for all 20 scenarios. Scenarios appearing in the same window create compounding risk.</p>
+      <div id="timelineView"></div>
+    </div>
+
+    <div class="spanel" id="panel-geo">
+      <p class="sm muted" style="margin-bottom:.85rem">Geographic impact distribution — which regions face maximum exposure to 2027 scenarios.</p>
+      <div id="geoView"></div>
+    </div>
+
+    <div class="spanel" id="panel-elite">
+      <p class="sm muted" style="margin-bottom:.85rem">Predicted elite response patterns based on historical precedent analysis from 20 historical and 10 modern collapse case studies.</p>
+      <div id="eliteView"></div>
+    </div>
+
+    <div class="spanel" id="panel-mitigations">
+      <p class="sm muted" style="margin-bottom:.85rem">Complete Ark mitigation protocol across all 20 scenarios — consolidated by preparation category.</p>
+      <div id="mitigView"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PERSONAL SCENARIO BUILDER -->
+<div class="gl" style="padding:1.25rem;margin-bottom:1rem">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem">
+    <h3>🎲 Personal Probability Adjuster — Override Default Model</h3>
+    <button class="btn btn-p btn-sm" onclick="buildPersonalReport()">Generate My Report</button>
+  </div>
+  <p class="xs muted" style="margin-bottom:1rem">Drag sliders to adjust scenario probabilities based on your personal assessment. Click "Generate My Report" to see your custom risk profile and priority preparation list.</p>
+  <div id="adjusterGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.6rem"></div>
+  <div id="personalReport" style="display:none;margin-top:1.25rem;padding:1.1rem;background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.2);border-radius:var(--r2)"></div>
+</div>
+
+</div>
+<script>
+/* ════════════════════════════════════════
+   DATA BLOCK — 20 Scenarios 2025–2027
+════════════════════════════════════════ */
+const BASE_DATE = new Date('2026-02-28');
+
+const SCENARIOS = [
+  {
+    id:'S01', cls:'A', icon:'💸', title:'Sovereign Debt Crisis (G7)',
+    window:'2025–2026', onset:'Q3 2025',
+    prob:62, baseProb:62, sev:'CRITICAL', sevN:4, impact:88,
+    arkPrepMonths:18,
+    summary:'US debt service exceeds $1.2T annually. Japan, UK, France all running structural deficits >4% GDP. A bond market "tantrum" — rising yields making debt service impossible — forces austerity cascade or hyperinflationary monetisation.',
+    triggers:['US national debt crosses $40T with no credible fiscal plan','10yr Treasury yield sustained above 6%','Japan yield curve control failure — BOJ forced to abandon','CDS spreads on G7 sovereign debt widen to crisis levels'],
+    elitePrediction:'Institutional investors rotate to gold, commodities, EM currencies. US Fed monetises via stealth QE. Connected investors receive advance warnings via policy briefings.',
+    geoImpact:{US:95,EU:88,JP:92,UK:85,CN:40,AUS:60,EM:55},
+    mitigations:['Physical gold: 15–20% portfolio minimum','USD in non-US offshore jurisdiction','Short-duration sovereign bonds only — avoid 10yr+','Hard assets (land, productive property) as inflation hedge','Income stream in non-affected currency (SGD, CHF, AED)'],
+    collapseLinks:['A4 (Sovereign Default)','A1 (Hyperinflation)','A3 (CBDC rollout)'],
+    arkTier:'Tier 2→3'
+  },
+  {
+    id:'S02', cls:'A', icon:'🏦', title:'Global Banking System Freeze',
+    window:'2025–2027', onset:'Q1 2026',
+    prob:48, baseProb:48, sev:'CRITICAL', sevN:4, impact:92,
+    arkPrepMonths:12,
+    summary:'Commercial real estate ($1.5T US CRE maturity wall 2024–2026) triggers regional bank failures. Contagion spreads via overnight repo and derivative exposure. Bail-ins replace bailouts under new BRRD/FDIC frameworks.',
+    triggers:['3+ US regional banks fail within 30-day window','Overnight repo rate spikes >300bps (Lehman signal)','European bank CDS >500bps sustained','IMF activates emergency liquidity facility'],
+    elitePrediction:'TBTF (Too Big To Fail) banks receive implicit backstop. Regional bank depositors face bail-in haircuts. Insiders have 72-hour window before announcement.',
+    geoImpact:{US:90,EU:85,JP:70,UK:88,CN:45,AUS:72,EM:65},
+    mitigations:['Maximum 3 months expenses in any single bank','FDIC/FSCS-covered accounts only — know your limits','Physical cash: 60-day household outside banking','Spread deposits across 3+ institutions in 2+ jurisdictions','Bail-in clause awareness: bail-in-able instruments vs deposits'],
+    collapseLinks:['A2 (Bank Bail-In)','A5 (Derivative Collapse)'],
+    arkTier:'Tier 2→3'
+  },
+  {
+    id:'S03', cls:'A', icon:'📱', title:'CBDC Mandatory Rollout + Asset Freeze',
+    window:'2026–2027', onset:'Q2 2026',
+    prob:58, baseProb:58, sev:'HIGH', sevN:3, impact:85,
+    arkPrepMonths:24,
+    summary:'130+ countries in CBDC development. Programmable money enables: transaction blocking, spending categories, negative interest rates, expiry dates. A "crisis event" accelerates mandatory adoption, eliminating cash and hard crypto as alternatives.',
+    triggers:['G20 coordinated CBDC interoperability framework announced','Cash elimination timeline set in 3+ major economies','Crypto KYC requirements make P2P transactions non-viable','"Emergency" CBDC rollout during banking or pandemic crisis'],
+    elitePrediction:'Elite pre-positions in non-CBDC jurisdictions (SG, AE, CH, CR). Hard assets and real estate acquired before programmability restricts wealth transfers. Bitcoin self-custody becomes existential tool.',
+    geoImpact:{US:85,EU:90,JP:80,UK:88,CN:95,AUS:82,EM:55},
+    mitigations:['Bitcoin self-custody on hardware wallet — non-custodial only','Physical gold and silver outside banking system','Second residency in non-CBDC-aggressive jurisdiction','Multi-jurisdictional financial footprint','Privacy coin holdings (Monero) as transaction alternative'],
+    collapseLinks:['A3 (CBDC Asset Freeze)','A8 (USD Depegging)'],
+    arkTier:'Tier 2'
+  },
+  {
+    id:'S04', cls:'A', icon:'🛢️', title:'Petrodollar System Collapse',
+    window:'2025–2027', onset:'Q4 2026',
+    prob:35, baseProb:35, sev:'CRITICAL', sevN:4, impact:90,
+    arkPrepMonths:24,
+    summary:'Saudi Arabia formally joins BRICS+ settlement system. 35%+ of global oil traded in non-USD currency by 2026. Dollar loses reserve currency premium. US ability to finance deficit via "exorbitant privilege" ends. Rapid forced fiscal adjustment.',
+    triggers:['Saudi Arabia announces yuan oil pricing for >30% of exports','Russia-China bilateral settlement reaches $300B+ annually','BRICS+ commodity basket currency achieves 10% of global trade','Dollar share of global reserves falls below 50%'],
+    elitePrediction:'US institutional investors diversify into gold, oil futures, EM commodity currencies. Fed monetises aggressively. Military spending increases as economic tool of reserve currency maintenance.',
+    geoImpact:{US:95,EU:70,JP:75,UK:72,CN:30,AUS:50,EM:35},
+    mitigations:['Diversify savings into 4+ currency denominations','Commodity-backed assets: gold, silver, oil ETFs','EM currency exposure: SGD, AED, BRL, INR basket','Real assets priced in global commodity terms','Exit US-only financial footprint immediately'],
+    collapseLinks:['A8 (USD Depegging)','A4 (Sovereign Default)','A1 (Hyperinflation)'],
+    arkTier:'Tier 3'
+  },
+  {
+    id:'S05', cls:'B', icon:'⚡', title:'Grid-Down EMP / Cyber Attack',
+    window:'2025–2027', onset:'Any time',
+    prob:22, baseProb:22, sev:'CRITICAL', sevN:4, impact:96,
+    arkPrepMonths:6,
+    summary:'State-sponsored cyber attack or high-altitude EMP disables power grid in target nation for 2–8 weeks. Modern society has no fallback: food distribution fails at 72 hours, water pumping at 96 hours, hospital generators at 7 days. 90% mortality in extended grid-down scenarios.',
+    triggers:['State-sponsored attack on SCADA systems controlling grid','High-altitude nuclear detonation (EMP weapon)','Cascading transformer failure (critical hardware 12–18 month replacement lead time)','Solar superstorm Carrington-class event'],
+    elitePrediction:'Government elite facilities (COG bunkers, military bases) maintain power. Wealthy individuals with off-grid installations survive. General population: complete dependency on grid = complete vulnerability.',
+    geoImpact:{US:90,EU:75,JP:70,UK:72,CN:55,AUS:65,EM:40},
+    mitigations:['Solar + battery system: 3–7 day minimum home energy independence','Faraday cage for critical electronics (radio, backup devices)','30-day food/water supply requiring no powered infrastructure','Hand-pump water access or gravity-fed water storage','Off-grid communications: ham radio, satellite messenger'],
+    collapseLinks:['B1 (Grid-Down EMP)','B2 (Infrastructure Cyber)','F4 (Carrington Storm)'],
+    arkTier:'Tier 2→4'
+  },
+  {
+    id:'S06', cls:'B', icon:'🌐', title:'Internet Fragmentation (Splinternet)',
+    window:'2026–2027', onset:'Q1 2027',
+    prob:52, baseProb:52, sev:'HIGH', sevN:3, impact:72,
+    arkPrepMonths:18,
+    summary:'US-China tech decoupling + EU digital sovereignty + Russia sovereign internet = three distinct internet architectures by 2027. Cross-border financial transactions, communication, and remote work become intermittent or impossible across jurisdictions.',
+    triggers:['US Executive Order mandating TikTok/Huawei-level bans expand to infrastructure','EU Digital Markets Act triggers US retaliation','China enforces total domestic internet sovereignty','Submarine cable attack in contested region'],
+    elitePrediction:'Tech elite migrates operations to jurisdiction-neutral locations (SG, UAE, CR). Multi-jurisdiction digital infrastructure. Satellite internet (Starlink/OneWeb) becomes premium connectivity layer.',
+    geoImpact:{US:70,EU:75,JP:65,UK:68,CN:85,AUS:60,EM:55},
+    mitigations:['Starlink or equivalent satellite internet subscription','Multi-jurisdiction VPN infrastructure','Offline backups of critical data and communications','P2P communication tools (Briar, Session, Meshtastic)','Income independence from single-jurisdiction platform'],
+    collapseLinks:['B3 (Internet Fragmentation)','C3 (Surveillance Totalitarianism)'],
+    arkTier:'Tier 1→2'
+  },
+  {
+    id:'S07', cls:'C', icon:'🗳️', title:'US Constitutional Crisis / Civil Conflict',
+    window:'2025–2027', onset:'Q4 2026',
+    prob:32, baseProb:32, sev:'HIGH', sevN:3, impact:82,
+    arkPrepMonths:12,
+    summary:'Disputed election, Supreme Court crisis, or Executive branch overreach triggers constitutional standoff. 75% of Americans already view opposing party as existential threat. Probability of active civil violence: 30–35% (political scientists\' consensus). Yugoslavia playbook in American context.',
+    triggers:['Federal election result disputed by significant political actors','Supreme Court legitimacy collapse — non-compliance by executive','State nullification of federal law (10+ states)','Active militia mobilisation in 3+ states simultaneously'],
+    elitePrediction:'Wealthy Americans accelerate dual citizenship applications (record NZ, PT, CR applications). Tech elite pre-positions in Texas or Florida for state-aligned security. Capital flight to Canada, UK, Singapore.',
+    geoImpact:{US:95,EU:50,JP:30,UK:45,CN:20,AUS:40,EM:25},
+    mitigations:['US residents: second residency/citizenship as insurance','Rural property >100 miles from major metro areas','Bug-out plan to stable state or Canada within 48 hours','Community network and mutual aid structure pre-built','Avoid major metro areas during election cycles 2026/2028'],
+    collapseLinks:['C1 (Civil War/Insurrection)','C3 (Surveillance)','C2 (Mass Migration)'],
+    arkTier:'Tier 3'
+  },
+  {
+    id:'S08', cls:'C', icon:'🏛️', title:'EU Fragmentation / Eurozone Break-Up',
+    window:'2026–2028', onset:'Q2 2027',
+    prob:28, baseProb:28, sev:'HIGH', sevN:3, impact:78,
+    arkPrepMonths:18,
+    summary:'Combination of: far-right government in France/Germany withdrawing from European project, Italian debt crisis, Hungarian/Polish institutional conflicts, and/or refugee crisis escalation triggers fundamental EU institutional challenge. Euro architecture collapses under political stress.',
+    triggers:['France election: far-right coalition governing with Frexit mandate','Italian spread vs Bund reaches >600bps','Poland/Hungary formally withdraw from EU institutions','ECB unable to maintain "whatever it takes" with political opposition'],
+    elitePrediction:'European elite diversifies into CHF, USD, GBP. Swiss residential property demand surges. Non-EU domicile structures (Dublin, Singapore, UAE) prepared for capital and legal entity transfers.',
+    geoImpact:{US:45,EU:92,JP:60,UK:70,CN:35,AUS:50,EM:40},
+    mitigations:['EU residents: CHF or GBP offshore account minimum','Non-EU residency or citizenship option (UK, CH, Balkans)','Euro denominated assets reduced below 50% of net worth','Physical gold in Switzerland (non-EU safe haven)','Monitor: French/German yield spreads as fragmentation signal'],
+    collapseLinks:['A4 (Sovereign Default)','C1 (Political Collapse)','A2 (Bank Bail-In)'],
+    arkTier:'Tier 2→3'
+  },
+  {
+    id:'S09', cls:'C', icon:'🔫', title:'Taiwan Strait Military Conflict',
+    window:'2025–2027', onset:'2027 (Pentagon est.)',
+    prob:30, baseProb:30, sev:'CRITICAL', sevN:4, impact:94,
+    arkPrepMonths:6,
+    summary:'Pentagon\'s "pacing threat" scenario: China amphibious invasion of Taiwan in 2027 window. Taiwan produces 92% of advanced semiconductors. Conflict would trigger: semiconductor supply collapse, US military response, nuclear signalling, and the largest economic disruption since WWII.',
+    triggers:['PLA conducts unprecedented scale military exercises around Taiwan','Taiwan political shift toward formal independence declaration','US commitment ambiguity following geopolitical distraction','PLA air/sea superiority assessment crosses internal threshold'],
+    elitePrediction:'TSMC and Taiwanese industrial elite have continuity plans (Arizona fab, Japan facility). US tech companies pre-positioned chip stockpiles. Capital flight from Taiwan to Singapore/US measurable from 2025.',
+    geoImpact:{US:80,EU:75,JP:90,UK:65,CN:85,AUS:70,EM:60},
+    mitigations:['Semiconductor stockpile for critical personal/business equipment','Exit Taiwan and surrounding region 12 months before assessed window','Diversify supply chains away from TSMC-dependent electronics','Physical gold: safe haven in geopolitical crisis','Japan-based assets high risk: US-Japan alliance makes it a target'],
+    collapseLinks:['B1 (Grid/Supply)','F1 (Tactical Nuclear)','A7 (Supply Chain)'],
+    arkTier:'Tier 3→4'
+  },
+  {
+    id:'S10', cls:'D', icon:'🦠', title:'H5N1 Human Pandemic',
+    window:'2025–2027', onset:'Unknown',
+    prob:42, baseProb:42, sev:'CRITICAL', sevN:4, impact:91,
+    arkPrepMonths:3,
+    summary:'H5N1 avian influenza achieves sustained human-to-human transmission. Current CFR in humans: ~60%. Even with mutation-driven lethality reduction to 5–10%, a 1918-scale pandemic would kill 150–300M people. Healthcare systems globally would collapse within 8 weeks of pandemic declaration.',
+    triggers:['H5N1 detected in 2+ healthcare workers with no animal contact','Cluster of community transmission in 3+ countries simultaneously','WHO PHEIC declaration for respiratory illness','Genomic analysis shows efficient human-adaptation mutations'],
+    elitePrediction:'Wealthy individuals activate country estate/remote property protocols (1918 playbook). Pre-positioned PPE, food stockpiles, and telemedicine access. Private healthcare and early vaccine access via institutional connections.',
+    geoImpact:{US:85,EU:82,JP:80,UK:82,CN:75,AUS:78,EM:88},
+    mitigations:['6-month supply stockpile: food, water, medications','N95 respirators: 500 per adult household member','Isolation protocol: activate at first community transmission signal','Rural/remote bug-out location for 90-day isolation capacity','Telemedicine and home medical kit: IV fluids, antibiotics, antivirals'],
+    collapseLinks:['D1 (Novel Pandemic CFR>5%)','B8 (Hospital Overload)','A7 (Supply Chain)'],
+    arkTier:'Tier 2→4'
+  },
+  {
+    id:'S11', cls:'D', icon:'🧬', title:'Engineered Bioweapon / Pandemic',
+    window:'2025–2027', onset:'Unknown',
+    prob:15, baseProb:15, sev:'EXISTENTIAL', sevN:5, impact:99,
+    arkPrepMonths:3,
+    summary:'State or non-state actor deploys engineered pathogen with CFR >20%. DNA synthesis costs at $0.002/base make this technologically accessible to well-resourced groups. Unlike natural pandemic, may be designed for vaccine resistance and rapid spread. Collapse Bible Class F3.',
+    triggers:['Unusual outbreak with unnaturally high CFR + rapid spread','Genetic markers inconsistent with natural evolution','Multiple simultaneous outbreaks in geographically distant locations','State intelligence agency attribution to state actor'],
+    elitePrediction:'Government and military elite activate continuity of government (COG) protocols. Classified early warning system activates 48–72 hours before public. Authoritarian states enforce brutal quarantines to preserve regime.',
+    geoImpact:{US:90,EU:88,JP:85,UK:88,CN:80,AUS:82,EM:85},
+    mitigations:['Full Ark isolation protocol: 90-day self-sufficient capable','PAPR/Level B PPE beyond N95 standard','Sealed shelter capability (positive pressure room)','Biological monitoring: WHO DON daily, unofficial channels','Activated charcoal + decontamination protocols for entry'],
+    collapseLinks:['F3 (Engineered Pandemic)','D1 (Natural Pandemic)','C3 (Surveillance State)'],
+    arkTier:'Tier 4'
+  },
+  {
+    id:'S12', cls:'B', icon:'🌊', title:'Food System Cascade Failure',
+    window:'2025–2027', onset:'Q2 2026',
+    prob:45, baseProb:45, sev:'CRITICAL', sevN:4, impact:89,
+    arkPrepMonths:12,
+    summary:'Simultaneous breadbasket failures (US Great Plains drought + Ukraine war extending + India heat wave) reduce global cereal production by 15–25%. Combined with fertiliser shortages (Russia/Belarus supply cut), food inflation reaches 50%+ in import-dependent nations. Famine conditions in 30+ countries.',
+    triggers:['3+ consecutive below-average harvests in US, Ukraine, India','Fertiliser price spike >200% from geopolitical restriction','El Niño intensity exceeds 2023 record — simultaneous droughts across 4 regions','Global cereal reserves fall below 10-week coverage'],
+    elitePrediction:'Agricultural land acquisition accelerates globally (BlackRock, Gates Foundation, Saudi sovereign funds). Grain trading companies (Cargill, ADM, Bunge) increase market control. Food as geopolitical weapon via export restrictions.',
+    geoImpact:{US:60,EU:65,JP:75,UK:70,CN:70,AUS:50,EM:92},
+    mitigations:['1-year caloric stockpile: diverse nutritional profile','Food growing capability: garden, containers, or community farm plot','Heirloom seed bank: 100+ varieties, properly stored','Agricultural land investment: productive acreage outside metro area','Water security: well or rainwater capture for food production'],
+    collapseLinks:['E1 (Breadbasket Drought)','E4 (Crop Failure)','C2 (Mass Migration)'],
+    arkTier:'Tier 2→3'
+  },
+  {
+    id:'S13', cls:'E', icon:'🌡️', title:'Climate Tipping Point Cascade',
+    window:'2026–2030', onset:'Q3 2027',
+    prob:35, baseProb:35, sev:'HIGH', sevN:3, impact:76,
+    arkPrepMonths:36,
+    summary:'Simultaneous triggering of: Amazon dieback (>20% deforestation), West Antarctic ice sheet destabilisation, and permafrost methane feedback. Self-reinforcing feedback loops make climate outcomes uncontrollable. 1.5°C already breached. 2°C locked in by 2030 regardless of emissions cuts.',
+    triggers:['Amazon deforestation crosses 20% threshold','WAIS collapse initiation confirmed by ice sheet monitoring','Arctic methane seep acceleration >50% above 2020 baseline','Atlantic Meridional Overturning Circulation (AMOC) shows critical weakening'],
+    elitePrediction:'High-latitude real estate (Canada, Scandinavia, NZ) premium surges. Water rights acquisitions accelerate. Climate-resilient agricultural land prices surge 3–5× in 2025–2030 window.',
+    geoImpact:{US:70,EU:72,JP:65,UK:68,CN:70,AUS:80,EM:90},
+    mitigations:['Geographic selection: avoid <2m elevation coastal, extreme heat zones','Water independence: well, cistern, or river-fed gravity system','High-latitude property in climate-resilient region (>45°N or 45°S latitude)','Food system resilience: 3+ climate-diverse food supply sources','Heat management: passive cooling, thermal mass architecture'],
+    collapseLinks:['E1–E6','F3 (Existential Climate)','B4 (Water System)'],
+    arkTier:'Tier 2'
+  },
+  {
+    id:'S14', cls:'C', icon:'🤖', title:'AI-Driven Mass Unemployment',
+    window:'2025–2028', onset:'Q3 2026',
+    prob:55, baseProb:55, sev:'HIGH', sevN:3, impact:74,
+    arkPrepMonths:24,
+    summary:'AI replaces 40–60% of white-collar, creative, and service jobs within 36 months of GPT-5 equivalent. Political instability follows income destruction for the professional class. UBI experiments fail to compensate. Populist governments deploy increasingly authoritarian responses to unrest.',
+    triggers:['AI model autonomously replaces >20% of tasks in law, accounting, medicine, coding simultaneously','White-collar unemployment rate reaches 8% in developed economies','Mass protests by professional class in 3+ major democracies','Governments propose UBI/digital identity as solution (CBDC convergence)'],
+    elitePrediction:'Tech oligarchs accelerate AI deployment regardless of social disruption. Retreat to security-controlled compounds. Lobby for UBI tied to CBDC/digital ID as social control mechanism.',
+    geoImpact:{US:88,EU:82,JP:78,UK:85,CN:70,AUS:80,EM:55},
+    mitigations:['Develop AI-resistant skills: physical, relational, creative leadership','Income diversification: multiple streams, not single employer','Hard assets: income from capital not labour','Entrepreneurial capability: own the AI, don\'t compete with it','Geographic arbitrage: lower-cost jurisdiction for income independence'],
+    collapseLinks:['C4 (Social Collapse)','A1 (Economic Disruption)','C3 (Surveillance)'],
+    arkTier:'Tier 2'
+  },
+  {
+    id:'S15', cls:'C', icon:'🔒', title:'Digital Surveillance State Expansion',
+    window:'2025–2027', onset:'Q4 2026',
+    prob:70, baseProb:70, sev:'HIGH', sevN:3, impact:72,
+    arkPrepMonths:24,
+    summary:'Emergency powers established during COVID, combined with AI facial recognition, CBDC financial surveillance, and social scoring — converge into a comprehensive surveillance apparatus in 10+ developed democracies. Australia, Canada, UK, EU leading. US likely by 2028.',
+    triggers:['Emergency law passed expanding biometric surveillance to public spaces','CBDC transaction data shared with law enforcement/intelligence agencies','Social credit pilot programme announced in Western democracy','Encryption backdoor mandate passed in major jurisdiction'],
+    elitePrediction:'Surveillance-resistant jurisdictions (CR, PA, PT, AE) see wealthy migration surge. Privacy tools (VPN, crypto, hardware wallets) become standard elite practice. Dual nationality accelerates to escape jurisdiction lock.',
+    geoImpact:{US:75,EU:82,JP:70,UK:85,CN:98,AUS:88,EM:60},
+    mitigations:['Second residency in privacy-protective jurisdiction (CR, PA, PT)','Bitcoin self-custody: remove financial surveillance vector','End-to-end encrypted communications only (Signal, Session)','Biometric data minimisation: opt-out wherever legally possible','VPN + Tor for financial research and communications'],
+    collapseLinks:['C3 (Surveillance Totalitarianism)','A3 (CBDC Freeze)'],
+    arkTier:'Tier 2'
+  },
+  {
+    id:'S16', cls:'A', icon:'🏘️', title:'Real Estate Market Collapse',
+    window:'2025–2026', onset:'Q2 2025',
+    prob:52, baseProb:52, sev:'HIGH', sevN:3, impact:68,
+    arkPrepMonths:12,
+    summary:'US, Canada, Australia, UK residential real estate — 40–60% overvalued vs income multiples. CRE: $1.5T US maturity wall. Rising rates made refinancing impossible. Forced selling triggers cascade. 2008 replay with higher starting leverage and less policy flexibility.',
+    triggers:['US CRE delinquency rate exceeds 8%','3+ major US cities report >20% YoY house price decline','Canadian/Australian housing correction >25%','Bank earnings collapse from CRE impairment charges'],
+    elitePrediction:'Institutional buyers (Blackstone, BlackRock) have $200B+ dry powder waiting for distressed prices. Pension funds forced sellers. Individual homeowners trapped. Smart money bought gold/cash in 2024.',
+    geoImpact:{US:85,EU:65,JP:55,UK:78,CN:72,AUS:85,EM:40},
+    mitigations:['Reduce real estate leverage to zero before correction','Maintain cash/gold position to acquire at 30–50% discount','Avoid variable-rate mortgages in rising rate environment','Focus on productive agricultural land vs speculative residential','CRE exposure: zero in office/retail in major CBDs'],
+    collapseLinks:['A6 (Real Estate Implosion)','A2 (Bank Bail-In)','A5 (Derivatives)'],
+    arkTier:'Tier 2'
+  },
+  {
+    id:'S17', cls:'F', icon:'☢️', title:'Tactical Nuclear Use (Limited)',
+    window:'2025–2027', onset:'Any time',
+    prob:18, baseProb:18, sev:'EXISTENTIAL', sevN:5, impact:97,
+    arkPrepMonths:0,
+    summary:'Russia deploys tactical nuclear weapon in Ukraine or in NATO periphery. Even a single tactical use shatters the nuclear taboo, triggers immediate global financial collapse, supply chain freeze, and forces NATO into existential decision. Radioactive fallout limited; psychological and systemic impact unlimited.',
+    triggers:['Ukrainian forces reach Russian territory (Crimea or mainland)','NATO direct military involvement in Ukraine conflict','Russian military facing catastrophic conventional defeat','Domestic political pressure on Putin from hardliners exceeds cost of nuclear use'],
+    elitePrediction:'First 30 minutes: global equity markets crash 30–40%. Gold, USD safe haven surge. Connected individuals with bug-out locations activated. Government elite move to continuity of government (COG) facilities.',
+    geoImpact:{US:85,EU:92,JP:75,UK:88,CN:60,AUS:60,EM:70},
+    mitigations:['Bug-out location >300 miles from military bases and major cities','Potassium iodide tablets: 14-day supply per household member','Fallout shelter preparation: basement, radiation monitoring equipment','72-hour bags always ready: this scenario provides zero warning','Avoid all NATO border states (Poland, Baltic states) as residence'],
+    collapseLinks:['F1 (Tactical Nuclear)','F5 (Full Exchange)','B1 (EMP)'],
+    arkTier:'Tier 4 (immediate)'
+  },
+  {
+    id:'S18', cls:'D', icon:'💊', title:'Antibiotic Resistance Cascade',
+    window:'2025–2030', onset:'Ongoing',
+    prob:60, baseProb:60, sev:'HIGH', sevN:3, impact:75,
+    arkPrepMonths:12,
+    summary:'WHO "critical priority" pathogens (ESKAPE group) now resistant to last-line antibiotics in 40+ countries. By 2027, routine surgery becomes high-mortality in regions with 100% carbapenem-resistant enterobacteriae. No new antibiotic classes in pipeline.',
+    triggers:['Pan-resistant Klebsiella pneumoniae outbreak in major city healthcare system','First confirmed untreatable community-acquired infection in G7 nation','WHO declares AMR crisis event — antibiotic rationing protocols activated','Hospital infection rates rise >50% due to resistant pathogen colonisation'],
+    elitePrediction:'Wealthy individuals stockpile broad-spectrum antibiotics and antiparasitic medications. Private healthcare with stricter infection control protocols. Medical tourism to less-resistant regions increases.',
+    geoImpact:{US:72,EU:68,JP:65,UK:70,CN:75,AUS:65,EM:88},
+    mitigations:['Antibiotic stockpile: 6-month course of broad-spectrum (requires physician)','Colloidal silver, manuka honey, phage therapy awareness','Infection prevention: sterile wound care supplies','Avoid hospitals for non-emergency procedures in AMR-affected regions','Probiotics and microbiome support: defence against resistant colonisation'],
+    collapseLinks:['D2 (AMR Cascade)','D5 (Medical Supply Fail)','B8 (Hospital Overload)'],
+    arkTier:'Tier 1→2'
+  },
+  {
+    id:'S19', cls:'B', icon:'🚢', title:'Global Supply Chain Mega-Disruption',
+    window:'2025–2026', onset:'Q3 2025',
+    prob:55, baseProb:55, sev:'HIGH', sevN:3, impact:78,
+    arkPrepMonths:6,
+    summary:'Red Sea disruption (Houthi) + Panama Canal drought + Taiwan Strait blockade + Arctic route weather events combine to reroute 60% of global shipping. Port congestion returns to COVID-2021 levels. Semiconductors, pharmaceuticals, and food-grade inputs face 6–12 month delivery gaps.',
+    triggers:['Taiwan Strait blockade or conflict disrupts TSMC shipments','Panama Canal below 80% capacity (drought)','Houthi attacks spread to Gulf of Oman','Arctic route unavailable due to weather — all 4 major routes stressed simultaneously'],
+    elitePrediction:'Supply chain intelligence gives 3–6 month advance warning. Manufacturers pre-build inventory. Personal stockpiling of critical goods (medications, electronics) accelerates in informed circles.',
+    geoImpact:{US:75,EU:78,JP:88,UK:75,CN:72,AUS:80,EM:82},
+    mitigations:['Critical medication: 6-month supply minimum (already standard Ark protocol)','Electronics: purchase critical devices now — before supply crunch','Food supply: 90-day buffer of shelf-stable staples','Domestic supply chain preference: local and regional sourcing','Manufacturing: identify domestic alternatives for all single-source imported inputs'],
+    collapseLinks:['A7 (Supply Chain)','B5 (Food Distribution)','B6 (Fuel Scarcity)'],
+    arkTier:'Tier 2'
+  },
+  {
+    id:'S20', cls:'F', icon:'🌪️', title:'Multi-System Simultaneous Collapse',
+    window:'2026–2027', onset:'Q1 2027',
+    prob:25, baseProb:25, sev:'EXISTENTIAL', sevN:5, impact:99,
+    arkPrepMonths:0,
+    summary:'Historical precedent (Late Bronze Age): multiple simultaneous failures create non-linear cascade. The 2027 multi-system scenario: financial crisis + geopolitical conflict + pandemic + supply chain disruption + climate extreme, occurring within a 6-month window. Each amplifies all others.',
+    triggers:['Sovereign debt crisis forces austerity → political instability','Political instability triggers military conflict → supply disruption','Supply disruption stress tests pandemic preparedness → health system overload','All three occurring within 90-day window'],
+    elitePrediction:'True elite (Ark-equivalent) have fully self-sufficient remote locations already active. Second and third citizenships live. Financial systems independent of banking. Others: trapped in collapsing systems.',
+    geoImpact:{US:90,EU:90,JP:88,UK:88,CN:82,AUS:75,EM:85},
+    mitigations:['Full Ark Protocol: self-sufficient location, 2-year supply, off-grid energy','Second citizenship active (not pending)','Community of 15–50 trusted individuals at Ark location','All financial systems independent of banking system','Knowledge preservation: hard copies, skills training, community resilience'],
+    collapseLinks:['F8 (Multiple Concurrent)','All Class F scenarios'],
+    arkTier:'Tier 4'
+  },
+];
+
+/* ════════ ANALYSIS DATA ════════ */
+const CASCADE_LINKS=[
+  {from:'S01',to:'S02',strength:4,label:'Debt crisis triggers bank failures'},
+  {from:'S01',to:'S04',strength:3,label:'Fiscal stress accelerates de-dollarisation'},
+  {from:'S02',to:'S03',strength:4,label:'Bank crisis accelerates CBDC implementation'},
+  {from:'S09',to:'S05',strength:3,label:'Taiwan conflict → semiconductor → EMP risk elevated'},
+  {from:'S09',to:'S19',strength:5,label:'Taiwan conflict = direct supply chain catastrophe'},
+  {from:'S10',to:'S12',strength:3,label:'Pandemic → agricultural workforce → food system'},
+  {from:'S07',to:'S05',strength:2,label:'Civil conflict increases infrastructure attack risk'},
+  {from:'S14',to:'S07',strength:3,label:'Mass unemployment → political destabilisation'},
+  {from:'S15',to:'S03',strength:4,label:'Surveillance state enables and requires CBDC'},
+  {from:'S13',to:'S12',strength:4,label:'Climate tipping → breadbasket failure'},
+  {from:'S17',to:'S20',strength:5,label:'Nuclear use → immediate multi-system cascade'},
+  {from:'S19',to:'S12',strength:4,label:'Supply disruption → food system stress'},
+];
+
+const ELITE_PREDS=[
+  {icon:'🏡',action:'Rural Compound / Remote Estate Activation',detail:'Elite are pre-positioning at hardened rural compounds. Demand for rural property with water, solar, and security is measurable in real estate data. New Zealand, Montana, Costa Rica, Portugal, Switzerland are the five most-cited destinations.',pct:82},
+  {icon:'🛂',action:'Second and Third Citizenship Acceleration',detail:'Record second citizenship applications: 2025–2027 projected 3× 2019 levels. Portugal, Malta, Caribbean, New Zealand, Costa Rica top destinations. Processing times 6–36 months — the urgency window is now.',pct:90},
+  {icon:'🏦',action:'Offshore Financial Architecture',detail:'Swiss, Singapore, UAE, and Cayman financial structures established or reinforced. Average offshore holding of UHNWI: 35–50% of net worth outside home jurisdiction. CBDC preparation driving accelerated offshore migration.',pct:88},
+  {icon:'₿',action:'Bitcoin Self-Custody at Scale',detail:'Institutional and ultra-high-net-worth bitcoin self-custody on hardware wallets. Not exchange-held. Estimated $200B+ in cold storage among top-1000 BTC wallets. Corralito and Lebanon banking collapses cited as motivation.',pct:65},
+  {icon:'🌾',action:'Agricultural Land Acquisition',detail:'Bill Gates owns 270,000+ acres of US farmland. Saudi sovereign wealth fund buying in Ukraine. China controlling 192,000 acres in the US. Agricultural land is the productive asset class with highest elite concentration since 2020.',pct:78},
+  {icon:'🛡️',action:'Private Security / Compound Infrastructure',detail:'Private security industry growing 8% annually. Compound infrastructure (perimeter, communications, medical, energy) being installed by UHNWI. Blackwater-successor firms offering residential protection services at scale.',pct:55},
+];
+
+const GEO_DATA=[
+  {region:'United States',code:'US',scenarios:['S01','S02','S03','S04','S05','S07','S14','S15','S17'],riskScore:85,notes:'Financial exposure + political instability + nuclear target. Highest risk among G7 due to institutional fragility and debt.'},
+  {region:'European Union',code:'EU',scenarios:['S01','S02','S03','S08','S13','S15'],riskScore:78,notes:'Fragmentation risk + energy dependency + surveillance trend. East-West internal conflict. Strong individual country variance.'},
+  {region:'Japan',code:'JP',scenarios:['S01','S04','S09','S19'],riskScore:75,notes:'Sovereign debt (265% GDP), Taiwan proximity, supply chain dependency. Extremely high nuclear risk from Taiwan scenario.'},
+  {region:'United Kingdom',code:'UK',scenarios:['S01','S02','S08','S15'],riskScore:72,notes:'Post-Brexit financial exposure, high debt, housing bubble, surveillance state leader. Relative security from EU fragmentation.'},
+  {region:'China',code:'CN',scenarios:['S03','S09','S16'],riskScore:55,notes:'CBDC already deployed (digital yuan). Taiwan conflict initiator risk. Housing collapse (Evergrande ongoing). Internal stability risk understated.'},
+  {region:'Australia / NZ',code:'AUS',scenarios:['S10','S13','S15','S19'],riskScore:62,notes:'Geographic safety from geopolitical conflicts. Climate risk (fire, flood, drought). Surveillance state expanding rapidly. Good bug-out destination for Asia-Pacific.'},
+  {region:'Emerging Markets',code:'EM',scenarios:['S01','S04','S10','S12','S18'],riskScore:72,notes:'USD debt burden most acute. Climate frontline. Weakest healthcare systems. Food import dependency. Highest mortality risk in pandemic/food scenarios.'},
+];
+
+const MITIGATION_CATEGORIES=[
+  {cat:'Financial',icon:'💰',color:'var(--warn)',items:[
+    'Physical gold: 15–20% portfolio minimum (sovereign coins: Gold Eagle, Maple Leaf, Krugerrand)',
+    'Offshore accounts in 2+ jurisdictions: Switzerland, Singapore, UAE, Panama',
+    'Bitcoin self-custody on hardware wallet (Ledger/Trezor): 5–10% of liquid assets',
+    'Zero leverage entering any crisis window: paid-off primary residence or zero rent exposure',
+    'Foreign currency holdings: CHF, SGD, AED — 20% of liquid savings',
+    'Avoid bail-inable instruments: understand what is inside FDIC/FSCS coverage vs outside',
+    'Income diversification: 3+ revenue streams, 2+ currencies, 1+ offshore',
+    'Maximum 3 months operating expenses in any single domestic bank account',
+  ]},
+  {cat:'Geographic',icon:'🗺️',color:'var(--primary)',items:[
+    'Second residency established in stable, low-surveillance jurisdiction',
+    'Second citizenship application filed: Portugal, Costa Rica, Malta, Caribbean',
+    'Rural property >100 miles from major metro area and military installation',
+    'Bug-out location: water source, arable land, defensible position, community',
+    'Avoid: coastal (<2m elevation), major city centres, nuclear target zones, single-border-crossing locations',
+    'Climate resilience: 40°N–55°N or 35°S–55°S latitude corridor preferred',
+    'High-latitude safety corridor: Canada interior, Scandinavia, Patagonia, New Zealand South Island',
+  ]},
+  {cat:'Supplies',icon:'🥫',color:'var(--info)',items:[
+    'Food: 12-month caloric stockpile (2,500+ cal/person/day), diverse nutrition profile',
+    'Water: 90-day storage + long-term purification capability (UV, ceramic filter, RO)',
+    'Medical: 6-month prescription supply + comprehensive OTC kit + trauma kit',
+    'N95 respirators: 500+ per adult household member (pre-pandemic pricing)',
+    'Fuel: 30-day diesel/petrol for generator + vehicles + heating',
+    'Seed bank: 100+ heirloom varieties, properly sealed, refrigerated',
+    'Tools: manual alternatives for all powered devices (hand pump, hand tools, manual communication)',
+  ]},
+  {cat:'Energy',icon:'⚡',color:'var(--purple)',items:[
+    'Solar array: 5–10kW minimum for household energy independence',
+    'Battery storage: 20–40kWh (3–7 day household energy buffer)',
+    'Generator: diesel/propane backup for >7-day solar gap events',
+    'Faraday protection: EMP-resistant storage for critical electronics',
+    'Fuel storage: 500L diesel/propane in compliant containers',
+    'Manual alternatives: hand tools, wind, water (if applicable to location)',
+  ]},
+  {cat:'Security',icon:'🛡️',color:'var(--danger)',items:[
+    'Defensive capability: legal firearms, training, safe storage',
+    'Perimeter awareness: camera, motion, lighting — not surveillance, situational awareness',
+    'Community network: 5–15 trusted households in mutual aid structure',
+    'Information security: encrypted communications (Signal), VPN, operational security',
+    'Low profile: do not broadcast preparedness publicly',
+    'Legal structure: assets in LLC/trust not personally named where possible',
+  ]},
+  {cat:'Knowledge',icon:'📚',color:'var(--teal)',items:[
+    'First aid / trauma care certification (TCCC level)',
+    'Food growing / permaculture skills: practical, not theoretical',
+    'Mechanical repair: vehicle, generator, basic electrical and plumbing',
+    'Ham radio licence + equipment: communication when all networks fail',
+    'Mental resilience: meditation, stress inoculation, crisis decision-making training',
+    'Hard copy library: medical, agricultural, mechanical, legal references',
+    'Language: second language of bug-out destination (Portuguese, Spanish, French)',
+  ]},
+];
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let activeFilter='ALL', activeView='cards', minProb=0, sortMode='prob-d';
+let userProbs={};
+SCENARIOS.forEach(s=>userProbs[s.id]=s.baseProb);
+let expandedRows=new Set();
+
+/* ════════════════════════════════════════
+   RENDER BLOCK
+════════════════════════════════════════ */
+const CLS_COL={A:'var(--warn)',B:'var(--info)',C:'var(--danger)',D:'var(--purple)',E:'var(--teal)',F:'#ff0055'};
+const SEV_COL_MAP={LOW:'var(--primary)',MED:'var(--info)',HIGH:'var(--warn)',CRITICAL:'var(--danger)',EXISTENTIAL:'#ff0055'};
+
+function getFiltered(){
+  let list=SCENARIOS.filter(s=>{
+    if(activeFilter!=='ALL'&&s.cls!==activeFilter) return false;
+    if(userProbs[s.id]<minProb) return false;
+    return true;
+  });
+  // sort
+  switch(sortMode){
+    case'prob-d': list.sort((a,b)=>userProbs[b.id]-userProbs[a.id]); break;
+    case'sev-d':  list.sort((a,b)=>b.sevN-a.sevN); break;
+    case'window-a': list.sort((a,b)=>a.window.localeCompare(b.window)); break;
+    case'impact-d': list.sort((a,b)=>b.impact-a.impact); break;
+    case'ark-a':  list.sort((a,b)=>a.arkPrepMonths-b.arkPrepMonths); break;
+  }
+  return list;
+}
+
+function probColor(p){return p>=70?'var(--danger)':p>=45?'var(--warn)':p>=25?'var(--info)':'var(--primary)'}
+
+function renderCountdown(){
+  const target=new Date('2027-01-01');
+  function update(){
+    const now=new Date();
+    const diff=target-now;
+    if(diff<=0){document.getElementById('countdown').innerHTML='<div style="grid-column:1/-1;color:var(--danger);font-weight:700">2027 HAS ARRIVED</div>';return;}
+    const d=Math.floor(diff/86400000);
+    const h=Math.floor((diff%86400000)/3600000);
+    const m=Math.floor((diff%3600000)/60000);
+    const s=Math.floor((diff%60000)/1000);
+    document.getElementById('countdown').innerHTML=[
+      {v:d,l:'Days'},{v:h,l:'Hours'},{v:m,l:'Min'},{v:s,l:'Sec'}
+    ].map(u=>`<div class="cd-unit"><div class="cd-val">${String(u.v).padStart(2,'0')}</div><div class="cd-lbl">${u.l}</div></div>`).join('');
+  }
+  update();setInterval(update,1000);
+}
+
+function renderAggregateStats(){
+  const list=SCENARIOS;
+  const avgProb=Math.round(list.reduce((s,x)=>s+userProbs[x.id],0)/list.length);
+  const critCount=list.filter(s=>s.sevN>=4).length;
+  const existCount=list.filter(s=>s.sevN===5).length;
+  const highestImpact=list.reduce((a,b)=>b.impact>a.impact?b:a);
+  const c=[
+    {v:avgProb+'%',lbl:'Avg scenario probability',col:'var(--warn)'},
+    {v:critCount,lbl:'Critical+ scenarios',col:'var(--danger)'},
+    {v:existCount,lbl:'Existential scenarios',col:'#ff0055'},
+    {v:highestImpact.id,lbl:'Highest impact: '+highestImpact.title.split(' ').slice(0,3).join(' ')+'…',col:'var(--primary)'},
+  ];
+  document.getElementById('aggregateStats').innerHTML=c.map(s=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:.45rem 0;border-bottom:1px solid var(--border)">
+      <span class="xs muted">${s.lbl}</span>
+      <span style="font-weight:700;color:${s.col};font-size:.92rem">${s.v}</span>
+    </div>`).join('');
+}
+
+function renderHeatMap(){
+  const sorted=[...SCENARIOS].sort((a,b)=>b.impact-a.impact);
+  document.getElementById('heatMap').innerHTML=sorted.map(s=>{
+    const p=userProbs[s.id];
+    const bg=s.sevN===5?'rgba(255,0,85,.2)':s.sevN===4?'rgba(255,68,68,.15)':s.sevN===3?'rgba(255,170,0,.12)':'rgba(0,170,255,.1)';
+    const bc=s.sevN===5?'rgba(255,0,85,.5)':s.sevN===4?'rgba(255,68,68,.4)':s.sevN===3?'rgba(255,170,0,.4)':'rgba(0,170,255,.35)';
+    const tc=s.sevN===5?'#ff0055':s.sevN===4?'var(--danger)':s.sevN===3?'var(--warn)':'var(--info)';
+    return `<div class="hm-cell" style="background:${bg};border:1px solid ${bc};color:${tc}" onclick="selectScenario('${s.id}')" title="${s.title}">
+      <div style="font-size:1.1rem">${s.icon}</div>
+      <div style="font-size:.68rem;font-weight:700;margin:.15rem 0;color:var(--text)">${s.id}</div>
+      <div style="font-size:.62rem;line-height:1.3;color:${tc};margin-bottom:.15rem">${s.sev}</div>
+      <div style="font-size:.75rem;font-weight:700;color:${probColor(p)}">${p}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderFilters(){
+  const fs=['ALL','A','B','C','D','E','F'];
+  const lb={ALL:'All 20',A:'Class A: Financial',B:'Class B: Infrastructure',C:'Class C: Political',D:'Class D: Medical',E:'Class E: Environmental',F:'Class F: Existential'};
+  document.getElementById('filterBar').innerHTML=fs.map(f=>
+    `<button class="flt-btn ${f===activeFilter?'flt-a':''}" onclick="applyFilter('${f}')">${lb[f]}</button>`
+  ).join('');
+}
+
+function renderCards(){
+  const list=getFiltered();
+  document.getElementById('cardsGrid').innerHTML=list.map(s=>{
+    const p=userProbs[s.id];
+    const pc=probColor(p);
+    const cc=CLS_COL[s.cls];
+    return `<div class="sc-card ${expandedRows.has(s.id)?'expanded':''}" id="sc-${s.id}">
+      <div class="sc-head" onclick="toggleScenario('${s.id}')">
+        <!-- prob arc SVG -->
+        <svg class="sc-prob-arc" viewBox="0 0 46 46">
+          <circle cx="23" cy="23" r="19" fill="none" stroke="var(--bg3)" stroke-width="4"/>
+          <circle cx="23" cy="23" r="19" fill="none" stroke="${pc}" stroke-width="4"
+            stroke-dasharray="${2*Math.PI*19}" stroke-dashoffset="${2*Math.PI*19*(1-p/100)}"
+            transform="rotate(-90 23 23)" stroke-linecap="round"/>
+          <text x="23" y="23" text-anchor="middle" dominant-baseline="middle" font-size="8" font-weight="700" fill="${pc}">${p}%</text>
+        </svg>
+        <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.4rem;padding-right:50px">
+          <span style="font-size:1.4rem">${s.icon}</span>
+          <div>
+            <div style="font-size:.82rem;font-weight:700;line-height:1.3">${s.id}: ${s.title}</div>
+            <div class="xxs muted">${s.window}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.5rem">
+          <span class="badge" style="background:${cc}22;color:${cc};border:1px solid ${cc}44">Class ${s.cls}</span>
+          <span class="badge ${s.sevN>=5?'b-p':s.sevN>=4?'b-c':s.sevN>=3?'b-h':'b-m'}">${s.sev}</span>
+          <span class="badge b-l">${s.arkTier}</span>
+        </div>
+        <div style="font-size:.76rem;color:var(--muted2);line-height:1.45">${s.summary.slice(0,130)}…</div>
+        <div style="margin-top:.5rem">
+          <div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);margin-bottom:.2rem">
+            <span>Impact Score</span><span style="color:${s.impact>88?'var(--danger)':'var(--warn)'}">${s.impact}/100</span>
+          </div>
+          <div class="pbar"><div class="pbar-f" style="width:${s.impact}%;background:${s.impact>88?'var(--danger)':'var(--warn)'}"></div></div>
+        </div>
+      </div>
+      <div class="sc-expand">
+        <p class="sm" style="color:var(--muted2);line-height:1.6;margin-bottom:.85rem">${s.summary}</p>
+        <div class="g2">
+          <div>
+            <div class="xs" style="color:var(--danger);font-weight:700;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.06em">🔴 Triggers</div>
+            ${s.triggers.map(t=>`<div style="display:flex;gap:.4rem;font-size:.78rem;padding:.25rem 0;border-bottom:1px solid var(--border);color:var(--muted2)"><span style="color:var(--danger)">→</span>${t}</div>`).join('')}
+          </div>
+          <div>
+            <div class="xs" style="color:var(--primary);font-weight:700;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.06em">🛡️ Ark Mitigations</div>
+            ${s.mitigations.map(m=>`<div style="display:flex;gap:.4rem;font-size:.78rem;padding:.25rem 0;border-bottom:1px solid var(--border);color:var(--muted2)"><span style="color:var(--primary)">◆</span>${m}</div>`).join('')}
+          </div>
+        </div>
+        <div style="margin-top:.85rem;padding:.7rem;background:rgba(255,170,0,.06);border-radius:var(--r3);border-left:3px solid var(--warn)">
+          <div class="xs" style="font-weight:700;color:var(--warn);margin-bottom:.3rem">🎯 Elite Response Prediction</div>
+          <div class="xs muted" style="line-height:1.55">${s.elitePrediction}</div>
+        </div>
+        <div style="margin-top:.5rem;display:flex;gap:.3rem;flex-wrap:wrap">
+          ${s.collapseLinks.map(l=>`<span class="tag ty">${l}</span>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderTable(){
+  document.getElementById('tHead').innerHTML=`
+    <tr>
+      <th>ID</th><th>Scenario</th><th>Class</th><th>Window</th>
+      <th>Probability</th><th>Severity</th><th>Impact</th><th>Prep Window</th><th>Tier</th>
+    </tr>`;
+  const list=getFiltered();
+  document.getElementById('tBody').innerHTML=list.map(s=>{
+    const p=userProbs[s.id];
+    const isExp=expandedRows.has(s.id);
+    return `
+    <tr class="${isExp?'row-exp':''}" onclick="toggleTableRow('${s.id}')">
+      <td style="font-size:.95rem">${s.icon} <strong>${s.id}</strong></td>
+      <td style="font-weight:600;font-size:.82rem">${s.title}</td>
+      <td><span class="badge" style="background:${CLS_COL[s.cls]}22;color:${CLS_COL[s.cls]};border:1px solid ${CLS_COL[s.cls]}44">Class ${s.cls}</span></td>
+      <td class="xs muted">${s.window}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <div class="pbar" style="width:60px"><div class="pbar-f" style="width:${p}%;background:${probColor(p)}"></div></div>
+          <span style="font-weight:700;color:${probColor(p)};font-size:.82rem">${p}%</span>
+        </div>
+      </td>
+      <td><span class="badge ${s.sevN>=5?'b-p':s.sevN>=4?'b-c':s.sevN>=3?'b-h':'b-m'}">${s.sev}</span></td>
+      <td style="color:${s.impact>88?'var(--danger)':'var(--warn)'}; font-weight:700">${s.impact}</td>
+      <td class="xs" style="color:${s.arkPrepMonths===0?'var(--danger)':s.arkPrepMonths<=6?'var(--warn)':'var(--primary)'}">
+        ${s.arkPrepMonths===0?'⚠ IMMEDIATE':s.arkPrepMonths+'mo'}
+      </td>
+      <td><span class="badge ${s.arkTier.includes('4')?'b-c':s.arkTier.includes('3')?'b-h':s.arkTier.includes('2')?'b-m':'b-l'}">${s.arkTier}</span></td>
+    </tr>
+    <tr class="row-detail ${isExp?'open':''}" id="rowdet-${s.id}">
+      <td colspan="9">
+        <div class="g2">
+          <div>
+            <div class="xs" style="font-weight:700;color:var(--danger);margin-bottom:.4rem">🔴 Triggers</div>
+            ${s.triggers.map(t=>`<div class="xs muted" style="padding:.2rem 0;border-bottom:1px solid var(--border)">→ ${t}</div>`).join('')}
+          </div>
+          <div>
+            <div class="xs" style="font-weight:700;color:var(--primary);margin-bottom:.4rem">🛡️ Mitigations</div>
+            ${s.mitigations.map(m=>`<div class="xs muted" style="padding:.2rem 0;border-bottom:1px solid var(--border)">◆ ${m}</div>`).join('')}
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderCascade(){
+  const html=CASCADE_LINKS.map(l=>{
+    const A=SCENARIOS.find(s=>s.id===l.from);
+    const B=SCENARIOS.find(s=>s.id===l.to);
+    if(!A||!B) return '';
+    return `<div style="display:flex;align-items:center;gap:.75rem;padding:.5rem 0;border-bottom:1px solid var(--border)">
+      <div style="min-width:120px;display:flex;align-items:center;gap:.4rem">
+        <span style="font-size:1rem">${A.icon}</span><span class="xs" style="font-weight:600">${A.id}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:.3rem">
+        ${'━'.repeat(l.strength)}<span style="color:var(--warn)">→</span>
+      </div>
+      <div style="min-width:120px;display:flex;align-items:center;gap:.4rem">
+        <span style="font-size:1rem">${B.icon}</span><span class="xs" style="font-weight:600">${B.id}</span>
+      </div>
+      <div class="xs muted" style="flex:1;line-height:1.4">${l.label}</div>
+      <div style="display:flex;gap:2px">${Array.from({length:5},(_,i)=>`<div style="width:6px;height:12px;border-radius:1px;background:${i<l.strength?'var(--danger)':'var(--bg3)'}"></div>`).join('')}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('cascadeMap').innerHTML=`
+    <div class="xs muted" style="margin-bottom:.75rem">Cascade strength: ━━━━━ = maximum amplification. Click scenario IDs to drill down.</div>
+    ${html}
+    <div style="margin-top:.85rem;padding:.75rem;background:rgba(255,68,68,.06);border-radius:var(--r3);border-left:3px solid var(--danger)">
+      <div class="xs" style="font-weight:700;color:var(--danger);margin-bottom:.3rem">⚡ Multi-System Cascade Alert — S20</div>
+      <div class="xs muted" style="line-height:1.65">Historical precedent (Late Bronze Age Collapse, 1177 BCE) demonstrates that interconnected civilisational systems can fail simultaneously via cascade. The S20 scenario (Multi-System Collapse) is not the sum of parts — it is a non-linear amplification event. Preparation requirement: S20-level readiness requires active Ark installation, not planning.</div>
+    </div>`;
+}
+
+function renderTimeline(){
+  const windows=['2025 Q1–Q2','2025 Q3–Q4','2026 Q1–Q2','2026 Q3–Q4','2027+'];
+  const assign={
+    '2025 Q1–Q2':['S16'],
+    '2025 Q3–Q4':['S01','S12','S19'],
+    '2026 Q1–Q2':['S02','S03','S06','S07','S14'],
+    '2026 Q3–Q4':['S04','S08','S13','S15'],
+    '2027+':['S05','S09','S10','S11','S17','S18','S20'],
+  };
+  document.getElementById('timelineView').innerHTML=windows.map(w=>{
+    const ids=assign[w]||[];
+    const scens=ids.map(id=>SCENARIOS.find(s=>s.id===id)).filter(Boolean);
+    const maxSev=scens.length?Math.max(...scens.map(s=>s.sevN)):0;
+    return `<div style="display:flex;gap:1rem;padding:.75rem 0;border-bottom:1px solid var(--border);align-items:flex-start">
+      <div style="min-width:100px;background:var(--bg3);border-radius:var(--r3);padding:.4rem .6rem;text-align:center">
+        <div class="xs" style="font-weight:700;color:${maxSev>=5?'#ff0055':maxSev>=4?'var(--danger)':'var(--warn)'}">${w}</div>
+        <div class="xxs muted">${scens.length} scenarios</div>
+      </div>
+      <div style="flex:1;display:flex;flex-wrap:wrap;gap:.35rem;align-items:center">
+        ${scens.map(s=>`<div class="hm-cell" style="min-width:80px;padding:.4rem .5rem;background:${CLS_COL[s.cls]}15;border:1px solid ${CLS_COL[s.cls]}44;border-radius:var(--r3);cursor:pointer" onclick="selectScenario('${s.id}')">
+          <span style="font-size:.95rem">${s.icon}</span>
+          <span class="xs" style="font-weight:700;color:${CLS_COL[s.cls]};margin-left:.3rem">${s.id}</span>
+          <div class="xxs muted" style="margin-top:.1rem">${s.title.slice(0,22)}…</div>
+        </div>`).join('')}
+        ${!scens.length?'<span class="xs muted">No scenarios in this window</span>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderGeo(){
+  document.getElementById('geoView').innerHTML=GEO_DATA.map(g=>`
+    <div style="padding:.75rem 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;flex-wrap:wrap;gap:.4rem">
+        <div>
+          <span style="font-weight:700;font-size:.9rem">${g.region}</span>
+          <span class="badge ${g.riskScore>80?'b-c':g.riskScore>65?'b-h':'b-m'}" style="margin-left:.5rem">Risk: ${g.riskScore}/100</span>
+        </div>
+        <div>${g.scenarios.map(id=>`<span class="tag tb">${id}</span>`).join('')}</div>
+      </div>
+      <div class="pbar" style="margin-bottom:.35rem"><div class="pbar-f" style="width:${g.riskScore}%;background:${g.riskScore>80?'var(--danger)':g.riskScore>65?'var(--warn)':'var(--info)'}"></div></div>
+      <div class="xs muted" style="line-height:1.5">${g.notes}</div>
+    </div>`).join('');
+}
+
+function renderElite(){
+  document.getElementById('eliteView').innerHTML=ELITE_PREDS.map(e=>`
+    <div style="display:flex;gap:.75rem;padding:.65rem 0;border-bottom:1px solid var(--border);align-items:flex-start">
+      <span style="font-size:1.3rem;min-width:28px">${e.icon}</span>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.3rem;margin-bottom:.3rem">
+          <span style="font-weight:700;font-size:.88rem">${e.action}</span>
+          <span class="badge b-h">${e.pct}% of UHNWI</span>
+        </div>
+        <div class="xs muted" style="line-height:1.55;margin-bottom:.3rem">${e.detail}</div>
+        <div class="pbar"><div class="pbar-f" style="width:${e.pct}%;background:var(--warn)"></div></div>
+      </div>
+    </div>`).join('');
+}
+
+function renderMitigations(){
+  document.getElementById('mitigView').innerHTML=MITIGATION_CATEGORIES.map(cat=>`
+    <div style="margin-bottom:1.1rem">
+      <h3 style="font-size:.88rem;margin-bottom:.65rem;color:${cat.color}">${cat.icon} ${cat.cat} Mitigations</h3>
+      ${cat.items.map(item=>`
+        <div class="mit-card" style="border-left-color:${cat.color}">
+          <span style="color:${cat.color};margin-right:.4rem">◆</span>${item}
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function renderAdjuster(){
+  document.getElementById('adjusterGrid').innerHTML=SCENARIOS.map(s=>`
+    <div class="gl3" style="padding:.75rem">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem">
+        <span>${s.icon}</span>
+        <span class="xs" style="font-weight:600;flex:1">${s.id}: ${s.title.slice(0,30)}…</span>
+        <span id="adj-val-${s.id}" style="font-size:.82rem;font-weight:700;color:${probColor(userProbs[s.id])};min-width:32px;text-align:right">${userProbs[s.id]}%</span>
+      </div>
+      <input type="range" min="0" max="95" value="${userProbs[s.id]}" 
+        oninput="updateProb('${s.id}',this.value)"
+        style="width:100%;accent-color:${probColor(userProbs[s.id])}">
+    </div>`).join('');
+}
+
+/* ════════════════════════════════════════
+   INTERACTION BLOCK
+════════════════════════════════════════ */
+function toggleScenario(id){
+  if(expandedRows.has(id)) expandedRows.delete(id); else expandedRows.add(id);
+  if(activeView==='cards') renderCards(); else renderTable();
+}
+
+function toggleTableRow(id){
+  toggleScenario(id);
+}
+
+function selectScenario(id){
+  expandedRows.add(id);
+  setView('cards');
+  renderCards();
+  setTimeout(()=>{
+    const el=document.getElementById('sc-'+id);
+    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  },100);
+}
+
+function applyFilter(cls){
+  activeFilter=cls;
+  renderFilters();
+  if(activeView==='cards') renderCards(); else renderTable();
+}
+
+function setView(v){
+  activeView=v;
+  document.getElementById('cardsView').style.display=v==='cards'?'block':'none';
+  document.getElementById('tableView').style.display=v==='table'?'block':'none';
+  document.getElementById('btnCards').className=v==='cards'?'btn btn-p btn-sm':'btn btn-ghost btn-sm';
+  document.getElementById('btnTable').className=v==='table'?'btn btn-p btn-sm':'btn btn-ghost btn-sm';
+  if(v==='cards') renderCards(); else renderTable();
+}
+
+function updateMinProb(v){
+  minProb=parseInt(v);
+  document.getElementById('probSliderVal').textContent=v+'%';
+  if(activeView==='cards') renderCards(); else renderTable();
+}
+
+function applySort(){
+  sortMode=document.getElementById('sortSel').value;
+  if(activeView==='cards') renderCards(); else renderTable();
+}
+
+function updateProb(id,v){
+  userProbs[id]=parseInt(v);
+  const el=document.getElementById('adj-val-'+id);
+  if(el){el.textContent=v+'%';el.style.color=probColor(parseInt(v));}
+  renderHeatMap();
+  renderAggregateStats();
+  if(activeView==='cards') renderCards(); else renderTable();
+}
+
+function resetProbs(){
+  SCENARIOS.forEach(s=>{userProbs[s.id]=s.baseProb;});
+  renderAdjuster();
+  renderHeatMap();
+  renderAggregateStats();
+  if(activeView==='cards') renderCards(); else renderTable();
+}
+
+function buildPersonalReport(){
+  const sorted=[...SCENARIOS].sort((a,b)=>userProbs[b.id]-userProbs[a.id]);
+  const top5=sorted.slice(0,5);
+  const avgP=Math.round(sorted.reduce((s,x)=>s+userProbs[x.id],0)/sorted.length);
+  const tier=avgP>65?4:avgP>50?3:avgP>35?2:1;
+  const tierColors=['','var(--primary)','var(--info)','var(--warn)','var(--danger)'];
+  const tierLabels=['','MONITOR','PREPARE','RELOCATE','ACT NOW'];
+  document.getElementById('personalReport').style.display='block';
+  document.getElementById('personalReport').innerHTML=`
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+      <div>
+        <div class="xs muted" style="margin-bottom:.2rem">YOUR AGGREGATE PROBABILITY MODEL</div>
+        <div style="font-size:2rem;font-weight:700;color:${tierColors[tier]}">${avgP}% avg</div>
+      </div>
+      <div style="padding:.6rem 1.2rem;border-radius:var(--r2);background:${tierColors[tier]}22;border:2px solid ${tierColors[tier]};color:${tierColors[tier]};font-weight:700;font-size:1.1rem">
+        TIER ${tier}: ${tierLabels[tier]}
+      </div>
+    </div>
+    <div class="xs" style="font-weight:700;color:var(--warn);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.06em">Your Top 5 Priority Scenarios</div>
+    ${top5.map((s,i)=>`
+      <div style="display:flex;align-items:center;gap:.6rem;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.82rem">
+        <span style="color:var(--warn);font-weight:700;min-width:16px">${i+1}.</span>
+        <span style="font-size:.95rem">${s.icon}</span>
+        <span style="font-weight:600;flex:1">${s.id}: ${s.title}</span>
+        <span style="font-weight:700;color:${probColor(userProbs[s.id])}">${userProbs[s.id]}%</span>
+      </div>`).join('')}
+    <div style="margin-top:.85rem;padding:.7rem;background:rgba(0,255,136,.06);border-radius:var(--r3);border-left:3px solid var(--primary)">
+      <div class="xs" style="font-weight:700;color:var(--primary);margin-bottom:.3rem">📋 Priority Preparation Actions</div>
+      ${top5.flatMap(s=>s.mitigations.slice(0,2).map(m=>`
+        <div class="xs muted" style="padding:.2rem 0;border-bottom:1px solid rgba(0,255,136,.1);display:flex;gap:.4rem">
+          <span style="color:var(--primary)">◆</span>${m}
+        </div>`)).join('')}
+    </div>`;
+  document.getElementById('personalReport').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+const DEEP_PANELS=['cascade','timeline','geo','elite','mitigations'];
+function switchTab(tabGrpId, panelGrpId, panelId){
+  DEEP_PANELS.forEach(pid=>{
+    const el=document.getElementById('panel-'+pid);
+    if(el){el.style.display='none';el.classList.remove('active');}
+  });
+  const active=document.getElementById('panel-'+panelId);
+  if(active){active.style.display='block';active.classList.add('active');}
+  document.getElementById(tabGrpId).querySelectorAll('button').forEach(b=>{
+    b.classList.toggle('active',b.getAttribute('onclick')?.includes(`'${panelId}'`));
+  });
+}
+
+/* ════════════ INIT ════════════ */
+document.getElementById('modelDate').textContent=BASE_DATE.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+renderCountdown();
+renderAggregateStats();
+renderHeatMap();
+renderFilters();
+renderCards();
+renderCascade();
+renderTimeline();
+renderGeo();
+renderElite();
+renderMitigations();
+renderAdjuster();
+
+DEEP_PANELS.slice(1).forEach(pid=>{
+  const el=document.getElementById('panel-'+pid);
+  if(el){el.style.display='none';el.classList.remove('active');}
+});
+</script>
+</body>
+</html>

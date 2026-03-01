@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13 — Preparedness Tiers | Ark v3 (Standalone)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #050608;
+    --glass-bg: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.08);
+    --glass-hover: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold-bright: #f0c96e;
+    --gold-dim: #6b5520;
+    --amber: #e8832a;
+    --red: #c94040;
+    --green: #3dba7e;
+    --cyan: #2ab8c9;
+    --purple: #9b6fd4;
+    --text: #d8dae0;
+    --text-dim: #7a7f8e;
+    --text-bright: #f0f2f8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Rajdhani',sans-serif;background:var(--void);color:var(--text);min-height:100vh;overflow-x:hidden;}
+  body::before{
+    content:'';position:fixed;inset:0;
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 25%,rgba(155,111,212,0.06) 0%,transparent 55%),
+      radial-gradient(ellipse 60% 40% at 85% 75%,rgba(201,168,76,0.05) 0%,transparent 50%),
+      repeating-linear-gradient(0deg,transparent,transparent 80px,rgba(255,255,255,0.007) 80px,rgba(255,255,255,0.007) 81px),
+      repeating-linear-gradient(90deg,transparent,transparent 80px,rgba(255,255,255,0.007) 80px,rgba(255,255,255,0.007) 81px);
+    pointer-events:none;z-index:0;
+  }
+  .container{max-width:1200px;margin:0 auto;padding:0 24px;position:relative;z-index:1;}
+
+  /* Header */
+  .site-header{border-bottom:1px solid var(--glass-border);padding:16px 0;position:sticky;top:0;background:rgba(5,6,8,.93);backdrop-filter:blur(20px);z-index:100;}
+  .header-inner{display:flex;align-items:center;justify-content:space-between;}
+  .logo{font-family:'Cinzel',serif;font-size:13px;font-weight:900;letter-spacing:4px;color:var(--gold);}
+  .section-id{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:2px;}
+
+  /* Hero */
+  .hero{padding:70px 0 50px;text-align:center;}
+  .hero-eyebrow{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:6px;color:var(--purple);text-transform:uppercase;margin-bottom:18px;opacity:.9;}
+  .hero h1{font-family:'Cinzel',serif;font-size:clamp(28px,5vw,58px);font-weight:900;color:var(--text-bright);line-height:1.1;margin-bottom:14px;text-shadow:0 0 60px rgba(155,111,212,.2);}
+  .hero h1 span{color:var(--gold);}
+  .hero-sub{font-size:16px;color:var(--text-dim);max-width:620px;margin:0 auto 32px;line-height:1.6;}
+
+  /* Glass */
+  .gl{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;backdrop-filter:blur(12px);transition:border-color .3s,background .3s;}
+  .gl:hover{border-color:rgba(201,168,76,.2);background:var(--glass-hover);}
+
+  /* Sec title */
+  .sec-title{font-family:'Cinzel',serif;font-size:11px;font-weight:600;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:28px;display:flex;align-items:center;gap:16px;}
+  .sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--gold-dim),transparent);}
+
+  .content-section{padding:50px 0;border-top:1px solid var(--glass-border);}
+
+  /* Tabs */
+  .stab-bar{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:24px;background:rgba(0,0,0,.3);padding:4px;border-radius:6px;border:1px solid var(--glass-border);}
+  .stab{flex:1;min-width:100px;padding:10px 16px;background:transparent;border:none;border-radius:4px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase;transition:all .2s;text-align:center;}
+  .stab:hover{color:var(--text);background:rgba(255,255,255,.04);}
+  .stab.active{background:rgba(201,168,76,.15);color:var(--gold-bright);border-bottom:2px solid var(--gold);}
+  .spanel{display:none;}
+  .spanel.active{display:block;animation:fadeIn .3s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Accordion */
+  .acc-item{border-bottom:1px solid var(--glass-border);}
+  .acc-trigger{width:100%;background:transparent;border:none;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;text-align:left;gap:12px;}
+  .acc-trigger:hover{background:rgba(255,255,255,.03);}
+  .acc-label{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;color:var(--text);}
+  .acc-arrow{font-size:16px;color:var(--gold);transition:transform .3s;flex-shrink:0;}
+  .acc-item.open .acc-arrow{transform:rotate(180deg);}
+  .acc-body{display:none;padding:0 20px 22px;}
+  .acc-item.open .acc-body{display:block;animation:fadeIn .3s ease;}
+
+  /* Tier pyramid cards */
+  .tier-pyramid{display:flex;flex-direction:column;gap:0;margin-bottom:32px;}
+  .tp-row{
+    padding:20px 28px;
+    border:1px solid var(--glass-border);
+    border-bottom:none;
+    background:var(--glass-bg);
+    backdrop-filter:blur(12px);
+    transition:background .3s,border-color .3s;
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+  }
+  .tp-row:first-child{border-radius:8px 8px 0 0;}
+  .tp-row:last-child{border-bottom:1px solid var(--glass-border);border-radius:0 0 8px 8px;}
+  .tp-row::before{
+    content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+    background:var(--tier-color,var(--gold));
+    transition:width .3s;
+  }
+  .tp-row:hover{background:var(--glass-hover);}
+  .tp-row.active-tier{background:rgba(255,255,255,.06);}
+  .tp-row.active-tier::before{width:6px;}
+  .tp-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:0;}
+  .tp-tier-name{font-family:'Cinzel',serif;font-size:16px;font-weight:900;color:var(--tier-color,var(--gold));}
+  .tp-subtitle{font-size:13px;color:var(--text-dim);}
+  .tp-badges{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .tp-body{margin-top:16px;display:none;}
+  .tp-row.active-tier .tp-body{display:block;animation:fadeIn .3s ease;}
+
+  /* Readiness Assessment */
+  .assess-layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
+  @media(max-width:768px){.assess-layout{grid-template-columns:1fr;}}
+
+  .assess-panel{padding:26px;}
+  .assess-domain{margin-bottom:22px;}
+  .domain-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .domain-name{font-size:14px;font-weight:700;color:var(--text-bright);}
+  .domain-score{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--gold);}
+  .domain-questions{display:flex;flex-direction:column;gap:6px;}
+  .dq{display:flex;align-items:flex-start;gap:10px;padding:7px 10px;border-radius:4px;border:1px solid var(--glass-border);cursor:pointer;transition:all .2s;}
+  .dq:hover{border-color:rgba(201,168,76,.25);background:rgba(201,168,76,.04);}
+  .dq input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;flex-shrink:0;margin-top:1px;cursor:pointer;}
+  .dq-label{font-size:13px;color:var(--text-dim);line-height:1.4;cursor:pointer;}
+  .dq.checked .dq-label{color:var(--green);}
+
+  /* Score sidebar */
+  .score-sidebar{padding:24px;position:sticky;top:88px;}
+  .ss-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:3px;margin-bottom:16px;}
+  .ss-tier-display{text-align:center;padding:16px 0;border-bottom:1px solid var(--glass-border);margin-bottom:16px;}
+  .ss-tier-name{font-family:'Cinzel',serif;font-size:22px;font-weight:900;margin-bottom:4px;}
+  .ss-tier-desc{font-size:12px;color:var(--text-dim);line-height:1.5;}
+  .domain-bar-item{margin-bottom:12px;}
+  .db-header{display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);margin-bottom:4px;}
+  .pbar{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;}
+  .pbar-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+  .fill-green{background:linear-gradient(90deg,var(--green),rgba(61,186,126,.4));}
+  .fill-gold{background:linear-gradient(90deg,var(--gold),rgba(201,168,76,.4));}
+  .fill-amber{background:linear-gradient(90deg,var(--amber),rgba(232,131,42,.4));}
+  .fill-red{background:linear-gradient(90deg,var(--red),rgba(201,64,64,.4));}
+  .fill-purple{background:linear-gradient(90deg,var(--purple),rgba(155,111,212,.4));}
+  .fill-cyan{background:linear-gradient(90deg,var(--cyan),rgba(42,184,201,.4));}
+
+  /* Priority matrix */
+  .matrix-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+  .matrix-card{padding:20px;}
+  .mc-priority{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;margin-bottom:6px;}
+  .mc-title{font-size:15px;font-weight:700;color:var(--text-bright);margin-bottom:8px;}
+  .mc-body{font-size:13px;color:var(--text-dim);line-height:1.6;}
+
+  /* Tier badges */
+  .tier{display:inline-block;padding:3px 9px;border-radius:3px;font-family:'Share Tech Mono',monospace;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+  .tier-1{background:rgba(61,186,126,.15);color:var(--green);border:1px solid rgba(61,186,126,.3);}
+  .tier-2{background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3);}
+  .tier-3{background:rgba(232,131,42,.15);color:var(--amber);border:1px solid rgba(232,131,42,.3);}
+  .tier-x{background:rgba(201,64,64,.15);color:var(--red);border:1px solid rgba(201,64,64,.3);}
+  .tier-p{background:rgba(155,111,212,.15);color:var(--purple);border:1px solid rgba(155,111,212,.3);}
+
+  /* Roadmap timeline */
+  .roadmap{position:relative;padding-left:36px;}
+  .roadmap::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--purple),rgba(155,111,212,.1));}
+  .rm-item{position:relative;padding-bottom:28px;}
+  .rm-item:last-child{padding-bottom:0;}
+  .rm-dot{position:absolute;left:-30px;top:4px;width:10px;height:10px;border-radius:50%;box-shadow:0 0 12px var(--dot-color,var(--gold));}
+  .rm-phase{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;margin-bottom:3px;}
+  .rm-title{font-size:16px;font-weight:700;color:var(--text-bright);margin-bottom:6px;}
+  .rm-body{font-size:13px;color:var(--text-dim);line-height:1.7;}
+  .rm-tasks{margin-top:10px;display:flex;flex-direction:column;gap:4px;}
+  .rm-task{font-size:12px;color:var(--text-dim);padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+
+  /* Info/warn boxes */
+  .info-box{background:rgba(42,184,201,.06);border:1px solid rgba(42,184,201,.18);border-left:3px solid var(--cyan);border-radius:4px;padding:14px 18px;margin-bottom:18px;}
+  .info-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:2px;margin-bottom:5px;}
+  .warn-box{background:rgba(201,64,64,.07);border:1px solid rgba(201,64,64,.22);border-left:3px solid var(--red);border-radius:4px;padding:14px 18px;margin-bottom:18px;}
+  .warn-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red);letter-spacing:2px;margin-bottom:5px;}
+  p.prose{font-size:13px;color:var(--text-dim);line-height:1.7;}
+
+  /* Stat row */
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:32px;}
+  .stat-card{padding:16px;text-align:center;}
+  .stat-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:2px;margin-bottom:6px;}
+  .stat-val{font-family:'Cinzel',serif;font-size:26px;font-weight:900;color:var(--gold-bright);line-height:1;margin-bottom:3px;}
+  .stat-sub{font-size:11px;color:var(--text-dim);}
+
+  /* Cost table */
+  .ctable-wrap{overflow-x:auto;}
+  .ctable{width:100%;border-collapse:collapse;font-size:13px;}
+  .ctable th{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);padding:11px 14px;text-align:left;border-bottom:1px solid var(--gold-dim);background:rgba(201,168,76,.04);white-space:nowrap;}
+  .ctable td{padding:10px 14px;border-bottom:1px solid var(--glass-border);color:var(--text);vertical-align:top;}
+  .ctable tr:hover td{background:rgba(255,255,255,.02);}
+  .ctable td:first-child{font-weight:600;color:var(--text-bright);}
+
+  /* Footer */
+  .site-footer{border-top:1px solid var(--glass-border);padding:36px 0;text-align:center;}
+  .footer-logo{font-family:'Cinzel',serif;font-size:14px;font-weight:900;letter-spacing:4px;color:var(--gold);margin-bottom:10px;}
+  .footer-text{font-size:12px;color:var(--text-dim);line-height:1.6;max-width:580px;margin:0 auto;}
+  .footer-links{display:flex;justify-content:center;gap:22px;margin-top:18px;flex-wrap:wrap;}
+  .footer-links a{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;letter-spacing:1px;}
+  .footer-links a:hover{color:var(--gold);}
+
+  ::-webkit-scrollbar{width:4px;height:4px;}
+  ::-webkit-scrollbar-track{background:var(--void);}
+  ::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:2px;}
+  @media(max-width:640px){.matrix-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<header class="site-header" id="top">
+  <div class="container header-inner">
+    <div class="logo">☽ ARK COLLECTIVE v3</div>
+    <div class="section-id">SECTION 13 · PREPAREDNESS TIERS</div>
+  </div>
+</header>
+
+<!-- DATA BLOCK -->
+<script>
+const PREP_DATA = {
+
+  tiers: [
+    {
+      id: "t0",
+      name: "Tier 0 — Unaware",
+      color: "var(--red)",
+      subtitle: "No preparation. Maximum vulnerability.",
+      population: "~60% of Western population",
+      runway: "0–72 hours",
+      investment: "$0",
+      collapseOutcome: "Critical",
+      description: "No emergency supplies, no plan, no alternative residency, no community. Entirely dependent on grid, state, and supply chain. In any disruption beyond 72 hours, this household becomes a refugee.",
+      domains: {
+        food: 0, water: 0, shelter: 0, medical: 0, comms: 0,
+        financial: 0, security: 0, mobility: 0, community: 0, knowledge: 0
+      },
+      keyGaps: ["Zero food/water stores", "No cash reserves", "No documents backed up", "No bug-out plan", "No off-grid capability", "No network"],
+      firstSteps: ["Buy 2 weeks of non-perishable food", "Store 15 gallons of water", "Create a 72-hour go-bag", "Get $500 cash at home", "Learn your nearest exit route"]
+    },
+    {
+      id: "t1",
+      name: "Tier 1 — Aware",
+      color: "var(--amber)",
+      subtitle: "Basic readiness. Survives short disruptions.",
+      population: "~25% of population",
+      runway: "72 hours – 2 weeks",
+      investment: "$500–$2,000",
+      collapseOutcome: "Survivable short-term",
+      description: "Has emergency kit, some food and water stores, cash at home, and a basic plan. Can survive a power outage, short supply disruption, or local emergency. Vulnerable to anything lasting beyond 2 weeks.",
+      domains: {
+        food: 25, water: 20, shelter: 15, medical: 20, comms: 10,
+        financial: 15, security: 10, mobility: 20, community: 10, knowledge: 15
+      },
+      keyGaps: ["Only 2-week food supply", "No alternative energy", "No second location", "Limited medical skills", "No off-grid comms", "No community network"],
+      firstSteps: ["Extend food to 90 days", "Add water filtration system", "Get HAM radio license", "Learn basic first aid + sutures", "Identify 2 community members"]
+    },
+    {
+      id: "t2",
+      name: "Tier 2 — Prepared",
+      color: "var(--gold)",
+      subtitle: "Solid foundation. Survives medium-term disruptions.",
+      population: "~10% of population",
+      runway: "2 weeks – 6 months",
+      investment: "$5,000–$25,000",
+      collapseOutcome: "Resilient for months",
+      description: "Meaningful food and water stores, backup energy, basic medical capability, some off-grid communications, cash and precious metals, a community network, and an initial evacuation plan with a secondary location scouted.",
+      domains: {
+        food: 55, water: 50, shelter: 40, medical: 45, comms: 40,
+        financial: 45, security: 35, mobility: 50, community: 40, knowledge: 45
+      },
+      keyGaps: ["No secured off-grid property", "No second citizenship", "Single jurisdiction financial exposure", "No deep water or fuel production", "Community not formalised"],
+      firstSteps: ["Purchase rural property or option", "Begin CBI / second residency", "Add solar + battery backup", "Open offshore bank account", "Formalise community group"]
+    },
+    {
+      id: "t3",
+      name: "Tier 3 — Resilient",
+      color: "var(--green)",
+      subtitle: "Advanced readiness. Survives year-long collapse.",
+      population: "~4% of population",
+      runway: "6 months – 3 years",
+      investment: "$50,000–$250,000",
+      collapseOutcome: "High survivability",
+      description: "Off-grid capable property with solar/wind, year+ food stores with production capability, second residency or citizenship active, offshore financials diversified, trained community of 10–30 trusted individuals, medical and security capability.",
+      domains: {
+        food: 75, water: 70, shelter: 70, medical: 65, comms: 65,
+        financial: 70, security: 60, mobility: 70, community: 65, knowledge: 70
+      },
+      keyGaps: ["Single refuge location", "Community governance not hardened", "No industrial-scale food production", "Children's education not secured", "Legacy and succession not planned"],
+      firstSteps: ["Add second refuge location", "Establish community governance", "Build food production systems", "Create family succession plan", "Develop children education plan"]
+    },
+    {
+      id: "t4",
+      name: "Tier 4 — Ark Sovereign",
+      color: "var(--purple)",
+      subtitle: "Full spectrum. Multi-generational resilience.",
+      population: "~1% of population",
+      runway: "3+ years / indefinite",
+      investment: "$500,000–$5M+",
+      collapseOutcome: "Thrives through collapse",
+      description: "Multiple secured refuge properties across jurisdictions, two or more citizenships, fully off-grid primary and secondary locations, formalised community of 20–100 with governance and vetting, industrial food and water production, legacy planning across generations, and active participation in rebuilding post-collapse.",
+      domains: {
+        food: 95, water: 90, shelter: 90, medical: 85, comms: 85,
+        financial: 90, security: 80, mobility: 90, community: 85, knowledge: 90
+      },
+      keyGaps: ["Community scale challenges", "Post-collapse governance complexity", "Next-generation transition planning", "Exposure to kinetic conflict if geographically mispositioned"],
+      firstSteps: ["Formalise Ark Council governance", "Complete multi-jurisdiction citizenship", "Build surplus production for trade", "Establish legacy trust structures", "Mentor Tier 2–3 members upward"]
+    }
+  ],
+
+  domains: [
+    { id:"food",      label:"Food Security",     icon:"🥫", desc:"Stored food, production capability, preservation systems." },
+    { id:"water",     label:"Water Security",     icon:"💧", desc:"Storage, filtration, collection, purification backup." },
+    { id:"shelter",   label:"Shelter & Energy",   icon:"🏠", desc:"Secure location, off-grid power, heating, structure." },
+    { id:"medical",   label:"Medical",            icon:"💊", desc:"Supplies, skills, professionals in network." },
+    { id:"comms",     label:"Communications",     icon:"📡", desc:"Off-grid, encrypted, satellite, radio fallbacks." },
+    { id:"financial", label:"Financial",          icon:"💰", desc:"Offshore accounts, hard assets, crypto, cash reserves." },
+    { id:"security",  label:"Security",           icon:"🔒", desc:"Physical security, deterrence, community watch." },
+    { id:"mobility",  label:"Mobility",           icon:"🚗", desc:"Vehicles, fuel, evacuation routes, documents." },
+    { id:"community", label:"Community",          icon:"👥", desc:"Trusted network, governance, skills diversity." },
+    { id:"knowledge", label:"Knowledge",          icon:"📚", desc:"Skills, training, offline reference library." },
+  ],
+
+  assessmentQuestions: [
+    {
+      domain: "food",
+      questions: [
+        "I have at least 2 weeks of food stored for my household",
+        "I have at least 3 months of food stored for my household",
+        "I have at least 12 months of food stored for my household",
+        "I have or can access a food production system (garden/farm/livestock)",
+        "I have food preservation equipment (canning, dehydrator, freeze-dry)",
+      ]
+    },
+    {
+      domain: "water",
+      questions: [
+        "I have at least 72 hours of stored water (4L per person per day)",
+        "I have a water filtration system (Berkey, Lifestraw, or similar)",
+        "I have a rainwater collection or well at my property",
+        "I have water purification tablets and backup methods",
+        "I have tested my water source and know its quality",
+      ]
+    },
+    {
+      domain: "shelter",
+      questions: [
+        "My primary home can be secured against intrusion",
+        "I have backup heating independent of the grid",
+        "I have a generator or solar + battery backup",
+        "I have a secondary location to retreat to if primary is compromised",
+        "My secondary location is off-grid capable",
+      ]
+    },
+    {
+      domain: "medical",
+      questions: [
+        "I have a comprehensive first aid kit at home",
+        "I have a trauma kit (tourniquet, chest seal, hemostatic gauze)",
+        "I have at least 90 days of prescription medications stockpiled",
+        "At least one household member has advanced first aid / TCCC training",
+        "I have a medical professional in my trusted network",
+      ]
+    },
+    {
+      domain: "comms",
+      questions: [
+        "I have a battery-powered or hand-crank emergency radio",
+        "I have a handheld two-way radio (PMR/FRS) for local comms",
+        "I have a HAM radio license and equipment",
+        "I have a satellite communicator (Garmin inReach / Starlink Mini)",
+        "My family has pre-agreed rally points and code words if comms fail",
+      ]
+    },
+    {
+      domain: "financial",
+      questions: [
+        "I have at least $1,000 in physical cash at home",
+        "I have at least $5,000 in physical cash at home",
+        "I own physical gold or silver coins",
+        "I have a cryptocurrency hardware wallet with meaningful holdings",
+        "I have accounts at financial institutions in more than one jurisdiction",
+      ]
+    },
+    {
+      domain: "security",
+      questions: [
+        "My home has reinforced entry points and good lighting",
+        "I have a monitored alarm system or community watch arrangement",
+        "I have taken a self-defence or security awareness course",
+        "I have a legally owned and trained-with firearm (where applicable)",
+        "My community has a shared security plan and communication tree",
+      ]
+    },
+    {
+      domain: "mobility",
+      questions: [
+        "I have a vehicle in good mechanical condition at all times",
+        "I keep my vehicle fuel tank above 50% as a standing rule",
+        "I have a 72-hour go-bag packed and ready to leave within 15 minutes",
+        "I have all critical documents backed up (digital encrypted + physical copies)",
+        "I have a second passport, residency, or visa for another country",
+      ]
+    },
+    {
+      domain: "community",
+      questions: [
+        "I have at least 2 trusted neighbours or local contacts I can rely on",
+        "I am part of a preparedness-minded group of 5+ people",
+        "My group has a diverse set of skills (medical, mechanical, agricultural, etc.)",
+        "My group meets regularly and has practised its emergency plan",
+        "My group has formalised governance and a vetting process for new members",
+      ]
+    },
+    {
+      domain: "knowledge",
+      questions: [
+        "I have an offline emergency reference library (printed or downloaded)",
+        "I know how to purify water, preserve food, and treat basic wounds",
+        "I have practised at least one core survival skill in the last 6 months",
+        "I study collapse history and preparedness strategy regularly",
+        "I can navigate without GPS using map and compass",
+      ]
+    }
+  ],
+
+  roadmap: [
+    {
+      phase: "MONTH 1–3", color:"var(--amber)",
+      title: "Tier 0 → Tier 1: Foundation Layer",
+      body: "The most critical transition. Moving from zero to basic awareness eliminates 80% of short-term mortality risk.",
+      tasks: [
+        "Purchase 2-week emergency food supply ($150–$300)",
+        "Store 15 gallons water + buy Berkey or equivalent filter ($250)",
+        "Build 72-hour go-bag with documents and cash ($400)",
+        "Get $1,000–$2,000 cash at home in small denominations",
+        "Learn CPR and basic first aid (Red Cross course)",
+        "Identify and contact 2 trusted neighbours",
+      ]
+    },
+    {
+      phase: "MONTH 3–12", color:"var(--gold)",
+      title: "Tier 1 → Tier 2: Resilience Layer",
+      body: "Extend time horizon from weeks to months. Begin building real redundancy across all 10 domains.",
+      tasks: [
+        "Build 90-day food supply with rotation system",
+        "Install 2kW solar + battery backup ($3,000–$8,000)",
+        "Get HAM radio license and purchase equipment ($300)",
+        "Open offshore bank account + purchase 5-10 gold coins",
+        "Complete advanced first aid / trauma care course",
+        "Formalise a preparedness group of 5–10 trusted people",
+        "Scout secondary bugout location within 4-hour drive",
+        "Start second citizenship / residency research and applications",
+      ]
+    },
+    {
+      phase: "YEAR 1–3", color:"var(--green)",
+      title: "Tier 2 → Tier 3: Self-Sufficiency Layer",
+      body: "Transition from crisis survival to genuine long-term self-sufficiency. Secure property. Build production systems.",
+      tasks: [
+        "Purchase or lease off-grid capable rural property",
+        "Build 12-month food store + begin food production",
+        "Install full off-grid energy system (5–10kW solar, wind, hydro)",
+        "Complete second residency or citizenship",
+        "Diversify financial assets across 3+ jurisdictions",
+        "Build trained community of 15–30 with governance structure",
+        "Establish medical capability within community",
+        "Develop children education plan for post-collapse",
+      ]
+    },
+    {
+      phase: "YEAR 3–7", color:"var(--purple)",
+      title: "Tier 3 → Tier 4: Ark Sovereign Layer",
+      body: "Full-spectrum, multi-generational resilience. You are now a node in the Ark network — a resource for others as much as yourself.",
+      tasks: [
+        "Establish multiple refuge locations across jurisdictions",
+        "Obtain second and third citizenship",
+        "Build surplus production capacity for trade and community support",
+        "Formalise Ark Council with constitutional governance",
+        "Create family legacy trust and succession plan",
+        "Mentor 3+ households from Tier 1 to Tier 2",
+        "Build post-collapse rebuilding capability (skills, tools, knowledge)",
+        "Establish communications network with Ark nodes in other regions",
+      ]
+    }
+  ],
+
+  investmentTable: [
+    { tier:"Tier 0→1", item:"72-hour kit + 2-week food",       cost:"$500–$2K",    priority:"CRITICAL", timeframe:"Month 1" },
+    { tier:"Tier 0→1", item:"Cash reserve at home",            cost:"$1K–$5K",     priority:"CRITICAL", timeframe:"Month 1" },
+    { tier:"Tier 0→1", item:"Water filtration system",         cost:"$250–$500",   priority:"CRITICAL", timeframe:"Month 1" },
+    { tier:"Tier 1→2", item:"90-day food supply",              cost:"$1K–$3K",     priority:"HIGH",     timeframe:"Month 3" },
+    { tier:"Tier 1→2", item:"Basic solar + battery backup",    cost:"$3K–$8K",     priority:"HIGH",     timeframe:"Month 6" },
+    { tier:"Tier 1→2", item:"HAM radio + license",             cost:"$300–$600",   priority:"HIGH",     timeframe:"Month 3" },
+    { tier:"Tier 1→2", item:"Gold / silver coins",             cost:"$2K–$10K",    priority:"HIGH",     timeframe:"Month 6" },
+    { tier:"Tier 2→3", item:"Rural off-grid property",         cost:"$50K–$300K",  priority:"MEDIUM",   timeframe:"Year 1–2" },
+    { tier:"Tier 2→3", item:"12-month food + production",      cost:"$10K–$30K",   priority:"MEDIUM",   timeframe:"Year 1–2" },
+    { tier:"Tier 2→3", item:"Full off-grid energy system",     cost:"$20K–$80K",   priority:"MEDIUM",   timeframe:"Year 1–2" },
+    { tier:"Tier 2→3", item:"Second residency / CBI passport", cost:"$10K–$300K",  priority:"MEDIUM",   timeframe:"Year 1–3" },
+    { tier:"Tier 3→4", item:"Multiple refuge properties",      cost:"$300K–$2M+",  priority:"PLANNED",  timeframe:"Year 3–7" },
+    { tier:"Tier 3→4", item:"Community governance structure",  cost:"$5K–$20K",    priority:"PLANNED",  timeframe:"Year 3–5" },
+    { tier:"Tier 3→4", item:"Legacy trust + succession plan",  cost:"$10K–$50K",   priority:"PLANNED",  timeframe:"Year 3–5" },
+  ],
+};
+</script>
+
+<!-- RENDER BLOCK -->
+<main>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-eyebrow">☽ Ark Collective v3 · Section 13</div>
+      <h1>Preparedness <span>Tiers</span></h1>
+      <p class="hero-sub">The Ark five-tier readiness framework — from Unaware (Tier 0) to Ark Sovereign (Tier 4). Assess your current position, identify gaps, and follow the step-by-step upgrade roadmap.</p>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="content-section" id="prep-stats">
+    <div class="container">
+      <div class="sec-title">Preparedness Intelligence · Overview</div>
+      <div class="stat-grid">
+        <div class="stat-card gl"><div class="stat-label">Readiness Tiers</div><div class="stat-val">5</div><div class="stat-sub">Tier 0 (Unaware) to Tier 4 (Ark Sovereign)</div></div>
+        <div class="stat-card gl"><div class="stat-label">Domains Assessed</div><div class="stat-val">10</div><div class="stat-sub">Food, water, shelter, medical, comms + 5 more</div></div>
+        <div class="stat-card gl"><div class="stat-label">Tier 0 Population</div><div class="stat-val">60%</div><div class="stat-sub">Of Western population has no meaningful preps</div></div>
+        <div class="stat-card gl"><div class="stat-label">Min. Investment T1</div><div class="stat-val">$500</div><div class="stat-sub">To reach basic 72-hour readiness from zero</div></div>
+        <div class="stat-card gl"><div class="stat-label">Collapse Scenarios</div><div class="stat-val">150</div><div class="stat-sub">Cross-mapped to tier requirements</div></div>
+        <div class="stat-card gl"><div class="stat-label">T4 Runway</div><div class="stat-val">∞</div><div class="stat-sub">Indefinite self-sufficiency when achieved</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tier Pyramid -->
+  <section class="content-section" id="tier-overview">
+    <div class="container">
+      <div class="sec-title">The Five-Tier Pyramid</div>
+      <div class="tier-pyramid" id="tier-pyramid"></div>
+    </div>
+  </section>
+
+  <!-- Main Tabs -->
+  <section class="content-section" id="main-content">
+    <div class="container">
+      <div class="sec-title">Readiness Framework</div>
+      <div class="stab-bar" id="main-tabs">
+        <button class="stab active" onclick="switchTab('main-tabs','main-panels','tab-assess')">Self Assessment</button>
+        <button class="stab" onclick="switchTab('main-tabs','main-panels','tab-roadmap')">Upgrade Roadmap</button>
+        <button class="stab" onclick="switchTab('main-tabs','main-panels','tab-investment')">Investment Table</button>
+        <button class="stab" onclick="switchTab('main-tabs','main-panels','tab-collapse')">Collapse Mapping</button>
+      </div>
+
+      <div id="main-panels">
+
+        <!-- Assessment -->
+        <div class="spanel active" id="tab-assess">
+          <div class="info-box">
+            <div class="info-title">How to use this assessment</div>
+            <p class="prose">Check every item that is genuinely true for your household right now. Not aspirationally true — actually in place. The score will calculate your current tier and surface your highest-priority gaps.</p>
+          </div>
+          <div class="assess-layout">
+            <div class="gl assess-panel" id="assess-panel"></div>
+            <div class="gl score-sidebar" id="score-sidebar">
+              <div class="ss-label">YOUR READINESS PROFILE</div>
+              <div class="ss-tier-display">
+                <div class="ss-tier-name" id="ss-tier-name" style="color:var(--red);">Tier 0</div>
+                <div id="ss-tier-label" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red);letter-spacing:2px;margin-bottom:8px;">UNAWARE</div>
+                <div class="ss-tier-desc" id="ss-tier-desc">Begin checking items to assess your readiness position.</div>
+              </div>
+              <div id="domain-bars"></div>
+              <div style="margin-top:16px;padding:12px;background:rgba(0,0,0,.2);border-radius:4px;border:1px solid var(--glass-border);">
+                <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:2px;margin-bottom:6px;">PRIORITY NEXT STEP</div>
+                <div style="font-size:12px;color:var(--text-dim);line-height:1.6;" id="priority-next">Complete the assessment to see your highest-priority gap.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Roadmap -->
+        <div class="spanel" id="tab-roadmap">
+          <div class="gl" style="padding:28px;">
+            <div class="roadmap" id="roadmap-timeline"></div>
+          </div>
+        </div>
+
+        <!-- Investment -->
+        <div class="spanel" id="tab-investment">
+          <div class="warn-box">
+            <div class="warn-title">Investment Principle</div>
+            <p class="prose">Preparedness investment should follow the 80/20 rule: 80% of your resilience comes from the first 20% of spending. Tier 0 → 1 costs as little as $500 and eliminates the most acute risks. Never skip tiers to buy expensive gear — build the foundation first.</p>
+          </div>
+          <div class="ctable-wrap">
+            <table class="ctable">
+              <thead>
+                <tr>
+                  <th>Transition</th>
+                  <th>Investment Area</th>
+                  <th>Cost Range</th>
+                  <th>Priority</th>
+                  <th>Target Timeframe</th>
+                </tr>
+              </thead>
+              <tbody id="investment-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Collapse Mapping -->
+        <div class="spanel" id="tab-collapse">
+          <div class="gl" style="overflow:hidden;" id="collapse-acc"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-logo">☽ ARK COLLECTIVE v3</div>
+    <div class="footer-text">Section 13 — Preparedness Tiers. Cross-mapped to Collapse Bible 150 scenarios and Safe Zone Five-Layer Doctrine.</div>
+    <div class="footer-links">
+      <a href="#top">↑ Top</a>
+      <a href="#tier-overview">Tiers</a>
+      <a href="#main-content">Assessment</a>
+      <a href="14-preparation-gear.html">→ 14 Prep Gear</a>
+    </div>
+  </div>
+</footer>
+
+<!-- INTERACTION BLOCK -->
+<script>
+function switchTab(barId, panelContainerId, activeId) {
+  const bar = document.getElementById(barId);
+  const container = document.getElementById(panelContainerId);
+  const panels = container.querySelectorAll('.spanel');
+  const buttons = bar.querySelectorAll('.stab');
+  panels.forEach(p => p.classList.remove('active'));
+  buttons.forEach(b => b.classList.remove('active'));
+  const ap = document.getElementById(activeId);
+  if (ap) {
+    ap.classList.add('active');
+    const idx = Array.from(panels).indexOf(ap);
+    if (buttons[idx]) buttons[idx].classList.add('active');
+  }
+}
+
+function toggleAcc(el) {
+  const item = el.closest('.acc-item');
+  const isOpen = item.classList.contains('open');
+  item.parentElement.querySelectorAll('.acc-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ── Tier Pyramid ── */
+function renderTierPyramid() {
+  const container = document.getElementById('tier-pyramid');
+  container.innerHTML = [...PREP_DATA.tiers].reverse().map(t => `
+    <div class="tp-row" style="--tier-color:${t.color};" onclick="toggleTierRow(this)">
+      <div class="tp-header">
+        <div>
+          <div class="tp-tier-name">${t.name}</div>
+          <div class="tp-subtitle">${t.subtitle}</div>
+        </div>
+        <div class="tp-badges">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);">Runway: ${t.runway}</span>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:${t.color};">${t.investment}</span>
+          <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);">${t.population}</span>
+        </div>
+      </div>
+      <div class="tp-body">
+        <p class="prose" style="margin-bottom:14px;">${t.description}</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red);letter-spacing:2px;margin-bottom:8px;">KEY GAPS AT THIS TIER</div>
+            ${t.keyGaps.map(g=>`<div style="font-size:12px;color:var(--text-dim);padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);">✕ ${g}</div>`).join('')}
+          </div>
+          <div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:${t.color};letter-spacing:2px;margin-bottom:8px;">NEXT STEPS TO ADVANCE</div>
+            ${t.firstSteps.map(s=>`<div style="font-size:12px;color:var(--text-dim);padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);">▸ ${s}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleTierRow(el) {
+  const isActive = el.classList.contains('active-tier');
+  document.querySelectorAll('.tp-row').forEach(r => r.classList.remove('active-tier'));
+  if (!isActive) el.classList.add('active-tier');
+}
+
+/* ── Assessment ── */
+const assessState = {};
+
+function renderAssessPanel() {
+  const panel = document.getElementById('assess-panel');
+  panel.innerHTML = PREP_DATA.assessmentQuestions.map(domain => {
+    const domainInfo = PREP_DATA.domains.find(d => d.id === domain.domain);
+    return `
+      <div class="assess-domain">
+        <div class="domain-header">
+          <div class="domain-name">${domainInfo.icon} ${domainInfo.label}</div>
+          <div class="domain-score" id="dscore-${domain.domain}">0 / ${domain.questions.length}</div>
+        </div>
+        <div class="domain-questions">
+          ${domain.questions.map((q, qi) => {
+            const key = `${domain.domain}-${qi}`;
+            return `<div class="dq" id="dq-${key}" onclick="toggleDQ('${key}','${domain.domain}')">
+              <input type="checkbox" id="cb-${key}">
+              <label class="dq-label" for="cb-${key}">${q}</label>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleDQ(key, domainId) {
+  assessState[key] = !assessState[key];
+  const el = document.getElementById('dq-' + key);
+  const cb = document.getElementById('cb-' + key);
+  if (el) el.classList.toggle('checked', assessState[key]);
+  if (cb) cb.checked = assessState[key];
+  updateScores();
+}
+
+function getDomainScore(domainId) {
+  const domain = PREP_DATA.assessmentQuestions.find(d => d.domain === domainId);
+  if (!domain) return 0;
+  const checked = domain.questions.filter((_, qi) => assessState[`${domainId}-${qi}`]).length;
+  return checked;
+}
+
+function updateScores() {
+  const domainScores = {};
+  let totalChecked = 0;
+  const totalQuestions = PREP_DATA.assessmentQuestions.reduce((s,d) => s + d.questions.length, 0);
+
+  PREP_DATA.assessmentQuestions.forEach(domain => {
+    const score = getDomainScore(domain.domain);
+    const max = domain.questions.length;
+    domainScores[domain.domain] = { score, max, pct: Math.round((score/max)*100) };
+    totalChecked += score;
+    const el = document.getElementById('dscore-' + domain.domain);
+    if (el) el.textContent = `${score} / ${max}`;
+  });
+
+  const overallPct = Math.round((totalChecked / totalQuestions) * 100);
+
+  // Determine tier
+  let currentTier = PREP_DATA.tiers[0];
+  if (overallPct >= 80) currentTier = PREP_DATA.tiers[4];
+  else if (overallPct >= 60) currentTier = PREP_DATA.tiers[3];
+  else if (overallPct >= 35) currentTier = PREP_DATA.tiers[2];
+  else if (overallPct >= 15) currentTier = PREP_DATA.tiers[1];
+
+  document.getElementById('ss-tier-name').textContent = currentTier.name.split('—')[0].trim();
+  document.getElementById('ss-tier-name').style.color = currentTier.color;
+  document.getElementById('ss-tier-label').textContent = currentTier.name.split('—')[1]?.trim().toUpperCase() || '';
+  document.getElementById('ss-tier-label').style.color = currentTier.color;
+  document.getElementById('ss-tier-desc').textContent = `${overallPct}% readiness — ${currentTier.subtitle}`;
+
+  // Domain bars
+  const barColors = { 0:['fill-red','var(--red)'], 1:['fill-red','var(--red)'], 2:['fill-amber','var(--amber)'], 3:['fill-gold','var(--gold)'], 4:['fill-gold','var(--gold)'], 5:['fill-green','var(--green)'] };
+  document.getElementById('domain-bars').innerHTML = PREP_DATA.domains.map(d => {
+    const s = domainScores[d.id] || { pct:0, score:0, max:5 };
+    const colorKey = Math.min(5, s.score);
+    const [fillClass] = barColors[colorKey] || ['fill-red','var(--red)'];
+    return `<div class="domain-bar-item">
+      <div class="db-header"><span>${d.icon} ${d.label}</span><span>${s.score}/${s.max}</span></div>
+      <div class="pbar"><div class="pbar-fill ${fillClass}" style="width:${s.pct}%;"></div></div>
+    </div>`;
+  }).join('');
+
+  // Priority next step
+  const lowestDomain = PREP_DATA.domains.reduce((lowest, d) => {
+    const s = domainScores[d.id] || { pct:0 };
+    const ls = domainScores[lowest.id] || { pct:100 };
+    return s.pct < ls.pct ? d : lowest;
+  }, PREP_DATA.domains[0]);
+
+  document.getElementById('priority-next').textContent =
+    `Weakest domain: ${lowestDomain.label}. ${lowestDomain.desc} Focus here first before advancing other areas.`;
+}
+
+/* ── Roadmap Timeline ── */
+function renderRoadmap() {
+  document.getElementById('roadmap-timeline').innerHTML = PREP_DATA.roadmap.map(r => `
+    <div class="rm-item">
+      <div class="rm-dot" style="--dot-color:${r.color};background:${r.color};"></div>
+      <div class="rm-phase" style="color:${r.color};">${r.phase}</div>
+      <div class="rm-title">${r.title}</div>
+      <div class="rm-body">${r.body}</div>
+      <div class="rm-tasks">
+        ${r.tasks.map(t=>`<div class="rm-task">▸ ${t}</div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Investment Table ── */
+function renderInvestmentTable() {
+  const priorityColors = { 'CRITICAL':'var(--red)', 'HIGH':'var(--amber)', 'MEDIUM':'var(--gold)', 'PLANNED':'var(--purple)' };
+  document.getElementById('investment-tbody').innerHTML = PREP_DATA.investmentTable.map(row => {
+    const col = priorityColors[row.priority] || 'var(--text-dim)';
+    return `<tr>
+      <td><span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--cyan);">${row.tier}</span></td>
+      <td>${row.item}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);">${row.cost}</td>
+      <td><span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:${col};background:${col}22;border:1px solid ${col}44;padding:2px 8px;border-radius:3px;">${row.priority}</span></td>
+      <td style="font-size:12px;color:var(--text-dim);">${row.timeframe}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Collapse Mapping Accordion ── */
+function renderCollapseAcc() {
+  const scenarios = [
+    { title:"Financial Collapse / Hyperinflation", tiers:["T1: Cash + gold basics","T2: Offshore accounts + crypto","T3: Multi-jurisdiction assets + land"], note:"Financial collapse hits fastest. T0 households lose everything within weeks. T2+ with offshore assets and hard money are largely insulated." },
+    { title:"Grid / Cyber Infrastructure Collapse", tiers:["T1: 72-hour backup power","T2: Solar + battery + water supply","T3+: Full off-grid independence"], note:"The grid collapse is the great separator. Tier 2 with solar survives indefinitely. Tier 0 and 1 have 3–7 days before critical dependency failures." },
+    { title:"Pandemic / Biological Event", tiers:["T1: 2-week isolation supplies","T2: 90-day medical cache","T3+: Community health capability"], note:"Isolation is the primary tactic. Tier 2+ with 90-day stores can self-isolate through any quarantine wave. Tier 0 must queue for government aid." },
+    { title:"Political Authoritarianism / Civil War", tiers:["T1: Documents + go-bag + cash","T2: Second residency + early exit","T3+: Multiple citizenships + Ark node"], note:"Early movers survive. Tier 2+ with second residency exit at Level 2 trigger. Tier 0-1 attempt to flee at Level 4 — too late." },
+    { title:"Nuclear / WMD Event", tiers:["T1: Shelter-in-place 72h kit","T2: Secondary remote location","T3+: Southern hemisphere Ark refuge"], note:"Distance and geography are everything. Tier 3+ with remote Southern Hemisphere property have by far the highest survival probability." },
+    { title:"Supply Chain / Food System Collapse", tiers:["T1: 2-week emergency food","T2: 90-day store + garden start","T3+: Full food production self-sufficiency"], note:"The slow collapse. Tier 3+ with production capability are net food exporters within their community. Tier 0 face starvation within 2 weeks." },
+  ];
+
+  document.getElementById('collapse-acc').innerHTML = scenarios.map(s => `
+    <div class="acc-item">
+      <button class="acc-trigger" onclick="toggleAcc(this)">
+        <span class="acc-label">${s.title}</span>
+        <span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body">
+        <p class="prose" style="margin-bottom:12px;">${s.note}</p>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:2px;margin-bottom:8px;">TIER REQUIREMENTS</div>
+        ${s.tiers.map(t=>`<div style="font-size:13px;color:var(--text-dim);padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);">▸ ${t}</div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+  renderTierPyramid();
+  renderAssessPanel();
+  renderRoadmap();
+  renderInvestmentTable();
+  renderCollapseAcc();
+});
+</script>
+</body>
+</html>

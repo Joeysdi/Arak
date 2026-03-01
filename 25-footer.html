@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>25 — Footer | Ark v3 (Standalone)</title>
+<style>
+  :root {
+    --ink: #0a0e1a;
+    --void: #060910;
+    --glass: rgba(255,255,255,0.04);
+    --glass-b: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.10);
+    --accent: #e8c84a;
+    --accent2: #ff6b35;
+    --text: #c8d4e8;
+    --muted: #5a6a8a;
+    --danger: #ff3b3b;
+    --safe: #2ecc71;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--void);color:var(--text);font-family:'Courier New',monospace;min-height:100vh;}
+
+  /* ── FOUNDATION PASTE ── */
+  .gl{background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:12px;}
+  .gl-b{background:var(--glass-b);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.15);border-radius:16px;}
+  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.05em;}
+  .pill-danger{background:rgba(255,59,59,.2);color:var(--danger);border:1px solid rgba(255,59,59,.3);}
+  .pill-warn{background:rgba(232,200,74,.15);color:var(--accent);border:1px solid rgba(232,200,74,.3);}
+  .pill-safe{background:rgba(46,204,113,.15);color:var(--safe);border:1px solid rgba(46,204,113,.3);}
+
+  /* ── FOOTER DATA ── */
+  /* demo spacer */
+  .demo-spacer{height:60vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:40px;}
+  .demo-spacer h1{font-size:clamp(24px,4vw,40px);font-weight:900;color:#fff;}
+  .demo-spacer p{color:var(--muted);font-size:13px;text-align:center;}
+
+  /* ── RENDER BLOCK ── */
+  .ark-footer{
+    position:relative;
+    background:linear-gradient(180deg,transparent 0%,rgba(6,9,16,.95) 15%,#060910 100%);
+    border-top:1px solid var(--border);
+    overflow:hidden;
+  }
+
+  /* Top glow */
+  .footer-glow{
+    position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:600px;height:1px;
+    background:linear-gradient(90deg,transparent,var(--accent),transparent);
+    opacity:.4;
+  }
+
+  /* PRE-FOOTER CTA band */
+  .footer-cta{
+    padding:60px 24px;
+    display:flex;flex-direction:column;align-items:center;
+    text-align:center;gap:20px;
+    border-bottom:1px solid var(--border);
+    position:relative;
+  }
+  .footer-cta::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse 60% 100% at 50% 0%, rgba(232,200,74,.05) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .footer-cta-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:4px 12px;border-radius:20px;font-size:9px;letter-spacing:.12em;
+    text-transform:uppercase;font-weight:700;color:var(--accent);
+    background:rgba(232,200,74,.08);border:1px solid rgba(232,200,74,.2);
+  }
+  .footer-cta h2{
+    font-size:clamp(28px,5vw,52px);font-weight:900;color:#fff;
+    letter-spacing:-.03em;line-height:1.05;
+    max-width:700px;
+  }
+  .footer-cta h2 span{
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  }
+  .footer-cta p{color:var(--muted);font-size:14px;max-width:500px;line-height:1.7;}
+  .footer-cta-btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+  .btn-cta-primary{
+    padding:13px 28px;border-radius:10px;font-family:inherit;font-size:12px;
+    font-weight:700;letter-spacing:.08em;cursor:pointer;border:none;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:var(--ink);text-transform:uppercase;transition:all .2s;
+  }
+  .btn-cta-primary:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(232,200,74,.4);}
+  .btn-cta-ghost{
+    padding:13px 28px;border-radius:10px;font-family:inherit;font-size:12px;
+    font-weight:700;letter-spacing:.08em;cursor:pointer;
+    background:transparent;color:var(--text);border:1px solid var(--border);
+    text-transform:uppercase;transition:all .2s;
+  }
+  .btn-cta-ghost:hover{border-color:rgba(255,255,255,.25);color:#fff;}
+
+  /* Main footer grid */
+  .footer-main{
+    max-width:1400px;margin:0 auto;
+    padding:60px 24px 40px;
+    display:grid;
+    grid-template-columns:280px repeat(5,1fr);
+    gap:40px;
+  }
+  @media(max-width:1100px){.footer-main{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:680px){.footer-main{grid-template-columns:1fr 1fr;}}
+  @media(max-width:440px){.footer-main{grid-template-columns:1fr;}}
+
+  /* Brand col */
+  .footer-brand{}
+  .footer-logo{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+  .footer-logo-mark{
+    width:42px;height:42px;border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;font-weight:900;color:var(--ink);
+    box-shadow:0 0 24px rgba(232,200,74,.25);
+  }
+  .footer-logo-text{font-size:16px;font-weight:900;color:#fff;letter-spacing:.04em;}
+  .footer-logo-sub{font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;}
+  .footer-tagline{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:20px;max-width:220px;}
+
+  .footer-socials{display:flex;gap:8px;flex-wrap:wrap;}
+  .social-btn{
+    width:34px;height:34px;border-radius:8px;
+    background:var(--glass);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;font-size:14px;
+    text-decoration:none;transition:all .2s;
+  }
+  .social-btn:hover{background:var(--glass-b);border-color:rgba(255,255,255,.2);}
+
+  .footer-threat-strip{
+    margin-top:20px;padding:10px 14px;border-radius:8px;
+    background:rgba(255,59,59,.06);border:1px solid rgba(255,59,59,.15);
+    display:flex;align-items:center;gap:8px;
+    font-size:10px;letter-spacing:.06em;
+  }
+  .threat-dot{width:6px;height:6px;border-radius:50%;background:var(--danger);animation:pulse 1.5s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(255,59,59,.5);}50%{opacity:.8;box-shadow:0 0 0 4px rgba(255,59,59,0);}}
+
+  /* Link columns */
+  .footer-col-title{
+    font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;margin-bottom:14px;
+  }
+  .footer-links{display:flex;flex-direction:column;gap:2px;}
+  .footer-link{
+    display:flex;align-items:center;gap:6px;padding:5px 0;
+    text-decoration:none;color:var(--muted);font-size:11px;
+    transition:color .15s;border-bottom:1px solid transparent;
+    letter-spacing:.02em;
+  }
+  .footer-link:hover{color:var(--text);}
+  .footer-link .link-icon{font-size:12px;width:16px;text-align:center;opacity:.7;}
+  .footer-link .link-new{
+    font-size:8px;padding:1px 5px;border-radius:10px;
+    background:rgba(232,200,74,.15);color:var(--accent);border:1px solid rgba(232,200,74,.3);
+    font-weight:700;letter-spacing:.06em;margin-left:auto;
+  }
+  .footer-link .link-hot{
+    font-size:8px;padding:1px 5px;border-radius:10px;
+    background:rgba(255,59,59,.15);color:var(--danger);border:1px solid rgba(255,59,59,.3);
+    font-weight:700;letter-spacing:.06em;margin-left:auto;
+  }
+
+  /* Bottom bar */
+  .footer-bottom{
+    border-top:1px solid var(--border);
+    padding:20px 24px;
+    max-width:1400px;margin:0 auto;
+    display:flex;flex-wrap:wrap;gap:12px;
+    align-items:center;justify-content:space-between;
+  }
+  .footer-bottom-left{font-size:10px;color:var(--muted);letter-spacing:.04em;}
+  .footer-bottom-links{display:flex;gap:16px;flex-wrap:wrap;}
+  .footer-bottom-link{font-size:10px;color:var(--muted);text-decoration:none;transition:color .15s;}
+  .footer-bottom-link:hover{color:var(--text);}
+
+  /* Stats strip */
+  .footer-stats{
+    border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+    padding:20px 24px;
+    max-width:1400px;margin:0 auto;
+    display:flex;flex-wrap:wrap;gap:0;
+    justify-content:space-around;
+  }
+  .footer-stat{text-align:center;padding:10px 20px;border-right:1px solid var(--border);}
+  .footer-stat:last-child{border-right:none;}
+  .footer-stat-val{font-size:22px;font-weight:900;color:#fff;}
+  .footer-stat-val.hot{color:var(--danger);}
+  .footer-stat-val.warm{color:var(--accent);}
+  .footer-stat-val.cool{color:var(--safe);}
+  .footer-stat-lab{font-size:9px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted);margin-top:3px;}
+
+  /* Newsletter */
+  .newsletter{
+    display:flex;gap:6px;margin-top:20px;
+  }
+  .newsletter input{
+    flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);
+    border-radius:8px;padding:8px 12px;color:var(--text);font-family:inherit;font-size:11px;
+    min-width:0;
+  }
+  .newsletter input:focus{outline:none;border-color:rgba(232,200,74,.4);}
+  .newsletter button{
+    padding:8px 14px;border-radius:8px;font-family:inherit;font-size:10px;
+    font-weight:700;letter-spacing:.06em;cursor:pointer;border:none;
+    background:var(--accent);color:var(--ink);text-transform:uppercase;
+    white-space:nowrap;flex-shrink:0;
+  }
+  .newsletter button:hover{background:#f0d060;}
+</style>
+</head>
+<body>
+
+<!-- ── DATA BLOCK ── -->
+<script>
+const FOOTER_DATA = {
+  stats: [
+    {val:"150",label:"Collapse Scenarios",cls:"hot"},
+    {val:"38",label:"Protocol Modules",cls:"warm"},
+    {val:"90s",label:"To Midnight",cls:"hot"},
+    {val:"2,847",label:"Ark Members",cls:"cool"},
+    {val:"12",label:"Safe Zones",cls:"cool"},
+    {val:"2027",label:"Watch Year",cls:"warm"}
+  ],
+  columns: [
+    {
+      title:"📡 Threat Intel",
+      links:[
+        {icon:"☢",label:"Risk Assessment",href:"04-risk-assessment.html"},
+        {icon:"🧮",label:"Risk Calculator",href:"04.5-risk-calculator.html",badge:"NEW"},
+        {icon:"🌪",label:"Collapse Scenarios",href:"05-collapse-scenarios.html",badge:"HOT"},
+        {icon:"📜",label:"Historical Collapse",href:"05.4-historical-collapse.html",badge:"NEW"},
+        {icon:"🏚",label:"Modern Case Studies",href:"05.5-modern-collapses.html",badge:"NEW"},
+        {icon:"📅",label:"2027 Scenarios",href:"05.6-2027-scenarios.html",badge:"HOT"},
+      ]
+    },
+    {
+      title:"🌍 Safe Zones",
+      links:[
+        {icon:"🗺",label:"Global Safe Zones",href:"06-global-safe-zones.html"},
+        {icon:"🏔",label:"Bunker Specs",href:"07-bunker-specs.html"},
+        {icon:"💧",label:"Water & Food",href:"08-water-food.html"},
+        {icon:"🏠",label:"Property Strategy",href:"09-property-strategy.html"},
+        {icon:"🔍",label:"Property Scout",href:"09.5-property-scout.html",badge:"NEW"},
+        {icon:"🛡",label:"Safe Zone Strategies",href:"09.6-safe-zone-strategies.html",badge:"NEW"},
+      ]
+    },
+    {
+      title:"✈ Mobility",
+      links:[
+        {icon:"🚩",label:"Flag Theory",href:"10-flag-theory.html"},
+        {icon:"🎲",label:"Visa Probability",href:"10.1-visa-odds.html",badge:"NEW"},
+        {icon:"🏃",label:"Evacuation Plan",href:"11-evacuation-plan.html"},
+        {icon:"🎮",label:"Evac Simulator",href:"11.5-evacuation-simulator.html",badge:"NEW"},
+        {icon:"📡",label:"Comms & Security",href:"12-comms-security.html"},
+        {icon:"💰",label:"Financial Resilience",href:"13-financial-resilience.html"},
+      ]
+    },
+    {
+      title:"⚡ Systems",
+      links:[
+        {icon:"🏥",label:"Medical Triage",href:"14-medical-triage.html"},
+        {icon:"☀",label:"Off-Grid Systems",href:"14.5-offgrid-systems.html",badge:"NEW"},
+        {icon:"🔫",label:"Security & Defense",href:"15-security-defense.html"},
+        {icon:"🔐",label:"Digital Assets",href:"16-digital-assets.html"},
+        {icon:"🎯",label:"Skills & Training",href:"17-skills-training.html"},
+        {icon:"🕵",label:"Intelligence Network",href:"18-intelligence-network.html"},
+      ]
+    },
+    {
+      title:"👥 Community",
+      links:[
+        {icon:"🕸",label:"Network Building",href:"19-network-building.html"},
+        {icon:"👨‍👩‍👧",label:"Family Legacy",href:"19.5-family-legacy.html",badge:"NEW"},
+        {icon:"🏛",label:"Ark Tiers",href:"20-ark-tiers.html"},
+        {icon:"🤝",label:"Recruitment",href:"21-recruitment.html"},
+        {icon:"💎",label:"Inner Circle",href:"22-inner-circle.html"},
+        {icon:"⚙",label:"Operations",href:"23-operations.html"},
+        {icon:"⚖",label:"Governance",href:"23.5-community-governance.html",badge:"NEW"},
+        {icon:"📍",label:"Roadmap",href:"24-roadmap.html"},
+        {icon:"🗓",label:"30-Day Sprint",href:"26.1-30day-sprint.html",badge:"NEW"},
+      ]
+    }
+  ]
+};
+</script>
+
+<!-- DEMO SPACER -->
+<div class="demo-spacer">
+  <h1>Footer Component</h1>
+  <p>All 38 Ark v3 sections linked · Pre-footer CTA · Stats strip · Newsletter · Social links</p>
+  <p style="color:var(--accent);font-size:11px;">↓ Scroll down to see the full footer ↓</p>
+</div>
+
+<!-- ── RENDER BLOCK ── -->
+<footer class="ark-footer" id="ark-footer">
+  <div class="footer-glow"></div>
+
+  <!-- CTA band -->
+  <div class="footer-cta">
+    <div class="footer-cta-badge">
+      <span style="width:6px;height:6px;border-radius:50%;background:var(--danger);animation:pulse 1.5s infinite;display:inline-block;"></span>
+      Limited Access Slots Available
+    </div>
+    <h2>The Window is<br><span>Closing Fast</span></h2>
+    <p>Every day without a continuity plan is a risk you can't afford. Join 2,847 prepared individuals who chose survival over hope.</p>
+    <div class="footer-cta-btns">
+      <button class="btn-cta-primary" onclick="location.href='04.5-risk-calculator.html'">⚡ CALCULATE MY RISK</button>
+      <button class="btn-cta-ghost" onclick="location.href='05-collapse-scenarios.html'">📖 EXPLORE SCENARIOS</button>
+    </div>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="footer-stats" id="footer-stats"></div>
+
+  <!-- Main link grid -->
+  <div class="footer-main">
+
+    <!-- Brand column -->
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="footer-logo-mark">A</div>
+        <div>
+          <div class="footer-logo-text">ARK COLLECTIVE</div>
+          <div class="footer-logo-sub">Continuity Protocol v3</div>
+        </div>
+      </div>
+      <p class="footer-tagline">The world's most comprehensive continuity intelligence platform. Built for those who see what's coming.</p>
+      <div class="footer-socials">
+        <a class="social-btn" href="#" title="Telegram">✈</a>
+        <a class="social-btn" href="#" title="Signal">📱</a>
+        <a class="social-btn" href="#" title="Twitter/X">✕</a>
+        <a class="social-btn" href="#" title="LinkedIn">in</a>
+        <a class="social-btn" href="#" title="Email">@</a>
+      </div>
+      <div class="footer-threat-strip">
+        <span class="threat-dot"></span>
+        <span style="color:var(--danger);font-weight:700;">90s TO MIDNIGHT</span>
+        <span style="color:var(--muted);">· LIVE THREAT</span>
+      </div>
+      <div class="newsletter">
+        <input type="email" placeholder="intel@ark.secure" id="nl-email">
+        <button onclick="nlSubmit()">SUBSCRIBE</button>
+      </div>
+    </div>
+
+    <!-- Link columns (rendered by JS) -->
+    <div id="footer-cols" style="display:contents;"></div>
+
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="footer-bottom">
+    <div class="footer-bottom-left">
+      © 2024–2027 Ark Collective · All protocols for educational purposes only ·
+      <span style="color:var(--accent);">Version 3.0</span>
+    </div>
+    <div class="footer-bottom-links">
+      <a class="footer-bottom-link" href="#">Privacy Policy</a>
+      <a class="footer-bottom-link" href="#">Terms of Service</a>
+      <a class="footer-bottom-link" href="#">Disclaimer</a>
+      <a class="footer-bottom-link" href="#">Contact</a>
+      <a class="footer-bottom-link" href="01-nav.html" style="color:var(--accent);">All 38 Modules ↗</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ── INTERACTION BLOCK ── -->
+<script>
+// ── Render stats ──
+const statsEl = document.getElementById('footer-stats');
+FOOTER_DATA.stats.forEach(s=>{
+  const d = document.createElement('div');
+  d.className = 'footer-stat';
+  d.innerHTML = `<div class="footer-stat-val ${s.cls}">${s.val}</div><div class="footer-stat-lab">${s.label}</div>`;
+  statsEl.appendChild(d);
+});
+
+// ── Render link columns ──
+const colsEl = document.getElementById('footer-cols');
+FOOTER_DATA.columns.forEach(col=>{
+  const div = document.createElement('div');
+  div.innerHTML = `<div class="footer-col-title">${col.title}</div><div class="footer-links">${
+    col.links.map(l=>`
+      <a class="footer-link" href="${l.href}">
+        <span class="link-icon">${l.icon}</span>
+        ${l.label}
+        ${l.badge==='NEW'?'<span class="link-new">NEW</span>':''}
+        ${l.badge==='HOT'?'<span class="link-hot">HOT</span>':''}
+      </a>
+    `).join('')
+  }</div>`;
+  colsEl.appendChild(div);
+});
+
+// ── Newsletter ──
+function nlSubmit(){
+  const el = document.getElementById('nl-email');
+  if(!el.value.trim()){ el.focus(); return; }
+  el.value = '';
+  el.placeholder = '✓ Subscribed to threat intel feed';
+  el.style.borderColor = 'rgba(46,204,113,.4)';
+  el.style.color = 'var(--safe)';
+  setTimeout(()=>{
+    el.placeholder = 'intel@ark.secure';
+    el.style.borderColor = '';
+    el.style.color = '';
+  }, 3000);
+}
+
+// ── Stats counter animation ──
+function animateCounters(){
+  document.querySelectorAll('.footer-stat-val').forEach(el=>{
+    const raw = el.textContent;
+    const num = parseInt(raw.replace(/\D/g,''));
+    if(isNaN(num)||num===0||raw.includes('s')) return;
+    const suffix = raw.replace(/[\d]/g,'');
+    let start = 0;
+    const step = num / 40;
+    const t = setInterval(()=>{
+      start = Math.min(start+step, num);
+      el.textContent = (raw.includes(',') ?
+        Math.round(start).toLocaleString() : Math.round(start)) + suffix;
+      if(start>=num) clearInterval(t);
+    }, 30);
+  });
+}
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ animateCounters(); obs.disconnect(); } });
+},{threshold:.2});
+obs.observe(document.getElementById('footer-stats'));
+
+// ── Foundation helpers ──
+function switchTab(group, id){
+  document.querySelectorAll('[data-tab-group="'+group+'"]').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('[data-panel-group="'+group+'"]').forEach(p=>p.classList.remove('active'));
+  document.querySelector('[data-tab-group="'+group+'"][data-tab="'+id+'"]').classList.add('active');
+  document.querySelector('[data-panel-group="'+group+'"][data-panel="'+id+'"]').classList.add('active');
+}
+function toggleAcc(el){
+  const body = el.nextElementSibling;
+  const arrow = el.querySelector('.acc-arrow');
+  body.classList.toggle('open');
+  if(arrow) arrow.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+</script>
+</body>
+</html>

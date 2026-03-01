@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>09.6 — Safe Zone Strategies | Ark v3 (Standalone)</title>
+<style>
+/*──── FOUNDATION PASTE ────*/
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0c10;--s1:#0f1218;--s2:#161b24;--gl:rgba(255,255,255,.04);--glb:rgba(255,255,255,.08);--acc:#00e5a0;--acc2:#00b8ff;--acc3:#ff6b35;--warn:#ffb300;--dng:#ff3d5a;--txt:#e0e0e0;--txt2:#8a8fa8;--rad:12px;--glow:0 0 20px rgba(0,229,160,.15)}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.65;overflow-x:hidden;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:clamp(1.6rem,4vw,2.4rem);background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.sub{color:var(--txt2);font-size:.95rem;margin-bottom:28px}
+h2{font-size:1.25rem;color:var(--acc);margin-bottom:14px}
+h3{font-size:1.05rem;color:var(--acc2);margin-bottom:8px}
+.gl{background:var(--gl);border:1px solid var(--glb);border-radius:var(--rad);padding:22px;margin-bottom:18px;backdrop-filter:blur(12px)}
+.gl:hover{border-color:rgba(0,229,160,.18);box-shadow:var(--glow)}
+/*── Tabs ──*/
+.stab{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.stab button{background:var(--gl);border:1px solid var(--glb);color:var(--txt2);padding:9px 18px;border-radius:8px;cursor:pointer;font-size:.85rem;transition:.25s}
+.stab button:hover{border-color:var(--acc);color:var(--acc)}
+.stab button.on{background:rgba(0,229,160,.12);border-color:var(--acc);color:var(--acc);box-shadow:0 0 10px rgba(0,229,160,.15)}
+.spanel{display:none;animation:fadeUp .35s ease}
+.spanel.show{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+/*── Accordion ──*/
+.acc-h{background:var(--s2);border:1px solid var(--glb);border-radius:8px;padding:13px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;transition:.2s;font-size:.92rem}
+.acc-h:hover{border-color:var(--acc);color:var(--acc)}
+.acc-h .arrow{transition:transform .3s;font-size:.75rem;color:var(--acc)}
+.acc-h.open .arrow{transform:rotate(180deg)}
+.acc-b{max-height:0;overflow:hidden;transition:max-height .4s ease;padding:0 18px}
+.acc-b.open{max-height:3000px;padding:14px 18px}
+/*── Score Bar ──*/
+.score-row{display:flex;align-items:center;gap:10px;margin:6px 0}
+.score-lbl{min-width:130px;font-size:.82rem;color:var(--txt2)}
+.score-bar{flex:1;height:8px;background:var(--s2);border-radius:4px;overflow:hidden}
+.score-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.score-val{font-size:.82rem;font-weight:600;min-width:36px;text-align:right}
+/*── Table ──*/
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin:10px 0}
+th{background:var(--s2);color:var(--acc);padding:10px 8px;text-align:left;border-bottom:1px solid var(--glb);position:sticky;top:0}
+td{padding:9px 8px;border-bottom:1px solid rgba(255,255,255,.04)}
+tr:hover td{background:rgba(0,229,160,.03)}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.72rem;font-weight:600}
+.badge-g{background:rgba(0,229,160,.15);color:var(--acc)}
+.badge-b{background:rgba(0,184,255,.15);color:var(--acc2)}
+.badge-w{background:rgba(255,179,0,.15);color:var(--warn)}
+.badge-d{background:rgba(255,61,90,.15);color:var(--dng)}
+.badge-o{background:rgba(255,107,53,.15);color:var(--acc3)}
+/*── Scoring Widget ──*/
+.slider-row{display:flex;align-items:center;gap:12px;margin:8px 0}
+.slider-row label{min-width:160px;font-size:.84rem;color:var(--txt2)}
+.slider-row input[type=range]{flex:1;accent-color:var(--acc);height:6px}
+.slider-row .sv{min-width:32px;text-align:right;font-size:.85rem;color:var(--acc);font-weight:700}
+.result-box{background:linear-gradient(135deg,rgba(0,229,160,.08),rgba(0,184,255,.06));border:1px solid var(--acc);border-radius:var(--rad);padding:20px;text-align:center;margin:16px 0}
+.result-box .big{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,var(--acc),var(--acc2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.result-box .tier{font-size:1rem;margin-top:4px}
+/*── Misc ──*/
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.tag{display:inline-block;margin:2px 4px 2px 0;padding:2px 8px;border-radius:6px;font-size:.72rem;background:var(--s2);color:var(--txt2);border:1px solid var(--glb)}
+.note{font-size:.8rem;color:var(--txt2);border-left:3px solid var(--warn);padding:8px 12px;margin:10px 0;background:rgba(255,179,0,.04)}
+.ref{font-size:.72rem;color:var(--txt2);margin-top:18px;padding-top:12px;border-top:1px solid var(--glb)}
+@media(max-width:600px){.stab{gap:4px}.stab button{padding:7px 12px;font-size:.78rem}.slider-row{flex-wrap:wrap}.slider-row label{min-width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap" id="strategies">
+
+<h1>09.6 — Safe Zone Strategies</h1>
+<p class="sub">Five-Layer Doctrine · Threat-Environment Scoring · 150-Scenario Safe Zone Mapping · Layered Defense Architecture</p>
+
+<!-- ═══ PRIMARY TABS ═══ -->
+<div class="stab" id="mainTabs">
+<button class="on" onclick="switchTab('mainTabs','mp','five-layer')">Five-Layer Doctrine</button>
+<button onclick="switchTab('mainTabs','mp','threat-score')">Location Scoring Engine</button>
+<button onclick="switchTab('mainTabs','mp','zone-matrix')">Safe Zone Matrix</button>
+<button onclick="switchTab('mainTabs','mp','defense-arch')">Defense Architecture</button>
+<button onclick="switchTab('mainTabs','mp','collapse-map')">Collapse-Scenario Map</button>
+</div>
+
+<!-- ═══ PANEL 1: FIVE-LAYER DOCTRINE ═══ -->
+<div class="spanel show" id="mp-five-layer">
+<div class="gl">
+<h2>The Five-Layer Doctrine</h2>
+<p style="color:var(--txt2);font-size:.88rem;margin-bottom:16px">Every resilient safe zone must satisfy five concentric defense layers. Failure in any single layer degrades the entire zone's viability rating. Derived from historical collapse analysis of 150+ scenarios.</p>
+
+<div id="doctrineAcc"></div>
+</div>
+
+<div class="gl">
+<h2>Layer Interaction Matrix</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:12px">How each layer reinforces or depends on others:</p>
+<div style="overflow-x:auto"><table id="layerMatrix"></table></div>
+</div>
+</div>
+
+<!-- ═══ PANEL 2: LOCATION SCORING ENGINE ═══ -->
+<div class="spanel" id="mp-threat-score">
+<div class="gl">
+<h2>🎯 Location Threat-Viability Scoring</h2>
+<p style="font-size:.85rem;color:var(--txt2);margin-bottom:16px">Adjust sliders to match your target location. The engine calculates a composite Safe Zone Index (SZI) from 0–100.</p>
+<div id="sliderBank"></div>
+<div class="result-box" id="scoreResult">
+<div class="big" id="sziScore">—</div>
+<div class="tier" id="sziTier">Adjust sliders to calculate</div>
+</div>
+<div class="note">SZI ≥ 80 = Tier 1 (Fortified Haven) · 60–79 = Tier 2 (Viable Retreat) · 40–59 = Tier 3 (Temporary Shelter) · &lt;40 = Tier 4 (Avoid)</div>
+</div>
+
+<div class="gl">
+<h2>Pre-Scored Benchmark Locations</h2>
+<div style="overflow-x:auto"><table id="benchTable"></table></div>
+</div>
+</div>
+
+<!-- ═══ PANEL 3: SAFE ZONE MATRIX ═══ -->
+<div class="spanel" id="mp-zone-matrix">
+<div class="gl">
+<h2>Safe Zone Type Matrix</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:12px">Each zone archetype mapped to optimal threats, budgets, and population caps.</p>
+<div style="overflow-x:auto"><table id="zoneTable"></table></div>
+</div>
+
+<div class="gl">
+<h2>Zone Selection Decision Tree</h2>
+<div id="decisionTree"></div>
+</div>
+</div>
+
+<!-- ═══ PANEL 4: DEFENSE ARCHITECTURE ═══ -->
+<div class="spanel" id="mp-defense-arch">
+<div class="gl">
+<h2>Layered Defense Architecture</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:14px">Physical, informational, social, and logistical defense strategies per zone type.</p>
+<div class="stab" id="defTabs">
+<button class="on" onclick="switchTab('defTabs','dp','dp-phys')">Physical</button>
+<button onclick="switchTab('defTabs','dp','dp-info')">Informational</button>
+<button onclick="switchTab('defTabs','dp','dp-social')">Social</button>
+<button onclick="switchTab('defTabs','dp','dp-log')">Logistical</button>
+</div>
+<div id="dp-phys" class="spanel show"></div>
+<div id="dp-info" class="spanel"></div>
+<div id="dp-social" class="spanel"></div>
+<div id="dp-log" class="spanel"></div>
+</div>
+</div>
+
+<!-- ═══ PANEL 5: COLLAPSE SCENARIO MAP ═══ -->
+<div class="spanel" id="mp-collapse-map">
+<div class="gl">
+<h2>150-Scenario Collapse → Zone Mapping</h2>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:10px">Representative sample from the Collapse Bible mapped to optimal safe zone strategies.</p>
+<div class="stab" id="catTabs">
+<button class="on" onclick="switchTab('catTabs','ct','ct-eco')">Economic</button>
+<button onclick="switchTab('catTabs','ct','ct-env')">Environmental</button>
+<button onclick="switchTab('catTabs','ct','ct-geo')">Geopolitical</button>
+<button onclick="switchTab('catTabs','ct','ct-tech')">Technological</button>
+<button onclick="switchTab('catTabs','ct','ct-bio')">Biological</button>
+</div>
+<div id="ct-eco" class="spanel show"></div>
+<div id="ct-env" class="spanel"></div>
+<div id="ct-geo" class="spanel"></div>
+<div id="ct-tech" class="spanel"></div>
+<div id="ct-bio" class="spanel"></div>
+</div>
+</div>
+
+<div class="ref">Ark Collective v3 § 09.6 · Five-Layer Safe Zone Doctrine · Collapse Bible Integration (150 scenarios) · Safe Zone Index (SZI) Engine · Last synced 2026-02</div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   DATA BLOCK
+   ══════════════════════════════════════ */
+
+const D={
+layers:[
+{id:"L1",name:"Layer 1 — Geographic Isolation",icon:"🌍",color:"#00e5a0",
+ desc:"Physical separation from population centers, supply-chain choke points, and military corridors.",
+ criteria:["≥80 km from city >500 k pop","No major highway within 15 km","Elevation 200–2000 m preferred","No flood plain or seismic Zone 4+","Multiple natural barriers (river, ridge, forest)"],
+ scoring:"Distance from nearest 500k city (30%) + Natural barrier count (25%) + Elevation suitability (20%) + Seismic/flood risk inverse (25%)",
+ failMode:"Proximity breaches attract refugee waves within 72 hrs of grid-down event.",
+ examples:["Patagonian steppe","Scottish Highlands","NZ South Island interior","Northern Portugal mountains"]},
+{id:"L2",name:"Layer 2 — Resource Sovereignty",icon:"💧",color:"#00b8ff",
+ desc:"Independent access to water, food production capacity, energy, and materials without external supply chains.",
+ criteria:["Perennial freshwater source on-property","≥0.5 ha arable land per person","Solar/micro-hydro potential >4 kWh/day/person","Timber or building material access","Medicinal plant cultivation zone"],
+ scoring:"Water security (30%) + Food self-sufficiency (25%) + Energy independence (25%) + Material access (20%)",
+ failMode:"Dependence on any external input becomes critical vulnerability by Week 6 of sustained collapse.",
+ examples:["Permaculture holdings in Tasmania","Spring-fed Appalachian homesteads","Norwegian fjord farms","Costa Rican cloud-forest fincas"]},
+{id:"L3",name:"Layer 3 — Community Defensibility",icon:"🛡️",color:"#ffb300",
+ desc:"Social cohesion, population balance, vetting protocols, and conflict resolution mechanisms.",
+ criteria:["8–50 core members (Dunbar sub-band)","Skills diversity index >0.7","Vetting process with 90-day probation","Conflict resolution charter signed","Armed defense capability or deterrence"],
+ scoring:"Group size optimality (20%) + Skills diversity (25%) + Governance maturity (25%) + Defense readiness (30%)",
+ failMode:"Communities >50 without governance fracture by Month 3. Communities <5 lack resilience to single-point failures.",
+ examples:["Intentional communities with charter","Former military cooperative settlements","Faith-based resilience groups","Multi-family compound networks"]},
+{id:"L4",name:"Layer 4 — Information & Intelligence",icon:"📡",color:"#ff6b35",
+ desc:"Situational awareness, communications redundancy, and knowledge preservation systems.",
+ criteria:["HF/VHF radio capability","Mesh network or courier protocol","Printed reference library (>200 essential volumes)","Threat monitoring rotation","Encrypted digital archive with EMP protection"],
+ scoring:"Comms redundancy (30%) + Intel gathering (25%) + Knowledge preservation (25%) + OPSEC maturity (20%)",
+ failMode:"Information blackout leads to reactive decision-making; communities without intel fail to anticipate second-order threats.",
+ examples:["Ham radio prepper networks","Faraday-cached digital libraries","Signal corps volunteer rotations","Carrier pigeon backup systems"]},
+{id:"L5",name:"Layer 5 — Adaptive Governance",icon:"⚖️",color:"#c084fc",
+ desc:"Decision-making frameworks that survive leadership loss, population change, and moral crises.",
+ criteria:["Written constitution or charter","Succession protocol for all key roles","Resource allocation transparency","Democratic override mechanism","Ethical guidelines for triage scenarios"],
+ scoring:"Charter completeness (25%) + Succession depth (25%) + Transparency mechanisms (25%) + Triage protocols (25%)",
+ failMode:"Strongman capture occurs within 6 months in ungoverned groups. Democratic paralysis occurs without triage protocols.",
+ examples:["Swiss cantonal models adapted","Kibbutz governance frameworks","Maritime law adaptations","Monastic rule-based systems"]}
+],
+
+matrixData:[
+["","L1 Geo","L2 Resource","L3 Community","L4 Intel","L5 Govern"],
+["L1 Geo","—","Isolation limits supply options","Distance filters arrivals","Remote = comms challenge","Autonomy enables sovereignty"],
+["L2 Resource","Location determines resources","—","Food binds community","Monitoring protects assets","Fair allocation prevents revolt"],
+["L3 Community","Manpower secures perimeter","Labor enables production","—","Human intel network","Social contract basis"],
+["L4 Intel","Early warning of approach","Market/weather intel","Trust enables sharing","—","Data-driven decisions"],
+["L5 Govern","Land-use planning","Rationing frameworks","Dispute resolution","Info classification policy","—"]
+],
+
+sliders:[
+{id:"dist",label:"Distance from major city",min:0,max:10,val:5,weight:.12},
+{id:"barrier",label:"Natural barriers count",min:0,max:10,val:5,weight:.08},
+{id:"water",label:"Water source reliability",min:0,max:10,val:5,weight:.14},
+{id:"arable",label:"Arable land per capita",min:0,max:10,val:5,weight:.10},
+{id:"energy",label:"Renewable energy potential",min:0,max:10,val:5,weight:.08},
+{id:"groupSize",label:"Community size optimality",min:0,max:10,val:5,weight:.08},
+{id:"skills",label:"Skills diversity",min:0,max:10,val:5,weight:.07},
+{id:"defense",label:"Defense readiness",min:0,max:10,val:5,weight:.09},
+{id:"comms",label:"Comms redundancy",min:0,max:10,val:5,weight:.07},
+{id:"governance",label:"Governance maturity",min:0,max:10,val:5,weight:.07},
+{id:"climate",label:"Climate stability",min:0,max:10,val:5,weight:.06},
+{id:"political",label:"Political stability (host nation)",min:0,max:10,val:5,weight:.04}
+],
+
+benchmarks:[
+{loc:"Queenstown Region, NZ",szi:89,tier:"T1",notes:"Isolation + resources + stable governance"},
+{loc:"Alentejo, Portugal",szi:82,tier:"T1",notes:"EU residency + low density + water"},
+{loc:"Patagonia, Argentina",szi:78,tier:"T2",notes:"Extreme isolation, harsh winters"},
+{loc:"Scottish Highlands, UK",szi:75,tier:"T2",notes:"Damp climate, limited solar"},
+{loc:"Tasmania, Australia",szi:84,tier:"T1",notes:"Island isolation + agriculture"},
+{loc:"Central Uruguay",szi:77,tier:"T2",notes:"Good land, moderate isolation"},
+{loc:"Northern Thailand",szi:65,tier:"T2",notes:"Affordable but political risk"},
+{loc:"Costa Rica Highlands",szi:72,tier:"T2",notes:"Biodiversity + water, small scale"},
+{loc:"Appalachian Plateau, US",szi:68,tier:"T2",notes:"Resources good, proximity concern"},
+{loc:"Suburban Metro, Any",szi:28,tier:"T4",notes:"Fails L1, L2, L3 within 72 hrs"}
+],
+
+zones:[
+{type:"Fortified Rural Compound",pop:"8–25",budget:"$200k–$1M",bestFor:["Economic collapse","Grid failure","Pandemic"],szi:"75–95",icon:"🏰"},
+{type:"Island Micro-Community",pop:"15–50",budget:"$500k–$5M",bestFor:["Nuclear conflict","Geopolitical chaos","Sea-level rise (elevated)"],szi:"80–95",icon:"🏝️"},
+{type:"Mountain Retreat Network",pop:"10–40",budget:"$150k–$800k",bestFor:["Civil unrest","Climate extremes","Supply chain collapse"],szi:"70–90",icon:"🏔️"},
+{type:"Sailboat / Liveaboard Flotilla",pop:"2–12",budget:"$80k–$500k",bestFor:["Coastal flooding","Regime change","Border closures"],szi:"55–75",icon:"⛵"},
+{type:"Underground Bunker Complex",pop:"4–20",budget:"$300k–$3M+",bestFor:["Nuclear/radiological","Volcanic winter","EMP/CME"],szi:"60–85",icon:"🕳️"},
+{type:"Distributed Urban Safe-Houses",pop:"3–8 per node",budget:"$50k–$200k/node",bestFor:["Early-stage unrest","Economic downturn","Pandemic lockdowns"],szi:"35–55",icon:"🏢"},
+{type:"Nomadic / Van-Based Circuit",pop:"2–6",budget:"$30k–$150k",bestFor:["Slow-burn collapse","Regional disasters","Political persecution"],szi:"40–60",icon:"🚐"},
+{type:"Agricultural Cooperative",pop:"20–80",budget:"$500k–$2M shared",bestFor:["Food system collapse","Hyperinflation","Long-term grid-down"],szi:"70–88",icon:"🌾"}
+],
+
+defense:{
+phys:[
+{name:"Perimeter Layering",desc:"Three concentric rings — observation (500m), warning (200m), hardened (50m). Use natural terrain features as primary barriers."},
+{name:"Approach Denial",desc:"Controlled entry points with natural or constructed bottlenecks. Fallen timber, ditches, thorny hedgerows as passive barriers."},
+{name:"Observation Posts",desc:"24/7 rotation with overlapping fields of view. Night-vision or thermal recommended for Tier 1 zones."},
+{name:"Safe Room / Fallback",desc:"Reinforced interior position for last-resort defense. 72-hr supply cache, independent ventilation, comms capability."},
+{name:"Decoy & Deception",desc:"Visible 'abandoned' structures at perimeter. Actual habitation concealed. Smoke discipline, light discipline after dark."}
+],
+info:[
+{name:"Radio Network",desc:"Primary: VHF simplex for local. Secondary: HF for regional (500+ km). Tertiary: Mesh network for data. All operators trained."},
+{name:"Signal Intelligence",desc:"Passive monitoring of commercial and military frequencies. Movement pattern analysis for approaching groups."},
+{name:"OPSEC Protocols",desc:"Need-to-know compartmentalization. No location data on any digital device. Coded language for sensitive comms."},
+{name:"Knowledge Base",desc:"Physical library of 200+ essential references. Medical, agricultural, mechanical, tactical. EMP-protected digital backup."},
+{name:"Courier System",desc:"Dead-drop locations for inter-community messages. Coded physical mail when radio is compromised."}
+],
+social:[
+{name:"Vetting Pipeline",desc:"Three-phase: Remote assessment → Supervised trial (90 days) → Full membership vote. Skills inventory at each phase."},
+{name:"Conflict Resolution",desc:"Graduated: Peer mediation → Elder council → Community tribunal → Exile protocol. Written standards."},
+{name:"Morale Systems",desc:"Scheduled community events, skill-sharing workshops, children's education programs, spiritual/mindfulness space."},
+{name:"Mutual Aid Pacts",desc:"Formal agreements with 2–3 neighboring communities for emergency reinforcement, medical exchange, trade."},
+{name:"Integration Protocol",desc:"New arrivals paired with mentor. Cultural orientation. Graduated responsibility increase over 6 months."}
+],
+log:[
+{name:"Supply Chain Mapping",desc:"Every consumable tracked to source. Minimum 3 alternative suppliers or production methods per critical item."},
+{name:"Inventory Rotation",desc:"FIFO system. Monthly audits. Consumption rate tracking with projected depletion dates for all stores."},
+{name:"Transport Redundancy",desc:"Primary: Vehicle. Secondary: Animal/bicycle. Tertiary: Foot with cached supply points along routes."},
+{name:"Medical Logistics",desc:"Field hospital capable. 6-month pharmaceutical cache. Herbal medicine backup. Trained medic per 15 people."},
+{name:"Waste & Sanitation",desc:"Composting toilets, greywater recycling, burn pit protocols. Disease prevention through sanitation is #1 survival factor."}
+]
+},
+
+scenarios:{
+eco:[
+{s:"Hyperinflation >500%",zone:"Agri Coop / Rural Compound",strategy:"Hard-asset conversion pre-event; barter network activation",szi:"75+"},
+{s:"Global banking freeze",zone:"Any self-sufficient zone",strategy:"Physical cash / precious metals cache; local currency system",szi:"70+"},
+{s:"Supply chain total collapse",zone:"Rural Compound / Agri Coop",strategy:"6-month stores + immediate food production ramp",szi:"80+"},
+{s:"Currency war / de-dollarization",zone:"Multi-jurisdiction positioning",strategy:"Diversified currency + commodity holdings; trade network",szi:"65+"},
+{s:"Mass unemployment >40%",zone:"Distributed Urban + Rural fallback",strategy:"Phased retreat; urban skills exchange → rural migration",szi:"55+"},
+{s:"Sovereign debt cascade",zone:"Non-debtor nations / rural zones",strategy:"Avoid bond-heavy economies; physical asset focus",szi:"70+"}
+],
+env:[
+{s:"Category 6 hurricane / mega-cyclone",zone:"Mountain Retreat (inland)",strategy:"Elevation + hardened structures; 30-day isolation capacity",szi:"75+"},
+{s:"Multi-breadbasket failure",zone:"Agri Coop with stored seed bank",strategy:"Diversified crops; greenhouse production; calorie rationing",szi:"80+"},
+{s:"Sea level surge (1m+)",zone:"Mountain / Inland compound",strategy:"Elevation >200m; coastal communities relocate pre-event",szi:"85+"},
+{s:"Supervolcano / volcanic winter",zone:"Underground + Southern Hemisphere",strategy:"UV grow-lights; stored calories for 2-yr winter; bunker",szi:"60+"},
+{s:"Extended drought (3+ yr)",zone:"Spring-fed / aquifer zone",strategy:"Water-secure locations only; desal if coastal; conservation",szi:"75+"},
+{s:"Cascading wildfire seasons",zone:"Low-fuel zones / irrigated",strategy:"Defensible space; underground shelter; firebreak maintenance",szi:"70+"}
+],
+geo:[
+{s:"Nuclear exchange (limited)",zone:"Southern Hemisphere island/rural",strategy:"Distance from targets + fallout modeling; bunker for acute phase",szi:"70+"},
+{s:"Global authoritarian wave",zone:"Historically neutral nations",strategy:"Jurisdictional diversification; low-profile compound",szi:"65+"},
+{s:"Regional ethnic cleansing",zone:"Homogeneous safe community",strategy:"Early evacuation; sailboat or nomadic circuit; border-hop kit",szi:"50+"},
+{s:"Refugee wave (10M+)",zone:"Isolated compound with perimeter",strategy:"Layer 1+3 critical; observation network; non-engagement policy",szi:"75+"},
+{s:"Martial law / civil forfeiture",zone:"Off-grid rural + buried assets",strategy:"Asset concealment; multiple caches; legal entity structuring",szi:"65+"},
+{s:"Trade embargo / blockade",zone:"Self-sufficient zone any type",strategy:"Layer 2 paramount; zero import dependency target",szi:"80+"}
+],
+tech:[
+{s:"Carrington-class CME / EMP",zone:"Faraday-protected compound",strategy:"Hardened electronics; manual fallback for all systems; HF radio",szi:"70+"},
+{s:"Cyberattack on grid (>30 days)",zone:"Off-grid zone with renewables",strategy:"Solar + micro-hydro; battery banks; no grid dependency",szi:"80+"},
+{s:"AI-driven mass unemployment",zone:"Skill-diverse community",strategy:"Human-skill economy; barter + local currency; education focus",szi:"65+"},
+{s:"Autonomous weapon deployment",zone:"Low-profile rural / underground",strategy:"Camouflage; thermal masking; no electronic signature",szi:"60+"}
+],
+bio:[
+{s:"Pandemic (CFR >5%)",zone:"Isolated compound + quarantine",strategy:"Quarantine infrastructure; medical supplies; contact tracing",szi:"85+"},
+{s:"Engineered pathogen release",zone:"Island / maximum isolation",strategy:"Complete lockdown; Level 4 quarantine; remote supply drops",szi:"80+"},
+{s:"Antibiotic resistance crisis",zone:"Community with herbal + surgical",strategy:"Hygiene supremacy; wound prevention; phage therapy research",szi:"70+"},
+{s:"Agricultural bioweapon",zone:"Diversified agri-coop",strategy:"Seed vault; crop diversity; greenhouse isolation growing",szi:"75+"}
+]
+}
+};
+
+/* ══════════════════════════════════════
+   INTERACTION BLOCK
+   ══════════════════════════════════════ */
+
+function switchTab(barId,prefix,target){
+const bar=document.getElementById(barId);
+bar.querySelectorAll('button').forEach((b,i)=>{
+const panels=document.querySelectorAll(`[id^="${prefix}-"]`);
+if(panels[i]&&panels[i].id===target){b.classList.add('on');panels[i].classList.add('show')}
+else if(panels[i]){b.classList.remove('on');panels[i].classList.remove('show')}
+});
+}
+
+function toggleAcc(el){
+const b=el.nextElementSibling;
+const isOpen=b.classList.contains('open');
+// close siblings
+el.parentElement.querySelectorAll('.acc-b').forEach(x=>x.classList.remove('open'));
+el.parentElement.querySelectorAll('.acc-h').forEach(x=>x.classList.remove('open'));
+if(!isOpen){b.classList.add('open');el.classList.add('open')}
+}
+
+/* ══════════════════════════════════════
+   RENDER BLOCK
+   ══════════════════════════════════════ */
+
+// -- Five-Layer Doctrine Accordions --
+(function(){
+const c=document.getElementById('doctrineAcc');
+D.layers.forEach(l=>{
+const scores=l.scoring.split('+').map(s=>s.trim());
+c.innerHTML+=`
+<div class="acc-h" onclick="toggleAcc(this)" style="border-left:3px solid ${l.color}">
+<span>${l.icon} ${l.name}</span><span class="arrow">▼</span>
+</div>
+<div class="acc-b">
+<p style="margin-bottom:10px;font-size:.88rem">${l.desc}</p>
+<h3>Criteria</h3>
+<div style="margin-bottom:10px">${l.criteria.map(c=>`<div class="tag">${c}</div>`).join('')}</div>
+<h3>Scoring Formula</h3>
+<p style="font-size:.84rem;color:var(--txt2);margin-bottom:10px">${l.scoring}</p>
+<h3>Failure Mode</h3>
+<p style="font-size:.84rem;color:var(--dng);margin-bottom:10px">⚠️ ${l.failMode}</p>
+<h3>Example Locations</h3>
+<div>${l.examples.map(e=>`<span class="badge badge-g">${e}</span> `).join('')}</div>
+</div>`;
+});
+})();
+
+// -- Layer Interaction Matrix --
+(function(){
+const t=document.getElementById('layerMatrix');
+let h='<thead><tr>';
+D.matrixData[0].forEach(c=>h+=`<th>${c}</th>`);
+h+='</tr></thead><tbody>';
+for(let i=1;i<D.matrixData.length;i++){
+h+='<tr>';
+D.matrixData[i].forEach((c,j)=>h+=j===0?`<td style="font-weight:600;color:var(--acc)">${c}</td>`:`<td style="font-size:.78rem">${c}</td>`);
+h+='</tr>';
+}
+h+='</tbody>';
+t.innerHTML=h;
+})();
+
+// -- Scoring Sliders --
+(function(){
+const b=document.getElementById('sliderBank');
+D.sliders.forEach(s=>{
+b.innerHTML+=`
+<div class="slider-row">
+<label>${s.label} <span style="font-size:.7rem;color:var(--txt2)">(${(s.weight*100).toFixed(0)}%)</span></label>
+<input type="range" min="${s.min}" max="${s.max}" value="${s.val}" id="sl-${s.id}" oninput="calcSZI()">
+<span class="sv" id="sv-${s.id}">${s.val}</span>
+</div>`;
+});
+calcSZI();
+})();
+
+function calcSZI(){
+let score=0;
+D.sliders.forEach(s=>{
+const v=+document.getElementById('sl-'+s.id).value;
+document.getElementById('sv-'+s.id).textContent=v;
+score+=v*s.weight*10;
+});
+score=Math.round(score);
+document.getElementById('sziScore').textContent=score+' / 100';
+let tier,col;
+if(score>=80){tier='Tier 1 — Fortified Haven';col='var(--acc)'}
+else if(score>=60){tier='Tier 2 — Viable Retreat';col='var(--acc2)'}
+else if(score>=40){tier='Tier 3 — Temporary Shelter';col='var(--warn)'}
+else{tier='Tier 4 — Avoid / Relocate';col='var(--dng)'}
+const te=document.getElementById('sziTier');
+te.textContent=tier;te.style.color=col;
+}
+
+// -- Benchmark Table --
+(function(){
+const t=document.getElementById('benchTable');
+let h='<thead><tr><th>Location</th><th>SZI</th><th>Tier</th><th>Notes</th></tr></thead><tbody>';
+D.benchmarks.forEach(b=>{
+const tc=b.tier==='T1'?'badge-g':b.tier==='T2'?'badge-b':b.tier==='T3'?'badge-w':'badge-d';
+h+=`<tr><td style="font-weight:600">${b.loc}</td><td style="color:var(--acc);font-weight:700">${b.szi}</td><td><span class="badge ${tc}">${b.tier}</span></td><td style="font-size:.8rem;color:var(--txt2)">${b.notes}</td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// -- Zone Matrix Table --
+(function(){
+const t=document.getElementById('zoneTable');
+let h='<thead><tr><th>Type</th><th>Pop</th><th>Budget</th><th>Best For</th><th>SZI Range</th></tr></thead><tbody>';
+D.zones.forEach(z=>{
+h+=`<tr><td style="font-weight:600">${z.icon} ${z.type}</td><td>${z.pop}</td><td style="font-size:.8rem">${z.budget}</td><td>${z.bestFor.map(b=>`<span class="tag">${b}</span>`).join('')}</td><td style="color:var(--acc);font-weight:600">${z.szi}</td></tr>`;
+});
+h+='</tbody>';t.innerHTML=h;
+})();
+
+// -- Decision Tree --
+(function(){
+const d=document.getElementById('decisionTree');
+const steps=[
+{q:"Primary threat category?",opts:["Economic","Environmental","Geopolitical","Technological","Biological"]},
+{q:"Available budget?",opts:["<$100k","$100k–$500k","$500k–$2M","$2M+"]},
+{q:"Group size?",opts:["Solo/couple","Family (3–6)","Small group (7–20)","Community (20+)"]},
+{q:"Mobility requirement?",opts:["Fixed base preferred","Need to relocate periodically","Full nomadic capability"]}
+];
+let html='<div class="note">Answer each factor to narrow your optimal zone type:</div>';
+steps.forEach((s,i)=>{
+html+=`<div style="margin:10px 0"><strong style="color:var(--acc2);font-size:.88rem">Q${i+1}: ${s.q}</strong><div style="margin-top:6px">${s.opts.map(o=>`<span class="tag" style="cursor:pointer;padding:4px 10px">${o}</span>`).join('')}</div></div>`;
+});
+html+=`<div class="note" style="border-color:var(--acc);margin-top:14px">💡 Map your answers to the Zone Matrix above. Economic threats + $100k–$500k + Family + Fixed base → <strong>Fortified Rural Compound</strong> or <strong>Mountain Retreat</strong>.</div>`;
+d.innerHTML=html;
+})();
+
+// -- Defense Architecture Panels --
+(function(){
+['phys','info','social','log'].forEach(key=>{
+const el=document.getElementById('dp-'+key);
+let html='';
+D.defense[key].forEach(d=>{
+html+=`<div class="acc-h" onclick="toggleAcc(this)"><span>${d.name}</span><span class="arrow">▼</span></div><div class="acc-b"><p style="font-size:.86rem">${d.desc}</p></div>`;
+});
+el.innerHTML=html;
+});
+})();
+
+// -- Collapse Scenario Mapping --
+(function(){
+const cats={eco:'eco',env:'env',geo:'geo',tech:'tech',bio:'bio'};
+Object.entries(cats).forEach(([key])=>{
+const el=document.getElementById('ct-'+key);
+let h='<div style="overflow-x:auto"><table><thead><tr><th>Scenario</th><th>Optimal Zone</th><th>Strategy</th><th>Min SZI</th></tr></thead><tbody>';
+D.scenarios[key].forEach(s=>{
+h+=`<tr><td style="font-weight:600;font-size:.84rem">${s.s}</td><td><span class="badge badge-b">${s.zone}</span></td><td style="font-size:.8rem;color:var(--txt2)">${s.strategy}</td><td style="color:var(--acc);font-weight:600">${s.szi}</td></tr>`;
+});
+h+='</tbody></table></div>';
+el.innerHTML=h;
+});
+})();
+</script>
+</body>
+</html>

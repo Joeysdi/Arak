@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>04.5 — Personal Risk Calculator | Ark v3 (Standalone)</title>
+<style>
+/* ═══ FOUNDATION ═══ */
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;
+  --glass:rgba(255,255,255,0.05);--glass2:rgba(255,255,255,0.08);
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --primary:#00ff88;--danger:#ff4444;--warn:#ffaa00;--info:#00aaff;
+  --text:#e8e8f0;--muted:#888;
+  --r:12px;--r2:8px;
+  --shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+/* glass card */
+.gl{background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;box-shadow:var(--shadow)}
+.gl2{background:var(--glass2);border:1px solid var(--border2);border-radius:var(--r2);padding:1rem}
+/* typography */
+h1{font-size:2rem;font-weight:700;letter-spacing:-.5px}
+h2{font-size:1.4rem;font-weight:600}
+h3{font-size:1.1rem;font-weight:600}
+.accent{color:var(--primary)}
+.danger{color:var(--danger)}
+.warn{color:var(--warn)}
+.info{color:var(--info)}
+.muted{color:var(--muted);font-size:.85rem}
+/* layout */
+.container{max-width:860px;margin:0 auto;padding:2rem 1rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+@media(max-width:600px){.grid2,.grid3{grid-template-columns:1fr}}
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.4rem;border:none;border-radius:var(--r2);font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--primary);color:#000}
+.btn-primary:hover{background:#00cc66;transform:translateY(-1px)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--glass2)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+/* progress */
+.progress-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin:1.5rem 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--info));border-radius:2px;transition:width .5s ease}
+/* step indicator */
+.steps{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;border:2px solid var(--border2);color:var(--muted);transition:all .3s;cursor:default}
+.step-dot.active{border-color:var(--primary);color:var(--primary);background:rgba(0,255,136,.1)}
+.step-dot.done{border-color:var(--primary);background:var(--primary);color:#000}
+/* question cards */
+.q-option{background:var(--glass);border:2px solid var(--border);border-radius:var(--r2);padding:.85rem 1rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem}
+.q-option:hover{border-color:var(--border2);background:var(--glass2)}
+.q-option.selected{border-color:var(--primary);background:rgba(0,255,136,.08)}
+.q-option .opt-score{margin-left:auto;font-size:.75rem;color:var(--muted)}
+/* slider */
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:var(--bg3);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--primary);cursor:pointer;border:2px solid var(--bg)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--primary);cursor:pointer;border:2px solid var(--bg)}
+/* gauge */
+.gauge-wrap{position:relative;width:200px;height:110px;margin:0 auto}
+.gauge-wrap svg{width:100%;height:100%}
+/* result sections */
+.result-hidden{display:none}
+.tier-badge{display:inline-block;padding:.4rem 1rem;border-radius:20px;font-weight:700;font-size:1rem;letter-spacing:.05em}
+.tier-1{background:rgba(0,255,136,.15);color:var(--primary);border:1px solid var(--primary)}
+.tier-2{background:rgba(0,170,255,.15);color:var(--info);border:1px solid var(--info)}
+.tier-3{background:rgba(255,170,0,.15);color:var(--warn);border:1px solid var(--warn)}
+.tier-4{background:rgba(255,68,68,.15);color:var(--danger);border:1px solid var(--danger)}
+/* doomsday clock */
+.clock-face{width:160px;height:160px;border-radius:50%;border:3px solid rgba(255,68,68,.5);position:relative;margin:0 auto;background:radial-gradient(circle,#1a0a0a,var(--bg2));display:flex;align-items:center;justify-content:center;flex-direction:column;box-shadow:0 0 30px rgba(255,68,68,.2)}
+.clock-hand{position:absolute;bottom:50%;left:50%;width:3px;border-radius:2px;background:var(--danger);transform-origin:bottom center;transform:translateX(-50%) rotate(0deg);transition:transform 1s ease}
+.clock-center{width:10px;height:10px;border-radius:50%;background:var(--danger);position:absolute;bottom:50%;left:50%;transform:translate(-50%,50%)}
+/* survival meter */
+.survival-ring{position:relative;width:160px;height:160px;margin:0 auto}
+.survival-ring svg{transform:rotate(-90deg)}
+.survival-val{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+/* score bar */
+.score-segment{height:8px;border-radius:4px;margin:4px 0;transition:width .8s ease}
+/* tag */
+.tag{display:inline-block;padding:.2rem .6rem;border-radius:4px;font-size:.75rem;font-weight:600;margin:.2rem}
+.tag-r{background:rgba(255,68,68,.15);color:var(--danger)}
+.tag-y{background:rgba(255,170,0,.15);color:var(--warn)}
+.tag-g{background:rgba(0,255,136,.15);color:var(--primary)}
+</style>
+</head>
+<body>
+<div class="container" id="app">
+
+<!-- HEADER -->
+<div style="margin-bottom:2rem">
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:.5rem">
+    <span style="font-size:2rem">⚠️</span>
+    <div>
+      <h1>Personal Risk <span class="accent">Calculator</span></h1>
+      <p class="muted">04.5 — Ark Collective v3 | Safe Zone Doctrine</p>
+    </div>
+  </div>
+  <p style="color:var(--muted);max-width:600px;font-size:.9rem">Multi-factor survival assessment calibrated against the Collapse Bible (150 scenarios). Answer honestly — your Tier recommendation depends on it.</p>
+</div>
+
+<!-- DOOMSDAY CLOCK BANNER -->
+<div class="gl" style="margin-bottom:1.5rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap">
+  <div class="clock-face" id="clockFace" style="width:90px;height:90px;font-size:.7rem">
+    <svg viewBox="0 0 90 90" style="position:absolute;width:100%;height:100%">
+      <circle cx="45" cy="45" r="40" fill="none" stroke="rgba(255,68,68,0.3)" stroke-width="2"/>
+      <!-- hour marks -->
+      <line x1="45" y1="8" x2="45" y2="16" stroke="var(--danger)" stroke-width="2" opacity=".6"/>
+      <line x1="45" y1="8" x2="45" y2="16" stroke="var(--danger)" stroke-width="2" opacity=".6" transform="rotate(30 45 45)"/>
+      <line x1="45" y1="8" x2="45" y2="16" stroke="var(--danger)" stroke-width="2" opacity=".4" transform="rotate(60 45 45)"/>
+      <line x1="45" y1="8" x2="45" y2="16" stroke="var(--danger)" stroke-width="2" opacity=".4" transform="rotate(90 45 45)"/>
+      <line x1="45" y1="8" x2="45" y2="16" stroke="var(--danger)" stroke-width="2" opacity=".4" transform="rotate(120 45 45)"/>
+      <line x1="45" y1="8" x2="45" y2="16" stroke="var(--danger)" stroke-width="2" opacity=".4" transform="rotate(150 45 45)"/>
+      <!-- midnight marker -->
+      <rect x="42" y="5" width="6" height="10" rx="2" fill="var(--danger)" opacity=".8"/>
+      <!-- hand -->
+      <line id="clockHandSvg" x1="45" y1="45" x2="45" y2="12" stroke="var(--danger)" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+    <div style="text-align:center;z-index:2;position:relative">
+      <div id="clockTime" style="font-size:.9rem;font-weight:700;color:var(--danger)">90s</div>
+      <div style="font-size:.6rem;color:var(--muted)">to midnight</div>
+    </div>
+  </div>
+  <div style="flex:1;min-width:200px">
+    <div style="font-size:1.1rem;font-weight:700;color:var(--danger)">Doomsday Clock: <span id="clockDisplay">90 seconds to midnight</span></div>
+    <div style="font-size:.85rem;color:var(--muted);margin:.4rem 0">Bulletin of Atomic Scientists — closest to midnight in history (2023–present)</div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem">
+      <span class="tag tag-r">Nuclear Risk: CRITICAL</span>
+      <span class="tag tag-r">AI Threat: ESCALATING</span>
+      <span class="tag tag-y">Climate: HIGH</span>
+      <span class="tag tag-r">Bio Risk: ELEVATED</span>
+    </div>
+  </div>
+  <div>
+    <div style="font-size:.75rem;color:var(--muted);margin-bottom:.3rem">YOUR RISK SCORE</div>
+    <div id="liveScore" style="font-size:2.5rem;font-weight:700;color:var(--warn)">—</div>
+    <div id="liveLabel" style="font-size:.75rem;color:var(--muted)">Complete wizard</div>
+  </div>
+</div>
+
+<!-- WIZARD -->
+<div class="gl" id="wizardCard">
+  <!-- Step indicator -->
+  <div class="steps" id="stepIndicator"></div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <!-- Step content -->
+  <div id="stepContent"></div>
+
+  <!-- Nav -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1.5rem">
+    <button class="btn btn-ghost" id="btnBack" onclick="navStep(-1)">← Back</button>
+    <span id="stepCounter" class="muted"></span>
+    <button class="btn btn-primary" id="btnNext" onclick="navStep(1)">Next →</button>
+  </div>
+</div>
+
+<!-- RESULTS (hidden until done) -->
+<div id="resultsSection" class="result-hidden" style="margin-top:1.5rem">
+
+  <div class="gl" style="margin-bottom:1rem;text-align:center;padding:2rem">
+    <div style="font-size:.85rem;color:var(--muted);margin-bottom:.5rem;letter-spacing:.1em;text-transform:uppercase">Your Survival Assessment</div>
+    <div class="survival-ring" style="width:180px;height:180px;margin:1rem auto">
+      <svg width="180" height="180">
+        <circle cx="90" cy="90" r="80" fill="none" stroke="var(--bg3)" stroke-width="14"/>
+        <circle cx="90" cy="90" r="80" fill="none" stroke="var(--primary)" stroke-width="14"
+          stroke-dasharray="502.4" id="survivalArc" stroke-dashoffset="502.4"
+          stroke-linecap="round" style="transition:stroke-dashoffset 1.5s ease"/>
+      </svg>
+      <div class="survival-val">
+        <div id="survivalPct" style="font-size:2rem;font-weight:700;color:var(--primary)">—</div>
+        <div style="font-size:.75rem;color:var(--muted)">survival %</div>
+      </div>
+    </div>
+    <div id="tierDisplay" style="margin:1rem 0"></div>
+    <div id="riskSummary" style="font-size:.95rem;color:var(--muted);max-width:500px;margin:0 auto"></div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:1rem">
+    <div class="gl">
+      <h3 style="margin-bottom:1rem">📊 Risk Factor Breakdown</h3>
+      <div id="factorBreakdown"></div>
+    </div>
+    <div class="gl">
+      <h3 style="margin-bottom:1rem">🎯 Immediate Actions</h3>
+      <div id="immediateActions"></div>
+    </div>
+  </div>
+
+  <div class="gl" style="margin-bottom:1rem">
+    <h3 style="margin-bottom:1rem">🗺️ Tier Recommendation Explained</h3>
+    <div id="tierExplanation"></div>
+  </div>
+
+  <div class="gl" style="margin-bottom:1rem">
+    <h3 style="margin-bottom:1rem">⚡ Your Collapse Scenario Exposure</h3>
+    <div id="scenarioExposure"></div>
+  </div>
+
+  <div style="text-align:center;margin-top:1.5rem">
+    <button class="btn btn-ghost" onclick="resetWizard()">↺ Retake Assessment</button>
+    <button class="btn btn-primary" onclick="window.print()" style="margin-left:.5rem">🖨 Print Report</button>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+/* ═══════════════════════════════
+   DATA BLOCK
+═══════════════════════════════ */
+const WIZARD_STEPS = [
+  {
+    id:'location', label:'Location',
+    title:'Where do you currently live?',
+    subtitle:'Your geographic position is the single largest determinant of risk.',
+    type:'radio',
+    options:[
+      {label:'Major metro area (pop. >1M)', score:40, risk:'HIGH', detail:'Dense population, complex supply chains, high unrest potential'},
+      {label:'Mid-size city (250K–1M)', score:28, risk:'MED-HIGH', detail:'Some infrastructure redundancy, moderate crowd risk'},
+      {label:'Small city / suburb (50K–250K)', score:18, risk:'MEDIUM', detail:'Manageable evacuation, partial food access'},
+      {label:'Small town / rural (5K–50K)', score:10, risk:'LOW-MED', detail:'Local food networks, lower unrest, slower collapse spread'},
+      {label:'Remote rural / homestead (<5K)', score:3, risk:'LOW', detail:'Highest self-sufficiency potential, minimal infrastructure dependence'},
+    ]
+  },
+  {
+    id:'country', label:'Country Risk',
+    title:'Which region best describes your country?',
+    subtitle:'Political stability, resource access, and institutional strength vary enormously.',
+    type:'radio',
+    options:[
+      {label:'NATO core (US, UK, DE, FR, etc.)', score:15, risk:'MED', detail:'Strong institutions but high nuclear/cyber exposure'},
+      {label:'Western Pacific (AUS, NZ, JP, SG)', score:8, risk:'LOW-MED', detail:'Stable but supply-chain vulnerable'},
+      {label:'Eastern Europe / Balkans', score:25, risk:'HIGH', detail:'Active conflict proximity, energy dependence'},
+      {label:'Latin America / SE Asia / MENA', score:20, risk:'MED-HIGH', detail:'Variable stability, climate exposure'},
+      {label:'Sub-Saharan Africa / Central Asia', score:30, risk:'HIGH', detail:'Infrastructure fragility, climate frontline'},
+    ]
+  },
+  {
+    id:'supplies', label:'Supplies',
+    title:'Current emergency food & water stockpile?',
+    subtitle:'Measured in days of full household consumption.',
+    type:'radio',
+    options:[
+      {label:'None (0 days)', score:35, risk:'CRITICAL', detail:'Total dependency on just-in-time supply chain'},
+      {label:'Minimal (1–7 days)', score:25, risk:'HIGH', detail:'Vulnerable to any 2-week disruption'},
+      {label:'Basic (1–4 weeks)', score:15, risk:'MED', detail:'Survives short disruptions, not sustained collapse'},
+      {label:'Intermediate (1–6 months)', score:6, risk:'LOW-MED', detail:'Meaningful buffer; covers most civil disruptions'},
+      {label:'Ark-ready (6+ months)', score:1, risk:'LOW', detail:'Aligned with Safe Zone Doctrine minimum standard'},
+    ]
+  },
+  {
+    id:'finances', label:'Finances',
+    title:'Financial resilience profile?',
+    subtitle:'Economic shocks are the most common collapse trigger (Scenario Class B).',
+    type:'radio',
+    options:[
+      {label:'Debt-heavy, <1 month cash buffer', score:35, risk:'CRITICAL', detail:'First casualty in any economic disruption'},
+      {label:'Paycheck-to-paycheck, no savings', score:28, risk:'HIGH', detail:'Cannot absorb even minor disruptions'},
+      {label:'3–6 months emergency fund, some debt', score:18, risk:'MED', detail:'Survives short recession, not hyperinflation'},
+      {label:'6–18 months liquid, diversified assets', score:8, risk:'LOW-MED', detail:'Strong position; needs hard asset diversification'},
+      {label:'Multi-year runway, hard assets, gold/BTC', score:2, risk:'LOW', detail:'Ark-optimal; consider jurisdictional diversification'},
+    ]
+  },
+  {
+    id:'skills', label:'Skills',
+    title:'Practical survival skill set?',
+    subtitle:'Skills are the one asset that cannot be confiscated.',
+    type:'checkbox',
+    options:[
+      {label:'First aid / trauma care', score:-4, detail:'Reduces medical dependency'},
+      {label:'Firearms proficiency & safe storage', score:-4, detail:'Self-defense capability'},
+      {label:'Food growing / permaculture', score:-5, detail:'Long-term caloric independence'},
+      {label:'Water purification / well drilling', score:-4, detail:'Critical in infrastructure collapse'},
+      {label:'Mechanical / electrical repair', score:-3, detail:'System maintenance without professionals'},
+      {label:'Ham radio / off-grid comms', score:-3, detail:'Communication when networks fail'},
+      {label:'Mental resilience / crisis psychology', score:-3, detail:'Decision quality under extreme stress'},
+      {label:'Network of trusted community (5+)', score:-5, detail:'Survival is multiplicative with group size'},
+    ]
+  },
+  {
+    id:'dependents', label:'Dependents',
+    title:'Household & dependent profile?',
+    subtitle:'Affects mobility, resource requirements, and evacuation speed.',
+    type:'radio',
+    options:[
+      {label:'Solo adult, fit & mobile', score:2, risk:'LOW', detail:'Maximum agility, minimum resource overhead'},
+      {label:'Couple, no children', score:5, risk:'LOW-MED', detail:'Good balance of support and flexibility'},
+      {label:'Family with young children (<12)', score:18, risk:'MED-HIGH', detail:'Children require 3× more resources, 50% less mobility'},
+      {label:'Elderly/disabled dependents', score:22, risk:'HIGH', detail:'Medical supply chains become critical vulnerabilities'},
+      {label:'Large extended household (6+)', score:14, risk:'MED', detail:'Group resilience but coordination complexity'},
+    ]
+  },
+  {
+    id:'bugout', label:'Bug-Out',
+    title:'Evacuation readiness level?',
+    subtitle:'When collapse begins, you have 72 hours to reach a safe zone.',
+    type:'radio',
+    options:[
+      {label:'No plan, no bags, no destination', score:35, risk:'CRITICAL', detail:'Statistical fatality in Class A–C scenarios'},
+      {label:'Vague plan, minimal prep', score:25, risk:'HIGH', detail:'Reaction-based; too slow for fast-collapse scenarios'},
+      {label:'Bug-out bags ready, 1 route planned', score:12, risk:'MED', detail:'Basic readiness; single point of failure'},
+      {label:'72hr bags, multiple routes, rally points', score:5, risk:'LOW-MED', detail:'Solid; test the plan annually'},
+      {label:'Full Ark protocol: bags, vehicles, comms, land', score:1, risk:'LOW', detail:'Ark-compliant evacuation architecture'},
+    ]
+  },
+  {
+    id:'health', label:'Health',
+    title:'Health & medication dependency?',
+    subtitle:'Medical infrastructure collapses within 30 days in most Class C+ scenarios.',
+    type:'radio',
+    options:[
+      {label:'Chronic conditions, multiple Rx medications', score:30, risk:'HIGH', detail:'2–4 week medication cliff in supply disruption'},
+      {label:'Some medications, manageable conditions', score:18, risk:'MED', detail:'Stock 6-month supply as minimum buffer'},
+      {label:'Good health, no regular medications', score:6, risk:'LOW-MED', detail:'Strong baseline; focus on trauma prep'},
+      {label:'Excellent health, physically active', score:2, risk:'LOW', detail:'Optimal; maintain fitness as core preparedness'},
+    ]
+  },
+  {
+    id:'intel', label:'Intelligence',
+    title:'Threat monitoring & situational awareness?',
+    subtitle:'Early warning is worth more than any physical prep.',
+    type:'radio',
+    options:[
+      {label:'Mainstream media only, passive consumer', score:20, risk:'HIGH', detail:'30–90 day information lag on real threats'},
+      {label:'Some alt-news, occasional research', score:14, risk:'MED', detail:'Better but unfocused; no systematic monitoring'},
+      {label:'Multiple source monitoring, scenario awareness', score:7, risk:'LOW-MED', detail:'Good foundation; needs action protocols'},
+      {label:'Ark-level intel: OSINT, indices, Collapse Bible', score:2, risk:'LOW', detail:'Systematic monitoring with decision triggers'},
+    ]
+  },
+  {
+    id:'network', label:'Network',
+    title:'Prepared community network?',
+    subtitle:'No individual or family survives Class B+ collapse alone.',
+    type:'radio',
+    options:[
+      {label:'Isolated — no prepared contacts', score:30, risk:'CRITICAL', detail:'Solo survival collapses under sustained stress'},
+      {label:'1–2 like-minded contacts, uncoordinated', score:20, risk:'HIGH', detail:'Insufficient for division of labour'},
+      {label:'Small group (3–8), partial coordination', score:10, risk:'MED', detail:'Functional minimum; needs formal protocol'},
+      {label:'Established community, defined roles, comms', score:3, risk:'LOW', detail:'Ark Collective model — exponential resilience'},
+    ]
+  }
+];
+
+const TIER_DEFS = [
+  {tier:1, label:'MONITOR', color:'var(--primary)', range:[0,80], badge:'tier-1',
+   desc:'Your risk profile is manageable. Focus on systematic monitoring, incremental prep, and network building. No immediate relocation required.',
+   actions:['Set up Ark threat monitoring dashboard','Extend food stockpile to 3 months','Join or form a local preparedness group','Complete first-aid certification','Open offshore savings account']},
+  {tier:2, label:'PREPARE', color:'var(--info)', range:[81,140], badge:'tier-2',
+   desc:'Meaningful vulnerabilities identified. Active preparation required across multiple fronts. Consider secondary location options within 24 months.',
+   actions:['Achieve 6-month supply stockpile','Acquire & train with defensive tools','Identify and scout 2+ bug-out locations','Establish off-grid water source','Convert 10–20% assets to hard assets']},
+  {tier:3, label:'RELOCATE', color:'var(--warn)', range:[141,200], badge:'tier-3',
+   desc:'Risk concentration is high. Relocation planning should begin within 12 months. Consider second residency or citizenship pathways.',
+   actions:['Begin second residency/citizenship process','Scout and optionally purchase rural land','Establish 12-month supply cache at bug-out location','Build alternate income stream, location-independent','Formalize your community network with legal structure']},
+  {tier:4, label:'ACT NOW', color:'var(--danger)', range:[201,999], badge:'tier-4',
+   desc:'CRITICAL exposure across multiple vectors. Immediate action required. Do not delay structural changes to your situation.',
+   actions:['Emergency financial restructuring (move assets now)','Begin immediate bug-out location establishment','Family medical supply stockpile: 6-month minimum','File for second passport or citizenship NOW','Activate Ark emergency protocol within 90 days']},
+];
+
+const SCENARIO_MAP = {
+  location: {40:'Nuclear/EMP strike zones, civil unrest epicentres, supply chain collapse impact', 28:'Resource competition, urban exodus zones', 10:'Relative safety in Class A–B scenarios', 3:'Strong position in all collapse classes'},
+  finances: {35:'Hyperinflation, bank bail-ins, CBDCs kill financial autonomy', 8:'Capable of opportunistic asset acquisition during crisis'},
+  bugout:   {35:'Zero mobility in fast-collapse scenarios (48–72hr window)', 1:'Full flexibility across all evacuation scenarios'},
+  network:  {30:'Isolation = fatality in sustained Class C collapse', 3:'Community resilience: exponential survival multiplier'},
+};
+
+/* ═══════════════════════════════
+   STATE
+═══════════════════════════════ */
+let currentStep = 0;
+let answers = {}; // stepId -> selected indices or boolean array
+let totalScore = 0;
+
+/* ═══════════════════════════════
+   RENDER BLOCK
+═══════════════════════════════ */
+function buildStepIndicators(){
+  const c = document.getElementById('stepIndicator');
+  c.innerHTML = WIZARD_STEPS.map((s,i)=>
+    `<div class="step-dot" id="dot${i}" title="${s.label}">${i+1}</div>`
+  ).join('');
+}
+
+function renderStep(idx){
+  const s = WIZARD_STEPS[idx];
+  const pct = ((idx)/(WIZARD_STEPS.length))*100;
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('stepCounter').textContent = `Step ${idx+1} of ${WIZARD_STEPS.length}`;
+  document.getElementById('btnBack').disabled = idx===0;
+
+  // update dots
+  WIZARD_STEPS.forEach((_,i)=>{
+    const d = document.getElementById('dot'+i);
+    d.className='step-dot'+(i<idx?' done':i===idx?' active':'');
+  });
+
+  let html = `<h2 style="margin-bottom:.4rem">${s.title}</h2>
+  <p class="muted" style="margin-bottom:1.2rem">${s.subtitle}</p>`;
+
+  if(s.type==='radio'){
+    html += s.options.map((o,i)=>{
+      const sel = answers[s.id]===i?'selected':'';
+      return `<div class="q-option ${sel}" onclick="selectRadio('${s.id}',${i},this)" data-idx="${i}">
+        <span style="font-size:1.2rem">${getRiskEmoji(o.risk)}</span>
+        <div style="flex:1">
+          <div style="font-weight:600">${o.label}</div>
+          <div class="muted" style="font-size:.8rem">${o.detail}</div>
+        </div>
+        <div class="opt-score">${o.risk||''}</div>
+      </div>`;
+    }).join('');
+  } else if(s.type==='checkbox'){
+    const checked = answers[s.id] || [];
+    html += `<p class="muted" style="margin-bottom:.8rem;font-size:.8rem">Select all that apply — each skill reduces your risk score.</p>`;
+    html += s.options.map((o,i)=>{
+      const sel = checked.includes(i)?'selected':'';
+      return `<div class="q-option ${sel}" onclick="toggleCheckbox('${s.id}',${i},this)">
+        <input type="checkbox" ${checked.includes(i)?'checked':''} style="accent-color:var(--primary);width:16px;height:16px" readonly>
+        <div style="flex:1">
+          <div style="font-weight:600">${o.label}</div>
+          <div class="muted" style="font-size:.8rem">${o.detail}</div>
+        </div>
+        <div class="opt-score accent" style="font-size:.8rem">${o.score}</div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('stepContent').innerHTML = html;
+  const isLast = idx===WIZARD_STEPS.length-1;
+  const btnN = document.getElementById('btnNext');
+  btnN.textContent = isLast ? '⚡ Calculate Risk →' : 'Next →';
+  btnN.className = isLast ? 'btn btn-danger' : 'btn btn-primary';
+  updateLiveScore();
+}
+
+function getRiskEmoji(r){
+  if(!r) return '✓';
+  if(r==='CRITICAL') return '🔴';
+  if(r==='HIGH') return '🟠';
+  if(r==='MED-HIGH') return '🟡';
+  if(r==='MED') return '🟡';
+  if(r==='LOW-MED') return '🟢';
+  return '🟢';
+}
+
+/* ═══════════════════════════════
+   INTERACTION BLOCK
+═══════════════════════════════ */
+function selectRadio(id, idx, el){
+  answers[id] = idx;
+  // visual update
+  el.closest('.q-option')?.parentElement.querySelectorAll('.q-option').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+  updateLiveScore();
+}
+
+function toggleCheckbox(id, idx, el){
+  if(!answers[id]) answers[id]=[];
+  const arr = answers[id];
+  const pos = arr.indexOf(idx);
+  if(pos>-1) arr.splice(pos,1); else arr.push(idx);
+  el.classList.toggle('selected', arr.includes(idx));
+  el.querySelector('input').checked = arr.includes(idx);
+  updateLiveScore();
+}
+
+function calcScore(){
+  let score = 0;
+  WIZARD_STEPS.forEach(s=>{
+    if(s.type==='radio' && answers[s.id]!==undefined){
+      score += s.options[answers[s.id]].score;
+    } else if(s.type==='checkbox' && answers[s.id]){
+      answers[s.id].forEach(i=> score += s.options[i].score);
+    }
+  });
+  return Math.max(0, score);
+}
+
+function updateLiveScore(){
+  const s = calcScore();
+  const el = document.getElementById('liveScore');
+  const lb = document.getElementById('liveLabel');
+  if(Object.keys(answers).length===0) return;
+  el.textContent = s;
+  el.style.color = s>200?'var(--danger)':s>140?'var(--warn)':s>80?'var(--info)':'var(--primary)';
+  lb.textContent = s>200?'CRITICAL RISK':s>140?'HIGH RISK':s>80?'ELEVATED RISK':'MANAGED RISK';
+}
+
+function navStep(dir){
+  const next = currentStep + dir;
+  if(next<0) return;
+  if(next>=WIZARD_STEPS.length){
+    showResults();
+    return;
+  }
+  currentStep = next;
+  renderStep(currentStep);
+}
+
+function showResults(){
+  const score = calcScore();
+  totalScore = score;
+  document.getElementById('wizardCard').style.display='none';
+  document.getElementById('resultsSection').classList.remove('result-hidden');
+
+  // survival %
+  const survPct = Math.max(5, Math.min(95, Math.round(100 - (score/300)*90)));
+  document.getElementById('survivalPct').textContent = survPct+'%';
+  const arc = document.getElementById('survivalArc');
+  const circumference = 2*Math.PI*80;
+  arc.setAttribute('stroke-dasharray', circumference);
+  setTimeout(()=>{
+    arc.setAttribute('stroke-dashoffset', circumference*(1-survPct/100));
+    arc.style.stroke = survPct>60?'var(--primary)':survPct>35?'var(--warn)':'var(--danger)';
+  },100);
+
+  // tier
+  const tier = TIER_DEFS.find(t=>score>=t.range[0]&&score<=t.range[1])||TIER_DEFS[3];
+  document.getElementById('tierDisplay').innerHTML =
+    `<span class="tier-badge ${tier.badge}">TIER ${tier.tier}: ${tier.label}</span>
+     <div style="margin-top:.5rem;font-size:.85rem;color:var(--muted)">Risk Score: <strong style="color:${tier.color}">${score}</strong></div>`;
+  document.getElementById('riskSummary').textContent = tier.desc;
+
+  // doomsday clock display
+  const clockDeg = 330 + (score/300)*30;
+  document.getElementById('clockHandSvg')?.setAttribute('transform',`rotate(${clockDeg-360}, 45, 45)`);
+
+  // factor breakdown
+  let fbHtml='';
+  WIZARD_STEPS.forEach(s=>{
+    let pts=0;
+    if(s.type==='radio'&&answers[s.id]!==undefined) pts=s.options[answers[s.id]].score;
+    else if(s.type==='checkbox'&&answers[s.id]) answers[s.id].forEach(i=>pts+=s.options[i].score);
+    const maxPts = s.type==='radio'?s.options[0].score:0;
+    const pct = maxPts>0?Math.round((pts/maxPts)*100):0;
+    const col = pts>20?'var(--danger)':pts>10?'var(--warn)':pts>4?'var(--info)':'var(--primary)';
+    fbHtml+=`<div style="margin-bottom:.6rem">
+      <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:2px">
+        <span>${s.label}</span><span style="color:${col};font-weight:600">${pts>0?'+':''}${pts}</span>
+      </div>
+      <div style="height:6px;background:var(--bg3);border-radius:3px">
+        <div style="height:100%;width:${Math.min(100,Math.abs(pct))}%;background:${col};border-radius:3px;transition:width .8s"></div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('factorBreakdown').innerHTML=fbHtml;
+
+  // immediate actions
+  document.getElementById('immediateActions').innerHTML = tier.actions.map((a,i)=>
+    `<div style="display:flex;gap:.75rem;align-items:flex-start;margin-bottom:.6rem;padding:.6rem;background:var(--glass);border-radius:6px">
+      <span style="color:var(--primary);font-weight:700;font-size:.8rem;min-width:20px">${i+1}.</span>
+      <span style="font-size:.85rem">${a}</span>
+    </div>`
+  ).join('');
+
+  // tier explanation
+  const explanations=[
+    `<strong>Tier 1 (Monitor):</strong> Score 0–80. Your current position allows systematic, non-urgent preparation. Focus on filling gaps in supplies, skills, and network. Time horizon: 2–5 years before critical thresholds.`,
+    `<strong>Tier 2 (Prepare):</strong> Score 81–140. Multiple risk vectors require active attention. Budget allocation for preparedness should begin immediately. Time horizon: 12–24 months to achieve resilience baseline.`,
+    `<strong>Tier 3 (Relocate):</strong> Score 141–200. Your current geographic and logistical position is not sustainable through Class B+ collapse. Second residency or bug-out land acquisition is the priority action.`,
+    `<strong>Tier 4 (Act Now):</strong> Score 200+. Critical exposure. Every week of inaction increases irreversible risk. Financial, geographic, and community restructuring must begin within 30 days.`
+  ];
+  document.getElementById('tierExplanation').innerHTML = `
+    <div style="font-size:.9rem;line-height:1.7;color:var(--muted)">${explanations[tier.tier-1]}</div>
+    <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+      ${TIER_DEFS.map(t=>`<div style="flex:1;min-width:120px;padding:.75rem;background:var(--glass);border-radius:8px;border-left:3px solid ${t.color};font-size:.8rem">
+        <div style="font-weight:700;color:${t.color}">Tier ${t.tier}: ${t.label}</div>
+        <div style="color:var(--muted);font-size:.75rem">Score: ${t.range[0]}–${t.range[1]>500?'∞':t.range[1]}</div>
+      </div>`).join('')}
+    </div>`;
+
+  // scenario exposure
+  const scenarios = [
+    {id:'Scenario Class A',label:'Financial Collapse',score:answers.finances!==undefined?WIZARD_STEPS[3].options[answers.finances].score:0,max:35},
+    {id:'Scenario Class B',label:'Infrastructure Failure',score:answers.bugout!==undefined?WIZARD_STEPS[6].options[answers.bugout].score:0,max:35},
+    {id:'Scenario Class C',label:'Societal Breakdown',score:answers.network!==undefined?WIZARD_STEPS[9].options[answers.network].score:0,max:30},
+    {id:'Scenario Class D',label:'Medical/Pandemic',score:answers.health!==undefined?WIZARD_STEPS[7].options[answers.health].score:0,max:30},
+    {id:'Scenario Class E',label:'Environmental/Climate',score:answers.location!==undefined?WIZARD_STEPS[0].options[answers.location].score:0,max:40},
+  ];
+  document.getElementById('scenarioExposure').innerHTML = `
+    <div style="font-size:.8rem;color:var(--muted);margin-bottom:.75rem">Exposure mapped against Collapse Bible 150-scenario taxonomy:</div>
+    ${scenarios.map(s=>{
+      const pct=Math.round((s.score/s.max)*100);
+      const col=pct>70?'var(--danger)':pct>45?'var(--warn)':'var(--primary)';
+      return `<div style="margin-bottom:.8rem">
+        <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:3px">
+          <span><strong>${s.id}:</strong> ${s.label}</span>
+          <span style="color:${col}">${pct}% exposed</span>
+        </div>
+        <div style="height:8px;background:var(--bg3);border-radius:4px">
+          <div style="height:100%;width:${pct}%;background:${col};border-radius:4px;transition:width 1s"></div>
+        </div>
+      </div>`;
+    }).join('')}`;
+
+  // scroll
+  document.getElementById('resultsSection').scrollIntoView({behavior:'smooth'});
+}
+
+function resetWizard(){
+  currentStep=0; answers={}; totalScore=0;
+  document.getElementById('wizardCard').style.display='';
+  document.getElementById('resultsSection').classList.add('result-hidden');
+  document.getElementById('liveScore').textContent='—';
+  document.getElementById('liveLabel').textContent='Complete wizard';
+  renderStep(0);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ═══ INIT ═══ */
+buildStepIndicators();
+renderStep(0);
+
+// Animate doomsday clock hand to 90s-to-midnight position
+setTimeout(()=>{
+  const hand = document.getElementById('clockHandSvg');
+  if(hand) hand.setAttribute('transform','rotate(-6, 45, 45)'); // 2 minutes from midnight = -12 deg; 90s ≈ -7.5 deg
+},500);
+</script>
+</body>
+</html>

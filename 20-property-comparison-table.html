@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>20 — Property Comparison Table | Ark v3 (Standalone)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #080c10;
+    --bg2: #0d1117;
+    --glass: rgba(255,255,255,0.04);
+    --glass2: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --accent: #00ffa3;
+    --accent2: #00c8ff;
+    --danger: #ff4a6b;
+    --warn: #ffb347;
+    --text: #e8edf2;
+    --muted: #6b7a8d;
+    --card-glow: rgba(0,255,163,0.06);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,255,163,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,163,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  /* ── FOUNDATION PASTE ── */
+  .ark-foundation {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(8,12,16,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 32px;
+  }
+  .ark-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; letter-spacing: 0.15em; color: var(--accent); text-decoration: none; }
+  .ark-nav { display: flex; gap: 24px; }
+  .ark-nav a { font-size: 0.7rem; color: var(--muted); text-decoration: none; letter-spacing: 0.1em; transition: color .2s; }
+  .ark-nav a:hover { color: var(--accent); }
+  .ark-badge { background: var(--accent); color: #000; font-size: 0.6rem; font-weight: 700; padding: 3px 10px; letter-spacing: 0.12em; border-radius: 2px; }
+
+  /* ── LAYOUT ── */
+  .page { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 100px 24px 80px; }
+
+  /* ── HERO ── */
+  .hero { margin-bottom: 48px; }
+  .section-tag { font-size: 0.65rem; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .section-tag::before { content: ''; display: inline-block; width: 24px; height: 1px; background: var(--accent); }
+  h1 { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 800; line-height: 1.05; margin-bottom: 16px; }
+  h1 span { color: var(--accent); }
+  .hero-sub { color: var(--muted); font-size: 0.82rem; max-width: 680px; line-height: 1.7; }
+
+  /* ── GL CARD ── */
+  .gl {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+    transition: border-color .25s, background .25s;
+  }
+  .gl:hover { border-color: var(--border2); background: var(--glass2); }
+
+  /* ── CONTROLS ── */
+  .controls-bar {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    margin-bottom: 28px; padding: 16px 20px;
+  }
+  .controls-bar label { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.1em; }
+  select, input[type=text] {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 7px 12px;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  select:focus, input:focus { border-color: var(--accent); }
+  select option { background: #0d1117; }
+  .btn {
+    padding: 8px 18px; border-radius: 6px; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; font-weight: 500; cursor: pointer; border: none; letter-spacing: 0.08em;
+    transition: all .2s;
+  }
+  .btn-accent { background: var(--accent); color: #000; }
+  .btn-accent:hover { background: #00e090; transform: translateY(-1px); }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border2); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--accent2); }
+
+  /* ── METRICS STRIP ── */
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 28px; }
+  .metric { padding: 16px 20px; }
+  .metric-val { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; }
+  .metric-val.green { color: var(--accent); }
+  .metric-val.blue { color: var(--accent2); }
+  .metric-val.red { color: var(--danger); }
+  .metric-val.orange { color: var(--warn); }
+  .metric-lbl { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; margin-top: 4px; }
+
+  /* ── TABLE WRAPPER ── */
+  .tbl-wrap { overflow-x: auto; padding: 4px; }
+  .tbl-wrap::-webkit-scrollbar { height: 4px; }
+  .tbl-wrap::-webkit-scrollbar-track { background: transparent; }
+  .tbl-wrap::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  table { width: 100%; border-collapse: collapse; min-width: 1100px; }
+  thead th {
+    font-size: 0.63rem; letter-spacing: 0.12em; color: var(--muted);
+    text-align: left; padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap; cursor: pointer; user-select: none;
+    transition: color .2s;
+  }
+  thead th:hover { color: var(--accent2); }
+  thead th .sort-icon { margin-left: 4px; opacity: 0.4; }
+  thead th.sorted { color: var(--accent); }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: background .15s;
+    cursor: pointer;
+  }
+  tbody tr:hover { background: rgba(0,255,163,0.03); }
+  tbody tr.selected { background: rgba(0,255,163,0.06); border-color: rgba(0,255,163,0.15); }
+  tbody tr.compare-highlight { background: rgba(0,200,255,0.05); }
+
+  td { padding: 13px 14px; font-size: 0.72rem; vertical-align: middle; }
+  td:first-child { font-weight: 500; }
+
+  .tag {
+    display: inline-block; padding: 2px 8px; border-radius: 3px;
+    font-size: 0.6rem; letter-spacing: 0.08em; font-weight: 600;
+  }
+  .tag-green { background: rgba(0,255,163,0.12); color: var(--accent); border: 1px solid rgba(0,255,163,0.2); }
+  .tag-red { background: rgba(255,74,107,0.12); color: var(--danger); border: 1px solid rgba(255,74,107,0.2); }
+  .tag-orange { background: rgba(255,179,71,0.12); color: var(--warn); border: 1px solid rgba(255,179,71,0.2); }
+  .tag-blue { background: rgba(0,200,255,0.12); color: var(--accent2); border: 1px solid rgba(0,200,255,0.2); }
+
+  /* ── SCORE BAR ── */
+  .score-bar { display: flex; align-items: center; gap: 8px; }
+  .bar-track { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; min-width: 60px; }
+  .bar-fill { height: 100%; border-radius: 2px; transition: width .4s; }
+  .bar-num { font-size: 0.65rem; color: var(--muted); width: 26px; text-align: right; }
+
+  /* ── COMPARE PANEL ── */
+  .compare-panel {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+    padding: 16px 32px;
+    background: rgba(8,12,16,0.96);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--accent);
+    display: flex; align-items: center; justify-content: space-between;
+    transform: translateY(100%);
+    transition: transform .35s cubic-bezier(.4,0,.2,1);
+  }
+  .compare-panel.visible { transform: translateY(0); }
+  .compare-slots { display: flex; gap: 12px; }
+  .compare-slot {
+    padding: 8px 16px; font-size: 0.72rem;
+    background: var(--glass2); border: 1px solid var(--border2); border-radius: 6px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .compare-slot .remove { color: var(--danger); cursor: pointer; }
+  .compare-actions { display: flex; gap: 10px; align-items: center; }
+  .compare-count { font-size: 0.7rem; color: var(--muted); }
+
+  /* ── DETAIL MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(8,12,16,0.88);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    width: min(760px, 95vw); max-height: 90vh; overflow-y: auto;
+    background: #0d1117; border: 1px solid var(--border2);
+    border-radius: 16px; padding: 36px;
+  }
+  .modal::-webkit-scrollbar { width: 4px; }
+  .modal::-webkit-scrollbar-thumb { background: var(--border2); }
+  .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
+  .modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2rem; transition: color .2s; }
+  .modal-close:hover { color: var(--danger); }
+  .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .modal-field label { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; display: block; margin-bottom: 4px; }
+  .modal-field span { font-size: 0.82rem; }
+  .modal-scores { margin-top: 24px; }
+  .modal-score-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .modal-score-label { font-size: 0.65rem; color: var(--muted); width: 130px; }
+
+  /* ── COMPARE VIEW ── */
+  .compare-view { display: none; }
+  .compare-view.active { display: block; }
+  .cmp-grid { display: grid; gap: 20px; }
+  .cmp-row { display: grid; align-items: center; }
+  .cmp-label { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.08em; }
+  .cmp-val { font-size: 0.78rem; }
+  .cmp-winner { color: var(--accent); font-weight: 600; }
+  .cmp-header-row { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; padding: 16px 0 8px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .ark-nav { display: none; }
+    .modal-grid { grid-template-columns: 1fr; }
+    .compare-slots { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── FOUNDATION PASTE ── -->
+<nav class="ark-foundation">
+  <a class="ark-logo" href="#">◈ ARK COLLECTIVE</a>
+  <div class="ark-nav">
+    <a href="#risk">RISK CALC</a>
+    <a href="#scout">SCOUT</a>
+    <a href="#strategies">STRATEGIES</a>
+    <a href="#simulator">SIMULATOR</a>
+    <a href="#30-day">30-DAY</a>
+  </div>
+  <span class="ark-badge">v3 LIVE</span>
+</nav>
+
+<!-- ── PAGE ── -->
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="section-tag">MODULE 20 — PROPERTY INTELLIGENCE</div>
+    <h1>Property <span>Comparison</span><br>Command Table</h1>
+    <p class="hero-sub">Cross-reference all candidate Ark properties across 14 weighted survival metrics. Sort, filter, compare up to 3 properties side-by-side, and export your shortlist.</p>
+  </div>
+
+  <!-- DATA BLOCK -->
+  <script>
+    const PROPERTIES = [
+      { id:1, name:"Bitterroot Valley Ranch", country:"USA", region:"Montana", tier:"Tier-1", type:"Rural Compound", price:1_420_000, acres:340, water:"Spring+Well", elevation:1370, grid:"Off-Grid Ready", defense:88, water_s:92, food_s:85, access:72, community:78, climate:83, legal:90, medical:55, overall:82, status:"AVAILABLE", coords:"46.1°N 114.1°W" },
+      { id:2, name:"Coromandel Retreat NZ", country:"NZL", region:"North Island", tier:"Tier-1", type:"Coastal Farm", price:980_000, acres:95, water:"Rainwater+Creek", elevation:220, grid:"Hybrid Solar", defense:72, water_s:88, food_s:90, access:68, community:85, climate:91, legal:88, medical:70, overall:83, status:"AVAILABLE", coords:"36.7°S 175.6°E" },
+      { id:3, name:"Okanagan Homestead", country:"CAN", region:"BC Interior", tier:"Tier-1", type:"Agricultural", price:1_150_000, acres:210, water:"Lake+Well", elevation:890, grid:"Solar+Grid", defense:80, water_s:90, food_s:88, access:78, community:80, climate:78, legal:87, medical:62, overall:81, status:"AVAILABLE", coords:"49.1°N 119.5°W" },
+      { id:4, name:"Alentejo Stone Quinta", country:"PRT", region:"Alentejo", tier:"Tier-2", type:"Heritage Estate", price:620_000, acres:68, water:"Borehole+Tank", elevation:340, grid:"Solar Only", defense:65, water_s:72, food_s:80, access:74, community:70, climate:76, legal:82, medical:68, overall:74, status:"AVAILABLE", coords:"38.5°N 7.9°W" },
+      { id:5, name:"Patagonia Highland", country:"ARG", region:"Neuquén", tier:"Tier-1", type:"Mountain Retreat", price:390_000, acres:520, water:"Glacier Melt+River", elevation:2200, grid:"Off-Grid", defense:90, water_s:95, food_s:72, access:52, community:58, climate:70, legal:75, medical:35, overall:72, status:"AVAILABLE", coords:"39.3°S 71.0°W" },
+      { id:6, name:"Ozark Hardwood Estate", country:"USA", region:"Missouri", tier:"Tier-2", type:"Forest Homestead", price:780_000, acres:187, water:"Well+Creek", elevation:610, grid:"Grid+Solar", defense:82, water_s:85, food_s:82, access:80, community:74, climate:72, legal:89, medical:58, overall:78, status:"UNDER CONTRACT", coords:"36.8°N 91.2°W" },
+      { id:7, name:"Scottish Highland Croft", country:"GBR", region:"Sutherland", tier:"Tier-2", type:"Croft+Workshop", price:520_000, acres:44, water:"Burn+Loch", elevation:480, grid:"Wind+Solar", defense:70, water_s:86, food_s:75, access:62, community:65, climate:60, legal:84, medical:55, overall:71, status:"AVAILABLE", coords:"58.3°N 4.8°W" },
+      { id:8, name:"Transylvania Fortress", country:"ROU", region:"Brasov County", tier:"Tier-2", type:"Fortified Estate", price:480_000, acres:32, water:"Well+Spring", elevation:820, grid:"Solar+Grid", defense:94, water_s:78, food_s:70, access:66, community:60, climate:68, legal:72, medical:60, overall:72, status:"AVAILABLE", coords:"45.7°N 25.5°E" },
+      { id:9, name:"Tasmania Wilderness Block", country:"AUS", region:"Southwest TAS", tier:"Tier-1", type:"Wilderness Acreage", price:850_000, acres:280, water:"River+Rain", elevation:350, grid:"Off-Grid Solar", defense:78, water_s:94, food_s:86, access:60, community:72, climate:82, legal:88, medical:48, overall:79, status:"AVAILABLE", coords:"42.8°S 145.9°E" },
+      { id:10, name:"Costa Rica Cloud Forest", country:"CRI", region:"Monteverde", tier:"Tier-2", type:"Permaculture Farm", price:560_000, acres:55, water:"Springs+Collection", elevation:1650, grid:"Micro-Hydro", defense:62, water_s:90, food_s:92, access:58, community:76, climate:88, legal:70, medical:65, overall:76, status:"AVAILABLE", coords:"10.3°N 84.8°W" },
+      { id:11, name:"Idaho Canyon Property", country:"USA", region:"Idaho", tier:"Tier-1", type:"Canyon Compound", price:1_080_000, acres:160, water:"Spring+Well", elevation:1050, grid:"Solar+Backup", defense:86, water_s:88, food_s:80, access:76, community:70, climate:75, legal:91, medical:60, overall:80, status:"AVAILABLE", coords:"44.8°N 116.5°W" },
+      { id:12, name:"Extremadura Finca", country:"ESP", region:"Extremadura", tier:"Tier-2", type:"Agricultural Estate", price:410_000, acres:90, water:"Borehole", elevation:580, grid:"Solar+Grid", defense:68, water_s:70, food_s:84, access:72, community:68, climate:74, legal:80, medical:62, overall:73, status:"AVAILABLE", coords:"39.8°N 6.1°W" },
+      { id:13, name:"Southern Alps NZ", country:"NZL", region:"South Island", tier:"Tier-1", type:"Alpine Station", price:1_620_000, acres:680, water:"Glacier+Stream", elevation:1850, grid:"Off-Grid Hydro", defense:85, water_s:96, food_s:78, access:55, community:62, climate:72, legal:90, medical:42, overall:77, status:"AVAILABLE", coords:"43.5°S 171.1°E" },
+      { id:14, name:"Algarve Hilltop", country:"PRT", region:"Faro", tier:"Tier-3", type:"Villa+Land", price:890_000, acres:12, water:"Mains+Tank", elevation:320, grid:"Solar+Grid", defense:58, water_s:62, food_s:60, access:85, community:72, climate:80, legal:82, medical:78, overall:68, status:"AVAILABLE", coords:"37.3°N 7.8°W" },
+      { id:15, name:"Dordogne River Valley", country:"FRA", region:"Périgord", tier:"Tier-2", type:"Stone Farmhouse", price:740_000, acres:38, water:"Well+River", elevation:190, grid:"Grid+Solar", defense:65, water_s:78, food_s:82, access:78, community:75, climate:76, legal:78, medical:72, overall:74, status:"AVAILABLE", coords:"44.8°N 0.8°E" },
+    ];
+
+    const WEIGHTS = { defense:0.15, water_s:0.18, food_s:0.15, access:0.10, community:0.10, climate:0.12, legal:0.10, medical:0.10 };
+  </script>
+
+  <!-- METRICS STRIP -->
+  <div class="metrics" id="metrics">
+    <div class="gl metric"><div class="metric-val green" id="m-count">15</div><div class="metric-lbl">PROPERTIES LISTED</div></div>
+    <div class="gl metric"><div class="metric-val blue" id="m-t1">7</div><div class="metric-lbl">TIER-1 LOCATIONS</div></div>
+    <div class="gl metric"><div class="metric-val orange" id="m-avg">76</div><div class="metric-lbl">AVG SURVIVAL SCORE</div></div>
+    <div class="gl metric"><div class="metric-val green" id="m-avail">14</div><div class="metric-lbl">AVAILABLE NOW</div></div>
+    <div class="gl metric"><div class="metric-val blue" id="m-price">$725K</div><div class="metric-lbl">MEDIAN PRICE</div></div>
+  </div>
+
+  <!-- CONTROLS BAR -->
+  <div class="gl controls-bar">
+    <div>
+      <label>FILTER TIER</label><br>
+      <select id="fTier" onchange="renderTable()">
+        <option value="">All Tiers</option>
+        <option value="Tier-1">Tier-1</option>
+        <option value="Tier-2">Tier-2</option>
+        <option value="Tier-3">Tier-3</option>
+      </select>
+    </div>
+    <div>
+      <label>COUNTRY</label><br>
+      <select id="fCountry" onchange="renderTable()">
+        <option value="">All Countries</option>
+        <option>USA</option><option>NZL</option><option>CAN</option>
+        <option>PRT</option><option>ARG</option><option>AUS</option>
+        <option>GBR</option><option>ROU</option><option>CRI</option>
+        <option>ESP</option><option>FRA</option>
+      </select>
+    </div>
+    <div>
+      <label>MAX PRICE (USD)</label><br>
+      <select id="fPrice" onchange="renderTable()">
+        <option value="">Any</option>
+        <option value="500000">Under $500K</option>
+        <option value="750000">Under $750K</option>
+        <option value="1000000">Under $1M</option>
+        <option value="1500000">Under $1.5M</option>
+      </select>
+    </div>
+    <div>
+      <label>MIN SCORE</label><br>
+      <select id="fScore" onchange="renderTable()">
+        <option value="">Any</option>
+        <option value="70">70+</option>
+        <option value="75">75+</option>
+        <option value="80">80+</option>
+      </select>
+    </div>
+    <div>
+      <label>SEARCH</label><br>
+      <input type="text" id="fSearch" placeholder="Name or region..." oninput="renderTable()">
+    </div>
+    <div style="margin-left:auto; display:flex; gap:8px; align-items:flex-end;">
+      <button class="btn btn-ghost" onclick="clearFilters()">CLEAR</button>
+      <button class="btn btn-accent" onclick="exportCSV()">EXPORT CSV</button>
+    </div>
+  </div>
+
+  <!-- TABLE VIEW -->
+  <div class="gl" style="padding: 0 8px 8px;" id="tableView">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="selAll" onchange="toggleAll(this)" style="accent-color:var(--accent);"></th>
+            <th onclick="sortBy('name')">NAME <span class="sort-icon" id="s-name">↕</span></th>
+            <th onclick="sortBy('country')">CTRY <span class="sort-icon" id="s-country">↕</span></th>
+            <th onclick="sortBy('tier')">TIER <span class="sort-icon" id="s-tier">↕</span></th>
+            <th onclick="sortBy('price')">PRICE <span class="sort-icon" id="s-price">↕</span></th>
+            <th onclick="sortBy('acres')">ACRES <span class="sort-icon" id="s-acres">↕</span></th>
+            <th onclick="sortBy('overall')">SCORE <span class="sort-icon" id="s-overall">↕</span></th>
+            <th>DEFENSE</th>
+            <th>WATER</th>
+            <th>FOOD</th>
+            <th>ACCESS</th>
+            <th>CLIMATE</th>
+            <th onclick="sortBy('status')">STATUS <span class="sort-icon" id="s-status">↕</span></th>
+            <th>CMP</th>
+          </tr>
+        </thead>
+        <tbody id="tBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- COMPARE VIEW -->
+  <div class="compare-view gl" id="compareView" style="padding:32px;">
+    <div id="compareContent"></div>
+    <div style="margin-top:24px;">
+      <button class="btn btn-ghost" onclick="showTable()">← BACK TO TABLE</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- COMPARE PANEL -->
+<div class="compare-panel" id="comparePanel">
+  <div>
+    <div class="compare-count" id="cmpCount">0 / 3 selected</div>
+    <div class="compare-slots" id="cmpSlots"></div>
+  </div>
+  <div class="compare-actions">
+    <button class="btn btn-ghost" onclick="clearCompare()">CLEAR</button>
+    <button class="btn btn-accent" onclick="runCompare()">▶ COMPARE NOW</button>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal" onclick="closeModal(event)">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- RENDER BLOCK + INTERACTION BLOCK -->
+<script>
+  let sortKey = 'overall', sortDir = -1;
+  let compareList = [];
+  let filtered = [...PROPERTIES];
+
+  function scoreColor(v) {
+    if (v >= 85) return 'var(--accent)';
+    if (v >= 75) return 'var(--accent2)';
+    if (v >= 65) return 'var(--warn)';
+    return 'var(--danger)';
+  }
+
+  function barHTML(val, color) {
+    return `<div class="score-bar">
+      <div class="bar-track"><div class="bar-fill" style="width:${val}%;background:${color}"></div></div>
+      <span class="bar-num">${val}</span>
+    </div>`;
+  }
+
+  function fmtPrice(p) {
+    if (p >= 1_000_000) return '$' + (p/1_000_000).toFixed(2) + 'M';
+    return '$' + (p/1_000).toFixed(0) + 'K';
+  }
+
+  function tierTag(t) {
+    const cls = t==='Tier-1'?'tag-green':t==='Tier-2'?'tag-orange':'tag-red';
+    return `<span class="tag ${cls}">${t}</span>`;
+  }
+  function statusTag(s) {
+    const cls = s==='AVAILABLE'?'tag-green':s==='UNDER CONTRACT'?'tag-orange':'tag-red';
+    return `<span class="tag ${cls}">${s}</span>`;
+  }
+
+  function sortBy(key) {
+    if (sortKey === key) sortDir *= -1;
+    else { sortKey = key; sortDir = -1; }
+    document.querySelectorAll('.sort-icon').forEach(el => el.textContent = '↕');
+    const el = document.getElementById('s-'+key);
+    if (el) el.textContent = sortDir === 1 ? '↑' : '↓';
+    document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
+    renderTable();
+  }
+
+  function getFiltered() {
+    const tier = document.getElementById('fTier').value;
+    const country = document.getElementById('fCountry').value;
+    const price = +document.getElementById('fPrice').value;
+    const score = +document.getElementById('fScore').value;
+    const search = document.getElementById('fSearch').value.toLowerCase();
+    return PROPERTIES.filter(p => {
+      if (tier && p.tier !== tier) return false;
+      if (country && p.country !== country) return false;
+      if (price && p.price > price) return false;
+      if (score && p.overall < score) return false;
+      if (search && !p.name.toLowerCase().includes(search) && !p.region.toLowerCase().includes(search)) return false;
+      return true;
+    }).sort((a,b) => {
+      let av = a[sortKey], bv = b[sortKey];
+      if (typeof av === 'string') return av.localeCompare(bv) * sortDir;
+      return (av - bv) * sortDir;
+    });
+  }
+
+  function renderTable() {
+    filtered = getFiltered();
+    const tbody = document.getElementById('tBody');
+    tbody.innerHTML = filtered.map(p => {
+      const inCmp = compareList.includes(p.id);
+      const sc = scoreColor(p.overall);
+      return `<tr id="row-${p.id}" onclick="openDetail(${p.id})" class="${inCmp?'compare-highlight':''}">
+        <td onclick="event.stopPropagation()"><input type="checkbox" data-id="${p.id}" onchange="toggleSel(this,${p.id})" ${document.getElementById('selAll')?.checked?'checked':''} style="accent-color:var(--accent);"></td>
+        <td><span style="font-weight:600">${p.name}</span><br><span style="font-size:0.6rem;color:var(--muted)">${p.region}</span></td>
+        <td><span style="color:var(--muted)">${p.country}</span></td>
+        <td>${tierTag(p.tier)}</td>
+        <td style="color:var(--accent2)">${fmtPrice(p.price)}</td>
+        <td>${p.acres.toLocaleString()}</td>
+        <td>${barHTML(p.overall, sc)}</td>
+        <td>${barHTML(p.defense, scoreColor(p.defense))}</td>
+        <td>${barHTML(p.water_s, scoreColor(p.water_s))}</td>
+        <td>${barHTML(p.food_s, scoreColor(p.food_s))}</td>
+        <td>${barHTML(p.access, scoreColor(p.access))}</td>
+        <td>${barHTML(p.climate, scoreColor(p.climate))}</td>
+        <td>${statusTag(p.status)}</td>
+        <td onclick="event.stopPropagation()">
+          <button class="btn btn-ghost" style="padding:4px 10px;font-size:0.6rem;" onclick="addCompare(${p.id})">${inCmp?'✓':'+'}</button>
+        </td>
+      </tr>`;
+    }).join('');
+    updateMetrics();
+  }
+
+  function updateMetrics() {
+    document.getElementById('m-count').textContent = filtered.length;
+    document.getElementById('m-t1').textContent = filtered.filter(p=>p.tier==='Tier-1').length;
+    const avg = filtered.length ? Math.round(filtered.reduce((s,p)=>s+p.overall,0)/filtered.length) : 0;
+    document.getElementById('m-avg').textContent = avg;
+    document.getElementById('m-avail').textContent = filtered.filter(p=>p.status==='AVAILABLE').length;
+    const prices = filtered.map(p=>p.price).sort((a,b)=>a-b);
+    const med = prices.length ? prices[Math.floor(prices.length/2)] : 0;
+    document.getElementById('m-price').textContent = fmtPrice(med);
+  }
+
+  function clearFilters() {
+    ['fTier','fCountry','fPrice','fScore'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('fSearch').value = '';
+    renderTable();
+  }
+
+  function toggleAll(cb) {
+    document.querySelectorAll('#tBody input[type=checkbox]').forEach(c => c.checked = cb.checked);
+  }
+
+  function toggleSel(cb, id) { /* checkbox selection for batch ops */ }
+
+  function addCompare(id) {
+    if (compareList.includes(id)) {
+      compareList = compareList.filter(x=>x!==id);
+    } else {
+      if (compareList.length >= 3) { alert('Max 3 properties for comparison'); return; }
+      compareList.push(id);
+    }
+    renderTable();
+    updateComparePanel();
+  }
+
+  function updateComparePanel() {
+    const panel = document.getElementById('comparePanel');
+    const slots = document.getElementById('cmpSlots');
+    const count = document.getElementById('cmpCount');
+    count.textContent = `${compareList.length} / 3 selected`;
+    slots.innerHTML = compareList.map(id => {
+      const p = PROPERTIES.find(x=>x.id===id);
+      return `<div class="compare-slot">${p.name} <span class="remove" onclick="addCompare(${id})">✕</span></div>`;
+    }).join('');
+    panel.classList.toggle('visible', compareList.length > 0);
+  }
+
+  function clearCompare() {
+    compareList = [];
+    renderTable();
+    updateComparePanel();
+  }
+
+  function showTable() {
+    document.getElementById('tableView').style.display = '';
+    document.getElementById('compareView').classList.remove('active');
+  }
+
+  function runCompare() {
+    if (compareList.length < 2) { alert('Select at least 2 properties'); return; }
+    const props = compareList.map(id => PROPERTIES.find(p=>p.id===id));
+    const metrics = [
+      ['OVERALL SCORE','overall'],['DEFENSE','defense'],['WATER SECURITY','water_s'],
+      ['FOOD PRODUCTION','food_s'],['ACCESS/EVAC','access'],['COMMUNITY','community'],
+      ['CLIMATE STABILITY','climate'],['LEGAL FRAMEWORK','legal'],['MEDICAL ACCESS','medical'],
+    ];
+    const cols = ['METRIC', ...props.map(p=>p.name)];
+    let html = `<div class="cmp-header-row">Side-by-Side Comparison</div>`;
+    html += `<div class="cmp-grid">`;
+    html += `<div class="cmp-row" style="grid-template-columns:160px ${props.map(()=>'1fr').join(' ')}; margin-bottom:12px;">
+      <span class="cmp-label"></span>
+      ${props.map(p=>`<span style="font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700">${p.name}<br><span style="font-size:0.65rem;color:var(--muted);font-family:'JetBrains Mono'">${tierTag(p.tier)} ${fmtPrice(p.price)}</span></span>`).join('')}
+    </div>`;
+    metrics.forEach(([label, key]) => {
+      const vals = props.map(p=>p[key]);
+      const maxVal = Math.max(...vals);
+      html += `<div class="cmp-row" style="grid-template-columns:160px ${props.map(()=>'1fr').join(' ')}; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04);">
+        <span class="cmp-label">${label}</span>
+        ${props.map(p=>`<span class="cmp-val ${p[key]===maxVal?'cmp-winner':''}">${barHTML(p[key], scoreColor(p[key]))}</span>`).join('')}
+      </div>`;
+    });
+    html += `</div>`;
+    document.getElementById('compareContent').innerHTML = html;
+    document.getElementById('tableView').style.display = 'none';
+    document.getElementById('compareView').classList.add('active');
+    document.getElementById('comparePanel').classList.remove('visible');
+  }
+
+  function openDetail(id) {
+    const p = PROPERTIES.find(x=>x.id===id);
+    const metrics = [
+      ['Defense Score', p.defense], ['Water Security', p.water_s],
+      ['Food Production', p.food_s], ['Access/Evac', p.access],
+      ['Community Strength', p.community], ['Climate Stability', p.climate],
+      ['Legal Framework', p.legal], ['Medical Access', p.medical],
+    ];
+    document.getElementById('modalContent').innerHTML = `
+      <div class="modal-header">
+        <div>
+          <div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;margin-bottom:8px">PROPERTY DETAIL</div>
+          <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800">${p.name}</div>
+          <div style="color:var(--muted);font-size:0.75rem;margin-top:4px">${p.region}, ${p.country} • ${p.coords}</div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-grid">
+        <div class="modal-field"><label>TIER CLASSIFICATION</label>${tierTag(p.tier)}</div>
+        <div class="modal-field"><label>PROPERTY TYPE</label><span>${p.type}</span></div>
+        <div class="modal-field"><label>ASKING PRICE</label><span style="color:var(--accent2);font-size:1rem">${fmtPrice(p.price)}</span></div>
+        <div class="modal-field"><label>TOTAL ACREAGE</label><span>${p.acres.toLocaleString()} acres</span></div>
+        <div class="modal-field"><label>WATER SOURCE</label><span>${p.water}</span></div>
+        <div class="modal-field"><label>ELEVATION</label><span>${p.elevation.toLocaleString()}m</span></div>
+        <div class="modal-field"><label>GRID STATUS</label><span>${p.grid}</span></div>
+        <div class="modal-field"><label>LISTING STATUS</label>${statusTag(p.status)}</div>
+      </div>
+      <div class="modal-scores">
+        <div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;margin-bottom:16px;">SURVIVAL METRICS</div>
+        ${metrics.map(([lbl,val])=>`
+          <div class="modal-score-row">
+            <span class="modal-score-label">${lbl}</span>
+            ${barHTML(val, scoreColor(val))}
+          </div>`).join('')}
+        <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+          <div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;margin-bottom:8px">COMPOSITE SURVIVAL SCORE</div>
+          <div style="font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;color:${scoreColor(p.overall)}">${p.overall}<span style="font-size:1rem;color:var(--muted)">/100</span></div>
+        </div>
+      </div>`;
+    document.getElementById('detailModal').classList.add('open');
+  }
+
+  function closeModal(e) {
+    if (!e || e.target === document.getElementById('detailModal')) {
+      document.getElementById('detailModal').classList.remove('open');
+    }
+  }
+
+  function exportCSV() {
+    const f = getFiltered();
+    const rows = [['Name','Country','Region','Tier','Type','Price','Acres','Water','Grid','Overall','Defense','Water','Food','Access','Community','Climate','Legal','Medical','Status']];
+    f.forEach(p => rows.push([p.name,p.country,p.region,p.tier,p.type,p.price,p.acres,p.water,p.grid,p.overall,p.defense,p.water_s,p.food_s,p.access,p.community,p.climate,p.legal,p.medical,p.status]));
+    const csv = rows.map(r=>r.join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download = 'ark-properties.csv';
+    a.click();
+  }
+
+  // INIT
+  renderTable();
+</script>
+</body>
+</html>

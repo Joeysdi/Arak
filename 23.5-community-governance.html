@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>23.5 — Community Governance & Vetting | Ark v3 (Standalone)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #060a0d;
+    --bg2: #0a1018;
+    --glass: rgba(255,255,255,0.03);
+    --glass2: rgba(255,255,255,0.06);
+    --glass3: rgba(255,255,255,0.09);
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --accent: #00ffa3;
+    --accent2: #00c8ff;
+    --danger: #ff4a6b;
+    --warn: #ffb347;
+    --purple: #c080ff;
+    --text: #dce4ec;
+    --muted: #5a6878;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'IBM Plex Mono', monospace; min-height: 100vh; overflow-x: hidden; }
+
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 40% at 5% 50%, rgba(0,255,163,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 95% 20%, rgba(192,128,255,0.03) 0%, transparent 60%);
+  }
+
+  /* ── NAV ── */
+  .ark-foundation {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(6,10,13,0.96); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 36px;
+  }
+  .ark-logo { font-family: 'Syne', sans-serif; font-weight: 900; font-size: 1rem; letter-spacing: 0.2em; color: var(--accent); text-decoration: none; }
+  .ark-nav { display: flex; gap: 24px; }
+  .ark-nav a { font-size: 0.65rem; color: var(--muted); text-decoration: none; letter-spacing: 0.12em; transition: color .2s; }
+  .ark-nav a:hover { color: var(--accent); }
+  .ark-badge { background: var(--accent); color: #000; font-size: 0.58rem; font-weight: 700; padding: 4px 12px; letter-spacing: 0.12em; border-radius: 2px; }
+
+  /* ── LAYOUT ── */
+  .page { position: relative; z-index: 1; max-width: 1240px; margin: 0 auto; padding: 100px 28px 100px; }
+
+  /* ── TAGS ── */
+  .stag { font-size: 0.6rem; letter-spacing: 0.22em; color: var(--accent); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; font-family: 'Syne', sans-serif; }
+  .stag::before { content: ''; display: inline-block; width: 28px; height: 1px; background: var(--accent); }
+  h1 { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 5vw, 3.8rem); font-weight: 900; line-height: 1; margin-bottom: 14px; }
+  h1 span { color: var(--accent); }
+  h2 { font-family: 'Syne', sans-serif; font-size: clamp(1.3rem, 2.5vw, 1.9rem); font-weight: 800; margin-bottom: 10px; }
+  .sub { color: var(--muted); font-size: 0.8rem; line-height: 1.8; max-width: 620px; margin-bottom: 40px; }
+
+  /* ── GLASS ── */
+  .gl { background: var(--glass); border: 1px solid var(--border); border-radius: 12px; backdrop-filter: blur(12px); }
+  .gl2 { background: var(--glass2); border: 1px solid var(--border2); border-radius: 10px; }
+
+  /* ── BTN ── */
+  .btn { padding: 9px 20px; border-radius: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; cursor: pointer; border: none; letter-spacing: 0.08em; transition: all .2s; }
+  .btn-a { background: var(--accent); color: #000; font-weight: 700; }
+  .btn-a:hover { background: #00e090; transform: translateY(-1px); }
+  .btn-g { background: transparent; color: var(--muted); border: 1px solid var(--border2); }
+  .btn-g:hover { color: var(--text); border-color: var(--accent2); }
+  .btn-d { background: rgba(255,74,107,0.1); color: var(--danger); border: 1px solid rgba(255,74,107,0.2); }
+  .btn-d:hover { background: rgba(255,74,107,0.2); }
+
+  /* ── PILL / TAG ── */
+  .pill { display: inline-block; padding: 3px 10px; border-radius: 30px; font-size: 0.6rem; letter-spacing: 0.08em; font-weight: 600; }
+  .pill-g { background: rgba(0,255,163,0.1); color: var(--accent); border: 1px solid rgba(0,255,163,0.2); }
+  .pill-r { background: rgba(255,74,107,0.1); color: var(--danger); border: 1px solid rgba(255,74,107,0.18); }
+  .pill-o { background: rgba(255,179,71,0.1); color: var(--warn); border: 1px solid rgba(255,179,71,0.18); }
+  .pill-b { background: rgba(0,200,255,0.1); color: var(--accent2); border: 1px solid rgba(0,200,255,0.2); }
+  .pill-p { background: rgba(192,128,255,0.1); color: var(--purple); border: 1px solid rgba(192,128,255,0.2); }
+
+  /* ── TABS ── */
+  .stab { display: flex; gap: 2px; background: rgba(255,255,255,0.025); border: 1px solid var(--border); border-radius: 8px; padding: 4px; width: fit-content; margin-bottom: 28px; flex-wrap: wrap; }
+  .stab-btn { padding: 8px 16px; border-radius: 5px; font-family: 'Syne', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; cursor: pointer; border: none; background: none; color: var(--muted); transition: all .2s; white-space: nowrap; }
+  .stab-btn.active { background: var(--accent); color: #000; }
+  .spanel { display: none; }
+  .spanel.active { display: block; }
+
+  /* ── ACCORDION ── */
+  .acc-item { border-bottom: 1px solid var(--border); }
+  .acc-item:last-child { border-bottom: none; }
+  .acc-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 20px; cursor: pointer; user-select: none;
+    transition: background .15s;
+  }
+  .acc-head:hover { background: var(--glass2); }
+  .acc-title { display: flex; align-items: center; gap: 12px; flex: 1; }
+  .acc-num { font-family: 'Syne', sans-serif; font-size: 0.7rem; color: var(--muted); width: 28px; }
+  .acc-name { font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 700; }
+  .acc-meta { display: flex; gap: 8px; align-items: center; flex-shrink: 0; margin-right: 16px; }
+  .acc-chevron { color: var(--muted); transition: transform .25s; font-size: 0.9rem; flex-shrink: 0; }
+  .acc-item.open .acc-chevron { transform: rotate(180deg); color: var(--accent); }
+  .acc-body { display: none; padding: 0 20px 20px; }
+  .acc-item.open .acc-body { display: block; }
+  .acc-body-inner { background: var(--glass); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+  .acc-body p { font-size: 0.78rem; color: var(--muted); line-height: 1.8; margin-bottom: 12px; }
+  .acc-body p:last-child { margin-bottom: 0; }
+
+  /* ── POLICY MATRIX ── */
+  .matrix-wrap { overflow-x: auto; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; min-width: 700px; }
+  thead th { font-size: 0.6rem; letter-spacing: 0.12em; color: var(--muted); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,0.03); transition: background .15s; }
+  tbody tr:hover { background: rgba(0,255,163,0.02); }
+  td { padding: 12px 14px; font-size: 0.72rem; vertical-align: middle; }
+
+  /* ── VETTING WIZARD ── */
+  .wizard { max-width: 760px; }
+  .wiz-step { display: none; }
+  .wiz-step.active { display: block; }
+  .wiz-q { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; margin-bottom: 8px; }
+  .wiz-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 24px; line-height: 1.7; }
+  .wiz-opts { display: flex; flex-direction: column; gap: 10px; }
+  .wiz-opt {
+    padding: 14px 18px; border-radius: 8px; cursor: pointer;
+    background: var(--glass); border: 1px solid var(--border);
+    font-size: 0.8rem; transition: all .2s;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .wiz-opt:hover { border-color: var(--accent); background: var(--glass2); }
+  .wiz-opt.selected { border-color: var(--accent); background: rgba(0,255,163,0.06); }
+  .wiz-opt .opt-icon { font-size: 1.1rem; }
+  .wiz-opt .opt-lbl { font-weight: 600; }
+  .wiz-opt .opt-desc { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+  .wiz-nav { display: flex; gap: 10px; margin-top: 24px; align-items: center; }
+  .wiz-prog { font-size: 0.65rem; color: var(--muted); margin-left: auto; }
+  .prog-bar-wrap { height: 3px; background: var(--border); border-radius: 2px; margin-bottom: 28px; }
+  .prog-bar-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .4s; }
+
+  .wiz-result { padding: 28px; }
+  .result-score {
+    font-family: 'Syne', sans-serif; font-size: 3.5rem; font-weight: 900; line-height: 1;
+    margin-bottom: 6px;
+  }
+  .result-level { font-size: 0.7rem; letter-spacing: 0.15em; margin-bottom: 20px; }
+  .result-details { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 20px; }
+  .result-detail-item { background: var(--glass); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+  .rdl { font-size: 0.58rem; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 4px; }
+  .rdv { font-size: 0.85rem; font-weight: 600; }
+  .rec-box { background: rgba(0,255,163,0.04); border: 1px solid rgba(0,255,163,0.12); border-radius: 8px; padding: 18px; margin-top: 20px; }
+  .rec-box ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .rec-box li { font-size: 0.75rem; color: var(--muted); }
+  .rec-box li::before { content: '→ '; color: var(--accent); }
+
+  /* ── POLICY SCORE BAR ── */
+  .pscore { display: flex; align-items: center; gap: 10px; }
+  .ps-track { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; min-width: 60px; }
+  .ps-fill { height: 100%; border-radius: 2px; }
+  .ps-num { font-size: 0.65rem; width: 24px; text-align: right; }
+
+  /* ── GOVERNANCE STRUCTURE ── */
+  .gov-tree { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .gov-node {
+    padding: 20px; border-radius: 10px; text-align: center;
+    background: var(--glass); border: 1px solid var(--border);
+    transition: border-color .25s;
+  }
+  .gov-node:hover { border-color: var(--border2); }
+  .gov-icon { font-size: 1.5rem; margin-bottom: 10px; }
+  .gov-title { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; margin-bottom: 6px; }
+  .gov-desc { font-size: 0.68rem; color: var(--muted); line-height: 1.65; }
+  .gov-node.highlight { border-color: rgba(0,255,163,0.2); background: rgba(0,255,163,0.04); }
+
+  /* ── RULE ITEMS ── */
+  .rules-list { display: flex; flex-direction: column; gap: 0; }
+  .rule-item {
+    display: grid; grid-template-columns: 40px 1fr auto;
+    gap: 14px; align-items: start; padding: 16px 20px;
+    border-bottom: 1px solid var(--border); transition: background .15s;
+  }
+  .rule-item:hover { background: var(--glass2); }
+  .rule-n { font-family: 'Syne', sans-serif; font-size: 0.68rem; color: var(--muted); padding-top: 2px; }
+  .rule-body {}
+  .rule-title { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; margin-bottom: 4px; }
+  .rule-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.65; }
+  .rule-sev { flex-shrink: 0; }
+
+  /* ── SECTION SPACING ── */
+  .section { margin-bottom: 64px; }
+
+  @media (max-width: 800px) {
+    .gov-tree { grid-template-columns: 1fr; }
+    .result-details { grid-template-columns: 1fr; }
+    .ark-nav { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="ark-foundation">
+  <a class="ark-logo" href="#">◈ ARK COLLECTIVE</a>
+  <div class="ark-nav">
+    <a href="#risk">RISK CALC</a>
+    <a href="#governance">GOVERNANCE</a>
+    <a href="#scout">SCOUT</a>
+    <a href="#legacy">LEGACY</a>
+    <a href="#30-day">SPRINT</a>
+  </div>
+  <span class="ark-badge">v3 LIVE</span>
+</nav>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="section">
+    <div class="stag">MODULE 23.5 — COMMUNITY SYSTEMS</div>
+    <h1>Community <span>Governance</span><br>&amp; Vetting</h1>
+    <p class="sub">The single most underestimated risk in any Ark strategy is <em>internal collapse</em> — community fractures, governance failures, and compromised members. This module establishes the complete Ark Governance Rulebook, Policy Matrix, and Vetting Protocol.</p>
+
+    <!-- Governance Structure -->
+    <div class="gov-tree" style="margin-bottom:40px">
+      <div class="gov-node highlight">
+        <div class="gov-icon">🏛️</div>
+        <div class="gov-title">Community Council</div>
+        <div class="gov-desc">5-member elected body. Quorum required for major decisions. 2-year rotating terms. No single-family majority.</div>
+      </div>
+      <div class="gov-node">
+        <div class="gov-icon">⚖️</div>
+        <div class="gov-title">Arbitration Panel</div>
+        <div class="gov-desc">3 rotating mediators drawn from non-involved members. Conflict resolution within 72hrs. Binding in crisis.</div>
+      </div>
+      <div class="gov-node">
+        <div class="gov-icon">🔐</div>
+        <div class="gov-title">Security Committee</div>
+        <div class="gov-desc">Separate from Council. Controls access protocols, threat assessment, and emergency powers activation.</div>
+      </div>
+      <div class="gov-node">
+        <div class="gov-icon">📋</div>
+        <div class="gov-title">Skills Registry</div>
+        <div class="gov-desc">Updated quarterly. Tracks all medical, technical, agricultural, and security competencies across community.</div>
+      </div>
+      <div class="gov-node">
+        <div class="gov-icon">🌾</div>
+        <div class="gov-title">Resource Committee</div>
+        <div class="gov-desc">Food, water, energy, and medical inventory management. Rationing authority in declared emergencies.</div>
+      </div>
+      <div class="gov-node">
+        <div class="gov-icon">📚</div>
+        <div class="gov-title">Education Collective</div>
+        <div class="gov-desc">Manages knowledge transfer, children's education, skills training, and succession readiness programs.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="stab">
+    <button class="stab-btn active" onclick="switchTab(this,'tVetting')">VETTING WIZARD</button>
+    <button class="stab-btn" onclick="switchTab(this,'tRules')">RULEBOOK</button>
+    <button class="stab-btn" onclick="switchTab(this,'tMatrix')">POLICY MATRIX</button>
+    <button class="stab-btn" onclick="switchTab(this,'tConflict')">CONFLICT PROTOCOLS</button>
+    <button class="stab-btn" onclick="switchTab(this,'tEmergency')">EMERGENCY POWERS</button>
+  </div>
+
+  <!-- VETTING WIZARD -->
+  <div class="spanel active" id="tVetting">
+    <div class="stag">CANDIDATE VETTING PROTOCOL</div>
+    <h2>Assess a Candidate for Ark Membership</h2>
+    <p class="sub">The Ark Vetting Protocol scores candidates across 7 dimensions. No single factor disqualifies — but pattern failures across multiple dimensions trigger a Community Council review or rejection.</p>
+
+    <div class="gl wizard">
+      <div style="padding:28px 28px 0">
+        <div class="prog-bar-wrap"><div class="prog-bar-fill" id="wizProg" style="width:14%"></div></div>
+      </div>
+      <div id="wizContent" style="padding:0 28px 28px"></div>
+    </div>
+  </div>
+
+  <!-- RULEBOOK -->
+  <div class="spanel" id="tRules">
+    <div class="stag">THE ARK COMMUNITY RULEBOOK — v3</div>
+    <h2>Core Governance Rules</h2>
+    <p class="sub">These rules form the legal foundation of any Ark community. All members sign a Community Covenant on admission. Violations are categorised as Level 1 (warning), Level 2 (probation), or Level 3 (expulsion).</p>
+
+    <div class="gl" id="rulebookContainer"></div>
+  </div>
+
+  <!-- POLICY MATRIX -->
+  <div class="spanel" id="tMatrix">
+    <div class="stag">GOVERNANCE POLICY MATRIX</div>
+    <h2>Decision Authority &amp; Thresholds</h2>
+    <p class="sub">Who decides what — and by what majority. This matrix eliminates ambiguity during high-stress scenarios when governance failures are most likely to occur.</p>
+
+    <div class="gl" style="padding:8px">
+      <div class="matrix-wrap">
+        <table id="policyTable">
+          <thead>
+            <tr>
+              <th>DECISION CATEGORY</th>
+              <th>AUTHORITY</th>
+              <th>THRESHOLD</th>
+              <th>TIMEFRAME</th>
+              <th>APPEAL</th>
+              <th>EMERGENCY OVERRIDE</th>
+              <th>PRIORITY</th>
+            </tr>
+          </thead>
+          <tbody id="policyBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFLICT PROTOCOLS -->
+  <div class="spanel" id="tConflict">
+    <div class="stag">CONFLICT RESOLUTION PROTOCOLS</div>
+    <h2>Structured Conflict Management</h2>
+    <p class="sub">Historical evidence from intentional communities shows that conflict resolution failure is the #1 cause of community dissolution. The Ark Protocol codifies four escalating response tiers.</p>
+    <div class="gl" id="conflictContainer"></div>
+  </div>
+
+  <!-- EMERGENCY POWERS -->
+  <div class="spanel" id="tEmergency">
+    <div class="stag">EMERGENCY POWERS DOCTRINE</div>
+    <h2>Crisis Governance Framework</h2>
+    <p class="sub">Normal governance becomes a liability in acute collapse scenarios. The Emergency Powers Doctrine grants temporary command-and-control authority under defined trigger conditions, with mandatory sunset clauses.</p>
+    <div class="gl" id="emergencyContainer"></div>
+  </div>
+
+</div>
+
+<!-- DATA BLOCK -->
+<script>
+const VETTING_STEPS = [
+  {
+    q: "What is the candidate's primary skill set?",
+    sub: "Skills are assessed for community contribution value. Rare critical skills can offset lower scores in other dimensions.",
+    opts: [
+      { icon:"⚕️", lbl:"Medical / Healthcare", desc:"Doctor, nurse, paramedic, or veterinarian", score:10 },
+      { icon:"⚙️", lbl:"Engineering / Technical", desc:"Electrical, mechanical, civil, or systems engineering", score:9 },
+      { icon:"🌾", lbl:"Agriculture / Permaculture", desc:"Farming, horticulture, livestock, food preservation", score:9 },
+      { icon:"🔒", lbl:"Security / Military", desc:"Military, law enforcement, or professional security", score:7 },
+      { icon:"📐", lbl:"Construction / Trades", desc:"Carpentry, plumbing, masonry, welding", score:8 },
+      { icon:"💼", lbl:"Other / Professional", desc:"Finance, law, management, tech, education", score:5 },
+    ]
+  },
+  {
+    q: "How would you characterise the candidate's psychological profile?",
+    sub: "Psychological stability under sustained stress is the most underrated admission criterion. History shows psychological breakdown causes more community failures than skills gaps.",
+    opts: [
+      { icon:"🧘", lbl:"Demonstrably stable", desc:"Has experienced significant adversity and demonstrated resilience", score:10 },
+      { icon:"📊", lbl:"Unknown / Untested", desc:"No documented evidence of behaviour under pressure", score:5 },
+      { icon:"⚠️", lbl:"Some concerning traits", desc:"History of conflict, volatility, or poor impulse control under stress", score:2 },
+      { icon:"🚩", lbl:"Significant red flags", desc:"Documented psychological instability, manipulative behaviour", score:0 },
+    ]
+  },
+  {
+    q: "What is the candidate's existing relationship to the community?",
+    sub: "Pre-existing relationships reduce integration risk and vetting uncertainty. Unknown individuals require extended probationary periods.",
+    opts: [
+      { icon:"👥", lbl:"Direct personal referral", desc:"Known personally by 2+ existing members for 5+ years", score:10 },
+      { icon:"🤝", lbl:"Professional referral", desc:"Known professionally by a member; limited personal knowledge", score:7 },
+      { icon:"📋", lbl:"Structured introduction", desc:"Introduced through Ark network; met 3+ times in structured settings", score:5 },
+      { icon:"❓", lbl:"Unknown / cold approach", desc:"No prior relationship with any community member", score:2 },
+    ]
+  },
+  {
+    q: "Does the candidate have financial contribution capacity?",
+    sub: "Financial contribution signals commitment and reduces resource burden. However, purely financial contributors with no skills are classified as liabilities in extended collapse scenarios.",
+    opts: [
+      { icon:"💰", lbl:"Full share + capital contribution", desc:"Can fund property share AND contribute to infrastructure", score:8 },
+      { icon:"✅", lbl:"Can meet full property share", desc:"Financial participation at required level", score:7 },
+      { icon:"⚖️", lbl:"Partial share — skills offset", desc:"Cannot meet full financial share; skills compensate", score:5 },
+      { icon:"❌", lbl:"No financial capacity", desc:"Dependent entry; skills must be in top 5% of community need", score:1 },
+    ]
+  },
+  {
+    q: "How does the candidate approach rules and community authority?",
+    sub: "Compliance orientation predicts governance stability. Libertarian personalities are the primary driver of post-collapse community fracture according to historical intentional community research.",
+    opts: [
+      { icon:"📖", lbl:"Values clear structure", desc:"Actively welcomes defined rules and accountability systems", score:10 },
+      { icon:"🤔", lbl:"Pragmatic compliance", desc:"Will follow rules when purpose is clear; may question edge cases", score:7 },
+      { icon:"🔄", lbl:"Conditional acceptance", desc:"Accepts rules but reserves right to renegotiate; autonomy-focused", score:3 },
+      { icon:"🚩", lbl:"Anti-authority disposition", desc:"Consistently challenges hierarchy; history of rule circumvention", score:0 },
+    ]
+  },
+  {
+    q: "What is the candidate's health and physical capability status?",
+    sub: "Post-collapse environments demand physical capability. Chronic health conditions that require ongoing medical resupply are a community liability. This must be assessed honestly.",
+    opts: [
+      { icon:"💪", lbl:"Excellent health, no dependencies", desc:"No chronic conditions; high physical capability", score:10 },
+      { icon:"🏃", lbl:"Good health, minor conditions", desc:"Minor managed conditions; no external medication dependency", score:8 },
+      { icon:"⚕️", lbl:"Managed chronic condition", desc:"Requires medication that may be difficult to resupply", score:4 },
+      { icon:"🛑", lbl:"Significant health dependency", desc:"Requires consistent external medical support to function", score:1 },
+    ]
+  },
+  {
+    q: "Does the candidate have relevant preparation experience?",
+    sub: "Prior preparedness investment demonstrates commitment and seriousness. Raw beginners can be effective, but require substantially more onboarding resources.",
+    opts: [
+      { icon:"🏕️", lbl:"Extensive — 3+ years", desc:"Existing preps, training, tested skills, prior community involvement", score:10 },
+      { icon:"📚", lbl:"Moderate — 1–3 years", desc:"Has taken deliberate steps; training and some physical preps", score:7 },
+      { icon:"🔍", lbl:"Early stage — under 1yr", desc:"Recently engaged; still in research/planning phase", score:4 },
+      { icon:"⭕", lbl:"No prior preparation", desc:"Has done nothing to date; entirely new to the framework", score:1 },
+    ]
+  },
+];
+
+const RULES = [
+  { n:"01", title:"Covenant Supremacy", desc:"All community decisions, actions, and disputes are governed by the signed Community Covenant. No verbal agreement, informal arrangement, or prior relationship supersedes the Covenant. Ignorance of rules is not a defence.", sev:"L3", color:"danger" },
+  { n:"02", title:"Full Disclosure on Admission", desc:"Every member must fully disclose all relevant health conditions, legal history, financial obligations, family situations, and skills before admission. Material omissions discovered post-admission are grounds for immediate Level 3 review.", sev:"L3", color:"danger" },
+  { n:"03", title:"No Unilateral Resource Extraction", desc:"No member may extract, deplete, sell, trade, consume, or relocate community resources (food, water, fuel, medical supplies, equipment) without Council authorisation. Threshold: any item valued above $50 or 1% of monthly supply.", sev:"L2", color:"warn" },
+  { n:"04", title:"Security Protocol Compliance", desc:"All members must adhere to all active security protocols including access codes, visitor screening, communication blackout periods, and threat alerts. Security breaches — intentional or negligent — are Level 2 minimum.", sev:"L2", color:"warn" },
+  { n:"05", title:"Contribution Requirement", desc:"Every adult member (18+) must contribute a minimum of 6 hours per week of physical community labour. This is separate from any paid professional roles. Persistent non-contribution triggers Level 1 warning within 30 days.", sev:"L1", color:"green" },
+  { n:"06", title:"Skills Registry Obligation", desc:"All skills, certifications, and capability changes must be declared within 14 days of acquisition or change. False or exaggerated skills declarations are Level 2 violations.", sev:"L2", color:"warn" },
+  { n:"07", title:"Weapons & Force Policy", desc:"All weapons must be declared and registered within community. Use of force against any community member outside defined self-defence doctrine triggers immediate Security Committee convening and Level 3 review.", sev:"L3", color:"danger" },
+  { n:"08", title:"Visitor Protocol", desc:"No external visitor may access the core compound without Security Committee pre-approval and escort assignment. Digital communications about the compound location are prohibited without Council approval.", sev:"L2", color:"warn" },
+  { n:"09", title:"Succession Planning Obligation", desc:"All members holding critical roles must maintain an active, documented succession plan reviewed quarterly. Untrained successors for critical functions (medical, water, energy) are a Level 1 community risk item.", sev:"L1", color:"green" },
+  { n:"10", title:"Prohibition on External Advocacy", desc:"Members may not publicly discuss, post, broadcast, or otherwise disclose the community's location, membership, or operational details without unanimous Council consent. Violation is immediate Level 3.", sev:"L3", color:"danger" },
+  { n:"11", title:"Substance Policy", desc:"Use of substances that impair judgement during a declared threat period is a Level 2 violation. Chronic addiction that compromises contribution or safety is grounds for Community Council review.", sev:"L2", color:"warn" },
+  { n:"12", title:"Expulsion Due Process", desc:"No member may be expelled without: (1) written charges with evidence, (2) 7 days to respond, (3) Council vote with quorum, (4) 4/5 supermajority. Emergency expulsion during Level 4 threat requires Security Committee 3/3 unanimous.", sev:"L3", color:"danger" },
+];
+
+const POLICY_MATRIX = [
+  { cat:"New Member Admission", auth:"Community Council", threshold:"4/5 supermajority", time:"30-day process", appeal:"Full community vote", override:"None", priority:"HIGH" },
+  { cat:"Resource Rationing", auth:"Resource Committee", threshold:"Committee consensus", time:"Same day in crisis", appeal:"Council within 72hrs", override:"Security Committee", priority:"CRITICAL" },
+  { cat:"Visitor Access", auth:"Security Committee", threshold:"2/3 majority", time:"24hr advance notice", appeal:"Council", override:"Security Chair", priority:"HIGH" },
+  { cat:"Expulsion of Member", auth:"Community Council", threshold:"4/5 supermajority", time:"7-day due process", appeal:"None — final", override:"3/3 Security in L4 threat", priority:"CRITICAL" },
+  { cat:"Capital Expenditure >$10K", auth:"Community Council", threshold:"Simple majority", time:"14-day deliberation", appeal:"Full community vote", override:"None", priority:"MEDIUM" },
+  { cat:"Emergency Declaration", auth:"Security Committee", threshold:"3/3 unanimous", time:"Immediate", appeal:"Council within 48hrs", override:"N/A — triggers override itself", priority:"CRITICAL" },
+  { cat:"Rule Amendment", auth:"Community Council + all members", threshold:"2/3 supermajority", time:"30-day notice + vote", appeal:"Referendum", override:"None", priority:"MEDIUM" },
+  { cat:"Medical Quarantine Order", auth:"Medical Lead", threshold:"Sole authority", time:"Immediate", appeal:"Council review within 24hrs", override:"None — safety critical", priority:"CRITICAL" },
+  { cat:"Communication Blackout", auth:"Security Committee", threshold:"2/3 majority", time:"Immediate", appeal:"None during active threat", override:"N/A", priority:"HIGH" },
+  { cat:"Skills Training Mandate", auth:"Education Collective", threshold:"Majority", time:"14-day implementation", appeal:"Council", override:"None", priority:"LOW" },
+  { cat:"Succession Plan Activation", auth:"Council + next-in-line", threshold:"Automatic on death/incapacity", time:"Immediate", appeal:"None", override:"N/A", priority:"CRITICAL" },
+  { cat:"Trade With External Groups", auth:"Community Council", threshold:"4/5 supermajority", time:"7-day deliberation", appeal:"None — binding", override:"None", priority:"HIGH" },
+];
+
+const CONFLICTS = [
+  { tier:"TIER 1", title:"Direct Mediation", color:"accent", desc:"All disputes must first be attempted by direct communication between parties. Both parties document their position in writing and submit to a designated community mediator within 48 hours of dispute arising.", procedure:["Both parties write position papers","Mediator meets with each party separately","Joint session within 72hrs","Mutual agreement signed and filed with Council","7-day cooling period before Tier 2 escalation"] },
+  { tier:"TIER 2", title:"Arbitration Panel", color:"accent2", desc:"If Tier 1 fails within 7 days, the dispute escalates to the 3-person Arbitration Panel. Panel is selected fresh for each dispute — no member with any personal connection to either party may serve.", procedure:["Arbitration Panel convened within 48hrs","Both parties given equal time to present","Panel deliberates privately","Binding decision issued within 7 days","Decision logged in Community Record"] },
+  { tier:"TIER 3", title:"Council Review", color:"warn", desc:"Tier 3 activates for: (a) disputes involving community resources, (b) repeat conflicts between the same parties, or (c) disputes the Arbitration Panel fails to resolve. Council can impose remedies including temporary role suspension.", procedure:["Council reviews full arbitration record","Council may conduct independent interviews","Remedies range from formal reprimand to probation","Decision is final subject to expulsion procedure","Repeat Tier 3 within 12 months: automatic Level 2 violation"] },
+  { tier:"TIER 4", title:"Expulsion Proceeding", color:"danger", desc:"Tier 4 activates when: (a) violence occurs, (b) covenant is materially breached, or (c) community safety is threatened. Full expulsion protocol applies. During active threat scenarios, Security Committee may impose immediate exclusion from core compound.", procedure:["Security Committee assesses immediate safety","Emergency exclusion if risk to others present","Written charges within 24hrs","Response period: 7 days (can be shortened to 24hrs in active threat)","Council vote: 4/5 supermajority required"] },
+];
+
+const EMERGENCY = [
+  { level:"LEVEL 1", trigger:"External threat detected, not confirmed", powers:"Security Committee assumes access control. Communications review. 24hr blackout authorised.", sunset:"72 hours — auto-expires unless re-declared", color:"accent2" },
+  { level:"LEVEL 2", trigger:"Confirmed external threat or internal crisis event", powers:"Resource Committee assumes rationing authority. Council assumes all external communication authority. Security perimeter activated.", sunset:"7 days — Council vote required to extend", color:"warn" },
+  { level:"LEVEL 3", trigger:"Active hostile engagement or community medical emergency", powers:"Emergency Command Triad (Security Chair + Council Lead + Medical Lead) assumes full executive authority. Normal voting procedures suspended.", sunset:"14 days — supermajority required to extend", color:"danger" },
+  { level:"LEVEL 4", trigger:"Civilisational collapse event confirmed — Ark is activated", powers:"Ark Compact fully activates. All pre-signed authorities engaged. Community transitions to full Ark Operating Protocol. No appeal mechanisms active.", sunset:"Council vote when external threat normalises", color:"danger" },
+];
+</script>
+
+<!-- RENDER + INTERACTION BLOCK -->
+<script>
+function switchTab(btn, panelId) {
+  btn.closest('.stab').querySelectorAll('.stab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.spanel').forEach(p => p.classList.remove('active'));
+  document.getElementById(panelId).classList.add('active');
+}
+
+function toggleAcc(el) {
+  const item = el.closest('.acc-item');
+  const wasOpen = item.classList.contains('open');
+  // Close all in same container
+  item.closest('.gl').querySelectorAll('.acc-item').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) item.classList.add('open');
+}
+
+// ── VETTING WIZARD ──
+let wizStep = 0;
+let wizScores = [];
+let wizAnswers = [];
+
+function renderWizStep() {
+  const content = document.getElementById('wizContent');
+  const prog = document.getElementById('wizProg');
+  const pct = ((wizStep + 1) / VETTING_STEPS.length) * 100;
+  prog.style.width = pct + '%';
+
+  if (wizStep >= VETTING_STEPS.length) {
+    renderWizResult();
+    return;
+  }
+
+  const step = VETTING_STEPS[wizStep];
+  content.innerHTML = `
+    <div class="wiz-step active">
+      <div style="font-size:0.6rem;color:var(--muted);letter-spacing:0.14em;margin-bottom:10px">DIMENSION ${wizStep+1} OF ${VETTING_STEPS.length}</div>
+      <div class="wiz-q">${step.q}</div>
+      <div class="wiz-sub">${step.sub}</div>
+      <div class="wiz-opts" id="wizOpts">
+        ${step.opts.map((o,i) => `
+          <div class="wiz-opt" onclick="selectOpt(this, ${i}, ${o.score})">
+            <span class="opt-icon">${o.icon}</span>
+            <div>
+              <div class="opt-lbl">${o.lbl}</div>
+              <div class="opt-desc">${o.desc}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="wiz-nav">
+        ${wizStep > 0 ? `<button class="btn btn-g" onclick="wizBack()">← BACK</button>` : ''}
+        <button class="btn btn-a" id="wizNext" onclick="wizNext()" style="opacity:0.4;pointer-events:none">NEXT →</button>
+        <span class="wiz-prog">Step ${wizStep+1} / ${VETTING_STEPS.length}</span>
+      </div>
+    </div>`;
+}
+
+function selectOpt(el, idx, score) {
+  el.closest('.wiz-opts').querySelectorAll('.wiz-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  wizAnswers[wizStep] = { idx, score };
+  const nxt = document.getElementById('wizNext');
+  nxt.style.opacity = '1';
+  nxt.style.pointerEvents = 'all';
+}
+
+function wizNext() {
+  if (!wizAnswers[wizStep]) return;
+  wizScores[wizStep] = wizAnswers[wizStep].score;
+  wizStep++;
+  renderWizStep();
+}
+
+function wizBack() {
+  if (wizStep > 0) { wizStep--; renderWizStep(); }
+}
+
+function renderWizResult() {
+  const total = wizScores.reduce((s,v) => s+v, 0);
+  const max = VETTING_STEPS.map(s => Math.max(...s.opts.map(o => o.score))).reduce((s,v)=>s+v,0);
+  const pct = Math.round((total / max) * 100);
+  let level, color, rec;
+  if (pct >= 80) { level = "STRONG ADMIT"; color = "var(--accent)"; rec = ["Schedule full community interview","3-month probationary period with mentor","Full covenant signing after 90 days","Assign to primary skills deployment"]; }
+  else if (pct >= 60) { level = "CONDITIONAL ADMIT"; color = "var(--accent2)"; rec = ["6-month probationary period required","Supplemental skills training plan","Re-vetting at 6-month mark","Council sponsors required (2x)"]; }
+  else if (pct >= 40) { level = "HIGH-RISK — REVIEW"; color = "var(--warn)"; rec = ["Full Council review required","Red flag dimensions require explanation","12-month probationary minimum if admitted","Re-vetting and psychological assessment"]; }
+  else { level = "REJECT / DEFER"; color = "var(--danger)"; rec = ["Do not admit at this time","Candidate may reapply after 12 months with documented change","Specific disqualifying dimensions must be addressed","Re-vetting will require new referees"]; }
+
+  const dims = ["SKILLS","PSYCHOLOGY","RELATIONSHIP","FINANCIAL","COMPLIANCE","HEALTH","PREPARATION"];
+  document.getElementById('wizContent').innerHTML = `
+    <div class="wiz-result">
+      <div style="font-size:0.6rem;color:var(--muted);letter-spacing:0.14em;margin-bottom:8px">VETTING RESULT</div>
+      <div class="result-score" style="color:${color}">${pct}<span style="font-size:1.5rem;color:var(--muted)">/100</span></div>
+      <div class="result-level" style="color:${color}">${level}</div>
+      <div style="margin-bottom:20px">
+        ${dims.map((d,i) => `
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <span style="font-size:0.6rem;color:var(--muted);width:110px">${d}</span>
+            <div class="ps-track"><div class="ps-fill" style="width:${(wizScores[i]/VETTING_STEPS[i].opts.slice().sort((a,b)=>b.score-a.score)[0].score)*100}%;background:${color}"></div></div>
+            <span style="font-size:0.65rem;color:var(--muted);width:20px">${wizScores[i]}</span>
+          </div>`).join('')}
+      </div>
+      <div class="rec-box">
+        <div style="font-size:0.6rem;color:var(--accent);letter-spacing:0.12em;margin-bottom:10px">RECOMMENDED ACTIONS</div>
+        <ul>${rec.map(r=>`<li>${r}</li>`).join('')}</ul>
+      </div>
+      <div style="margin-top:20px">
+        <button class="btn btn-g" onclick="wizStep=0;wizScores=[];wizAnswers=[];renderWizStep()">RESET — ASSESS NEW CANDIDATE</button>
+      </div>
+    </div>`;
+}
+
+// ── RULEBOOK ──
+document.getElementById('rulebookContainer').innerHTML = `<div class="rules-list">${
+  RULES.map(r => `
+    <div class="rule-item">
+      <span class="rule-n">${r.n}</span>
+      <div class="rule-body">
+        <div class="rule-title">${r.title}</div>
+        <div class="rule-desc">${r.desc}</div>
+      </div>
+      <div class="rule-sev"><span class="pill ${r.color==='danger'?'pill-r':r.color==='warn'?'pill-o':'pill-g'}">${r.sev}</span></div>
+    </div>`).join('')}
+</div>`;
+
+// ── POLICY MATRIX ──
+function pCell(val) { return `<td>${val}</td>`; }
+function priorityPill(p) {
+  const cls = p==='CRITICAL'?'pill-r':p==='HIGH'?'pill-o':p==='MEDIUM'?'pill-b':'pill-g';
+  return `<span class="pill ${cls}">${p}</span>`;
+}
+document.getElementById('policyBody').innerHTML = POLICY_MATRIX.map(r => `<tr>
+  <td style="font-weight:600">${r.cat}</td>
+  <td style="color:var(--accent2)">${r.auth}</td>
+  <td>${r.threshold}</td>
+  <td>${r.time}</td>
+  <td>${r.appeal}</td>
+  <td style="color:var(--muted);font-size:0.68rem">${r.override}</td>
+  <td>${priorityPill(r.priority)}</td>
+</tr>`).join('');
+
+// ── CONFLICT PROTOCOLS ──
+document.getElementById('conflictContainer').innerHTML = CONFLICTS.map(c => {
+  const cols = { accent:'var(--accent)', accent2:'var(--accent2)', warn:'var(--warn)', danger:'var(--danger)' };
+  const col = cols[c.color];
+  return `<div class="acc-item">
+    <div class="acc-head" onclick="toggleAcc(this)">
+      <div class="acc-title">
+        <span class="acc-num"><span class="pill" style="background:rgba(255,255,255,0.05);color:${col};border:1px solid ${col}30;font-size:0.55rem">${c.tier}</span></span>
+        <span class="acc-name">${c.title}</span>
+      </div>
+      <div class="acc-chevron">▼</div>
+    </div>
+    <div class="acc-body">
+      <div class="acc-body-inner">
+        <p>${c.desc}</p>
+        <div style="font-size:0.6rem;color:var(--accent);letter-spacing:0.1em;margin:12px 0 8px">PROCEDURE</div>
+        <ol style="list-style:none;display:flex;flex-direction:column;gap:6px">
+          ${c.procedure.map((s,i)=>`<li style="font-size:0.72rem;color:var(--muted)"><span style="color:${col};margin-right:8px">${i+1}.</span>${s}</li>`).join('')}
+        </ol>
+      </div>
+    </div>
+  </div>`;
+}).join('');
+
+// ── EMERGENCY POWERS ──
+document.getElementById('emergencyContainer').innerHTML = `<div class="acc-item" style="border:none">${
+  EMERGENCY.map(e => {
+    const cols = { accent:'var(--accent)', accent2:'var(--accent2)', warn:'var(--warn)', danger:'var(--danger)' };
+    const col = cols[e.color];
+    return `<div class="acc-item">
+      <div class="acc-head" onclick="toggleAcc(this)">
+        <div class="acc-title">
+          <span class="acc-num" style="color:${col}">${e.level}</span>
+          <span class="acc-name">${e.trigger}</span>
+        </div>
+        <div class="acc-meta">
+          <span style="font-size:0.6rem;color:var(--muted)">SUNSET: ${e.sunset.split('—')[0].trim()}</span>
+        </div>
+        <div class="acc-chevron">▼</div>
+      </div>
+      <div class="acc-body">
+        <div class="acc-body-inner">
+          <div style="font-size:0.6rem;color:${col};letter-spacing:0.1em;margin-bottom:8px">EMERGENCY POWERS GRANTED</div>
+          <p>${e.powers}</p>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+            <div style="font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;margin-bottom:4px">SUNSET CLAUSE</div>
+            <p style="font-size:0.72rem">${e.sunset}</p>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('')}
+</div>`;
+
+// INIT
+renderWizStep();
+</script>
+</body>
+</html>
